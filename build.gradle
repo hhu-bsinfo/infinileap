@@ -1,0 +1,31 @@
+plugins {
+    id 'java-library'
+}
+
+compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+    options.encoding = 'UTF-8'
+}
+
+group = 'de.hhu.bsinfo'
+version = getProperty('projectVersion')
+
+compileJava {
+    dependsOn(':jni:build')
+    options.compilerArgs += ['-h', project.file('src/main/cpp/include')]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    
+    api 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'org.jetbrains:annotations:17.0.0'
+    
+    testImplementation 'com.greghaskins:spectrum:1.2.0'
+    testImplementation 'org.assertj:assertj-core:3.12.2'
+}
