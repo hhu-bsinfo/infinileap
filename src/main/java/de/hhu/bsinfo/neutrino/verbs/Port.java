@@ -11,8 +11,8 @@ import java.util.Arrays;
 public class Port extends Struct {
 
     public enum PortState {
-        IBV_PORT_NOP(0), IBV_PORT_DOWN(1), IBV_PORT_INIT(2), IBV_PORT_ARMED(3),
-        IBV_PORT_ACTIVE(4), IBV_PORT_ACTIVE_DEFER(5);
+        NOP(0), DOWN(1), INIT(2), ARMED(3),
+        ACTIVE(4), DEFER(5);
 
         private static final PortState[] VALUES;
 
@@ -37,7 +37,7 @@ public class Port extends Struct {
         }
 
         public static PortState valueOf(int state) {
-            if (state < IBV_PORT_NOP.value || state > IBV_PORT_ACTIVE_DEFER.value) {
+            if (state < NOP.value || state > DEFER.value) {
                 throw new IllegalArgumentException(String.format("Unkown operation code provided %d", state));
             }
 
@@ -80,7 +80,7 @@ public class Port extends Struct {
         }
     }
 
-    private static final StructInformation info = StructUtil.getPortAttributes();
+    private static final StructInformation info = StructUtil.getInfo("ibv_port_attr");
 
     private static final int SIZE = info.structSize.get();
 

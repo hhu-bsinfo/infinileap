@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 public class MemoryRegion {
 
     public enum AccessFlag {
-        IBV_ACCESS_LOCAL_WRITE(1), IBV_ACCESS_REMOTE_WRITE(1 << 1), IBV_ACCESS_REMOTE_READ(1 << 2),
-        IBV_ACCESS_REMOTE_ATOMIC(1 << 3), IBV_ACCESS_MW_BIND(1 << 4), IBV_ACCESS_ZERO_BASED(1 << 5),
-        IBV_ACCESS_ON_DEMAND(1 << 6);
+        LOCAL_WRITE(1), REMOTE_WRITE(1 << 1), REMOTE_READ(1 << 2),
+        REMOTE_ATOMIC(1 << 3), MW_BIND(1 << 4), ZERO_BASED(1 << 5),
+        ON_DEMAND(1 << 6);
 
         private final int value;
 
@@ -25,19 +25,19 @@ public class MemoryRegion {
         public static AccessFlag valueOf(int flag) {
             switch (flag) {
                 case 1:
-                    return IBV_ACCESS_LOCAL_WRITE;
+                    return LOCAL_WRITE;
                 case 1 << 1:
-                    return IBV_ACCESS_REMOTE_READ;
+                    return REMOTE_WRITE;
                 case 1 << 2:
-                    return IBV_ACCESS_REMOTE_READ;
+                    return REMOTE_READ;
                 case 1 << 3:
-                    return IBV_ACCESS_REMOTE_READ;
+                    return REMOTE_ATOMIC;
                 case 1 << 4:
-                    return IBV_ACCESS_REMOTE_READ;
+                    return MW_BIND;
                 case 1 << 5:
-                    return IBV_ACCESS_REMOTE_READ;
+                    return ZERO_BASED;
                 case 1 << 6:
-                    return IBV_ACCESS_ON_DEMAND;
+                    return ON_DEMAND;
                 default:
                     throw new IllegalArgumentException(String.format("Unkown operation code provided %d", flag));
             }

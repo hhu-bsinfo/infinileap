@@ -9,19 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_StructUtil
- * Method:    getDeviceAttributes
- * Signature: (J)V
+ * Method:    getStructInformation
+ * Signature: (Ljava/lang/String;J)V
  */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_util_StructUtil_getDeviceAttributes
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     de_hhu_bsinfo_neutrino_util_StructUtil
- * Method:    getPortAttributes
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_util_StructUtil_getPortAttributes
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_util_StructUtil_getStructInformation
+  (JNIEnv *, jclass, jstring, jlong);
 
 #ifdef __cplusplus
 }

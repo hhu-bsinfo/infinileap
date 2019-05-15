@@ -9,18 +9,14 @@ public class StructUtil {
         System.loadLibrary("neutrino");
     }
 
-    private static native void getDeviceAttributes(long resultHandle);
-    private static native void getPortAttributes(long resultHandle);
+    private static native void getStructInformation(String identifier, long resultHandle);
 
-    public static StructInformation getDeviceAttribtues() {
+    public static StructInformation getInfo(String identifier) {
         var result = new Result();
-        getDeviceAttributes(result.getHandle());
-        return new StructInformation(result.getResultHandle());
-    }
-
-    public static StructInformation getPortAttributes() {
-        var result = new Result();
-        getPortAttributes(result.getHandle());
+        getStructInformation(identifier, result.getHandle());
+        if (result.isError()) {
+            throw new IllegalArgumentException(String.format("No struct information found for %s", identifier));
+        }
         return new StructInformation(result.getResultHandle());
     }
 }

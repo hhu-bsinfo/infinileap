@@ -10,7 +10,7 @@ import de.hhu.bsinfo.neutrino.util.StructUtil;
 
 public class Device extends Struct {
 
-    private static final StructInformation info = StructUtil.getDeviceAttribtues();
+    private static final StructInformation info = StructUtil.getInfo("ibv_device_attr");
 
     private static final int SIZE = info.structSize.get();
 
