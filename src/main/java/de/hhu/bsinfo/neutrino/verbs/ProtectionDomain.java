@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.MemoryUtil;
-import de.hhu.bsinfo.neutrino.data.Result;
+import de.hhu.bsinfo.neutrino.util.MemoryUtil;
+import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion.AccessFlag;
 import java.nio.ByteBuffer;
 import org.jetbrains.annotations.Nullable;

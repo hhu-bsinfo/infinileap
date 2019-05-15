@@ -3,8 +3,8 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
-import de.hhu.bsinfo.neutrino.data.Struct;
-import de.hhu.bsinfo.neutrino.data.StructInformation;
+import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.StructInformation;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
 import java.util.Arrays;
 

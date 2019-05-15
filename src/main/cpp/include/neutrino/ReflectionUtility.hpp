@@ -2,6 +2,8 @@
 #define RDMA_REFLECTIONUTILITY_HPP
 
 #include <unordered_map>
+#include <cstdint>
+#include <infiniband/verbs.h>
 
 class ReflectionUtility {
 
@@ -20,7 +22,7 @@ public:
 
     ReflectionUtility() = delete;
 
-    static StructInfo* getStructInfo(std::string identifier);
+    static StructInfo* getStructInfo(const std::string& identifier);
 
 private:
 

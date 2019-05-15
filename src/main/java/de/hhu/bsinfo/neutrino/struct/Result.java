@@ -1,4 +1,8 @@
-package de.hhu.bsinfo.neutrino.data;
+package de.hhu.bsinfo.neutrino.struct;
+
+import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.Struct;
 
 public class Result extends Struct {
 

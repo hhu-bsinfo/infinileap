@@ -88,7 +88,7 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_port_attr", &ibv_port_attr_struct_info}
 };
 
-ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(std::string identifier) {
+ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
     if (structInfos.find(identifier) == structInfos.end()) {
         return nullptr;
     }

@@ -1,11 +1,14 @@
-package de.hhu.bsinfo.neutrino.data;
+package de.hhu.bsinfo.neutrino.struct;
+
+import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.data.NativeString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MemberInformation extends Struct {
 
-    private static final int SIZE = 36;
+    public static final int SIZE = 36;
 
     public final NativeString name = new NativeString(getByteBuffer(), 0, 32);
     public final NativeInteger offset = new NativeInteger(getByteBuffer(), 32);

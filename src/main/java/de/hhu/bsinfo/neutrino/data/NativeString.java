@@ -17,7 +17,7 @@ public class NativeString extends NativeDataType {
     public void set(final String value) {
         byte[] valueBytes = value.getBytes(StandardCharsets.US_ASCII);
         for(int i = 0; i < length; i++) {
-            if(i < length) {
+            if(i < valueBytes.length) {
                 getByteBuffer().put(getOffset() + i, valueBytes[i]);
             } else {
                 getByteBuffer().put(getOffset() + i, ZERO);

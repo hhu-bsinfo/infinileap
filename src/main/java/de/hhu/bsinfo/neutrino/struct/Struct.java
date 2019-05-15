@@ -1,4 +1,6 @@
-package de.hhu.bsinfo.neutrino.data;
+package de.hhu.bsinfo.neutrino.struct;
+
+import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
