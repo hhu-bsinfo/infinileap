@@ -29,18 +29,17 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openDevice (JNIEn
     int numDevices = 0;
     ibv_device **devices = ibv_get_device_list(&numDevices);
     if (devices == nullptr) {
-        result->status = 1;
+        NativeCall::setResult(result, 1, nullptr);
         return;
     }
 
     if (index >= numDevices) {
         ibv_free_device_list(devices);
-        result->status = 1;
+        NativeCall::setResult(result, 1, nullptr);
         return;
     }
 
-    result->handle = reinterpret_cast<long>(ibv_open_device(devices[index]));
-    result->status = 0;
+    NativeCall::setResult(result, 0, ibv_open_device(devices[index]));
 
     ibv_free_device_list(devices);
 }
@@ -49,8 +48,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_closeDevice (JNIE
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->status = ibv_close_device(context);
-    result->handle = 0;
+    NativeCall::setResult(result, ibv_close_device(context), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryDevice (JNIEnv *env, jclass clazz, jlong contextHandle, jlong deviceHandle, jlong resultHandle) {
@@ -58,8 +56,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryDevice (JNIE
     auto device = NativeCall::castHandle<ibv_device_attr>(deviceHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->status = ibv_query_device(context, device);
-    result->handle = 0;
+    NativeCall::setResult(result, ibv_query_device(context, device), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryPort (JNIEnv *env, jclass clazz, jlong contextHandle, jlong portHandle, jint portNumber, jlong resultHandle) {
@@ -67,38 +64,56 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryPort (JNIEnv
     auto port = NativeCall::castHandle<ibv_port_attr>(portHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->status = ibv_query_port(context, portNumber, port);
-    result->handle = 0;
+    NativeCall::setResult(result, ibv_query_port(context, portNumber, port), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateProtectionDomain (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->handle = reinterpret_cast<long>(ibv_alloc_pd(context));
-    result->status = result->handle == 0 ? 1 : 0;
+    auto protectionDomain = ibv_alloc_pd(context);
+
+    NativeCall::setResult(result, protectionDomain == nullptr ? 1 : 0, protectionDomain);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deallocateProtectionDomain (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong resultHandle) {
     auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->status = ibv_dealloc_pd(protectionDomain);
-    result->handle = 0;
+    NativeCall::setResult(result, ibv_dealloc_pd(protectionDomain), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong address, jlong size, jint accessFlags, jlong resultHandle) {
     auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto bufferAddress = NativeCall::castHandle<void>(address);
 
-    result->handle = reinterpret_cast<long>(ibv_reg_mr(protectionDomain, reinterpret_cast<void *>(address), size, accessFlags));
-    result->status = result->handle == 0 ? errno : 0;
+    auto memoryRegion = ibv_reg_mr(protectionDomain, bufferAddress, size, accessFlags);
+
+    NativeCall::setResult(result, memoryRegion == nullptr ? errno : 0, memoryRegion);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deregisterMemoryRegion (JNIEnv *env, jclass clazz, jlong memoryRegionHandle, jlong resultHandle) {
     auto memoryRegion = NativeCall::castHandle<ibv_mr>(memoryRegionHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
-    result->status = ibv_dereg_mr(memoryRegion);
-    result->handle = 0;
+    NativeCall::setResult(result, ibv_dereg_mr(memoryRegion), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jint maxElements, jlong userContextHandle, jlong completionChannelHandle, jint completionVector, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto userContext = NativeCall::castHandle<void>(userContextHandle);
+    auto completionChannel = NativeCall::castHandle<ibv_comp_channel>(completionChannelHandle);
+
+    auto completionQueue = ibv_create_cq(context, maxElements, userContext, completionChannel, completionVector);
+
+    NativeCall::setResult(result, completionQueue == nullptr ? errno : 0, completionQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletionQueue (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
+
+    NativeCall::setResult(result, ibv_destroy_cq(completionQueue), nullptr);
 }

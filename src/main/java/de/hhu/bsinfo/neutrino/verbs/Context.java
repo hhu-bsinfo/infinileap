@@ -15,6 +15,9 @@ public class Context {
 
     private final long handle;
 
+    @SuppressWarnings("FieldNamingConvention")
+    private static final long nullptr = 0L;
+
     private Context(long handle) {
         this.handle = handle;
     }
@@ -83,5 +86,17 @@ public class Context {
         }
 
         return new ProtectionDomain(result.getResultHandle());
+    }
+
+    @Nullable
+    public CompletionQueue createCompletionQueue(int numElements) {
+        var result = new Result();
+        Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Could not create completion queue [error={}]", result.getStatus());
+            return null;
+        }
+
+        return new CompletionQueue(result.getResultHandle());
     }
 }

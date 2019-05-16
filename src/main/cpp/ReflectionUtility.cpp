@@ -83,9 +83,28 @@ ReflectionUtility::StructInfo ibv_port_attr_struct_info {
     ibv_port_attr_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_cq_member_infos[] {
+    GET_MEMBER_INFO(ibv_cq, context),
+    GET_MEMBER_INFO(ibv_cq, channel),
+    GET_MEMBER_INFO(ibv_cq, cq_context),
+    GET_MEMBER_INFO(ibv_cq, handle),
+    GET_MEMBER_INFO(ibv_cq, cqe),
+    GET_MEMBER_INFO(ibv_cq, mutex),
+    GET_MEMBER_INFO(ibv_cq, cond),
+    GET_MEMBER_INFO(ibv_cq, comp_events_completed),
+    GET_MEMBER_INFO(ibv_cq, async_events_completed),
+};
+
+ReflectionUtility::StructInfo ibv_cq_struct_info {
+    sizeof(ibv_cq),
+    sizeof(ibv_cq_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_cq_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
-    {"ibv_port_attr", &ibv_port_attr_struct_info}
+    {"ibv_port_attr", &ibv_port_attr_struct_info},
+    {"ibv_cq", &ibv_cq_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {

@@ -17,4 +17,6 @@ public class Verbs {
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
+    static native void createCompletionQueue(long contextHandle, int maxElements, long userContextHandle, long completionChannelHandle, int completionVector, long resultHandle);
+    static native void destroyCompletionQueue(long completionQueueHandle, long resultHandle);
 }

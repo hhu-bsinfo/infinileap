@@ -17,6 +17,8 @@ public:
     template<typename T> static T* castHandle(jlong handle) {
         return reinterpret_cast<T*>(handle);
     }
+
+    static void setResult(Result* result, int status, void* handle);
 };
 
 #endif //RDMA_NATIVECALL_HPP
