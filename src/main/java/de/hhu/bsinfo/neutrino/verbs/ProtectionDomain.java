@@ -35,6 +35,11 @@ public class ProtectionDomain {
     }
 
     @Nullable
+    public MemoryRegion registerMemoryRegion(int size, AccessFlag... flags) {
+        return registerMemoryRegion(ByteBuffer.allocateDirect(size), flags);
+    }
+
+    @Nullable
     public MemoryRegion registerMemoryRegion(ByteBuffer buffer, AccessFlag... flags) {
         int access = 0;
         for(var flag : flags) {
