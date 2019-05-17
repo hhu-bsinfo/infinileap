@@ -1,6 +1,8 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
+import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
@@ -10,25 +12,24 @@ import java.util.Arrays;
 
 public class Port extends Struct {
 
-    public enum PortState {
-        NOP(0), DOWN(1), INIT(2), ARMED(3),
-        ACTIVE(4), DEFER(5);
+    public enum State {
+        NOP(0), DOWN(1), INIT(2), ARMED(3), ACTIVE(4), DEFER(5);
 
-        private static final PortState[] VALUES;
+        private static final State[] VALUES;
 
         static {
             int arrayLength = Arrays.stream(values()).mapToInt(element -> element.value).max().orElseThrow() + 1;
 
-            VALUES = new PortState[arrayLength];
+            VALUES = new State[arrayLength];
 
-            for (PortState element : PortState.values()) {
+            for (State element : State.values()) {
                 VALUES[element.value] = element;
             }
         }
 
         private final int value;
 
-        PortState(int value) {
+        State(int value) {
             this.value = value;
         }
 
@@ -36,18 +37,26 @@ public class Port extends Struct {
             return value;
         }
 
-        public static PortState valueOf(int state) {
-            if (state < NOP.value || state > DEFER.value) {
-                throw new IllegalArgumentException(String.format("Unkown operation code provided %d", state));
+        public static final EnumConverter<State> CONVERTER = new EnumConverter<>() {
+
+            @Override
+            public int toInt(State enumeration) {
+                return enumeration.value;
             }
 
-            return VALUES[state];
-        }
+            @Override
+            public State toEnum(int integer) {
+                if (integer < NOP.value || integer > DEFER.value) {
+                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                }
+
+                return VALUES[integer];
+            }
+        };
     }
 
     public enum Mtu {
-        IBV_MTU_256(1), IBV_MTU_512(2), IBV_MTU_1024(3), IBV_MTU_2048(4),
-        IBV_MTU_4096(5);
+        IBV_MTU_256(1), IBV_MTU_512(2), IBV_MTU_1024(3), IBV_MTU_2048(4), IBV_MTU_4096(5);
 
         private static final Mtu[] VALUES;
 
@@ -71,41 +80,49 @@ public class Port extends Struct {
             return value;
         }
 
-        public static Mtu valueOf(int mtu) {
-            if (mtu < IBV_MTU_256.value || mtu > IBV_MTU_4096.value) {
-                throw new IllegalArgumentException(String.format("Unkown operation code provided %d", mtu));
+        public static final EnumConverter<Mtu> CONVERTER = new EnumConverter<>() {
+
+            @Override
+            public int toInt(Mtu enumeration) {
+                return enumeration.value;
             }
 
-            return VALUES[mtu];
-        }
+            @Override
+            public Mtu toEnum(int integer) {
+                if (integer < IBV_MTU_256.value || integer > IBV_MTU_4096.value) {
+                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                }
+
+                return VALUES[integer];
+            }
+        };
     }
 
-    private static final StructInformation info = StructUtil.getInfo("ibv_port_attr");
+    private static final StructInformation INFO = StructUtil.getInfo("ibv_port_attr");
+    private static final int SIZE = INFO.structSize.get();
 
-    private static final int SIZE = info.structSize.get();
-
-    private final NativeInteger state = new NativeInteger(getByteBuffer(), info.getOffset("state"));
-    private final NativeInteger maxMtu = new NativeInteger(getByteBuffer(), info.getOffset("max_mtu"));
-    private final NativeInteger activeMtu = new NativeInteger(getByteBuffer(), info.getOffset("active_mtu"));
-    private final NativeInteger gidTableLength = new NativeInteger(getByteBuffer(), info.getOffset("gid_tbl_len"));
-    private final NativeInteger portCapabilities = new NativeInteger(getByteBuffer(), info.getOffset("port_cap_flags"));
-    private final NativeInteger maxMessageSize = new NativeInteger(getByteBuffer(), info.getOffset("max_msg_sz"));
-    private final NativeInteger badPkeyCounter = new NativeInteger(getByteBuffer(), info.getOffset("bad_pkey_cntr"));
-    private final NativeInteger qkeyViolationCounter = new NativeInteger(getByteBuffer(), info.getOffset("qkey_viol_cntr"));
-    private final NativeShort pkeyTableLength = new NativeShort(getByteBuffer(), info.getOffset("pkey_tbl_len"));
-    private final NativeShort localId = new NativeShort(getByteBuffer(), info.getOffset("lid"));
-    private final NativeShort subnetManagerLocalId = new NativeShort(getByteBuffer(), info.getOffset("sm_lid"));
-    private final NativeByte localIdMask = new NativeByte(getByteBuffer(), info.getOffset("lmc"));
-    private final NativeByte maxVirtualLaneCount = new NativeByte(getByteBuffer(), info.getOffset("max_vl_num"));
-    private final NativeByte subnetManagerServiceLevel = new NativeByte(getByteBuffer(), info.getOffset("sm_sl"));
-    private final NativeByte subnetTimeout = new NativeByte(getByteBuffer(), info.getOffset("subnet_timeout"));
-    private final NativeByte initTypeReply = new NativeByte(getByteBuffer(), info.getOffset("init_type_reply"));
-    private final NativeByte activeWidth = new NativeByte(getByteBuffer(), info.getOffset("active_width"));
-    private final NativeByte activeSpeed = new NativeByte(getByteBuffer(), info.getOffset("active_speed"));
-    private final NativeByte physicalState = new NativeByte(getByteBuffer(), info.getOffset("phys_state"));
-    private final NativeByte linkLayer = new NativeByte(getByteBuffer(), info.getOffset("link_layer"));
-    private final NativeByte flags = new NativeByte(getByteBuffer(), info.getOffset("flags"));
-    private final NativeShort portCapabilites2 = new NativeShort(getByteBuffer(), info.getOffset("port_cap_flags2"));
+    private final NativeEnum<State> state = new NativeEnum<>(getByteBuffer(), INFO.getOffset("state"), State.CONVERTER);
+    private final NativeEnum<Mtu> maxMtu = new NativeEnum<>(getByteBuffer(), INFO.getOffset("max_mtu"), Mtu.CONVERTER);
+    private final NativeEnum<Mtu> activeMtu = new NativeEnum<>(getByteBuffer(), INFO.getOffset("active_mtu"), Mtu.CONVERTER);
+    private final NativeInteger gidTableLength = new NativeInteger(getByteBuffer(), INFO.getOffset("gid_tbl_len"));
+    private final NativeInteger portCapabilities = new NativeInteger(getByteBuffer(), INFO.getOffset("port_cap_flags"));
+    private final NativeInteger maxMessageSize = new NativeInteger(getByteBuffer(), INFO.getOffset("max_msg_sz"));
+    private final NativeInteger badPkeyCounter = new NativeInteger(getByteBuffer(), INFO.getOffset("bad_pkey_cntr"));
+    private final NativeInteger qkeyViolationCounter = new NativeInteger(getByteBuffer(), INFO.getOffset("qkey_viol_cntr"));
+    private final NativeShort pkeyTableLength = new NativeShort(getByteBuffer(), INFO.getOffset("pkey_tbl_len"));
+    private final NativeShort localId = new NativeShort(getByteBuffer(), INFO.getOffset("lid"));
+    private final NativeShort subnetManagerLocalId = new NativeShort(getByteBuffer(), INFO.getOffset("sm_lid"));
+    private final NativeByte localIdMask = new NativeByte(getByteBuffer(), INFO.getOffset("lmc"));
+    private final NativeByte maxVirtualLaneCount = new NativeByte(getByteBuffer(), INFO.getOffset("max_vl_num"));
+    private final NativeByte subnetManagerServiceLevel = new NativeByte(getByteBuffer(), INFO.getOffset("sm_sl"));
+    private final NativeByte subnetTimeout = new NativeByte(getByteBuffer(), INFO.getOffset("subnet_timeout"));
+    private final NativeByte initTypeReply = new NativeByte(getByteBuffer(), INFO.getOffset("init_type_reply"));
+    private final NativeByte activeWidth = new NativeByte(getByteBuffer(), INFO.getOffset("active_width"));
+    private final NativeByte activeSpeed = new NativeByte(getByteBuffer(), INFO.getOffset("active_speed"));
+    private final NativeByte physicalState = new NativeByte(getByteBuffer(), INFO.getOffset("phys_state"));
+    private final NativeByte linkLayer = new NativeByte(getByteBuffer(), INFO.getOffset("link_layer"));
+    private final NativeByte flags = new NativeByte(getByteBuffer(), INFO.getOffset("flags"));
+    private final NativeShort portCapabilites2 = new NativeShort(getByteBuffer(), INFO.getOffset("port_cap_flags2"));
 
     Port() {
         super(SIZE);
@@ -115,16 +132,16 @@ public class Port extends Struct {
         super(handle, SIZE);
     }
 
-    public PortState getState() {
-        return PortState.valueOf(state.get());
+    public State getState() {
+        return state.get();
     }
 
     public Mtu getMaxMtu() {
-        return Mtu.valueOf(maxMtu.get());
+        return maxMtu.get();
     }
 
     public Mtu getActiveMtu() {
-        return Mtu.valueOf(activeMtu.get());
+        return activeMtu.get();
     }
 
     public int getGidTableLength() {
@@ -205,10 +222,10 @@ public class Port extends Struct {
 
     @Override
     public String toString() {
-        return "Port {\n" +
-            "\tstate=" + getState() +
-            ",\n\tmaxMtu=" + getMaxMtu() +
-            ",\n\tactiveMtu=" + getActiveMtu() +
+        return "Port {" +
+            "\n\tstate=" + state +
+            ",\n\tmaxMtu=" + maxMtu +
+            ",\n\tactiveMtu=" + activeMtu +
             ",\n\tgidTableLength=" + gidTableLength +
             ",\n\tportCapabilities=" + portCapabilities +
             ",\n\tmaxMessageSize=" + maxMessageSize +

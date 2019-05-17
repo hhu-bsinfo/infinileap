@@ -101,10 +101,33 @@ ReflectionUtility::StructInfo ibv_cq_struct_info {
     ibv_cq_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_wc_member_infos[] {
+    GET_MEMBER_INFO(ibv_wc, wr_id),
+    GET_MEMBER_INFO(ibv_wc, status),
+    GET_MEMBER_INFO(ibv_wc, opcode),
+    GET_MEMBER_INFO(ibv_wc, vendor_err),
+    GET_MEMBER_INFO(ibv_wc, byte_len),
+    GET_MEMBER_INFO(ibv_wc, imm_data),
+    GET_MEMBER_INFO(ibv_wc, invalidated_rkey),
+    GET_MEMBER_INFO(ibv_wc, qp_num),
+    GET_MEMBER_INFO(ibv_wc, wc_flags),
+    GET_MEMBER_INFO(ibv_wc, pkey_index),
+    GET_MEMBER_INFO(ibv_wc, slid),
+    GET_MEMBER_INFO(ibv_wc, sl),
+    GET_MEMBER_INFO(ibv_wc, dlid_path_bits)
+};
+
+ReflectionUtility::StructInfo ibv_wc_struct_info {
+    sizeof(ibv_wc),
+    sizeof(ibv_wc_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_wc_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
-    {"ibv_cq", &ibv_cq_struct_info}
+    {"ibv_cq", &ibv_cq_struct_info},
+    {"ibv_wc", &ibv_wc_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
