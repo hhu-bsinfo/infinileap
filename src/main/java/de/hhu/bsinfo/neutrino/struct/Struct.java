@@ -29,4 +29,8 @@ public class Struct {
     public long getHandle() {
         return handle;
     }
+
+    public void free() {
+        MemoryUtil.free(handle);
+    }
 }

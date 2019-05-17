@@ -23,6 +23,14 @@ JNIEXPORT jobject JNICALL Java_de_hhu_bsinfo_neutrino_util_MemoryUtil_wrap
 JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_util_MemoryUtil_getAddress
   (JNIEnv *, jclass, jobject);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_util_MemoryUtil
+ * Method:    free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_util_MemoryUtil_free
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif
