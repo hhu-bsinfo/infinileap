@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion.AccessFlag;
@@ -8,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProtectionDomain {
+public class ProtectionDomain implements NativeObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
 
@@ -18,7 +19,7 @@ public class ProtectionDomain {
         this.handle = handle;
     }
 
-    long getHandle() {
+    public long getHandle() {
         return handle;
     }
 
@@ -54,6 +55,6 @@ public class ProtectionDomain {
             return null;
         }
 
-        return new MemoryRegion(result.getResultHandle(), buffer);
+        return new MemoryRegion(result.getPointer(), buffer);
     }
 }

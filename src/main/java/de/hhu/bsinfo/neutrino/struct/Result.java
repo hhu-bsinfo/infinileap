@@ -2,14 +2,15 @@ package de.hhu.bsinfo.neutrino.struct;
 
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.util.NativeObjectFactory;
 
 public class Result extends Struct {
 
     private static final int SIZE = Integer.BYTES + Long.BYTES;
 
     private final NativeInteger status = new NativeInteger(getByteBuffer(), 0);
-    private final NativeLong resultHandle = new NativeLong(getByteBuffer(), 4);
+    private final NativeLong pointer = new NativeLong(getByteBuffer(), 4);
 
     public Result() {
         super(SIZE);
@@ -27,15 +28,19 @@ public class Result extends Struct {
         return status.get();
     }
 
-    public long getResultHandle() {
-        return resultHandle.get();
+    public <T extends NativeObject> T get(NativeObjectFactory<T> factory) {
+        return factory.newInstance(pointer.get());
+    }
+
+    public long getPointer() {
+        return pointer.get();
     }
 
     @Override
     public String toString() {
         return "Result {\n" +
             "\tstatus=" + status +
-            ",\n\tresultHandle=" + String.format("0x%016x", resultHandle.get()) +
+            ",\n\tpointer=" + String.format("0x%016x", pointer.get()) +
             "\n}";
     }
 }

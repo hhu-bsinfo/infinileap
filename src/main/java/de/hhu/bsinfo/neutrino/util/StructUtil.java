@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import de.hhu.bsinfo.neutrino.struct.MemberInformation;
+import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.struct.StructInformation;
@@ -22,10 +22,10 @@ public class StructUtil {
         if (result.isError()) {
             throw new IllegalArgumentException(String.format("No struct information found for %s", identifier));
         }
-        return new StructInformation(result.getResultHandle());
+        return result.get(StructInformation::new);
     }
 
-    public static <T extends Struct> List<T> wrap(final StructFactory<T> factory, final long handle, final int size, final int length) {
+    public static <T extends NativeObject> List<T> wrap(final NativeObjectFactory<T> factory, final long handle, final int size, final int length) {
         var result = new ArrayList<T>();
         for (long index = 0; index < length; index++) {
             result.add(factory.newInstance(handle + index * size));

@@ -1,11 +1,12 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Context {
+public class Context implements NativeObject {
 
     static {
         System.loadLibrary("neutrino");
@@ -22,6 +23,11 @@ public class Context {
         this.handle = handle;
     }
 
+    @Override
+    public long getHandle() {
+        return handle;
+    }
+
     @Nullable
     public static Context openDevice(int index) {
         var result = new Result();
@@ -31,7 +37,7 @@ public class Context {
             return null;
         }
 
-        return new Context(result.getResultHandle());
+        return result.get(Context::new);
     }
 
     public boolean close() {
@@ -85,7 +91,7 @@ public class Context {
             return null;
         }
 
-        return new ProtectionDomain(result.getResultHandle());
+        return result.get(ProtectionDomain::new);
     }
 
     @Nullable
@@ -97,6 +103,6 @@ public class Context {
             return null;
         }
 
-        return new CompletionQueue(result.getResultHandle());
+        return result.get(CompletionQueue::new);
     }
 }
