@@ -26,6 +26,11 @@ public class Struct implements NativeObject {
         CLEANER.register(this, new StructCleaner(handle));
     }
 
+    protected Struct(ByteBuffer buffer) {
+        byteBuffer = buffer;
+        handle = MemoryUtil.getAddress(byteBuffer);
+    }
+
     protected final ByteBuffer getByteBuffer() {
         return byteBuffer;
     }

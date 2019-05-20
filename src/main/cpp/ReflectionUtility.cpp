@@ -135,12 +135,46 @@ ReflectionUtility::StructInfo ibv_sge_struct_info {
     ibv_sge_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_send_wr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_send_wr, wr_id),
+    GET_MEMBER_INFO(ibv_send_wr, next),
+    GET_MEMBER_INFO(ibv_send_wr, sg_list),
+    GET_MEMBER_INFO(ibv_send_wr, num_sge),
+    GET_MEMBER_INFO(ibv_send_wr, opcode),
+    GET_MEMBER_INFO(ibv_send_wr, send_flags),
+    GET_MEMBER_INFO(ibv_send_wr, imm_data),
+    GET_MEMBER_INFO(ibv_send_wr, invalidate_rkey),
+    GET_MEMBER_INFO(ibv_send_wr, wr.rdma.remote_addr),
+    GET_MEMBER_INFO(ibv_send_wr, wr.rdma.rkey),
+    GET_MEMBER_INFO(ibv_send_wr, wr.atomic.remote_addr),
+    GET_MEMBER_INFO(ibv_send_wr, wr.atomic.compare_add),
+    GET_MEMBER_INFO(ibv_send_wr, wr.atomic.swap),
+    GET_MEMBER_INFO(ibv_send_wr, wr.atomic.rkey),
+    GET_MEMBER_INFO(ibv_send_wr, wr.ud.ah),
+    GET_MEMBER_INFO(ibv_send_wr, wr.ud.remote_qpn),
+    GET_MEMBER_INFO(ibv_send_wr, wr.ud.remote_qkey),
+    GET_MEMBER_INFO(ibv_send_wr, qp_type.xrc.remote_srqn),
+    GET_MEMBER_INFO(ibv_send_wr, bind_mw.mw),
+    GET_MEMBER_INFO(ibv_send_wr, bind_mw.rkey),
+    GET_MEMBER_INFO(ibv_send_wr, bind_mw.bind_info),
+    GET_MEMBER_INFO(ibv_send_wr, tso.hdr),
+    GET_MEMBER_INFO(ibv_send_wr, tso.hdr_sz),
+    GET_MEMBER_INFO(ibv_send_wr, tso.mss)
+};
+
+ReflectionUtility::StructInfo ibv_send_wr_struct_info {
+    sizeof(ibv_send_wr),
+    sizeof(ibv_send_wr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_send_wr_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
     {"ibv_cq", &ibv_cq_struct_info},
     {"ibv_wc", &ibv_wc_struct_info},
-    {"ibv_sge", &ibv_sge_struct_info}
+    {"ibv_sge", &ibv_sge_struct_info},
+    {"ibv_send_wr", &ibv_send_wr_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
