@@ -30,18 +30,20 @@ public class Struct implements NativeObject {
         return byteBuffer;
     }
 
+    @Override
     public long getHandle() {
         return handle;
     }
 
-    private static class StructCleaner implements Runnable {
+    private static final class StructCleaner implements Runnable {
 
-        private long handle;
+        private final long handle;
 
         private StructCleaner(long handle) {
             this.handle = handle;
         }
 
+        @Override
         public void run() {
             MemoryUtil.free(handle);
         }
