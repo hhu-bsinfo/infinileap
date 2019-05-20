@@ -19,4 +19,6 @@ public class Verbs {
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
     static native void createCompletionQueue(long contextHandle, int maxElements, long userContextHandle, long completionChannelHandle, int completionVector, long resultHandle);
     static native void destroyCompletionQueue(long completionQueueHandle, long resultHandle);
+    static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
+    static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
 }

@@ -103,6 +103,22 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionQ
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletionQueue
   (JNIEnv *, jclass, jlong, jlong);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    postSendWorkRequest
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    postReceiveWorkRequest
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
 #ifdef __cplusplus
 }
 #endif
