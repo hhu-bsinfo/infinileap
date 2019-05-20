@@ -3,7 +3,7 @@ package de.hhu.bsinfo.neutrino.struct;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.util.NativeObjectFactory;
+import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 
 public class Result extends Struct {
 
@@ -28,7 +28,7 @@ public class Result extends Struct {
         return status.get();
     }
 
-    public <T extends NativeObject> T get(NativeObjectFactory<T> factory) {
+    public <T extends NativeObject> T get(ReferenceFactory<T> factory) {
         return factory.newInstance(pointer.get());
     }
 

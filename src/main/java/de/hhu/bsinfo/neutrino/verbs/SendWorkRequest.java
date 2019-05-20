@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.struct.StructInformation;
@@ -57,12 +58,16 @@ public class SendWorkRequest extends Struct {
         };
     }
 
+    public static final Linker<SendWorkRequest> LINKER = (current, next) -> {
+        current.next.set(next.getHandle());
+    };
+
     private static final StructInformation INFO = StructUtil.getInfo("ibv_send_wr");
     public static final int SIZE = INFO.structSize.get();
 
     private final NativeLong id = new NativeLong(getByteBuffer(), INFO.getOffset("wr_id"));
     private final NativeLong next = new NativeLong(getByteBuffer(), INFO.getOffset("next"));
-    private final NativeLong list = new NativeLong(getByteBuffer(), INFO.getOffset("sg_list"));
+    private final NativeLong listHandle = new NativeLong(getByteBuffer(), INFO.getOffset("sg_list"));
     private final NativeInteger listLength = new NativeInteger(getByteBuffer(), INFO.getOffset("num_sge"));
     private final NativeEnum<OpCode> opCode = new NativeEnum<>(getByteBuffer(), INFO.getOffset("opcode"), OpCode.CONVERTER);
     private final NativeInteger flags = new NativeInteger(getByteBuffer(), INFO.getOffset("send_flags"));
@@ -97,12 +102,12 @@ public class SendWorkRequest extends Struct {
         this.next.set(next);
     }
 
-    public long getList() {
-        return list.get();
+    public long getListHandle() {
+        return listHandle.get();
     }
 
-    public void setList(long list) {
-        this.list.set(list);
+    public void setListHandle(long listHandle) {
+        this.listHandle.set(listHandle);
     }
 
     public int getListLength() {
@@ -150,7 +155,7 @@ public class SendWorkRequest extends Struct {
         return "SendWorkRequest {" +
             "\n\tid=" + id +
             ",\n\tnext=" + next +
-            ",\n\tlist=" + list +
+            ",\n\tlist=" + listHandle +
             ",\n\tlistLength=" + listLength +
             ",\n\topCode=" + opCode +
             ",\n\tflags=" + flags +

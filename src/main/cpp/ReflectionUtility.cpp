@@ -168,13 +168,27 @@ ReflectionUtility::StructInfo ibv_send_wr_struct_info {
     ibv_send_wr_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_recv_wr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_recv_wr, wr_id),
+    GET_MEMBER_INFO(ibv_recv_wr, next),
+    GET_MEMBER_INFO(ibv_recv_wr, sg_list),
+    GET_MEMBER_INFO(ibv_recv_wr, num_sge)
+};
+
+ReflectionUtility::StructInfo ibv_recv_wr_struct_info {
+    sizeof(ibv_recv_wr),
+    sizeof(ibv_recv_wr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_recv_wr_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
     {"ibv_cq", &ibv_cq_struct_info},
     {"ibv_wc", &ibv_wc_struct_info},
     {"ibv_sge", &ibv_sge_struct_info},
-    {"ibv_send_wr", &ibv_send_wr_struct_info}
+    {"ibv_send_wr", &ibv_send_wr_struct_info},
+    {"ibv_recv_wr", &ibv_recv_wr_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
