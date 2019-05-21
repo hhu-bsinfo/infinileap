@@ -22,7 +22,7 @@ public class SharedReceiveQueue extends Struct {
     public static final class InitialAttributes extends Struct {
 
         private final NativeLong context = longField("srq_context");
-        private final Attributes attributes = valueField("attr", Attributes::new);
+        public final Attributes attributes = valueField("attr", Attributes::new);
 
         public InitialAttributes() {
             super("ibv_srq_init_attr");
@@ -30,6 +30,10 @@ public class SharedReceiveQueue extends Struct {
 
         public InitialAttributes(long handle) {
             super("ibv_srq_init_attr", handle);
+        }
+
+        public long getContext() {
+            return context.get();
         }
     }
 
@@ -49,6 +53,30 @@ public class SharedReceiveQueue extends Struct {
 
         public Attributes(ByteBuffer buffer, int offset) {
             super("ibv_srq_attr", buffer, offset);
+        }
+
+        public int getMaxWorkRequest() {
+            return maxWorkRequest.get();
+        }
+
+        public void setMaxWorkRequest(int maxWorkRequest) {
+            this.maxWorkRequest.set(maxWorkRequest);
+        }
+
+        public int getMaxScatterGatherElements() {
+            return maxScatterGatherElements.get();
+        }
+
+        public void setMaxScatterGatherElements(int maxScatterGatherElements) {
+            this.maxScatterGatherElements.set(maxScatterGatherElements);
+        }
+
+        public int getLimit() {
+            return limit.get();
+        }
+
+        public void setLimit(int limit) {
+            this.limit.set(limit);
         }
     }
 }
