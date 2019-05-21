@@ -24,6 +24,7 @@ public class Struct implements NativeObject {
     private final ByteBuffer byteBuffer;
     private final long handle;
     private final int baseOffset;
+    private final String nameSpace;
 
     protected Struct(String name) {
         info = StructUtil.getInfo(name);
@@ -31,6 +32,7 @@ public class Struct implements NativeObject {
         byteBuffer.order(ByteOrder.nativeOrder());
         handle = MemoryUtil.getAddress(byteBuffer);
         baseOffset = 0;
+        nameSpace = null;
     }
 
     protected Struct(String name, long handle) {
@@ -38,6 +40,7 @@ public class Struct implements NativeObject {
         byteBuffer = MemoryUtil.wrap(handle, info.getSize());
         byteBuffer.order(ByteOrder.nativeOrder());
         baseOffset = 0;
+        nameSpace = null;
         this.handle = handle;
         CLEANER.register(this, new StructCleaner(handle));
     }
@@ -47,6 +50,19 @@ public class Struct implements NativeObject {
         byteBuffer = buffer;
         handle = MemoryUtil.getAddress(byteBuffer);
         baseOffset = offset;
+        nameSpace = null;
+    }
+
+    protected Struct(String name, String nameSpace, ByteBuffer buffer, int offset) {
+        info = StructUtil.getInfo(name);
+        byteBuffer = buffer;
+        handle = MemoryUtil.getAddress(byteBuffer);
+        baseOffset = offset;
+        if (!nameSpace.isEmpty() && nameSpace.charAt(nameSpace.length() - 1) == '.') {
+            this.nameSpace = nameSpace;
+        } else {
+            this.nameSpace = nameSpace + '.';
+        }
     }
 
     protected final ByteBuffer getByteBuffer() {
@@ -91,7 +107,9 @@ public class Struct implements NativeObject {
     }
 
     private int offsetOf(String identifier) {
-        return baseOffset + info.getOffset(identifier);
+        return nameSpace == null ?
+            baseOffset + info.getOffset(identifier) :
+            baseOffset + info.getOffset(nameSpace + identifier);
     }
 
     private static final class StructCleaner implements Runnable {
