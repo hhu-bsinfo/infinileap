@@ -30,25 +30,28 @@ public class Context implements NativeObject {
 
     @Nullable
     public static Context openDevice(int index) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not open device with index {}", index);
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return result.get(Context::new);
     }
 
     public boolean close() {
-        var result = new Result();
-        Verbs.closeDevice(handle, result.getHandle());
+        var result = Verbs.getResultPool().getInstance();
 
+        Verbs.closeDevice(handle, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not close device");
             return false;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return true;
     }
 
@@ -58,51 +61,59 @@ public class Context implements NativeObject {
 
     @Nullable
     public Device queryDevice() {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
         var device = new Device();
+
         Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not query device");
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return device;
     }
 
     @Nullable
     public Port queryPort(int portNumber) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
         var port = new Port();
+
         Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not query port");
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return port;
     }
 
     @Nullable
     public ProtectionDomain allocateProtectionDomain() {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.allocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not allocate protection domain");
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return result.get(ProtectionDomain::new);
     }
 
     @Nullable
     public CompletionQueue createCompletionQueue(int numElements) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create completion queue [error={}]", result.getStatus());
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return result.get(CompletionQueue::new);
     }
 }

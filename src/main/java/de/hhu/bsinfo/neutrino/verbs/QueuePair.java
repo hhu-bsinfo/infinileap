@@ -1,9 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.struct.Struct;
-import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,18 +20,24 @@ public class QueuePair implements NativeObject {
     }
 
     public void post(final SendWorkRequest sendWorkRequest) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.postSendWorkRequest(handle, sendWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
+
+        Verbs.getResultPool().returnInstance(result);
     }
 
     public void post(final ReceiveWorkRequest receiveWorkRequest) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.postReceiveWorkRequest(handle, receiveWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
+
+        Verbs.getResultPool().returnInstance(result);
     }
 }

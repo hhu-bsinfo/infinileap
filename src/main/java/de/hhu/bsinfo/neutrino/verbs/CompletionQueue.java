@@ -73,13 +73,15 @@ public class CompletionQueue extends Struct {
     }
 
     public boolean destroy() {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not destroy completion queue [{}]", result.getStatus());
             return false;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return true;
     }
 

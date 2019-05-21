@@ -25,14 +25,15 @@ public class ProtectionDomain implements NativeObject {
     }
 
     public boolean deallocate() {
-        var result = new Result();
-        Verbs.deallocateProtectionDomain(handle, result.getHandle());
+        var result = Verbs.getResultPool().getInstance();
 
+        Verbs.deallocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not deallocate protection domain");
             return false;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return true;
     }
 
@@ -48,26 +49,29 @@ public class ProtectionDomain implements NativeObject {
             access |= flag.getValue();
         }
 
-        var result = new Result();
-        Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(), access, result.getHandle());
+        var result = Verbs.getResultPool().getInstance();
 
+        Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(), access, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not register memory region");
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return new MemoryRegion(result.getPointer(), buffer);
     }
 
     @Nullable
     public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.Attributes attributes) {
-        var result = new Result();
+        var result = Verbs.getResultPool().getInstance();
+
         Verbs.createSharedReceiveQueue(handle, attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create shared receive queue");
             return null;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return result.get(SharedReceiveQueue::new);
     }
 }

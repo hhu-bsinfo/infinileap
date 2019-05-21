@@ -63,14 +63,15 @@ public class MemoryRegion {
     }
 
     public boolean deregister() {
-        var result = new Result();
-        Verbs.deregisterMemoryRegion(handle, result.getHandle());
+        var result = Verbs.getResultPool().getInstance();
 
+        Verbs.deregisterMemoryRegion(handle, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not deregister memory region");
             return false;
         }
 
+        Verbs.getResultPool().returnInstance(result);
         return true;
     }
 }
