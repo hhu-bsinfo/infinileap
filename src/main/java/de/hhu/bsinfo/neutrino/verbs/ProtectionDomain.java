@@ -19,6 +19,7 @@ public class ProtectionDomain implements NativeObject {
         this.handle = handle;
     }
 
+    @Override
     public long getHandle() {
         return handle;
     }
@@ -56,5 +57,17 @@ public class ProtectionDomain implements NativeObject {
         }
 
         return new MemoryRegion(result.getPointer(), buffer);
+    }
+
+    @Nullable
+    public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.Attributes attributes) {
+        var result = new Result();
+        Verbs.createSharedReceiveQueue(handle, attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Could not create shared receive queue");
+            return null;
+        }
+
+        return result.get(SharedReceiveQueue::new);
     }
 }

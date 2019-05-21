@@ -136,3 +136,13 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRe
     ibv_recv_wr* badWorkRequest;
     NativeCall::setResult(result, ibv_post_recv(queuePair, workRequest, &badWorkRequest), badWorkRequest);
 }
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedReceiveQueue (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto attributes = NativeCall::castHandle<ibv_srq_init_attr>(attributesHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+
+    auto sharedReceiveQueue = ibv_create_srq(protectionDomain, attributes);
+
+    NativeCall::setResult(result, sharedReceiveQueue == nullptr ? 1 : 0, sharedReceiveQueue);
+}
