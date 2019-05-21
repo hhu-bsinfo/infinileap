@@ -10,44 +10,39 @@ import de.hhu.bsinfo.neutrino.util.StructUtil;
 
 public class Device extends Struct {
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_device_attr");
-    private static final int SIZE = INFO.structSize.get();
-
-    private final NativeString firmwareVersion = new NativeString(getByteBuffer(), INFO.getOffset("fw_ver"), 64);
-    private final NativeLong nodeGuid = new NativeLong(getByteBuffer(), INFO.getOffset("node_guid"));
-    private final NativeLong systemImageGuid = new NativeLong(getByteBuffer(), INFO.getOffset("sys_image_guid"));
-    private final NativeLong maxMemoryRegionSize = new NativeLong(getByteBuffer(), INFO.getOffset("max_mr_size"));
-    private final NativeLong pageSizeCapabilities = new NativeLong(getByteBuffer(), INFO.getOffset("page_size_cap"));
-    private final NativeInteger vendorId = new NativeInteger(getByteBuffer(), INFO.getOffset("vendor_id"));
-    private final NativeInteger vendorPartId = new NativeInteger(getByteBuffer(), INFO.getOffset("vendor_part_id"));
-    private final NativeInteger hardwareVersion = new NativeInteger(getByteBuffer(), INFO.getOffset("hw_ver"));
-    private final NativeInteger maxQueuePairCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_qp"));
-    private final NativeInteger maxQueuePairSize = new NativeInteger(getByteBuffer(), INFO.getOffset("max_qp_wr"));
-    private final NativeInteger deviceCapabilities = new NativeInteger(getByteBuffer(), INFO.getOffset("device_cap_flags"));
-    private final NativeInteger maxScatterGatherCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_sge"));
-    private final NativeInteger maxRdScatterGatherCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_sge_rd"));
-    private final NativeInteger maxCompletionQueueCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_cq"));
-    private final NativeInteger maxCompletionQueueSize = new NativeInteger(getByteBuffer(), INFO.getOffset("max_cqe"));
-    private final NativeInteger maxMemoryRegionCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_mr"));
-    private final NativeInteger maxProtectionDomainCount = new NativeInteger(getByteBuffer(), INFO.getOffset("max_pd"));
-    private final NativeInteger maxAddressHandles = new NativeInteger(getByteBuffer(), INFO.getOffset("max_ah"));
-    private final NativeInteger maxSharedReceiveQueueCount = new NativeInteger(getByteBuffer(), INFO
-        .getOffset("max_srq"));
-    private final NativeInteger maxSharedReceiveQueueSize = new NativeInteger(getByteBuffer(), INFO.getOffset("max_srq_wr"));
-    private final NativeInteger maxSharedReceiveQueueScatterGatherCount = new NativeInteger(getByteBuffer(), INFO
-        .getOffset("max_srq_sge"));
-    private final NativeByte physicalPortCount = new NativeByte(getByteBuffer(), INFO.getOffset("phys_port_cnt"));
-
-    public static int getDeviceCount() {
-        return Verbs.getNumDevices();
-    }
+    private final NativeString firmwareVersion = stringField("fw_ver", 64);
+    private final NativeLong nodeGuid = longField("node_guid");
+    private final NativeLong systemImageGuid = longField("sys_image_guid");
+    private final NativeLong maxMemoryRegionSize = longField("max_mr_size");
+    private final NativeLong pageSizeCapabilities = longField("page_size_cap");
+    private final NativeInteger vendorId = integerField("vendor_id");
+    private final NativeInteger vendorPartId = integerField("vendor_part_id");
+    private final NativeInteger hardwareVersion = integerField("hw_ver");
+    private final NativeInteger maxQueuePairCount = integerField("max_qp");
+    private final NativeInteger maxQueuePairSize = integerField("max_qp_wr");
+    private final NativeInteger deviceCapabilities = integerField("device_cap_flags");
+    private final NativeInteger maxScatterGatherCount = integerField("max_sge");
+    private final NativeInteger maxRdScatterGatherCount = integerField("max_sge_rd");
+    private final NativeInteger maxCompletionQueueCount = integerField("max_cq");
+    private final NativeInteger maxCompletionQueueSize = integerField("max_cqe");
+    private final NativeInteger maxMemoryRegionCount = integerField("max_mr");
+    private final NativeInteger maxProtectionDomainCount = integerField("max_pd");
+    private final NativeInteger maxAddressHandles = integerField("max_ah");
+    private final NativeInteger maxSharedReceiveQueueCount = integerField("max_srq");
+    private final NativeInteger maxSharedReceiveQueueSize = integerField("max_srq_wr");
+    private final NativeInteger maxSharedReceiveQueueScatterGatherCount = integerField("max_srq_sge");
+    private final NativeByte physicalPortCount = byteField("phys_port_cnt");
 
     Device() {
-        super(SIZE);
+        super("ibv_device_attr");
     }
 
     Device(long handle) {
-        super(handle, SIZE);
+        super("ibv_device_attr", handle);
+    }
+
+    public static int getDeviceCount() {
+        return Verbs.getNumDevices();
     }
 
     public String getFirmwareVersion() {

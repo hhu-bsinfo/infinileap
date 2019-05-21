@@ -105,31 +105,27 @@ public class WorkCompletion extends Struct {
         };
     }
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_wc");
-
-    public static final int SIZE = INFO.structSize.get();
-
-    private final NativeLong id = new NativeLong(getByteBuffer(), INFO.getOffset("wr_id"));
-    private final NativeEnum<Status> status = new NativeEnum<>(getByteBuffer(), INFO.getOffset("status"), Status.CONVERTER);
-    private final NativeEnum<OpCode> opCode = new NativeEnum<>(getByteBuffer(), INFO.getOffset("opcode"), OpCode.CONVERTER);
-    private final NativeInteger vendorError = new NativeInteger(getByteBuffer(), INFO.getOffset("vendor_err"));
-    private final NativeInteger byteCount = new NativeInteger(getByteBuffer(), INFO.getOffset("byte_len"));
-    private final NativeInteger immediateData = new NativeInteger(getByteBuffer(), INFO.getOffset("imm_data"));
-    private final NativeInteger invalidatedRemoteKey = new NativeInteger(getByteBuffer(), INFO.getOffset("invalidated_rkey"));
-    private final NativeInteger queuePairNumber = new NativeInteger(getByteBuffer(), INFO.getOffset("qp_num"));
-    private final NativeInteger sourceQueuePair = new NativeInteger(getByteBuffer(), INFO.getOffset("src_qp"));
-    private final NativeInteger flags = new NativeInteger(getByteBuffer(), INFO.getOffset("wc_flags"));
-    private final NativeShort partitionKeyIndex = new NativeShort(getByteBuffer(), INFO.getOffset("pkey_index"));
-    private final NativeShort sourceLocalId = new NativeShort(getByteBuffer(), INFO.getOffset("slid"));
-    private final NativeByte serviceLevel = new NativeByte(getByteBuffer(), INFO.getOffset("sl"));
-    private final NativeByte pathBits = new NativeByte(getByteBuffer(), INFO.getOffset("dlid_path_bits"));
+    private final NativeLong id = longField("wr_id");
+    private final NativeEnum<Status> status = enumField("status", Status.CONVERTER);
+    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
+    private final NativeInteger vendorError = integerField("vendor_err");
+    private final NativeInteger byteCount = integerField("byte_len");
+    private final NativeInteger immediateData = integerField("imm_data");
+    private final NativeInteger invalidatedRemoteKey = integerField("invalidated_rkey");
+    private final NativeInteger queuePairNumber = integerField("qp_num");
+    private final NativeInteger sourceQueuePair = integerField("src_qp");
+    private final NativeInteger flags = integerField("wc_flags");
+    private final NativeShort partitionKeyIndex = shortField("pkey_index");
+    private final NativeShort sourceLocalId = shortField("slid");
+    private final NativeByte serviceLevel = byteField("sl");
+    private final NativeByte pathBits = byteField("dlid_path_bits");
 
     public WorkCompletion() {
-        super(SIZE);
+        super("ibv_wc");
     }
 
     public WorkCompletion(final long handle) {
-        super(handle, SIZE);
+        super("ibv_wc", handle);
     }
 
     long getId() {

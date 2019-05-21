@@ -3,21 +3,33 @@ package de.hhu.bsinfo.neutrino.struct;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-public class Result extends Struct {
+public class Result implements NativeObject {
 
     private static final int SIZE = Integer.BYTES + Long.BYTES;
 
-    private final NativeInteger status = new NativeInteger(getByteBuffer(), 0);
-    private final NativeLong pointer = new NativeLong(getByteBuffer(), 4);
+    private final NativeInteger status;
+    private final NativeLong pointer;
+    private final long handle;
 
     public Result() {
-        super(SIZE);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(SIZE);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        handle = MemoryUtil.getAddress(byteBuffer);
+        status = new NativeInteger(byteBuffer, 0);
+        pointer = new NativeLong(byteBuffer, 4);
     }
 
     public Result(long handle) {
-        super(handle, SIZE);
+        ByteBuffer byteBuffer = MemoryUtil.wrap(handle, SIZE);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        this.handle = handle;
+        status = new NativeInteger(byteBuffer, 0);
+        pointer = new NativeLong(byteBuffer, 4);
     }
 
     public boolean isError() {
@@ -34,6 +46,11 @@ public class Result extends Struct {
 
     public long getPointer() {
         return pointer.get();
+    }
+
+    @Override
+    public long getHandle() {
+        return handle;
     }
 
     @Override

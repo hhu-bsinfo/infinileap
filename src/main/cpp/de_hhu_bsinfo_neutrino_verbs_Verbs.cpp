@@ -146,3 +146,13 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedRecei
 
     NativeCall::setResult(result, sharedReceiveQueue == nullptr ? 1 : 0, sharedReceiveQueue);
 }
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createQueuePair (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto attributes = NativeCall::castHandle<ibv_qp_init_attr>(attributesHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+
+    auto queuePair = ibv_create_qp(protectionDomain, attributes);
+
+    NativeCall::setResult(result, queuePair == nullptr ? 1 : 0, queuePair);
+}

@@ -3,49 +3,52 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
+import java.nio.ByteBuffer;
 
 public class SharedReceiveQueue extends Struct {
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_srq");
-    public static final int SIZE = INFO.structSize.get();
-
-    private final NativeLong context = new NativeLong(getByteBuffer(), INFO.getOffset("context"));
-    private final NativeLong userContext = new NativeLong(getByteBuffer(), INFO.getOffset("srq_context"));
-    private final NativeLong protectionDomain = new NativeLong(getByteBuffer(), INFO.getOffset("pd"));
-    private final NativeInteger handle = new NativeInteger(getByteBuffer(), INFO.getOffset("handle"));
-    private final NativeLong mutex = new NativeLong(getByteBuffer(), INFO.getOffset("mutex"));
-    private final NativeLong cond = new NativeLong(getByteBuffer(), INFO.getOffset("cond"));
-    private final NativeInteger eventsCompleted = new NativeInteger(getByteBuffer(), INFO.getOffset("events_completed"));
+    private final NativeLong context = longField("context");
+    private final NativeLong userContext = longField("srq_context");
+    private final NativeLong protectionDomain = longField("pd");
+    private final NativeInteger handle = integerField("handle");
+    private final NativeLong mutex = longField("mutex");
+    private final NativeLong cond = longField("cond");
+    private final NativeInteger eventsCompleted = integerField("events_completed");
 
     public SharedReceiveQueue(long handle) {
-        super(handle, SIZE);
+        super("ibv_srq");
+    }
+
+    public static final class InitialAttributes extends Struct {
+
+        private final NativeLong context = longField("srq_context");
+        private final Attributes attributes = valueField("attr", Attributes::new);
+
+        public InitialAttributes() {
+            super("ibv_srq_init_attr");
+        }
+
+        public InitialAttributes(long handle) {
+            super("ibv_srq_init_attr", handle);
+        }
     }
 
     public static final class Attributes extends Struct {
 
-        private static final StructInformation INIT_INFO = StructUtil.getInfo("ibv_srq_init_attr");
-        private static final int INIT_SIZE = INIT_INFO.structSize.get();
-
-        private static final StructInformation ATTRIBUTES_INFO = StructUtil.getInfo("ibv_srq_attr");
-        private static final int ATTR_OFFSET = INIT_INFO.getOffset("attr");
-
-
-        public static final int ATTRIBUTES_SIZE = INIT_INFO.structSize.get();
-
-        private final NativeLong context = new NativeLong(getByteBuffer(), ATTRIBUTES_INFO.getOffset("srq_context"));
-
-        private final NativeInteger maxWorkRequest = new NativeInteger(getByteBuffer(), ATTR_OFFSET + ATTRIBUTES_INFO.getOffset("max_wr"));
-        private final NativeInteger maxScatterGatherElements = new NativeInteger(getByteBuffer(), ATTR_OFFSET + ATTRIBUTES_INFO.getOffset("max_sge"));
-        private final NativeInteger limit = new NativeInteger(getByteBuffer(), ATTR_OFFSET + ATTRIBUTES_INFO.getOffset("srq_limit"));
+        private final NativeInteger maxWorkRequest = integerField("max_wr");
+        private final NativeInteger maxScatterGatherElements = integerField("max_sge");
+        private final NativeInteger limit = integerField("srq_limit");
 
         public Attributes() {
-            super(INIT_SIZE);
+            super("ibv_srq_attr");
         }
 
         public Attributes(long handle) {
-            super(handle, INIT_SIZE);
+            super("ibv_srq_attr", handle);
+        }
+
+        public Attributes(ByteBuffer buffer, int offset) {
+            super("ibv_srq_attr", buffer, offset);
         }
     }
 }

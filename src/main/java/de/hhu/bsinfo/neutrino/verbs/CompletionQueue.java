@@ -1,13 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.struct.StructInformation;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,21 +13,18 @@ public class CompletionQueue extends Struct {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionQueue.class);
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_cq");
-    public static final int SIZE = INFO.structSize.get();
-
-    private final NativeLong contextHandle = new NativeLong(getByteBuffer(), INFO.getOffset("context"));
-    private final NativeLong channelHandle = new NativeLong(getByteBuffer(), INFO.getOffset("channel"));
-    private final NativeLong userContextHandle = new NativeLong(getByteBuffer(), INFO.getOffset("cq_context"));
-    private final NativeInteger queueHandle = new NativeInteger(getByteBuffer(), INFO.getOffset("handle"));
-    private final NativeInteger maxElements = new NativeInteger(getByteBuffer(), INFO.getOffset("cqe"));
+    private final NativeLong contextHandle = longField("context");
+    private final NativeLong channelHandle = longField("channel");
+    private final NativeLong userContextHandle = longField("cq_context");
+    private final NativeInteger queueHandle = integerField("handle");
+    private final NativeInteger maxElements = integerField("cqe");
 
     public CompletionQueue() {
-        super(SIZE);
+        super("ibv_cq");
     }
 
     public CompletionQueue(long handle) {
-        super(handle, SIZE);
+        super("ibv_cq", handle);
     }
 
     public long getContextHandle() {

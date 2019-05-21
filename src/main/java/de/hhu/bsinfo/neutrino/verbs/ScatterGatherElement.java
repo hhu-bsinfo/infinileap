@@ -8,22 +8,16 @@ import de.hhu.bsinfo.neutrino.util.StructUtil;
 
 public class ScatterGatherElement extends Struct {
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_sge");
-
-    public static final int SIZE = INFO.structSize.get();
-
-    private final NativeLong address = new NativeLong(getByteBuffer(), INFO.getOffset("addr"));
-
-    private final NativeInteger length = new NativeInteger(getByteBuffer(), INFO.getOffset("length"));
-
-    private final NativeInteger localKey = new NativeInteger(getByteBuffer(), INFO.getOffset("lkey"));
+    private final NativeLong address = longField("addr");
+    private final NativeInteger length = integerField("length");
+    private final NativeInteger localKey = integerField("lkey");
 
     public ScatterGatherElement() {
-        super(SIZE);
+        super("ibv_sge");
     }
 
     public ScatterGatherElement(final long handle) {
-        super(handle, SIZE);
+        super("ibv_sge", handle);
     }
 
     long getAddress() {

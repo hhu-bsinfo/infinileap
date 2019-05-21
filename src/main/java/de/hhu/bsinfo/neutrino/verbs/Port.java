@@ -98,38 +98,35 @@ public class Port extends Struct {
         };
     }
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_port_attr");
-    private static final int SIZE = INFO.structSize.get();
-
-    private final NativeEnum<State> state = new NativeEnum<>(getByteBuffer(), INFO.getOffset("state"), State.CONVERTER);
-    private final NativeEnum<Mtu> maxMtu = new NativeEnum<>(getByteBuffer(), INFO.getOffset("max_mtu"), Mtu.CONVERTER);
-    private final NativeEnum<Mtu> activeMtu = new NativeEnum<>(getByteBuffer(), INFO.getOffset("active_mtu"), Mtu.CONVERTER);
-    private final NativeInteger gidTableLength = new NativeInteger(getByteBuffer(), INFO.getOffset("gid_tbl_len"));
-    private final NativeInteger portCapabilities = new NativeInteger(getByteBuffer(), INFO.getOffset("port_cap_flags"));
-    private final NativeInteger maxMessageSize = new NativeInteger(getByteBuffer(), INFO.getOffset("max_msg_sz"));
-    private final NativeInteger badPkeyCounter = new NativeInteger(getByteBuffer(), INFO.getOffset("bad_pkey_cntr"));
-    private final NativeInteger qkeyViolationCounter = new NativeInteger(getByteBuffer(), INFO.getOffset("qkey_viol_cntr"));
-    private final NativeShort pkeyTableLength = new NativeShort(getByteBuffer(), INFO.getOffset("pkey_tbl_len"));
-    private final NativeShort localId = new NativeShort(getByteBuffer(), INFO.getOffset("lid"));
-    private final NativeShort subnetManagerLocalId = new NativeShort(getByteBuffer(), INFO.getOffset("sm_lid"));
-    private final NativeByte localIdMask = new NativeByte(getByteBuffer(), INFO.getOffset("lmc"));
-    private final NativeByte maxVirtualLaneCount = new NativeByte(getByteBuffer(), INFO.getOffset("max_vl_num"));
-    private final NativeByte subnetManagerServiceLevel = new NativeByte(getByteBuffer(), INFO.getOffset("sm_sl"));
-    private final NativeByte subnetTimeout = new NativeByte(getByteBuffer(), INFO.getOffset("subnet_timeout"));
-    private final NativeByte initTypeReply = new NativeByte(getByteBuffer(), INFO.getOffset("init_type_reply"));
-    private final NativeByte activeWidth = new NativeByte(getByteBuffer(), INFO.getOffset("active_width"));
-    private final NativeByte activeSpeed = new NativeByte(getByteBuffer(), INFO.getOffset("active_speed"));
-    private final NativeByte physicalState = new NativeByte(getByteBuffer(), INFO.getOffset("phys_state"));
-    private final NativeByte linkLayer = new NativeByte(getByteBuffer(), INFO.getOffset("link_layer"));
-    private final NativeByte flags = new NativeByte(getByteBuffer(), INFO.getOffset("flags"));
-    private final NativeShort portCapabilites2 = new NativeShort(getByteBuffer(), INFO.getOffset("port_cap_flags2"));
+    private final NativeEnum<State> state = enumField("state", State.CONVERTER);
+    private final NativeEnum<Mtu> maxMtu = enumField("max_mtu", Mtu.CONVERTER);
+    private final NativeEnum<Mtu> activeMtu = enumField("active_mtu", Mtu.CONVERTER);
+    private final NativeInteger gidTableLength = integerField("gid_tbl_len");
+    private final NativeInteger portCapabilities = integerField("port_cap_flags");
+    private final NativeInteger maxMessageSize = integerField("max_msg_sz");
+    private final NativeInteger badPkeyCounter = integerField("bad_pkey_cntr");
+    private final NativeInteger qkeyViolationCounter = integerField("qkey_viol_cntr");
+    private final NativeShort pkeyTableLength = shortField("pkey_tbl_len");
+    private final NativeShort localId = shortField("lid");
+    private final NativeShort subnetManagerLocalId = shortField("sm_lid");
+    private final NativeByte localIdMask = byteField("lmc");
+    private final NativeByte maxVirtualLaneCount = byteField("max_vl_num");
+    private final NativeByte subnetManagerServiceLevel = byteField("sm_sl");
+    private final NativeByte subnetTimeout = byteField("subnet_timeout");
+    private final NativeByte initTypeReply = byteField("init_type_reply");
+    private final NativeByte activeWidth = byteField("active_width");
+    private final NativeByte activeSpeed = byteField("active_speed");
+    private final NativeByte physicalState = byteField("phys_state");
+    private final NativeByte linkLayer = byteField("link_layer");
+    private final NativeByte flags = byteField("flags");
+    private final NativeShort portCapabilites2 = shortField("port_cap_flags2");
 
     Port() {
-        super(SIZE);
+        super("ibv_port_attr");
     }
 
     Port(long handle) {
-        super(handle, SIZE);
+        super("ibv_port_attr", handle);
     }
 
     public State getState() {

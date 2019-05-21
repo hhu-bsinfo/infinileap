@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion.AccessFlag;
+import de.hhu.bsinfo.neutrino.verbs.SharedReceiveQueue.InitialAttributes;
 import java.nio.ByteBuffer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -62,10 +63,10 @@ public class ProtectionDomain implements NativeObject {
     }
 
     @Nullable
-    public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.Attributes attributes) {
+    public SharedReceiveQueue createSharedReceiveQueue(InitialAttributes initialAttributes) {
         var result = Verbs.getResultPool().getInstance();
 
-        Verbs.createSharedReceiveQueue(handle, attributes.getHandle(), result.getHandle());
+        Verbs.createSharedReceiveQueue(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create shared receive queue");
             return null;
@@ -73,5 +74,17 @@ public class ProtectionDomain implements NativeObject {
 
         Verbs.getResultPool().returnInstance(result);
         return result.get(SharedReceiveQueue::new);
+    }
+
+    @Nullable QueuePair createQueuePair(QueuePair.Attributes attributes) {
+        var result = Verbs.getResultPool().getInstance();
+        Verbs.createQueuePair(handle, attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Could not create queue pair");
+            return null;
+        }
+
+        Verbs.getResultPool().returnInstance(result);
+        return result.get(QueuePair::new);
     }
 }
