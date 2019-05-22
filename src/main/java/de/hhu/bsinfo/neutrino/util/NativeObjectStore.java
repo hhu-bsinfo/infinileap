@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.util;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 
-public interface NativeObjectStore<T extends NativeObject> {
-    void storeInstance(T instance);
-    T getInstance();
+public abstract class NativeObjectStore<T extends NativeObject> {
+    public abstract void storeInstance(T instance);
+    protected abstract T getInstance();
 }

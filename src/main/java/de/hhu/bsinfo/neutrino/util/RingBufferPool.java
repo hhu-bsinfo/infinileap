@@ -1,7 +1,6 @@
 package de.hhu.bsinfo.neutrino.util;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.struct.Result;
 import java.util.Objects;
 import java.util.function.Supplier;
 

@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.util;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 
-public class RingBufferStore<T extends NativeObject> implements NativeObjectStore<T> {
+public class RingBufferStore<T extends NativeObject> extends NativeObjectStore<T> {
 
     private final RingBuffer<T> buffer;
 

@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.neutrino.util;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.StructInformation;
 
 import de.hhu.bsinfo.neutrino.verbs.Verbs;
@@ -21,13 +22,13 @@ public class StructUtil {
 
     public static StructInformation getInfo(final String identifier) {
         return CACHE.computeIfAbsent(identifier, key -> {
-            var result = Verbs.getResultPool().newInstance();
+            var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
             getStructInformation(identifier, result.getHandle());
             if (result.isError()) {
                 throw new IllegalArgumentException(String.format("No struct information found for %s", identifier));
             }
 
-            Verbs.getResultPool().storeInstance(result);
+            result.free();
             return result.get(StructInformation::new);
         });
     }

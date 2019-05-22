@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import java.util.Arrays;
 import org.slf4j.Logger;
@@ -26,25 +27,25 @@ public class QueuePair implements NativeObject {
     }
 
     public void post(final SendWorkRequest sendWorkRequest) {
-        var result = Verbs.getResultPool().newInstance();
+        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
 
         Verbs.postSendWorkRequest(handle, sendWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        Verbs.getResultPool().storeInstance(result);
+        result.free();
     }
 
     public void post(final ReceiveWorkRequest receiveWorkRequest) {
-        var result = Verbs.getResultPool().newInstance();
+        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
 
         Verbs.postReceiveWorkRequest(handle, receiveWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        Verbs.getResultPool().storeInstance(result);
+        result.free();
     }
 
     public enum Type {
