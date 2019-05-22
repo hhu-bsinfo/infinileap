@@ -174,3 +174,9 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQue
 
     NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
 }
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod (JNIEnv *env, jclass clazz, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+
+    NativeCall::setResult(result, 0, nullptr);
+}
