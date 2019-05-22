@@ -1,20 +1,23 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.util.ObjectPool;
-import de.hhu.bsinfo.neutrino.util.RingBufferResultPool;
+import de.hhu.bsinfo.neutrino.util.RingBufferPool;
 
-public class Verbs {
+public final class Verbs {
 
     static {
         System.loadLibrary("neutrino");
     }
 
-    private static final ThreadLocal<ObjectPool<Result>> RESULT_POOL = ThreadLocal.withInitial(
-        () -> new RingBufferResultPool(1024));
+    @SuppressWarnings("FieldNamingConvention")
+    private static final ThreadLocal<RingBufferPool<Result>> resultPool = ThreadLocal.withInitial(
+        () -> new RingBufferPool<>(1024, Result::new));
 
-    public static ObjectPool<Result> getResultPool() {
-        return RESULT_POOL.get();
+    private Verbs() {
+    }
+
+    public static RingBufferPool<Result> getResultPool() {
+        return resultPool.get();
     }
 
     static native int getNumDevices();

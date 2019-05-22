@@ -1,6 +1,5 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.struct.Result;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class MemoryRegion {
     }
 
     public boolean deregister() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.deregisterMemoryRegion(handle, result.getHandle());
         if(result.isError()) {
@@ -71,7 +70,7 @@ public class MemoryRegion {
             return false;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return true;
     }
 }

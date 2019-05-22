@@ -26,25 +26,25 @@ public class QueuePair implements NativeObject {
     }
 
     public void post(final SendWorkRequest sendWorkRequest) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.postSendWorkRequest(handle, sendWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
     }
 
     public void post(final ReceiveWorkRequest receiveWorkRequest) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.postReceiveWorkRequest(handle, receiveWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
     }
 
     public enum Type {

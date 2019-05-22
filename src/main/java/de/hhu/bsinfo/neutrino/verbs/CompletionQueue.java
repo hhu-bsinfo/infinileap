@@ -2,10 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +65,7 @@ public class CompletionQueue extends Struct {
     }
 
     public boolean destroy() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -76,7 +73,7 @@ public class CompletionQueue extends Struct {
             return false;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return true;
     }
 

@@ -2,7 +2,6 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
-import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion.AccessFlag;
 import de.hhu.bsinfo.neutrino.verbs.SharedReceiveQueue.InitialAttributes;
 import java.nio.ByteBuffer;
@@ -26,7 +25,7 @@ public class ProtectionDomain implements NativeObject {
     }
 
     public boolean deallocate() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.deallocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
@@ -34,7 +33,7 @@ public class ProtectionDomain implements NativeObject {
             return false;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return true;
     }
 
@@ -50,7 +49,7 @@ public class ProtectionDomain implements NativeObject {
             access |= flag.getValue();
         }
 
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(), access, result.getHandle());
         if(result.isError()) {
@@ -58,13 +57,13 @@ public class ProtectionDomain implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return new MemoryRegion(result.getPointer(), buffer);
     }
 
     @Nullable
     public SharedReceiveQueue createSharedReceiveQueue(InitialAttributes initialAttributes) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.createSharedReceiveQueue(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
@@ -72,19 +71,19 @@ public class ProtectionDomain implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return result.get(SharedReceiveQueue::new);
     }
 
     @Nullable QueuePair createQueuePair(QueuePair.Attributes attributes) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
         Verbs.createQueuePair(handle, attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create queue pair");
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return result.get(QueuePair::new);
     }
 }

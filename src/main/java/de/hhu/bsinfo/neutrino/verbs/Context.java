@@ -1,12 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.struct.Result;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Context implements NativeObject {
+public final class Context implements NativeObject {
 
     static {
         System.loadLibrary("neutrino");
@@ -30,7 +29,7 @@ public class Context implements NativeObject {
 
     @Nullable
     public static Context openDevice(int index) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
@@ -38,12 +37,12 @@ public class Context implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return result.get(Context::new);
     }
 
     public boolean close() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.closeDevice(handle, result.getHandle());
         if(result.isError()) {
@@ -51,7 +50,7 @@ public class Context implements NativeObject {
             return false;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return true;
     }
 
@@ -61,7 +60,7 @@ public class Context implements NativeObject {
 
     @Nullable
     public Device queryDevice() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
         var device = new Device();
 
         Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
@@ -70,13 +69,13 @@ public class Context implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return device;
     }
 
     @Nullable
     public Port queryPort(int portNumber) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
         var port = new Port();
 
         Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
@@ -85,13 +84,13 @@ public class Context implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return port;
     }
 
     @Nullable
     public ProtectionDomain allocateProtectionDomain() {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.allocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
@@ -99,13 +98,13 @@ public class Context implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return result.get(ProtectionDomain::new);
     }
 
     @Nullable
     public CompletionQueue createCompletionQueue(int numElements) {
-        var result = Verbs.getResultPool().getInstance();
+        var result = Verbs.getResultPool().newInstance();
 
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
@@ -113,7 +112,7 @@ public class Context implements NativeObject {
             return null;
         }
 
-        Verbs.getResultPool().returnInstance(result);
+        Verbs.getResultPool().storeInstance(result);
         return result.get(CompletionQueue::new);
     }
 }

@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import java.lang.reflect.Array;
+import java.util.Collection;
 
 public class RingBuffer<T> {
 
@@ -11,12 +11,14 @@ public class RingBuffer<T> {
     private int posBack;
     private int posFront;
 
-    private static int getUnsignedInt(int number) {
+    private static int getUnsignedInt(final int number) {
         return number & REMOVE_SIGN;
     }
 
-    public RingBuffer(final int size, Class<T> clazz) {
-        buffer = (T[]) Array.newInstance(clazz, size);
+
+    @SuppressWarnings("unchecked")
+    public RingBuffer(final int size) {
+        buffer = (T[]) new Object[size];
     }
 
     public int size() {
