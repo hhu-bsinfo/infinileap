@@ -13,7 +13,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_util_StructUtil_getStructInfo
     env->ReleaseStringUTFChars(identifier, structName);
 
     result->status = structInfo == nullptr ? 1 : 0;
-    result->handle = reinterpret_cast<long>(structInfo);
+    result->value = reinterpret_cast<long>(structInfo);
 }
 
 

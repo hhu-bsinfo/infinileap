@@ -13,7 +13,7 @@ public class Result implements NativeObject {
     private static final int SIZE = Integer.BYTES + Long.BYTES;
 
     private final NativeInteger status;
-    private final NativeLong pointer;
+    private final NativeLong value;
     private final long handle;
 
     public Result() {
@@ -21,7 +21,7 @@ public class Result implements NativeObject {
         byteBuffer.order(ByteOrder.nativeOrder());
         handle = MemoryUtil.getAddress(byteBuffer);
         status = new NativeInteger(byteBuffer, 0);
-        pointer = new NativeLong(byteBuffer, 4);
+        value = new NativeLong(byteBuffer, 4);
     }
 
     public Result(long handle) {
@@ -29,7 +29,7 @@ public class Result implements NativeObject {
         byteBuffer.order(ByteOrder.nativeOrder());
         this.handle = handle;
         status = new NativeInteger(byteBuffer, 0);
-        pointer = new NativeLong(byteBuffer, 4);
+        value = new NativeLong(byteBuffer, 4);
     }
 
     public boolean isError() {
@@ -41,11 +41,15 @@ public class Result implements NativeObject {
     }
 
     public <T extends NativeObject> T get(ReferenceFactory<T> factory) {
-        return factory.newInstance(pointer.get());
+        return factory.newInstance(value.get());
     }
 
-    public long getPointer() {
-        return pointer.get();
+    public long longValue() {
+        return value.get();
+    }
+
+    public int intValue() {
+        return (int) value.get();
     }
 
     @Override
@@ -57,7 +61,7 @@ public class Result implements NativeObject {
     public String toString() {
         return "Result {\n" +
             "\tstatus=" + status +
-            ",\n\tpointer=" + String.format("0x%016x", pointer.get()) +
+            ",\n\tvalue=" + String.format("0x%016x", value.get()) +
             "\n}";
     }
 }

@@ -73,11 +73,28 @@ public class CompletionQueue extends Struct {
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not destroy completion queue [{}]", result.getStatus());
+            result.free();
             return false;
         }
 
         result.free();
         return true;
+    }
+
+    public void poll() {
+        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+
+        // TODO(krakowski)
+        //  Implement native object array and pass it to pollCompletionQueue
+
+        Verbs.pollCompletionQueue(getHandle(), 0, 0, result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Polling completion queue failed");
+            result.free();
+            return;
+        }
+
+        result.free();
     }
 
     @Override

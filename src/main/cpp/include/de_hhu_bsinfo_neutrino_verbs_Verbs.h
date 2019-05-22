@@ -145,6 +145,14 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createQueuePair
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair
   (JNIEnv *, jclass, jlong, jlong, jint, jlong);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    pollCompletionQueue
+ * Signature: (JIJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQueue
+  (JNIEnv *, jclass, jlong, jint, jlong, jlong);
+
 #ifdef __cplusplus
 }
 #endif

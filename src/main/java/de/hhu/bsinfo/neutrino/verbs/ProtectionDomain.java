@@ -56,7 +56,7 @@ public class ProtectionDomain implements NativeObject {
         }
 
         result.free();
-        return new MemoryRegion(result.getPointer(), buffer);
+        return new MemoryRegion(result.longValue(), buffer);
     }
 
     @Nullable

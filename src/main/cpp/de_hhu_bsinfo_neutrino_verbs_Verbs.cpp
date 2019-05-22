@@ -164,3 +164,13 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair (
 
     NativeCall::setResult(result, ibv_modify_qp(queuePair, attributes, attributesMask), nullptr);
 }
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQueue (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint numEntries, jlong arrayHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto array = NativeCall::castHandle<ibv_wc>(arrayHandle);
+    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
+
+    auto workRequestCount = ibv_poll_cq(completionQueue, numEntries, array);
+
+    NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
+}

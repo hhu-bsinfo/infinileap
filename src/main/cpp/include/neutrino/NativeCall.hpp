@@ -9,7 +9,7 @@ public:
 
     struct Result {
         int status;
-        long handle;
+        long value;
     } __attribute__ ((packed));
 
     NativeCall() = delete;
@@ -19,6 +19,8 @@ public:
     }
 
     static void setResult(Result* result, int status, void* handle);
+
+    static void setResult(Result* result, int status, int value);
 };
 
 #endif //RDMA_NATIVECALL_HPP

@@ -44,4 +44,5 @@ public final class Verbs {
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
+    static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
 }
