@@ -5,8 +5,6 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeString;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
 
 public class Device extends Struct {
 

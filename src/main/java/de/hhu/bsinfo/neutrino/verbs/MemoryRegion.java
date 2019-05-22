@@ -1,7 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.util.Flag;
 import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ public class MemoryRegion {
     }
 
     public boolean deregister() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deregisterMemoryRegion(handle, result.getHandle());
         if(result.isError()) {
@@ -35,7 +34,7 @@ public class MemoryRegion {
             return false;
         }
 
-        result.free();
+        result.releaseInstance();
         return true;
     }
 }

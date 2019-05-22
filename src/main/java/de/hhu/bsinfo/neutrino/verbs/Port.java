@@ -6,8 +6,6 @@ import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
 import java.util.Arrays;
 
 public class Port extends Struct {

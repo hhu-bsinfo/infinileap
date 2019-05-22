@@ -1,11 +1,6 @@
 package de.hhu.bsinfo.neutrino.data;
 
-import de.hhu.bsinfo.neutrino.verbs.Verbs;
-
+@FunctionalInterface
 public interface NativeObject {
     long getHandle();
-
-    default void free() {
-        Verbs.getNativeObjectPool(getClass()).storeInstance(this);
-    }
 }

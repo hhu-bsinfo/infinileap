@@ -34,36 +34,36 @@ public class QueuePair implements NativeObject {
     }
 
     public void post(final SendWorkRequest sendWorkRequest) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.postSendWorkRequest(handle, sendWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        result.free();
+        result.releaseInstance();
     }
 
     public void post(final ReceiveWorkRequest receiveWorkRequest) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.postReceiveWorkRequest(handle, receiveWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
 
-        result.free();
+        result.releaseInstance();
     }
 
     public void modify(final Attributes attributes, final AttributeMask... flags) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifyQueuePair(handle, attributes.getHandle(), BitMask.of(flags), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Modifying queue pair failed");
         }
 
-        result.free();
+        result.releaseInstance();
     }
 
     public enum Type {

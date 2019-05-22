@@ -7,8 +7,6 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
 import java.util.Arrays;
 
 public class WorkCompletion extends Struct {

@@ -30,7 +30,7 @@ public final class Context implements NativeObject {
 
     @Nullable
     public static Context openDevice(int index) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
@@ -38,12 +38,12 @@ public final class Context implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return result.get(Context::new);
     }
 
     public boolean close() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeDevice(handle, result.getHandle());
         if(result.isError()) {
@@ -51,7 +51,7 @@ public final class Context implements NativeObject {
             return false;
         }
 
-        result.free();
+        result.releaseInstance();
         return true;
     }
 
@@ -61,7 +61,7 @@ public final class Context implements NativeObject {
 
     @Nullable
     public Device queryDevice() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
         var device = new Device();
 
         Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
@@ -70,13 +70,13 @@ public final class Context implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return device;
     }
 
     @Nullable
     public Port queryPort(int portNumber) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
         var port = new Port();
 
         Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
@@ -85,13 +85,13 @@ public final class Context implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return port;
     }
 
     @Nullable
     public ProtectionDomain allocateProtectionDomain() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.allocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
@@ -99,13 +99,13 @@ public final class Context implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return result.get(ProtectionDomain::new);
     }
 
     @Nullable
     public CompletionQueue createCompletionQueue(int numElements) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
@@ -113,7 +113,7 @@ public final class Context implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return result.get(CompletionQueue::new);
     }
 }

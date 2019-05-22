@@ -26,7 +26,7 @@ public class ProtectionDomain implements NativeObject {
     }
 
     public boolean deallocate() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
@@ -34,7 +34,7 @@ public class ProtectionDomain implements NativeObject {
             return false;
         }
 
-        result.free();
+        result.releaseInstance();
         return true;
     }
 
@@ -45,7 +45,7 @@ public class ProtectionDomain implements NativeObject {
 
     @Nullable
     public MemoryRegion registerMemoryRegion(ByteBuffer buffer, AccessFlag... flags) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(),
             BitMask.of(flags), result.getHandle());
@@ -55,14 +55,14 @@ public class ProtectionDomain implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return new MemoryRegion(result.longValue(), buffer);
     }
 
     @Nullable
     public SharedReceiveQueue createSharedReceiveQueue(
         SharedReceiveQueue.InitialAttributes initialAttributes) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.createSharedReceiveQueue(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
@@ -70,19 +70,19 @@ public class ProtectionDomain implements NativeObject {
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return result.get(SharedReceiveQueue::new);
     }
 
     @Nullable QueuePair createQueuePair(InitialAttributes initialAttributes) {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
         Verbs.createQueuePair(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create queue pair");
             return null;
         }
 
-        result.free();
+        result.releaseInstance();
         return result.get(QueuePair::new);
     }
 }

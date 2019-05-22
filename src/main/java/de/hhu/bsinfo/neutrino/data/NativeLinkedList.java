@@ -1,11 +1,11 @@
 package de.hhu.bsinfo.neutrino.data;
 
-import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NativeLinkedList<T extends NativeObject> {
 
+    @FunctionalInterface
     public interface Linker<T extends NativeObject> {
         void onLink(final T current, final T next);
     }

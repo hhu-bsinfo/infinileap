@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.RingBufferPool;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public final class Verbs {
     private static final int DEFAULT_POOL_SIZE = 1024;
 
     @SuppressWarnings("FieldNamingConvention")
-    private static final Map<Class<? extends NativeObject>, ThreadLocal<RingBufferPool<NativeObject>>> poolMap = new HashMap<>();
+    private static final Map<Class<? extends Poolable>, ThreadLocal<RingBufferPool<Poolable>>> poolMap = new HashMap<>();
 
     static {
         System.loadLibrary("neutrino");
@@ -22,8 +22,12 @@ public final class Verbs {
     private Verbs() {
     }
 
-    public static RingBufferPool<NativeObject> getNativeObjectPool(Class<? extends NativeObject> clazz) {
-        return poolMap.get(clazz).get();
+    public static Poolable getPoolableInstance(Class<? extends Poolable> clazz) {
+        return poolMap.get(clazz).get().getInstance();
+    }
+
+    public static void returnPoolableInstance(Poolable instance) {
+        poolMap.get(instance.getClass()).get().returnInstance(instance);
     }
 
     static native int getNumDevices();
@@ -45,4 +49,6 @@ public final class Verbs {
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
+
+    public native void benchmarkDummyMethod(long resultHandle);
 }

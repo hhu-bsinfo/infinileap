@@ -16,19 +16,22 @@ public class StructUtil {
         System.loadLibrary("neutrino");
     }
 
+    private StructUtil() {
+    }
+
     private static native void getStructInformation(String identifier, long resultHandle);
 
     private static final Map<String, StructInformation> CACHE = new HashMap<>();
 
     public static StructInformation getInfo(final String identifier) {
         return CACHE.computeIfAbsent(identifier, key -> {
-            var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+            var result = (Result) Verbs.getPoolableInstance(Result.class);
             getStructInformation(identifier, result.getHandle());
             if (result.isError()) {
                 throw new IllegalArgumentException(String.format("No struct information found for %s", identifier));
             }
 
-            result.free();
+            result.releaseInstance();
             return result.get(StructInformation::new);
         });
     }

@@ -153,6 +153,14 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQueue
   (JNIEnv *, jclass, jlong, jint, jlong, jlong);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    benchmarkDummyMethod
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

@@ -4,11 +4,12 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
+import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class Result implements NativeObject {
+public class Result implements NativeObject, Poolable {
 
     private static final int SIZE = Integer.BYTES + Long.BYTES;
 

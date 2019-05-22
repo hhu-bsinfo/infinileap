@@ -6,12 +6,11 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
+import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-public class SendWorkRequest extends Struct {
+public class SendWorkRequest extends Struct implements Poolable {
 
     public enum OpCode {
         RDMA_WRITE(0), RDMA_WRITE_WITH_IMM(1), SEND(2), SEND_WITH_IMM(3), RDMA_READ(4),

@@ -1,7 +1,5 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import java.util.Collection;
-
 public class RingBuffer<T> {
 
     public static final int REMOVE_SIGN = 0x7FFFFFFF;

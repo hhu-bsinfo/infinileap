@@ -4,8 +4,6 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.NativeObjectStore;
-import de.hhu.bsinfo.neutrino.util.RingBufferPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,21 +66,21 @@ public class CompletionQueue extends Struct {
     }
 
     public boolean destroy() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not destroy completion queue [{}]", result.getStatus());
-            result.free();
+            result.releaseInstance();
             return false;
         }
 
-        result.free();
+        result.releaseInstance();
         return true;
     }
 
     public void poll() {
-        var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         // TODO(krakowski)
         //  Implement native object array and pass it to pollCompletionQueue
@@ -90,11 +88,11 @@ public class CompletionQueue extends Struct {
         Verbs.pollCompletionQueue(getHandle(), 0, 0, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Polling completion queue failed");
-            result.free();
+            result.releaseInstance();
             return;
         }
 
-        result.free();
+        result.releaseInstance();
     }
 
     @Override

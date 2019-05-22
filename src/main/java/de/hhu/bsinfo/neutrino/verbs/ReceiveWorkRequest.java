@@ -3,10 +3,9 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
+import de.hhu.bsinfo.neutrino.util.Poolable;
 
-public class ReceiveWorkRequest extends Struct {
+public class ReceiveWorkRequest extends Struct implements Poolable {
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");

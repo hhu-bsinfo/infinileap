@@ -1,25 +1,30 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class RingBufferPool<T extends NativeObject> extends RingBufferStore<T> implements NativeObjectFactory<T> {
+public class RingBufferPool<T extends Poolable> extends Pool<T> {
 
-    private final Supplier<T> supplier;
+    private final RingBuffer<T> buffer;
 
     public RingBufferPool(final int size, final Supplier<T> supplier) {
-        super(size);
+        super(supplier);
 
-        this.supplier = supplier;
+        buffer = new RingBuffer<>(size);
 
         for(int i = 0; i < size; i++) {
-            storeInstance(supplier.get());
+            buffer.push(supplier.get());
         }
     }
 
     @Override
-    public final T newInstance() {
-        return Objects.requireNonNullElseGet(getInstance(), supplier);
+    public final T getInstance() {
+        return Objects.requireNonNullElseGet(buffer.pop(), getSupplier());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void returnInstance(Poolable instance) {
+        buffer.push((T) instance);
     }
 }
