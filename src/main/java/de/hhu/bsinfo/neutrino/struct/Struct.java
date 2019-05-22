@@ -1,6 +1,8 @@
 package de.hhu.bsinfo.neutrino.struct;
 
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
+import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeBoolean;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
@@ -9,6 +11,7 @@ import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.data.NativeString;
 import de.hhu.bsinfo.neutrino.util.AnonymousFactory;
+import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
@@ -91,12 +94,20 @@ public class Struct implements NativeObject {
         return new NativeLong(byteBuffer, offsetOf(identifier));
     }
 
+    protected final NativeBoolean booleanField(String identifier) {
+        return new NativeBoolean(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(String identifier) {
+        return new NativeBitMask<>(byteBuffer, offsetOf(identifier));
+    }
+
     protected final NativeString stringField(String identifier, int length) {
         return new NativeString(byteBuffer, offsetOf(identifier), length);
     }
 
-    protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter) {
-        return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter);
+    protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter, T initialValue) {
+        return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter, initialValue);
     }
 
     protected final <T extends Struct> T valueField(String identifier, ValueFactory<T> factory) {

@@ -16,7 +16,7 @@ public class SharedReceiveQueue extends Struct {
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
     public SharedReceiveQueue(long handle) {
-        super("ibv_srq");
+        super("ibv_srq", handle);
     }
 
     public static final class InitialAttributes extends Struct {

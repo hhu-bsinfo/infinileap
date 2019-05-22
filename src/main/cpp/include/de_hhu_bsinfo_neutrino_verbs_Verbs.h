@@ -137,6 +137,14 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedRecei
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createQueuePair
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    modifyQueuePair
+ * Signature: (JJIJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair
+  (JNIEnv *, jclass, jlong, jlong, jint, jlong);
+
 #ifdef __cplusplus
 }
 #endif

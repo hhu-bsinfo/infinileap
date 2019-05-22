@@ -43,4 +43,5 @@ public final class Verbs {
     static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
+    static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
 }

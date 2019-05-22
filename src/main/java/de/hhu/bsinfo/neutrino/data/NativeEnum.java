@@ -6,16 +6,17 @@ public class NativeEnum<T extends Enum<T>> extends NativeDataType {
 
     private final EnumConverter<T> converter;
 
-    public NativeEnum(ByteBuffer byteBuffer, int offset, EnumConverter<T> converter) {
+    public NativeEnum(ByteBuffer byteBuffer, int offset, EnumConverter<T> converter, T initialValue) {
         super(byteBuffer, offset);
         this.converter = converter;
+        set(initialValue);
     }
 
-    public void set(final T value) {
+    public final void set(final T value) {
         getByteBuffer().putInt(getOffset(), converter.toInt(value));
     }
 
-    public T get() {
+    public final T get() {
         return converter.toEnum(getByteBuffer().getInt(getOffset()));
     }
 

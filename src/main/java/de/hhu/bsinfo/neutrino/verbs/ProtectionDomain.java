@@ -2,9 +2,9 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
-import de.hhu.bsinfo.neutrino.verbs.MemoryRegion.AccessFlag;
-import de.hhu.bsinfo.neutrino.verbs.SharedReceiveQueue.InitialAttributes;
+import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
 import java.nio.ByteBuffer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -45,14 +45,11 @@ public class ProtectionDomain implements NativeObject {
 
     @Nullable
     public MemoryRegion registerMemoryRegion(ByteBuffer buffer, AccessFlag... flags) {
-        int access = 0;
-        for(var flag : flags) {
-            access |= flag.getValue();
-        }
-
         var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
 
-        Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(), access, result.getHandle());
+        Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(),
+            BitMask.of(flags), result.getHandle());
+
         if(result.isError()) {
             LOGGER.error("Could not register memory region");
             return null;
@@ -63,7 +60,8 @@ public class ProtectionDomain implements NativeObject {
     }
 
     @Nullable
-    public SharedReceiveQueue createSharedReceiveQueue(InitialAttributes initialAttributes) {
+    public SharedReceiveQueue createSharedReceiveQueue(
+        SharedReceiveQueue.InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
 
         Verbs.createSharedReceiveQueue(handle, initialAttributes.getHandle(), result.getHandle());
@@ -76,9 +74,9 @@ public class ProtectionDomain implements NativeObject {
         return result.get(SharedReceiveQueue::new);
     }
 
-    @Nullable QueuePair createQueuePair(QueuePair.Attributes attributes) {
+    @Nullable QueuePair createQueuePair(InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getNativeObjectPool(Result.class).newInstance();
-        Verbs.createQueuePair(handle, attributes.getHandle(), result.getHandle());
+        Verbs.createQueuePair(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create queue pair");
             return null;

@@ -236,6 +236,86 @@ ReflectionUtility::StructInfo ibv_srq_struct_info {
     ibv_srq_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_ah_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_ah_attr, grh),
+    GET_MEMBER_INFO(ibv_ah_attr, dlid),
+    GET_MEMBER_INFO(ibv_ah_attr, sl),
+    GET_MEMBER_INFO(ibv_ah_attr, src_path_bits),
+    GET_MEMBER_INFO(ibv_ah_attr, static_rate),
+    GET_MEMBER_INFO(ibv_ah_attr, is_global),
+    GET_MEMBER_INFO(ibv_ah_attr, port_num)
+};
+
+ReflectionUtility::StructInfo ibv_ah_attr_struct_info {
+    sizeof(ibv_ah_attr),
+    sizeof(ibv_ah_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_ah_attr_member_infos
+};
+
+
+ReflectionUtility::MemberInfo ibv_global_route_member_infos[] = {
+    GET_MEMBER_INFO(ibv_global_route, dgid),
+    GET_MEMBER_INFO(ibv_global_route, flow_label),
+    GET_MEMBER_INFO(ibv_global_route, sgid_index),
+    GET_MEMBER_INFO(ibv_global_route, hop_limit),
+    GET_MEMBER_INFO(ibv_global_route, traffic_class)
+};
+
+ReflectionUtility::StructInfo ibv_global_route_struct_info {
+    sizeof(ibv_global_route),
+    sizeof(ibv_global_route_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_global_route_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_qp_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_qp_attr, qp_state),
+    GET_MEMBER_INFO(ibv_qp_attr, cur_qp_state),
+    GET_MEMBER_INFO(ibv_qp_attr, path_mtu),
+    GET_MEMBER_INFO(ibv_qp_attr, path_mig_state),
+    GET_MEMBER_INFO(ibv_qp_attr, qkey),
+    GET_MEMBER_INFO(ibv_qp_attr, rq_psn),
+    GET_MEMBER_INFO(ibv_qp_attr, sq_psn),
+    GET_MEMBER_INFO(ibv_qp_attr, dest_qp_num),
+    GET_MEMBER_INFO(ibv_qp_attr, qp_access_flags),
+    GET_MEMBER_INFO(ibv_qp_attr, cap),
+    GET_MEMBER_INFO(ibv_qp_attr, ah_attr),
+    GET_MEMBER_INFO(ibv_qp_attr, alt_ah_attr),
+    GET_MEMBER_INFO(ibv_qp_attr, pkey_index),
+    GET_MEMBER_INFO(ibv_qp_attr, alt_pkey_index),
+    GET_MEMBER_INFO(ibv_qp_attr, en_sqd_async_notify),
+    GET_MEMBER_INFO(ibv_qp_attr, sq_draining),
+    GET_MEMBER_INFO(ibv_qp_attr, max_rd_atomic),
+    GET_MEMBER_INFO(ibv_qp_attr, max_dest_rd_atomic),
+    GET_MEMBER_INFO(ibv_qp_attr, min_rnr_timer),
+    GET_MEMBER_INFO(ibv_qp_attr, port_num),
+    GET_MEMBER_INFO(ibv_qp_attr, timeout),
+    GET_MEMBER_INFO(ibv_qp_attr, retry_cnt),
+    GET_MEMBER_INFO(ibv_qp_attr, rnr_retry),
+    GET_MEMBER_INFO(ibv_qp_attr, alt_port_num),
+    GET_MEMBER_INFO(ibv_qp_attr, alt_timeout),
+    GET_MEMBER_INFO(ibv_qp_attr, rate_limit)
+};
+
+ReflectionUtility::StructInfo ibv_qp_attr_struct_info {
+    sizeof(ibv_qp_attr),
+    sizeof(ibv_qp_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_qp_attr_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_qp_cap_member_infos[] = {
+    GET_MEMBER_INFO(ibv_qp_cap, max_send_wr),
+    GET_MEMBER_INFO(ibv_qp_cap, max_recv_wr),
+    GET_MEMBER_INFO(ibv_qp_cap, max_send_sge),
+    GET_MEMBER_INFO(ibv_qp_cap, max_recv_sge),
+    GET_MEMBER_INFO(ibv_qp_cap, max_inline_data)
+};
+
+ReflectionUtility::StructInfo ibv_qp_cap_struct_info {
+    sizeof(ibv_qp_cap),
+    sizeof(ibv_qp_cap_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_qp_cap_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -247,7 +327,11 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_srq_init_attr", &ibv_srq_init_attr_struct_info},
     {"ibv_srq_attr", &ibv_srq_attr_struct_info},
     {"ibv_srq", &ibv_srq_struct_info},
-    {"ibv_qp_init_attr", &ibv_qp_init_attr_struct_info}
+    {"ibv_qp_init_attr", &ibv_qp_init_attr_struct_info},
+    {"ibv_ah_attr", &ibv_ah_attr_struct_info},
+    {"ibv_global_route", &ibv_global_route_struct_info},
+    {"ibv_qp_attr", &ibv_qp_attr_struct_info},
+    {"ibv_qp_cap", &ibv_qp_cap_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
