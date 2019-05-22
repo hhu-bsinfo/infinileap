@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.struct.StructInformation;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class SendWorkRequest extends Struct {
@@ -61,9 +62,6 @@ public class SendWorkRequest extends Struct {
         current.next.set(next.getHandle());
     };
 
-    private static final StructInformation INFO = StructUtil.getInfo("ibv_send_wr");
-    public static final int SIZE = INFO.size.get();
-
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
     private final NativeLong listHandle = longField("sg_list");
@@ -73,8 +71,9 @@ public class SendWorkRequest extends Struct {
     private final NativeInteger immediateData = integerField("imm_data");
     private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
 
-    // TODO(krakowski)
-    //  find solution for anonymous nested structs
+    public final Rdma rdma = anonymousField(Rdma::new);
+    public final Atomic atomic = anonymousField(Atomic::new);
+    public final Unreliable ud = anonymousField(Unreliable::new);
 
     public SendWorkRequest() {
         super("ibv_send_wr");
@@ -153,151 +152,148 @@ public class SendWorkRequest extends Struct {
         return "SendWorkRequest {" +
             "\n\tid=" + id +
             ",\n\tnext=" + next +
-            ",\n\tlist=" + listHandle +
+            ",\n\tlistHandle=" + listHandle +
             ",\n\tlistLength=" + listLength +
             ",\n\topCode=" + opCode +
             ",\n\tflags=" + flags +
             ",\n\timmediateData=" + immediateData +
             ",\n\tinvalidateRemoteKey=" + invalidateRemoteKey +
+            ",\n\trdma=" + rdma +
+            ",\n\tatomic=" + atomic +
+            ",\n\tud=" + ud +
             "\n}";
     }
 
-//    public static final class Rdma extends Struct {
-//
-//        private static final int RDMA_SIZE = 12;
-//
-//        private final NativeLong remoteAddress = new NativeLong(getByteBuffer(), INFO.getOffset("wr.rdma.remote_addr"));
-//        private final NativeInteger remoteKey = new NativeInteger(getByteBuffer(), INFO.getOffset("wr.rdma.rkey"));
-//
-//        public Rdma(ByteBuffer buffer) {
-//            super(buffer);
-//        }
-//
-//        public long getRemoteAddress() {
-//            return remoteAddress.get();
-//        }
-//
-//        public void setRemoteAddress(long remoteAddress) {
-//            this.remoteAddress.set(remoteAddress);
-//        }
-//
-//        public int getRemoteKey() {
-//            return remoteKey.get();
-//        }
-//
-//        public void setRemoteKey(int remoteKey) {
-//            this.remoteKey.set(remoteKey);
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "rdma {" +
-//                "\n\tremoteAddress=" + remoteAddress +
-//                ",\n\tremoteKey=" + remoteKey +
-//                "\n}";
-//        }
-//    }
-//
-//    public static final class Atomic extends Struct {
-//
-//        private static final int ATOMIC_SIZE = 28;
-//
-//        private final NativeLong remoteAddress = new NativeLong(getByteBuffer(), INFO.getOffset("wr.atomic.remote_addr"));
-//        private final NativeLong compareOperand = new NativeLong(getByteBuffer(), INFO.getOffset("wr.atomic.compare_add"));
-//        private final NativeLong swapOperand = new NativeLong(getByteBuffer(), INFO.getOffset("wr.atomic.swap"));
-//        private final NativeInteger remoteKey = new NativeInteger(getByteBuffer(), INFO.getOffset("wr.atomic.rkey"));
-//
-//        public Atomic(ByteBuffer buffer) {
-//            super(buffer);
-//        }
-//
-//        public long getRemoteAddress() {
-//            return remoteAddress.get();
-//        }
-//
-//        public void setRemoteAddress(long remoteAddress) {
-//            this.remoteAddress.set(remoteAddress);
-//        }
-//
-//        public long getCompareOperand() {
-//            return compareOperand.get();
-//        }
-//
-//        public void setCompareOperand(long compareOperand) {
-//            this.compareOperand.set(compareOperand);
-//        }
-//
-//        public long getSwapOperand() {
-//            return swapOperand.get();
-//        }
-//
-//        public void setSwapOperand(long swapOperand) {
-//            this.swapOperand.set(swapOperand);
-//        }
-//
-//        public int getRemoteKey() {
-//            return remoteKey.get();
-//        }
-//
-//        public void setRemoteKey(int remoteKey) {
-//            this.remoteKey.set(remoteKey);
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "atomic {" +
-//                "\n\tremoteAddress=" + remoteAddress +
-//                ",\n\tcompareOperand=" + compareOperand +
-//                ",\n\tswapOperand=" + swapOperand +
-//                ",\n\tremoteKey=" + remoteKey +
-//                "\n}";
-//        }
-//    }
-//
-//    public static final class Unreliable extends Struct {
-//
-//        private static final int UD_SIZE = 16;
-//
-//        private final NativeLong addressHandle = new NativeLong(getByteBuffer(), INFO.getOffset("wr.ud.ah"));
-//        private final NativeInteger remoteQueuePairNumber = new NativeInteger(getByteBuffer(), INFO.getOffset("wr.ud.remote_qpn"));
-//        private final NativeInteger remoteQueuePairKey = new NativeInteger(getByteBuffer(), INFO.getOffset("wr.ud.remote_qkey"));
-//
-//        public Unreliable(ByteBuffer buffer) {
-//            super(buffer);
-//        }
-//
-//        public long getAddressHandle() {
-//            return addressHandle.get();
-//        }
-//
-//        public void setAddressHandle(long ah) {
-//            addressHandle.set(ah);
-//        }
-//
-//        public int getRemoteQueuePairNumber() {
-//            return remoteQueuePairNumber.get();
-//        }
-//
-//        public void setRemoteQueuePairNumber(int remoteQueuePairNumber) {
-//            this.remoteQueuePairNumber.set(remoteQueuePairNumber);
-//        }
-//
-//        public int getRemoteQueuePairKey() {
-//            return remoteQueuePairKey.get();
-//        }
-//
-//        public void setRemoteQueuePairKey(int remoteQueuePairKey) {
-//            this.remoteQueuePairKey.set(remoteQueuePairKey);
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "ud {" +
-//                "\n\taddressHandle=" + addressHandle +
-//                ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
-//                ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
-//                "\n}";
-//        }
-//    }
+    public static final class Rdma extends Struct {
+
+        private final NativeLong remoteAddress = longField("remote_addr");
+        private final NativeInteger remoteKey = integerField("rkey");
+
+        public Rdma(ByteBuffer buffer) {
+            super("ibv_send_wr", "wr.rdma", buffer);
+        }
+
+        public long getRemoteAddress() {
+            return remoteAddress.get();
+        }
+
+        public void setRemoteAddress(long remoteAddress) {
+            this.remoteAddress.set(remoteAddress);
+        }
+
+        public int getRemoteKey() {
+            return remoteKey.get();
+        }
+
+        public void setRemoteKey(int remoteKey) {
+            this.remoteKey.set(remoteKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\tremoteAddress=" + remoteAddress +
+                ",\n\tremoteKey=" + remoteKey +
+                "\n}";
+        }
+    }
+
+    public static final class Atomic extends Struct {
+
+        private final NativeLong remoteAddress = longField("remote_addr");
+        private final NativeLong compareOperand = longField("compare_add");
+        private final NativeLong swapOperand = longField("swap");
+        private final NativeInteger remoteKey = integerField("rkey");
+
+        public Atomic(ByteBuffer buffer) {
+            super("ibv_send_wr", "wr.atomic", buffer);
+        }
+
+        public long getRemoteAddress() {
+            return remoteAddress.get();
+        }
+
+        public void setRemoteAddress(long remoteAddress) {
+            this.remoteAddress.set(remoteAddress);
+        }
+
+        public long getCompareOperand() {
+            return compareOperand.get();
+        }
+
+        public void setCompareOperand(long compareOperand) {
+            this.compareOperand.set(compareOperand);
+        }
+
+        public long getSwapOperand() {
+            return swapOperand.get();
+        }
+
+        public void setSwapOperand(long swapOperand) {
+            this.swapOperand.set(swapOperand);
+        }
+
+        public int getRemoteKey() {
+            return remoteKey.get();
+        }
+
+        public void setRemoteKey(int remoteKey) {
+            this.remoteKey.set(remoteKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\tremoteAddress=" + remoteAddress +
+                ",\n\tcompareOperand=" + compareOperand +
+                ",\n\tswapOperand=" + swapOperand +
+                ",\n\tremoteKey=" + remoteKey +
+                "\n}";
+        }
+    }
+
+    public static final class Unreliable extends Struct {
+
+        private final NativeLong addressHandle = longField("ah");
+        private final NativeInteger remoteQueuePairNumber = integerField("remote_qpn");
+        private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
+
+        public Unreliable(ByteBuffer buffer) {
+            super("ibv_send_wr", "wr.ud", buffer);
+        }
+
+        public long getAddressHandle() {
+            return addressHandle.get();
+        }
+
+        public void setAddressHandle(long ah) {
+            addressHandle.set(ah);
+        }
+
+        public int getRemoteQueuePairNumber() {
+            return remoteQueuePairNumber.get();
+        }
+
+        public void setRemoteQueuePairNumber(int remoteQueuePairNumber) {
+            this.remoteQueuePairNumber.set(remoteQueuePairNumber);
+        }
+
+        public int getRemoteQueuePairKey() {
+            return remoteQueuePairKey.get();
+        }
+
+        public void setRemoteQueuePairKey(int remoteQueuePairKey) {
+            this.remoteQueuePairKey.set(remoteQueuePairKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\taddressHandle=" + addressHandle +
+                ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
+                ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
+                "\n}";
+        }
+    }
 
 }

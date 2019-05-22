@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.data.NativeString;
+import de.hhu.bsinfo.neutrino.util.AnonymousFactory;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
@@ -53,11 +54,11 @@ public class Struct implements NativeObject {
         nameSpace = null;
     }
 
-    protected Struct(String name, String nameSpace, ByteBuffer buffer, int offset) {
+    protected Struct(String name, String nameSpace, ByteBuffer buffer) {
         info = StructUtil.getInfo(name);
         byteBuffer = buffer;
         handle = MemoryUtil.getAddress(byteBuffer);
-        baseOffset = offset;
+        baseOffset = 0;
         if (!nameSpace.isEmpty() && nameSpace.charAt(nameSpace.length() - 1) == '.') {
             this.nameSpace = nameSpace;
         } else {
@@ -104,6 +105,10 @@ public class Struct implements NativeObject {
 
     protected final <T extends Struct> T referenceField(String identifier, ReferenceFactory<T> factory) {
         return factory.newInstance(byteBuffer.getLong(offsetOf(identifier)));
+    }
+
+    protected final <T extends Struct> T anonymousField(AnonymousFactory<T> factory) {
+        return factory.newInstance(byteBuffer);
     }
 
     private int offsetOf(String identifier) {
