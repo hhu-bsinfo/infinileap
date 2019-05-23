@@ -19,7 +19,7 @@ public final class Context implements NativeObject {
     @SuppressWarnings("FieldNamingConvention")
     private static final long nullptr = 0L;
 
-    private Context(long handle) {
+    Context(long handle) {
         this.handle = handle;
     }
 

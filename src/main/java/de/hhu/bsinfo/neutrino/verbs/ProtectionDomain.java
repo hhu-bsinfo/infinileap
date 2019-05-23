@@ -74,7 +74,8 @@ public class ProtectionDomain implements NativeObject {
         return result.get(SharedReceiveQueue::new);
     }
 
-    @Nullable QueuePair createQueuePair(InitialAttributes initialAttributes) {
+    @Nullable
+    public QueuePair createQueuePair(InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         Verbs.createQueuePair(handle, initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {

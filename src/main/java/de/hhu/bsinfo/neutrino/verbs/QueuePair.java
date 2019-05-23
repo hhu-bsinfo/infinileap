@@ -14,30 +14,37 @@ import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueuePair implements NativeObject {
+@LinkNative("ibv_qp")
+public class QueuePair extends Struct {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueuePair.class);
 
-    private final long handle;
+    private final Context context = referenceField("context", Context::new);
+    private final NativeLong userContext = longField("qp_context");
+    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
+    private final CompletionQueue sendCompletionQueue = referenceField("send_cq", CompletionQueue::new);
+    private final CompletionQueue receiveCompletionQueue = referenceField("recv_cq", CompletionQueue::new);
+    private final SharedReceiveQueue sharedReceiveQueue = referenceField("srq", SharedReceiveQueue::new);
+    private final NativeInteger queuePairNumber = integerField("qp_num");
+    private final NativeEnum<State> state = enumField("state", State.CONVERTER);
+    private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
+    private final NativeInteger eventsCompleted = integerField("events_completed");
 
     protected QueuePair(long handle) {
-        this.handle = handle;
-    }
-
-    @Override
-    public long getHandle() {
-        return handle;
+        super(handle);
     }
 
     public void post(final SendWorkRequest sendWorkRequest) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postSendWorkRequest(handle, sendWorkRequest.getHandle(), result.getHandle());
+        Verbs.postSendWorkRequest(getHandle(), sendWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
@@ -48,7 +55,7 @@ public class QueuePair implements NativeObject {
     public void post(final ReceiveWorkRequest receiveWorkRequest) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postReceiveWorkRequest(handle, receiveWorkRequest.getHandle(), result.getHandle());
+        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequest.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Posting send work request failed");
         }
@@ -59,12 +66,52 @@ public class QueuePair implements NativeObject {
     public void modify(final Attributes attributes, final AttributeMask... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.modifyQueuePair(handle, attributes.getHandle(), BitMask.of(flags), result.getHandle());
+        Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Modifying queue pair failed");
+            LOGGER.error("Modifying queue pair failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public <T extends NativeObject> T getUserContext(ReferenceFactory<T> factory) {
+        return factory.newInstance(userContext.get());
+    }
+
+    public ProtectionDomain getProtectionDomain() {
+        return protectionDomain;
+    }
+
+    public CompletionQueue getSendCompletionQueue() {
+        return sendCompletionQueue;
+    }
+
+    public CompletionQueue getReceiveCompletionQueue() {
+        return receiveCompletionQueue;
+    }
+
+    public SharedReceiveQueue getSharedReceiveQueue() {
+        return sharedReceiveQueue;
+    }
+
+    public int getQueuePairNumber() {
+        return queuePairNumber.get();
+    }
+
+    public State getState() {
+        return state.get();
+    }
+
+    public Type getType() {
+        return type.get();
+    }
+
+    public int getEventsCompleted() {
+        return eventsCompleted.get();
     }
 
     public enum Type {
@@ -182,11 +229,15 @@ public class QueuePair implements NativeObject {
         private final NativeLong sendCompletionQueue = longField("send_cq");
         private final NativeLong receiveCompletionQueue = longField("recv_cq");
         private final NativeLong sharedReceiveQueue = longField("srq");
-        private final NativeLong capabilities = longField("cap");
-        private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER, Type.RC);
+        private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
         private final NativeInteger signalLevel = integerField("sq_sig_all");
 
-        public InitialAttributes() {
+        public final Capabilities capabilities = valueField("cap", Capabilities::new);
+
+        public InitialAttributes() {}
+
+        public InitialAttributes(Consumer<InitialAttributes> configurator) {
+            configurator.accept(this);
         }
 
         public long getUserContext() {
@@ -201,32 +252,24 @@ public class QueuePair implements NativeObject {
             return sendCompletionQueue.get();
         }
 
-        public void setSendCompletionQueue(long sendCompletionQueue) {
-            this.sendCompletionQueue.set(sendCompletionQueue);
+        public void setSendCompletionQueue(CompletionQueue sendCompletionQueue) {
+            this.sendCompletionQueue.set(sendCompletionQueue.getHandle());
         }
 
         public long getReceiveCompletionQueue() {
             return receiveCompletionQueue.get();
         }
 
-        public void setReceiveCompletionQueue(long receiveCompletionQueue) {
-            this.receiveCompletionQueue.set(receiveCompletionQueue);
+        public void setReceiveCompletionQueue(CompletionQueue receiveCompletionQueue) {
+            this.receiveCompletionQueue.set(receiveCompletionQueue.getHandle());
         }
 
         public long getSharedReceiveQueue() {
             return sharedReceiveQueue.get();
         }
 
-        public void setSharedReceiveQueue(long sharedReceiveQueue) {
-            this.sharedReceiveQueue.set(sharedReceiveQueue);
-        }
-
-        public long getCapabilities() {
-            return capabilities.get();
-        }
-
-        public void setCapabilities(long capabilities) {
-            this.capabilities.set(capabilities);
+        public void setSharedReceiveQueue(SharedReceiveQueue sharedReceiveQueue) {
+            this.sharedReceiveQueue.set(sharedReceiveQueue.getHandle());
         }
 
         public Type getType() {
@@ -474,13 +517,13 @@ public class QueuePair implements NativeObject {
     @LinkNative("ibv_qp_attr")
     public static final class Attributes extends Struct {
 
-        private final NativeEnum<State> state = enumField("qp_state", State.CONVERTER, State.UNKNOWN);
-        private final NativeEnum<State> currentState = enumField("cur_qp_state", State.CONVERTER, State.UNKNOWN);
-        private final NativeEnum<Mtu> pathMtu = enumField("path_mtu", Mtu.CONVERTER, Mtu.IBV_MTU_256);
-        private final NativeEnum<MigrationState> pathMigrationState = enumField("path_mig_state", MigrationState.CONVERTER, MigrationState.MIGRATED);
+        private final NativeEnum<State> state = enumField("qp_state", State.CONVERTER);
+        private final NativeEnum<State> currentState = enumField("cur_qp_state", State.CONVERTER);
+        private final NativeEnum<Mtu> pathMtu = enumField("path_mtu", Mtu.CONVERTER);
+        private final NativeEnum<MigrationState> pathMigrationState = enumField("path_mig_state", MigrationState.CONVERTER);
         private final NativeInteger key = integerField("qkey");
-        private final NativeInteger receivedPacketNumber = integerField("rq_psn");
-        private final NativeInteger sentPacketNumber = integerField("sq_psn");
+        private final NativeInteger receivePacketNumber = integerField("rq_psn");
+        private final NativeInteger sendPacketNumber = integerField("sq_psn");
         private final NativeInteger destination = integerField("dest_qp_num");
         private final NativeBitMask<AccessFlag> accessFlags = bitField("qp_access_flags");
         private final NativeShort partitionKeyIndex = shortField("pkey_index");
@@ -503,6 +546,10 @@ public class QueuePair implements NativeObject {
         public final AddressVector altAddressVector = valueField("alt_ah_attr", AddressVector::new);
 
         public Attributes() {}
+
+        public Attributes(Consumer<Attributes> configurator) {
+            configurator.accept(this);
+        }
 
         public Attributes(final long handle) {
             super(handle);
@@ -528,12 +575,12 @@ public class QueuePair implements NativeObject {
             return key.get();
         }
 
-        public int getReceivedPacketNumber() {
-            return receivedPacketNumber.get();
+        public int getReceivePacketNumber() {
+            return receivePacketNumber.get();
         }
 
-        public int getSentPacketNumber() {
-            return sentPacketNumber.get();
+        public int getSendPacketNumber() {
+            return sendPacketNumber.get();
         }
 
         public int getDestination() {
@@ -620,12 +667,12 @@ public class QueuePair implements NativeObject {
             key.set(value);
         }
 
-        public void setReceivedPacketNumber(final int value) {
-            receivedPacketNumber.set(value);
+        public void setReceivePacketNumber(final int value) {
+            receivePacketNumber.set(value);
         }
 
-        public void setSentPacketNumber(final int value) {
-            sentPacketNumber.set(value);
+        public void setSendPacketNumber(final int value) {
+            sendPacketNumber.set(value);
         }
 
         public void setDestination(final int value) {
@@ -700,8 +747,8 @@ public class QueuePair implements NativeObject {
                 ",\n\tpathMtu=" + pathMtu +
                 ",\n\tpathMigrationState=" + pathMigrationState +
                 ",\n\tkey=" + key +
-                ",\n\treceivedPacketNumber=" + receivedPacketNumber +
-                ",\n\tsentPacketNumber=" + sentPacketNumber +
+                ",\n\treceivedPacketNumber=" + receivePacketNumber +
+                ",\n\tsentPacketNumber=" + sendPacketNumber +
                 ",\n\tdestination=" + destination +
                 ",\n\taccessFlags=" + accessFlags +
                 ",\n\tpartitionKeyIndex=" + partitionKeyIndex +

@@ -317,6 +317,28 @@ ReflectionUtility::StructInfo ibv_qp_cap_struct_info {
     ibv_qp_cap_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_qp_member_infos[] = {
+    GET_MEMBER_INFO(ibv_qp, context),
+    GET_MEMBER_INFO(ibv_qp, qp_context),
+    GET_MEMBER_INFO(ibv_qp, pd),
+    GET_MEMBER_INFO(ibv_qp, send_cq),
+    GET_MEMBER_INFO(ibv_qp, recv_cq),
+    GET_MEMBER_INFO(ibv_qp, srq),
+    GET_MEMBER_INFO(ibv_qp, handle),
+    GET_MEMBER_INFO(ibv_qp, qp_num),
+    GET_MEMBER_INFO(ibv_qp, state),
+    GET_MEMBER_INFO(ibv_qp, qp_type),
+    GET_MEMBER_INFO(ibv_qp, mutex),
+    GET_MEMBER_INFO(ibv_qp, cond),
+    GET_MEMBER_INFO(ibv_qp, events_completed)
+};
+
+ReflectionUtility::StructInfo ibv_qp_struct_info {
+    sizeof(ibv_qp),
+    sizeof(ibv_qp_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_qp_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -332,7 +354,8 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_ah_attr", &ibv_ah_attr_struct_info},
     {"ibv_global_route", &ibv_global_route_struct_info},
     {"ibv_qp_attr", &ibv_qp_attr_struct_info},
-    {"ibv_qp_cap", &ibv_qp_cap_struct_info}
+    {"ibv_qp_cap", &ibv_qp_cap_struct_info},
+    {"ibv_qp", &ibv_qp_struct_info}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {

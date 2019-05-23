@@ -106,19 +106,19 @@ public class Struct implements NativeObject {
         return new NativeString(byteBuffer, offsetOf(identifier), length);
     }
 
-    protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter, T initialValue) {
-        return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter, initialValue);
+    protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter) {
+        return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter);
     }
 
-    protected final <T extends Struct> T valueField(String identifier, ValueFactory<T> factory) {
+    protected final <T extends NativeObject> T valueField(String identifier, ValueFactory<T> factory) {
         return factory.newInstance(byteBuffer, offsetOf(identifier));
     }
 
-    protected final <T extends Struct> T referenceField(String identifier, ReferenceFactory<T> factory) {
+    protected final <T extends NativeObject> T referenceField(String identifier, ReferenceFactory<T> factory) {
         return factory.newInstance(byteBuffer.getLong(offsetOf(identifier)));
     }
 
-    protected final <T extends Struct> T anonymousField(AnonymousFactory<T> factory) {
+    protected final <T extends NativeObject> T anonymousField(AnonymousFactory<T> factory) {
         return factory.newInstance(byteBuffer);
     }
 

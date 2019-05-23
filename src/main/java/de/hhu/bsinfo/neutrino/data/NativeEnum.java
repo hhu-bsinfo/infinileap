@@ -6,10 +6,9 @@ public class NativeEnum<T extends Enum<T>> extends NativeDataType {
 
     private final EnumConverter<T> converter;
 
-    public NativeEnum(ByteBuffer byteBuffer, int offset, EnumConverter<T> converter, T initialValue) {
+    public NativeEnum(ByteBuffer byteBuffer, int offset, EnumConverter<T> converter) {
         super(byteBuffer, offset);
         this.converter = converter;
-        set(initialValue);
     }
 
     public final void set(final T value) {

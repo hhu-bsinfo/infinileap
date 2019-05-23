@@ -106,8 +106,8 @@ public class WorkCompletion extends Struct {
     }
 
     private final NativeLong id = longField("wr_id");
-    private final NativeEnum<Status> status = enumField("status", Status.CONVERTER, Status.SUCCESS);
-    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER, OpCode.SEND);
+    private final NativeEnum<Status> status = enumField("status", Status.CONVERTER);
+    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
     private final NativeInteger vendorError = integerField("vendor_err");
     private final NativeInteger byteCount = integerField("byte_len");
     private final NativeInteger immediateData = integerField("imm_data");

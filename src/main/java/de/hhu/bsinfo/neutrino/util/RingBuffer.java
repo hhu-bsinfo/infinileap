@@ -14,7 +14,7 @@ public class RingBuffer<T> {
     }
 
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "SuspiciousArrayCast"})
     public RingBuffer(final int size) {
         buffer = (T[]) new Object[size];
     }

@@ -67,7 +67,7 @@ public class SendWorkRequest extends Struct implements Poolable {
     private final NativeLong next = longField("next");
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
-    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER, OpCode.RDMA_WRITE);
+    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
     private final NativeInteger flags = integerField("send_flags");
     private final NativeInteger immediateData = integerField("imm_data");
     private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
