@@ -6,10 +6,12 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+@LinkNative("ibv_send_wr")
 public class SendWorkRequest extends Struct implements Poolable {
 
     public enum OpCode {
@@ -75,11 +77,10 @@ public class SendWorkRequest extends Struct implements Poolable {
     public final Unreliable ud = anonymousField(Unreliable::new);
 
     public SendWorkRequest() {
-        super("ibv_send_wr");
     }
 
     public SendWorkRequest(final long handle) {
-        super("ibv_send_wr", handle);
+        super(handle);
     }
 
     public long getId() {
@@ -163,13 +164,14 @@ public class SendWorkRequest extends Struct implements Poolable {
             "\n}";
     }
 
+    @LinkNative("ibv_send_wr")
     public static final class Rdma extends Struct {
 
         private final NativeLong remoteAddress = longField("remote_addr");
         private final NativeInteger remoteKey = integerField("rkey");
 
         public Rdma(ByteBuffer buffer) {
-            super("ibv_send_wr", "wr.rdma", buffer);
+            super(buffer, "wr.rdma");
         }
 
         public long getRemoteAddress() {
@@ -197,6 +199,7 @@ public class SendWorkRequest extends Struct implements Poolable {
         }
     }
 
+    @LinkNative("ibv_send_wr")
     public static final class Atomic extends Struct {
 
         private final NativeLong remoteAddress = longField("remote_addr");
@@ -205,7 +208,7 @@ public class SendWorkRequest extends Struct implements Poolable {
         private final NativeInteger remoteKey = integerField("rkey");
 
         public Atomic(ByteBuffer buffer) {
-            super("ibv_send_wr", "wr.atomic", buffer);
+            super(buffer, "wr.atomic");
         }
 
         public long getRemoteAddress() {
@@ -251,6 +254,7 @@ public class SendWorkRequest extends Struct implements Poolable {
         }
     }
 
+    @LinkNative("ibv_send_wr")
     public static final class Unreliable extends Struct {
 
         private final NativeLong addressHandle = longField("ah");
@@ -258,7 +262,7 @@ public class SendWorkRequest extends Struct implements Poolable {
         private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
 
         public Unreliable(ByteBuffer buffer) {
-            super("ibv_send_wr", "wr.ud", buffer);
+            super(buffer, "wr.ud");
         }
 
         public long getAddressHandle() {

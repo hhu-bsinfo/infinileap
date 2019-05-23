@@ -3,8 +3,10 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 
+@LinkNative("ibv_sge")
 public class ScatterGatherElement extends Struct implements Poolable {
 
     private final NativeLong address = longField("addr");
@@ -12,11 +14,10 @@ public class ScatterGatherElement extends Struct implements Poolable {
     private final NativeInteger localKey = integerField("lkey");
 
     public ScatterGatherElement() {
-        super("ibv_sge");
     }
 
     public ScatterGatherElement(final long handle) {
-        super("ibv_sge", handle);
+        super(handle);
     }
 
     long getAddress() {

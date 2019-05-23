@@ -13,6 +13,7 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.slf4j.Logger;
@@ -174,6 +175,7 @@ public class QueuePair implements NativeObject {
         }
     }
 
+    @LinkNative("ibv_qp_init_attr")
     public static final class InitialAttributes extends Struct {
 
         private final NativeLong userContext = longField("qp_context");
@@ -185,7 +187,6 @@ public class QueuePair implements NativeObject {
         private final NativeInteger signalLevel = integerField("sq_sig_all");
 
         public InitialAttributes() {
-            super("ibv_qp_init_attr");
         }
 
         public long getUserContext() {
@@ -245,6 +246,7 @@ public class QueuePair implements NativeObject {
         }
     }
 
+    @LinkNative("ibv_qp_cap")
     public static final class Capabilities extends Struct {
 
         private final NativeInteger maxSendWorkRequests = integerField("max_send_wr");
@@ -254,11 +256,10 @@ public class QueuePair implements NativeObject {
         private final NativeInteger maxInlineData = integerField("max_inline_data");
 
         public Capabilities() {
-            super("ibv_qp_cap");
         }
 
         public Capabilities(ByteBuffer byteBuffer, int offset) {
-            super("ibv_qp_cap", byteBuffer, offset);
+            super(byteBuffer, offset);
         }
 
         public int getMaxSendWorkRequests() {
@@ -313,6 +314,7 @@ public class QueuePair implements NativeObject {
         }
     }
 
+    @LinkNative("ibv_ah_attr")
     public static final class AddressVector extends Struct {
 
         private final NativeShort destination = shortField("dlid");
@@ -325,15 +327,14 @@ public class QueuePair implements NativeObject {
         public final GlobalRoute globalRoute = valueField("grh", GlobalRoute::new);
 
         public AddressVector() {
-            super("ibv_ah_attr");
         }
 
         public AddressVector(ByteBuffer byteBuffer, int offset) {
-            super("ibv_ah_attr", byteBuffer, offset);
+            super(byteBuffer, offset);
         }
 
         public AddressVector(final long handle) {
-            super("ibv_ah_attr", handle);
+            super(handle);
         }
 
         public short getDestination() {
@@ -398,6 +399,7 @@ public class QueuePair implements NativeObject {
         }
     }
 
+    @LinkNative("ibv_global_route")
     public static final class GlobalRoute extends Struct {
 
         private final NativeLong destination = longField("dgid");
@@ -407,15 +409,14 @@ public class QueuePair implements NativeObject {
         private final NativeByte trafficClass = byteField("traffic_class");
 
         public GlobalRoute() {
-            super("ibv_global_route");
         }
 
         public GlobalRoute(ByteBuffer byteBuffer, int offset) {
-            super("ibv_global_route", byteBuffer, offset);
+            super(byteBuffer, offset);
         }
 
         public GlobalRoute(final long handle) {
-            super("ibv_global_route", handle);
+            super(handle);
         }
 
         public long getDestination() {
@@ -470,6 +471,7 @@ public class QueuePair implements NativeObject {
         }
     }
 
+    @LinkNative("ibv_qp_attr")
     public static final class Attributes extends Struct {
 
         private final NativeEnum<State> state = enumField("qp_state", State.CONVERTER, State.UNKNOWN);
@@ -500,12 +502,10 @@ public class QueuePair implements NativeObject {
         public final AddressVector addressVector = valueField("ah_attr", AddressVector::new);
         public final AddressVector altAddressVector = valueField("alt_ah_attr", AddressVector::new);
 
-        public Attributes() {
-            super("ibv_qp_attr");
-        }
+        public Attributes() {}
 
         public Attributes(final long handle) {
-            super("ibv_qp_attr", handle);
+            super(handle);
         }
 
         public State getState() {

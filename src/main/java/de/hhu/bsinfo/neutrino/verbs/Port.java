@@ -6,8 +6,10 @@ import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.util.Arrays;
 
+@LinkNative("ibv_port_attr")
 public class Port extends Struct {
 
     public enum State {
@@ -76,12 +78,11 @@ public class Port extends Struct {
     private final NativeByte flags = byteField("flags");
     private final NativeShort portCapabilites2 = shortField("port_cap_flags2");
 
-    Port() {
-        super("ibv_port_attr");
+    public Port() {
     }
 
-    Port(long handle) {
-        super("ibv_port_attr", handle);
+    public Port(long handle) {
+        super(handle);
     }
 
     public State getState() {

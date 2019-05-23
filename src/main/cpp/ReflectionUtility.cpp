@@ -101,7 +101,7 @@ ReflectionUtility::StructInfo ibv_cq_struct_info {
     ibv_cq_member_infos
 };
 
-ReflectionUtility::MemberInfo ibv_wc_member_infos[] {
+ReflectionUtility::MemberInfo ibv_wc_member_infos[] = {
     GET_MEMBER_INFO(ibv_wc, wr_id),
     GET_MEMBER_INFO(ibv_wc, status),
     GET_MEMBER_INFO(ibv_wc, opcode),
@@ -110,6 +110,7 @@ ReflectionUtility::MemberInfo ibv_wc_member_infos[] {
     GET_MEMBER_INFO(ibv_wc, imm_data),
     GET_MEMBER_INFO(ibv_wc, invalidated_rkey),
     GET_MEMBER_INFO(ibv_wc, qp_num),
+    GET_MEMBER_INFO(ibv_wc, src_qp),
     GET_MEMBER_INFO(ibv_wc, wc_flags),
     GET_MEMBER_INFO(ibv_wc, pkey_index),
     GET_MEMBER_INFO(ibv_wc, slid),

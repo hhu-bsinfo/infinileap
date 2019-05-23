@@ -3,8 +3,10 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 
+@LinkNative("ibv_recv_wr")
 public class ReceiveWorkRequest extends Struct implements Poolable {
 
     private final NativeLong id = longField("wr_id");
@@ -13,11 +15,10 @@ public class ReceiveWorkRequest extends Struct implements Poolable {
     private final NativeInteger listLength = integerField("num_sge");
 
     public ReceiveWorkRequest() {
-        super("ibv_recv_wr");
     }
 
     public ReceiveWorkRequest(final long handle) {
-        super("ibv_recv_wr", handle);
+        super(handle);
     }
 
     long getId() {

@@ -5,7 +5,9 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeString;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 
+@LinkNative("ibv_device_attr")
 public class Device extends Struct {
 
     private final NativeString firmwareVersion = stringField("fw_ver", 64);
@@ -32,11 +34,10 @@ public class Device extends Struct {
     private final NativeByte physicalPortCount = byteField("phys_port_cnt");
 
     Device() {
-        super("ibv_device_attr");
     }
 
     Device(long handle) {
-        super("ibv_device_attr", handle);
+        super(handle);
     }
 
     public static int getDeviceCount() {

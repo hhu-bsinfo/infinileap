@@ -30,8 +30,8 @@ public class Struct implements NativeObject {
     private final int baseOffset;
     private final String nameSpace;
 
-    protected Struct(String name) {
-        info = StructUtil.getInfo(name);
+    protected Struct() {
+        info = StructUtil.getInfo(getClass());
         byteBuffer = ByteBuffer.allocateDirect(info.getSize());
         byteBuffer.order(ByteOrder.nativeOrder());
         handle = MemoryUtil.getAddress(byteBuffer);
@@ -39,8 +39,8 @@ public class Struct implements NativeObject {
         nameSpace = null;
     }
 
-    protected Struct(String name, long handle) {
-        info = StructUtil.getInfo(name);
+    protected Struct(long handle) {
+        info = StructUtil.getInfo(getClass());
         byteBuffer = MemoryUtil.wrap(handle, info.getSize());
         byteBuffer.order(ByteOrder.nativeOrder());
         baseOffset = 0;
@@ -49,16 +49,16 @@ public class Struct implements NativeObject {
         CLEANER.register(this, new StructCleaner(handle));
     }
 
-    protected Struct(String name, ByteBuffer buffer, int offset) {
-        info = StructUtil.getInfo(name);
+    protected Struct(ByteBuffer buffer, int offset) {
+        info = StructUtil.getInfo(getClass());
         byteBuffer = buffer;
         handle = MemoryUtil.getAddress(byteBuffer);
         baseOffset = offset;
         nameSpace = null;
     }
 
-    protected Struct(String name, String nameSpace, ByteBuffer buffer) {
-        info = StructUtil.getInfo(name);
+    protected Struct(ByteBuffer buffer, String nameSpace) {
+        info = StructUtil.getInfo(getClass());
         byteBuffer = buffer;
         handle = MemoryUtil.getAddress(byteBuffer);
         baseOffset = 0;

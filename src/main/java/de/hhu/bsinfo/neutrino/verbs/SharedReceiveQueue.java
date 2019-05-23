@@ -3,8 +3,10 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.nio.ByteBuffer;
 
+@LinkNative(value = "ibv_srq")
 public class SharedReceiveQueue extends Struct {
 
     private final NativeLong context = longField("context");
@@ -16,20 +18,20 @@ public class SharedReceiveQueue extends Struct {
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
     public SharedReceiveQueue(long handle) {
-        super("ibv_srq", handle);
+        super(handle);
     }
 
+    @LinkNative(value = "ibv_srq_init_attr")
     public static final class InitialAttributes extends Struct {
 
         private final NativeLong context = longField("srq_context");
         public final Attributes attributes = valueField("attr", Attributes::new);
 
         public InitialAttributes() {
-            super("ibv_srq_init_attr");
         }
 
         public InitialAttributes(long handle) {
-            super("ibv_srq_init_attr", handle);
+            super(handle);
         }
 
         public long getContext() {
@@ -37,6 +39,7 @@ public class SharedReceiveQueue extends Struct {
         }
     }
 
+    @LinkNative(value = "ibv_srq_attr")
     public static final class Attributes extends Struct {
 
         private final NativeInteger maxWorkRequest = integerField("max_wr");
@@ -44,15 +47,14 @@ public class SharedReceiveQueue extends Struct {
         private final NativeInteger limit = integerField("srq_limit");
 
         public Attributes() {
-            super("ibv_srq_attr");
         }
 
         public Attributes(long handle) {
-            super("ibv_srq_attr", handle);
+            super(handle);
         }
 
         public Attributes(ByteBuffer buffer, int offset) {
-            super("ibv_srq_attr", buffer, offset);
+            super(buffer, offset);
         }
 
         public int getMaxWorkRequest() {

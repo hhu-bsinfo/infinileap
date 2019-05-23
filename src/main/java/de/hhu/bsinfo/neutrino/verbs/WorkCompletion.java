@@ -7,8 +7,10 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.util.Arrays;
 
+@LinkNative("ibv_wc")
 public class WorkCompletion extends Struct {
 
     public enum Status {
@@ -119,122 +121,141 @@ public class WorkCompletion extends Struct {
     private final NativeByte pathBits = byteField("dlid_path_bits");
 
     public WorkCompletion() {
-        super("ibv_wc");
     }
 
     public WorkCompletion(final long handle) {
-        super("ibv_wc", handle);
+        super(handle);
     }
 
-    long getId() {
+    public long getId() {
         return id.get();
     }
 
-    Status getStatus() {
+    public Status getStatus() {
         return status.get();
     }
 
-    OpCode getOpCode() {
+    public OpCode getOpCode() {
         return opCode.get();
     }
 
-    int getVendorError() {
+    public int getVendorError() {
         return vendorError.get();
     }
 
-    int getByteCount() {
+    public int getByteCount() {
         return byteCount.get();
     }
 
-    int getImmediateData() {
+    public int getImmediateData() {
         return immediateData.get();
     }
 
-    int getInvalidatedRemoteKey() {
+    public int getInvalidatedRemoteKey() {
         return invalidatedRemoteKey.get();
     }
 
-    int getQueuePairNumber() {
+    public int getQueuePairNumber() {
         return queuePairNumber.get();
     }
 
-    int getSourceQueuePair() {
+    public int getSourceQueuePair() {
         return sourceQueuePair.get();
     }
 
-    int getFlags() {
+    public int getFlags() {
         return flags.get();
     }
 
-    short getPartitionKeyIndex() {
+    public short getPartitionKeyIndex() {
         return partitionKeyIndex.get();
     }
 
-    short getSourceLocalId() {
+    public short getSourceLocalId() {
         return sourceLocalId.get();
     }
 
-    byte getServiceLevel() {
+    public byte getServiceLevel() {
         return serviceLevel.get();
     }
 
-    byte getPathBits() {
+    public byte getPathBits() {
         return pathBits.get();
     }
 
-    void setId(final long value) {
+    public void setId(final long value) {
         id.set(value);
     }
 
-    void setStatus(final Status value) {
+    public void setStatus(final Status value) {
         status.set(value);
     }
 
-    void setOpCode(final OpCode value) {
+    public void setOpCode(final OpCode value) {
         opCode.set(value);
     }
 
-    void setVendorError(final int value) {
+    public void setVendorError(final int value) {
         vendorError.set(value);
     }
 
-    void setByteCount(final int value) {
+    public void setByteCount(final int value) {
         byteCount.set(value);
     }
 
-    void setImmediateData(final int value) {
+    public void setImmediateData(final int value) {
         immediateData.set(value);
     }
 
-    void setInvalidatedRemoteKey(final int value) {
+    public void setInvalidatedRemoteKey(final int value) {
         invalidatedRemoteKey.set(value);
     }
 
-    void setQueuePairNumber(final int value) {
+    public void setQueuePairNumber(final int value) {
         queuePairNumber.set(value);
     }
 
-    void setSourceQueuePair(final int value) {
+    public void setSourceQueuePair(final int value) {
         sourceQueuePair.set(value);
     }
 
-    void setFlags(final int value) {
+    public void setFlags(final int value) {
         flags.set(value);
     }
 
-    void setPartitionKeyIndex(final short value) {
+    public void setPartitionKeyIndex(final short value) {
         partitionKeyIndex.set(value);
     }
 
-    void setSourceLocalId(final short value) {
+    public void setSourceLocalId(final short value) {
         sourceLocalId.set(value);
     }
 
-    void setServiceLevel(final byte value) {
+    public void setServiceLevel(final byte value) {
         serviceLevel.set(value);
     }
 
-    void setPathBits(final byte value) {
+    public void setPathBits(final byte value) {
         pathBits.set(value);
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            "\n\tid=" + id +
+            ",\n\tstatus=" + status +
+            ",\n\topCode=" + opCode +
+            ",\n\tvendorError=" + vendorError +
+            ",\n\tbyteCount=" + byteCount +
+            ",\n\timmediateData=" + immediateData +
+            ",\n\tinvalidatedRemoteKey=" + invalidatedRemoteKey +
+            ",\n\tqueuePairNumber=" + queuePairNumber +
+            ",\n\tsourceQueuePair=" + sourceQueuePair +
+            ",\n\tflags=" + flags +
+            ",\n\tpartitionKeyIndex=" + partitionKeyIndex +
+            ",\n\tsourceLocalId=" + sourceLocalId +
+            ",\n\tserviceLevel=" + serviceLevel +
+            ",\n\tpathBits=" + pathBits +
+            "\n}";
     }
 }
