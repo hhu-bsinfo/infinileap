@@ -6,6 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,30 +71,31 @@ public class CompletionQueue extends Struct {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
-        if (result.isError()) {
-            LOGGER.error("Could not destroy completion queue [{}]", result.getStatus());
-            result.releaseInstance();
-            return false;
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Destroying completion queue failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
-        return true;
+
+        return !isError;
     }
 
-    public void poll(NativeArray<WorkCompletion> results) {
+    public boolean poll(WorkCompletionArray results) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        NativeArray<WorkCompletion> workCompletions =
-            new NativeArray<>(WorkCompletion::new, WorkCompletion.class, 10);
-
-        Verbs.pollCompletionQueue(getHandle(), workCompletions.getLength(), workCompletions.getHandle(), result.getHandle());
-        if (result.isError()) {
-            LOGGER.error("Polling completion queue failed");
-            result.releaseInstance();
-            return;
+        Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), result.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Modifying queue pair failed [{}]", result.getStatus());
+            results.setLength(0);
+        } else {
+            results.setLength(result.intValue());
         }
 
         result.releaseInstance();
+
+        return !isError;
     }
 
     @Override
@@ -105,5 +107,35 @@ public class CompletionQueue extends Struct {
             ",\n\tqueueHandle=" + queueHandle +
             ",\n\tmaxElements=" + maxElements +
             "\n}";
+    }
+
+    public static class WorkCompletionArray extends NativeArray<WorkCompletion> {
+
+        private int length;
+
+        public WorkCompletionArray(long handle, int capacity) {
+            super(WorkCompletion::new, WorkCompletion.class, handle, capacity);
+        }
+
+        public WorkCompletionArray(int capacity) {
+            super(WorkCompletion::new, WorkCompletion.class, capacity);
+        }
+
+        @Override
+        public WorkCompletion get(int index) {
+            if (index >= length) {
+                throw new IndexOutOfBoundsException(String.format("Index %d is outside array content with length %d", index, length));
+            }
+
+            return super.get(index);
+        }
+
+        public int getLength() {
+            return length;
+        }
+
+        void setLength(int length) {
+            this.length = length;
+        }
     }
 }

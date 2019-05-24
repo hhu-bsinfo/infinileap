@@ -3,7 +3,7 @@ package de.hhu.bsinfo.neutrino.data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NativeLinkedList<T extends NativeObject> {
+public class NativeLinkedList<T extends NativeObject> implements NativeObject{
 
     @FunctionalInterface
     public interface Linker<T extends NativeObject> {
@@ -28,4 +28,12 @@ public class NativeLinkedList<T extends NativeObject> {
         current = element;
     }
 
+    public T get(final int index) {
+        return elements.get(index);
+    }
+
+    @Override
+    public long getHandle() {
+        return elements.isEmpty() ? 0 : elements.get(0).getHandle();
+    }
 }

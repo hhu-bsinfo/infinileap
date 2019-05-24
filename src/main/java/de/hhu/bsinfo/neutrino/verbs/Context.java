@@ -46,13 +46,14 @@ public final class Context implements NativeObject {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeDevice(handle, result.getHandle());
-        if(result.isError()) {
-            LOGGER.error("Could not close device");
-            return false;
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Could not close device [{}]", result.getStatus());
         }
 
         result.releaseInstance();
-        return true;
+
+        return !isError;
     }
 
     public String getDeviceName() {
@@ -66,8 +67,8 @@ public final class Context implements NativeObject {
 
         Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not query device");
-            return null;
+            LOGGER.error("Could not query device [{}]", result.getStatus());
+            device = null;
         }
 
         result.releaseInstance();
@@ -81,8 +82,8 @@ public final class Context implements NativeObject {
 
         Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not query port");
-            return null;
+            LOGGER.error("Could not query port [{}]", result.getStatus());
+            port = null;
         }
 
         result.releaseInstance();
@@ -96,11 +97,9 @@ public final class Context implements NativeObject {
         Verbs.allocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
             LOGGER.error("Could not allocate protection domain");
-            return null;
         }
 
-        result.releaseInstance();
-        return result.get(ProtectionDomain::new);
+        return result.getAndRelease(ProtectionDomain::new);
     }
 
     @Nullable
@@ -110,10 +109,8 @@ public final class Context implements NativeObject {
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create completion queue [error={}]", result.getStatus());
-            return null;
         }
 
-        result.releaseInstance();
-        return result.get(CompletionQueue::new);
+        return result.getAndRelease(CompletionQueue::new);
     }
 }

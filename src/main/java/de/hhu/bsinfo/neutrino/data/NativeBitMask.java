@@ -23,6 +23,10 @@ public class NativeBitMask<T extends Enum<T> & Flag> extends NativeDataType {
         return BitMask.isSet(get(), flag);
     }
 
+    public void clear() {
+        getByteBuffer().putInt(getOffset(), 0);
+    }
+
     @Override
     public String toString() {
         return super.toString() + " " + String.format("%16s", Integer.toBinaryString(get())).replace(' ', '0');

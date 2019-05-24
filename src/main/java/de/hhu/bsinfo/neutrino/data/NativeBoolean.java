@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 
 public class NativeBoolean extends NativeDataType {
 
-    private static final int FALSE = 0;
-    private static final int TRUE = 1;
+    private static final byte FALSE = 0;
+    private static final byte TRUE = 1;
 
     public NativeBoolean(ByteBuffer byteBuffer, int offset) {
         super(byteBuffer, offset);
@@ -13,11 +13,11 @@ public class NativeBoolean extends NativeDataType {
 
     @SuppressWarnings("BooleanParameter")
     public void set(final boolean value) {
-        getByteBuffer().putInt(getOffset(), value ? TRUE : FALSE);
+        getByteBuffer().put(getOffset(), value ? TRUE : FALSE);
     }
 
     public boolean get() {
-        return getByteBuffer().getInt(getOffset()) == TRUE;
+        return getByteBuffer().get(getOffset()) == TRUE;
     }
 
     @Override

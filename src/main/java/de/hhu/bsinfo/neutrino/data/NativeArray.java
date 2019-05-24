@@ -5,7 +5,6 @@ import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -17,30 +16,31 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
     private final ReferenceFactory<T> factory;
     private final long handle;
     private final int elementSize;
-    private final int length;
+    private int capacity;
     private final T[] elements;
 
-    public NativeArray(ReferenceFactory<T> factory, Class<? extends Struct> type, final long handle, final int length) {
+    public NativeArray(ReferenceFactory<T> factory, Class<? extends Struct> type, final long handle, final int capacity) {
         this.factory = factory;
-        this.length = length;
+        this.capacity = capacity;
         this.handle = handle;
         elementSize = StructUtil.getSize(type);
         byteBuffer = null;
-        elements = (T[]) Array.newInstance(type, length);
+        elements = (T[]) Array.newInstance(type, capacity);
     }
 
-    public NativeArray(ReferenceFactory<T> factory, final Class<? extends Struct> type, final int length) {
+    public NativeArray(ReferenceFactory<T> factory, final Class<? extends Struct> type, final int capacity) {
         this.factory = factory;
-        this.length = length;
+        this.capacity = capacity;
         elementSize = StructUtil.getSize(type);
-        byteBuffer = ByteBuffer.allocateDirect(length * elementSize);
+        byteBuffer = ByteBuffer.allocateDirect(capacity * elementSize);
         handle = MemoryUtil.getAddress(byteBuffer);
-        elements = (T[]) Array.newInstance(type, length);
+        elements = (T[]) Array.newInstance(type, capacity);
     }
 
     public T get(final int index) {
-        if (index >= length) {
-            throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index, length));
+        if (index >= capacity) {
+            throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index,
+                capacity));
         }
 
         ensureObject(index);
@@ -49,8 +49,9 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
     }
 
     public void apply(final int index, final Consumer<T> operations) {
-        if (index >= length) {
-            throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index, length));
+        if (index >= capacity) {
+            throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index,
+                capacity));
         }
 
         ensureObject(index);
@@ -59,14 +60,18 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
     }
 
     public void forEach(final Consumer<T> operation) {
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < capacity; i++) {
             ensureObject(i);
             operation.accept(elements[i]);
         }
     }
 
-    public int getLength() {
-        return length;
+    protected void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     private void ensureObject(final int index) {

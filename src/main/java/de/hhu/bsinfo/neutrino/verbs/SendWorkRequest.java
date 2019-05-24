@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
+import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
@@ -10,6 +11,7 @@ import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 @LinkNative("ibv_send_wr")
 public class SendWorkRequest extends Struct implements Poolable {
@@ -68,7 +70,7 @@ public class SendWorkRequest extends Struct implements Poolable {
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
     private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
-    private final NativeInteger flags = integerField("send_flags");
+    private final NativeBitMask<SendFlag> flags = bitField("send_flags");
     private final NativeInteger immediateData = integerField("imm_data");
     private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
 
@@ -77,6 +79,10 @@ public class SendWorkRequest extends Struct implements Poolable {
     public final Unreliable ud = anonymousField(Unreliable::new);
 
     public SendWorkRequest() {
+    }
+
+    public SendWorkRequest(Consumer<SendWorkRequest> configurator) {
+        configurator.accept(this);
     }
 
     public SendWorkRequest(final long handle) {
@@ -127,7 +133,7 @@ public class SendWorkRequest extends Struct implements Poolable {
         return flags.get();
     }
 
-    public void setFlags(int flags) {
+    public void setFlags(SendFlag... flags) {
         this.flags.set(flags);
     }
 

@@ -45,6 +45,12 @@ public class Result implements NativeObject, Poolable {
         return factory.newInstance(value.get());
     }
 
+    public <T extends NativeObject> T getAndRelease(ReferenceFactory<T> factory) {
+        long tmp = value.get();
+        releaseInstance();
+        return tmp == 0 ? null : factory.newInstance(tmp);
+    }
+
     public long longValue() {
         return value.get();
     }

@@ -339,6 +339,22 @@ ReflectionUtility::StructInfo ibv_qp_struct_info {
     ibv_qp_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_mr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_mr, context),
+    GET_MEMBER_INFO(ibv_mr, pd),
+    GET_MEMBER_INFO(ibv_mr, addr),
+    GET_MEMBER_INFO(ibv_mr, length),
+    GET_MEMBER_INFO(ibv_mr, handle),
+    GET_MEMBER_INFO(ibv_mr, lkey),
+    GET_MEMBER_INFO(ibv_mr, rkey)
+};
+
+ReflectionUtility::StructInfo ibv_mr_struct_info {
+    sizeof(ibv_mr),
+    sizeof(ibv_mr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_mr_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -355,7 +371,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_global_route", &ibv_global_route_struct_info},
     {"ibv_qp_attr", &ibv_qp_attr_struct_info},
     {"ibv_qp_cap", &ibv_qp_cap_struct_info},
-    {"ibv_qp", &ibv_qp_struct_info}
+    {"ibv_qp", &ibv_qp_struct_info},
+    {"ibv_mr", &ibv_mr_struct_info}
+
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {

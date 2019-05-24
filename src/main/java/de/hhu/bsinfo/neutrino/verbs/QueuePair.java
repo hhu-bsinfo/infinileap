@@ -6,6 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeBoolean;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.data.NativeLinkedList;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
@@ -41,37 +42,60 @@ public class QueuePair extends Struct {
         super(handle);
     }
 
-    public void post(final SendWorkRequest sendWorkRequest) {
+    public boolean postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postSendWorkRequest(getHandle(), sendWorkRequest.getHandle(), result.getHandle());
-        if (result.isError()) {
-            LOGGER.error("Posting send work request failed");
+        Verbs.postSendWorkRequest(getHandle(), sendWorkRequests.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting send work request failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
+
+        return !isError;
     }
 
-    public void post(final ReceiveWorkRequest receiveWorkRequest) {
+    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequest.getHandle(), result.getHandle());
-        if (result.isError()) {
-            LOGGER.error("Posting send work request failed");
+        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequests.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting receive work request failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
+
+        return !isError;
     }
 
-    public void modify(final Attributes attributes, final AttributeMask... flags) {
+    public boolean modify(final Attributes attributes, final AttributeMask... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
-        if (result.isError()) {
+        boolean isError = result.isError();
+        if (isError) {
             LOGGER.error("Modifying queue pair failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
+
+        return !isError;
+    }
+
+    public boolean destroy() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.destroyQueuePair(getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Destroying queue pair failed [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
     }
 
     public Context getContext() {
