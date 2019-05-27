@@ -147,6 +147,14 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    queryQueuePair
+ * Signature: (JJIJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair
+  (JNIEnv *, jclass, jlong, jlong, jint, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    destroyQueuePair
  * Signature: (JJ)V
  */

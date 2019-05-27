@@ -29,13 +29,14 @@ public class ProtectionDomain implements NativeObject {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateProtectionDomain(handle, result.getHandle());
-        if(result.isError()) {
-            LOGGER.error("Could not deallocate protection domain");
-            return false;
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Could not close device [{}]", result.getStatus());
         }
 
         result.releaseInstance();
-        return true;
+
+        return !isError;
     }
 
     @Nullable

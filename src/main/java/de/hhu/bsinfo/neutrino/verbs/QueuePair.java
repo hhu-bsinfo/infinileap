@@ -84,6 +84,40 @@ public class QueuePair extends Struct {
         return !isError;
     }
 
+    public Attributes getAttributes(final AttributeMask... flags) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var attributes = new Attributes();
+        var initialAttributes = new InitialAttributes();
+
+        Verbs.queryQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), initialAttributes.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        result.releaseInstance();
+
+        if (isError) {
+            LOGGER.error("Querying queue pair failed [{}]", result.getStatus());
+            return null;
+        }
+
+        return attributes;
+    }
+
+    public InitialAttributes getInitialAttributes() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var attributes = new Attributes();
+        var initialAttributes = new InitialAttributes();
+
+        Verbs.queryQueuePair(getHandle(), attributes.getHandle(), 0, initialAttributes.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        result.releaseInstance();
+
+        if (isError) {
+            LOGGER.error("Querying queue pair failed [{}]", result.getStatus());
+            return null;
+        }
+
+        return initialAttributes;
+    }
+
     public boolean destroy() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -311,6 +345,8 @@ public class QueuePair extends Struct {
         public void setSignalLevel(int signalLevel) {
             this.signalLevel.set(signalLevel);
         }
+
+
     }
 
     @LinkNative("ibv_qp_cap")

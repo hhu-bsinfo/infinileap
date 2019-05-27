@@ -165,6 +165,15 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair (
     NativeCall::setResult(result, ibv_modify_qp(queuePair, attributes, attributesMask), nullptr);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong attributesHandle, jint attributesMask, jlong initialAttributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto attributes = NativeCall::castHandle<ibv_qp_attr>(attributesHandle);
+    auto initialAttributes = NativeCall::castHandle<ibv_qp_init_attr>(initialAttributesHandle);
+    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
+
+    NativeCall::setResult(result, ibv_query_qp(queuePair, attributes, attributesMask, initialAttributes), nullptr);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
