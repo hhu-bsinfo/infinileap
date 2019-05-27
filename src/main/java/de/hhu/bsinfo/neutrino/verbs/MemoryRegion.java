@@ -69,4 +69,14 @@ public class MemoryRegion extends Struct {
 
         return !isError;
     }
+
+    @Override
+    public String toString() {
+        return "MemoryRegion {\n" +
+            "\taddress=" + address +
+            ",\n\tlength=" + length +
+            ",\n\tlocalKey=" + localKey +
+            ",\n\tremoteKey=" + remoteKey +
+            "\n}";
+    }
 }

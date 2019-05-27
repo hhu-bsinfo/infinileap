@@ -84,7 +84,7 @@ public class QueuePair extends Struct {
         return !isError;
     }
 
-    public Attributes getAttributes(final AttributeMask... flags) {
+    public Attributes queryAttributes(final AttributeMask... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();
@@ -101,7 +101,7 @@ public class QueuePair extends Struct {
         return attributes;
     }
 
-    public InitialAttributes getInitialAttributes() {
+    public InitialAttributes queryInitialAttributes() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();

@@ -9,16 +9,29 @@ import java.nio.ByteBuffer;
 @LinkNative(value = "ibv_srq")
 public class SharedReceiveQueue extends Struct {
 
-    private final NativeLong context = longField("context");
+    private final Context context = referenceField("context", Context::new);
     private final NativeLong userContext = longField("srq_context");
-    private final NativeLong protectionDomain = longField("pd");
-    private final NativeInteger handle = integerField("handle");
-    private final NativeLong mutex = longField("mutex");
-    private final NativeLong cond = longField("cond");
+    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
     public SharedReceiveQueue(long handle) {
         super(handle);
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public NativeLong getUserContext() {
+        return userContext;
+    }
+
+    public ProtectionDomain getProtectionDomain() {
+        return protectionDomain;
+    }
+
+    public NativeInteger getEventsCompleted() {
+        return eventsCompleted;
     }
 
     @LinkNative(value = "ibv_srq_init_attr")

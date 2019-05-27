@@ -1,8 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
+import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
 import java.nio.ByteBuffer;
@@ -10,25 +11,21 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProtectionDomain implements NativeObject {
+@LinkNative("ibv_pd")
+public class ProtectionDomain extends Struct {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
 
-    private final long handle;
+    private final Context context = referenceField("context", Context::new);
 
     ProtectionDomain(long handle) {
-        this.handle = handle;
-    }
-
-    @Override
-    public long getHandle() {
-        return handle;
+        super(handle);
     }
 
     public boolean deallocate() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.deallocateProtectionDomain(handle, result.getHandle());
+        Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Could not close device [{}]", result.getStatus());
@@ -48,7 +45,7 @@ public class ProtectionDomain implements NativeObject {
     public MemoryRegion registerMemoryRegion(ByteBuffer buffer, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerMemoryRegion(handle, MemoryUtil.getAddress(buffer), buffer.capacity(),
+        Verbs.registerMemoryRegion(getHandle(), MemoryUtil.getAddress(buffer), buffer.capacity(),
             BitMask.of(flags), result.getHandle());
 
         if(result.isError()) {
@@ -65,7 +62,7 @@ public class ProtectionDomain implements NativeObject {
         SharedReceiveQueue.InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.createSharedReceiveQueue(handle, initialAttributes.getHandle(), result.getHandle());
+        Verbs.createSharedReceiveQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create shared receive queue");
             return null;
@@ -78,13 +75,15 @@ public class ProtectionDomain implements NativeObject {
     @Nullable
     public QueuePair createQueuePair(InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
-        Verbs.createQueuePair(handle, initialAttributes.getHandle(), result.getHandle());
+
+        Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Could not create queue pair");
             return null;
         }
 
         result.releaseInstance();
+
         return result.get(QueuePair::new);
     }
 }

@@ -183,62 +183,6 @@ public class WorkCompletion extends Struct {
         return pathBits.get();
     }
 
-    public void setId(final long value) {
-        id.set(value);
-    }
-
-    public void setStatus(final Status value) {
-        status.set(value);
-    }
-
-    public void setOpCode(final OpCode value) {
-        opCode.set(value);
-    }
-
-    public void setVendorError(final int value) {
-        vendorError.set(value);
-    }
-
-    public void setByteCount(final int value) {
-        byteCount.set(value);
-    }
-
-    public void setImmediateData(final int value) {
-        immediateData.set(value);
-    }
-
-    public void setInvalidatedRemoteKey(final int value) {
-        invalidatedRemoteKey.set(value);
-    }
-
-    public void setQueuePairNumber(final int value) {
-        queuePairNumber.set(value);
-    }
-
-    public void setSourceQueuePair(final int value) {
-        sourceQueuePair.set(value);
-    }
-
-    public void setFlags(final int value) {
-        flags.set(value);
-    }
-
-    public void setPartitionKeyIndex(final short value) {
-        partitionKeyIndex.set(value);
-    }
-
-    public void setSourceLocalId(final short value) {
-        sourceLocalId.set(value);
-    }
-
-    public void setServiceLevel(final byte value) {
-        serviceLevel.set(value);
-    }
-
-    public void setPathBits(final byte value) {
-        pathBits.set(value);
-    }
-
     @Override
     public String toString() {
         return "{" +
