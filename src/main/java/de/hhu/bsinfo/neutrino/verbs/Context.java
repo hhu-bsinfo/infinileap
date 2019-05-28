@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Context implements NativeObject {
+public final class Context implements NativeObject, AutoCloseable {
 
     static {
         System.loadLibrary("neutrino");
@@ -42,18 +42,16 @@ public final class Context implements NativeObject {
         return result.get(Context::new);
     }
 
-    public boolean close() {
+    @Override
+    public void close() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeDevice(handle, result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
+        if (result.isError()) {
             LOGGER.error("Could not close device [{}]", result.getStatus());
         }
 
         result.releaseInstance();
-
-        return !isError;
     }
 
     public String getDeviceName() {

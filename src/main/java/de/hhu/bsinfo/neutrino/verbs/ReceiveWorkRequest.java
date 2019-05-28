@@ -1,24 +1,20 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_recv_wr")
-public class ReceiveWorkRequest extends Struct implements Poolable {
+public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<ReceiveWorkRequest> {
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
-
-    public static final Linker<ReceiveWorkRequest> LINKER = (current, next) -> {
-        current.next.set(next.getHandle());
-    };
 
     public ReceiveWorkRequest() {
     }
@@ -63,4 +59,8 @@ public class ReceiveWorkRequest extends Struct implements Poolable {
         listLength.set(value);
     }
 
+    @Override
+    public void linkWith(ReceiveWorkRequest other) {
+        next.set(other.getHandle());
+    }
 }

@@ -4,17 +4,17 @@ import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLinkedList.Linker;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_send_wr")
-public class SendWorkRequest extends Struct implements Poolable {
+public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWorkRequest> {
 
     public enum OpCode {
         RDMA_WRITE(0), RDMA_WRITE_WITH_IMM(1), SEND(2), SEND_WITH_IMM(3), RDMA_READ(4),
@@ -60,10 +60,6 @@ public class SendWorkRequest extends Struct implements Poolable {
             }
         };
     }
-
-    public static final Linker<SendWorkRequest> LINKER = (current, next) -> {
-        current.next.set(next.getHandle());
-    };
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
@@ -151,6 +147,11 @@ public class SendWorkRequest extends Struct implements Poolable {
 
     public void setInvalidateRemoteKey(int invalidateRemoteKey) {
         this.invalidateRemoteKey.set(invalidateRemoteKey);
+    }
+
+    @Override
+    public void linkWith(SendWorkRequest other) {
+        next.set(other.getHandle());
     }
 
     @Override

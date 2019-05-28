@@ -1,27 +1,18 @@
 package de.hhu.bsinfo.neutrino.data;
 
+import de.hhu.bsinfo.neutrino.util.Linkable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NativeLinkedList<T extends NativeObject> implements NativeObject{
-
-    @FunctionalInterface
-    public interface Linker<T extends NativeObject> {
-        void onLink(final T current, final T next);
-    }
+public class NativeLinkedList<T extends NativeObject & Linkable<T>> implements NativeObject {
 
     private final List<T> elements = new ArrayList<>();
-    private final Linker<T> linker;
 
     private T current;
 
-    public NativeLinkedList(final Linker<T> linker) {
-        this.linker = linker;
-    }
-
     public void add(final T element) {
         if (current != null) {
-            linker.onLink(current, element);
+            current.linkWith(element);
         }
 
         elements.add(element);

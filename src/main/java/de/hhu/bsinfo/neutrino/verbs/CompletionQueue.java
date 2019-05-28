@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_cq")
-public class CompletionQueue extends Struct {
+public class CompletionQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionQueue.class);
 
@@ -41,20 +41,6 @@ public class CompletionQueue extends Struct {
         return maxElements.get();
     }
 
-    public boolean destroy() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Destroying completion queue failed [{}]", result.getStatus());
-        }
-
-        result.releaseInstance();
-
-        return !isError;
-    }
-
     public boolean poll(WorkCompletionArray results) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -79,6 +65,18 @@ public class CompletionQueue extends Struct {
             ",\n\tuserContextHandle=" + userContextHandle +
             ",\n\tmaxElements=" + maxElements +
             "\n}";
+    }
+
+    @Override
+    public void close() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Destroying completion queue failed [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
     }
 
     public static class WorkCompletionArray extends NativeArray<WorkCompletion> {

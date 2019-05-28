@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
+import java.util.function.Consumer;
 
 @LinkNative("ibv_sge")
 public class ScatterGatherElement extends Struct implements Poolable {
@@ -13,7 +14,10 @@ public class ScatterGatherElement extends Struct implements Poolable {
     private final NativeInteger length = integerField("length");
     private final NativeInteger localKey = integerField("lkey");
 
-    public ScatterGatherElement() {
+    public ScatterGatherElement() {}
+
+    public ScatterGatherElement(Consumer<ScatterGatherElement> configurator) {
+        configurator.accept(this);
     }
 
     public ScatterGatherElement(final long handle) {

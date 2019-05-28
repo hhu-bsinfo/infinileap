@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_qp")
-public class QueuePair extends Struct {
+public class QueuePair extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueuePair.class);
 
@@ -42,6 +42,20 @@ public class QueuePair extends Struct {
         super(handle);
     }
 
+    public boolean postSend(final SendWorkRequest sendWorkRequest) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.postSendWorkRequest(getHandle(), sendWorkRequest.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting send work request failed [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
+    }
+
     public boolean postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -49,6 +63,20 @@ public class QueuePair extends Struct {
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Posting send work request failed [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
+    }
+
+    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequest.getHandle(), result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting receive work request failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -118,18 +146,16 @@ public class QueuePair extends Struct {
         return initialAttributes;
     }
 
-    public boolean destroy() {
+    @Override
+    public void close() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
+        if (result.isError()) {
             LOGGER.error("Destroying queue pair failed [{}]", result.getStatus());
         }
 
         result.releaseInstance();
-
-        return !isError;
     }
 
     public Context getContext() {
@@ -171,6 +197,8 @@ public class QueuePair extends Struct {
     public int getEventsCompleted() {
         return eventsCompleted.get();
     }
+
+
 
     public enum Type {
         RC(2), UC(3), UD(4), RAW_PACKET(8), XRC_SEND(9), XRC_RECV(10), DRIVER(0xFF);

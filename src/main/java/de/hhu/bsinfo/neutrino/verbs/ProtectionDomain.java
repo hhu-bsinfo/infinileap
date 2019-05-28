@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_pd")
-public class ProtectionDomain extends Struct {
+public class ProtectionDomain extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
 
@@ -20,20 +20,6 @@ public class ProtectionDomain extends Struct {
 
     ProtectionDomain(long handle) {
         super(handle);
-    }
-
-    public boolean deallocate() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Could not close device [{}]", result.getStatus());
-        }
-
-        result.releaseInstance();
-
-        return !isError;
     }
 
     @Nullable
@@ -85,5 +71,17 @@ public class ProtectionDomain extends Struct {
         result.releaseInstance();
 
         return result.get(QueuePair::new);
+    }
+
+    @Override
+    public void close() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Could not close device [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
     }
 }
