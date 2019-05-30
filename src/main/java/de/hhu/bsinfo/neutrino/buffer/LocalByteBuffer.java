@@ -130,6 +130,11 @@ public final class LocalByteBuffer implements NativeObject {
     }
 
     @Override
+    public long getNativeSize() {
+        return byteBuffer.capacity();
+    }
+
+    @Override
     public String toString() {
         return localRegion.toString();
     }

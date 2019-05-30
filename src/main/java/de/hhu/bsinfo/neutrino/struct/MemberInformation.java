@@ -46,4 +46,9 @@ public class MemberInformation implements NativeObject {
     public long getHandle() {
         return handle;
     }
+
+    @Override
+    public long getNativeSize() {
+        return SIZE;
+    }
 }

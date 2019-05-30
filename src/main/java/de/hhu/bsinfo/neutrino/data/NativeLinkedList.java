@@ -27,4 +27,9 @@ public class NativeLinkedList<T extends NativeObject & Linkable<T>> implements N
     public long getHandle() {
         return elements.isEmpty() ? 0 : elements.get(0).getHandle();
     }
+
+    @Override
+    public long getNativeSize() {
+        return current == null ? 0 : current.getNativeSize() * elements.size();
+    }
 }

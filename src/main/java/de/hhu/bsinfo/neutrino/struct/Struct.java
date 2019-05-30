@@ -78,6 +78,11 @@ public class Struct implements NativeObject {
         return handle;
     }
 
+    @Override
+    public long getNativeSize() {
+        return info.size.get();
+    }
+
     protected final NativeByte byteField(String identifier) {
         return new NativeByte(byteBuffer, offsetOf(identifier));
     }

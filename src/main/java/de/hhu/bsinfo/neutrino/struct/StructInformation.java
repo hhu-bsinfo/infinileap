@@ -53,4 +53,9 @@ public class StructInformation implements NativeObject {
     public long getHandle() {
         return 0;
     }
+
+    @Override
+    public long getNativeSize() {
+        return SIZE;
+    }
 }

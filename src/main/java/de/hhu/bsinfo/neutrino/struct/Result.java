@@ -65,6 +65,11 @@ public class Result implements NativeObject, Poolable {
     }
 
     @Override
+    public long getNativeSize() {
+        return SIZE;
+    }
+
+    @Override
     public String toString() {
         return "Result {\n" +
             "\tstatus=" + status +

@@ -86,6 +86,11 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
     }
 
     @Override
+    public long getNativeSize() {
+        return (long) elementSize * capacity;
+    }
+
+    @Override
     public String toString() {
         return "NativeArray {" +
             "\n\telements=" + Arrays.toString(elements) +

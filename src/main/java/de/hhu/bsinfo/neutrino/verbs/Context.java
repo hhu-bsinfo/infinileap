@@ -28,6 +28,11 @@ public final class Context implements NativeObject, AutoCloseable {
         return handle;
     }
 
+    @Override
+    public long getNativeSize() {
+        return -1;
+    }
+
     @Nullable
     public static Context openDevice(int index) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
