@@ -43,6 +43,10 @@ public class QueuePair extends Struct implements AutoCloseable {
         super(handle);
     }
 
+    protected QueuePair(LocalBuffer byteBuffer, int offset) {
+        super(byteBuffer, offset);
+    }
+
     public boolean postSend(final SendWorkRequest sendWorkRequest) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -198,8 +202,6 @@ public class QueuePair extends Struct implements AutoCloseable {
     public int getEventsCompleted() {
         return eventsCompleted.get();
     }
-
-
 
     public enum Type {
         RC(2), UC(3), UD(4), RAW_PACKET(8), XRC_SEND(9), XRC_RECV(10), DRIVER(0xFF);

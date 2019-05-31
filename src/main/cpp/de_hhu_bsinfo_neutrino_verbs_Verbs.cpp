@@ -191,6 +191,157 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQue
     NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong initialAttributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto initialAttributes = NativeCall::castHandle<ibv_cq_init_attr_ex>(initialAttributesHandle);
+
+    auto extendedCompletionQueue = ibv_create_cq_ex(context, initialAttributes);
+
+    NativeCall::setResult(result, extendedCompletionQueue == nullptr ? errno : 0, extendedCompletionQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_extendedCompletionQueueToCompletionQueue (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    auto completionQueue = ibv_cq_ex_to_cq(extendedCompletionQueue);
+
+    NativeCall::setResult(result, completionQueue == nullptr ? errno : 0, completionQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_startPoll (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong pollCompletionQueueAttributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+    auto pollCompletionQueueAttributes = NativeCall::castHandle<ibv_poll_cq_attr>(pollCompletionQueueAttributesHandle);
+
+    auto ret = ibv_start_poll(extendedCompletionQueue, pollCompletionQueueAttributes);
+
+    // ENOENT means, that the completion queue is empty. This should not be treated as an error.
+    NativeCall::setResult(result, (ret == 0 || ret == ENOENT) ? 0 : ret, ret);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_nextPoll (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    auto ret = ibv_next_poll(extendedCompletionQueue);
+
+    // ENOENT means, that the completion queue is empty. This should not be treated as an error.
+    NativeCall::setResult(result, (ret == 0 || ret == ENOENT) ? 0 : ret, ret);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_endPoll (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    ibv_end_poll(extendedCompletionQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readOpCode (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_opcode(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readVendorError (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_vendor_err(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readByteCount (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_byte_len(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readImmediateData (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_imm_data(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readInvalidatedRemoteKey (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_invalidated_rkey(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceQueuePair (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_src_qp(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readWorkCompletionFlags (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_wc_flags(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceLocalId (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_slid(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readServiceLevel (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_sl(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readPathBits (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_dlid_path_bits(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionTimestamp (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_completion_ts(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionWallClockNanoseconds (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_completion_wallclock_ns(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCVLan (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_cvlan(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readFlowTag (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    NativeCall::setResult(result, 0, ibv_wc_read_flow_tag(extendedCompletionQueue));
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readTagMatchingInfo (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong tagMatchingInfoHandle) {
+    auto tagMatchingInfo = NativeCall::castHandle<ibv_wc_tm_info>(tagMatchingInfoHandle);
+    auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
+
+    ibv_wc_read_tm_info(extendedCompletionQueue, tagMatchingInfo);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod (JNIEnv *env, jclass clazz, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 

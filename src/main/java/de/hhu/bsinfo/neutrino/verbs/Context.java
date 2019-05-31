@@ -111,9 +111,21 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating completion queueu failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating completion queue failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(CompletionQueue::new);
+    }
+
+    @Nullable
+    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes initialAttributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createExtendedCompletionQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating extended completion queue failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ExtendedCompletionQueue::new);
     }
 }

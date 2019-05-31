@@ -47,12 +47,44 @@ public class Result implements NativeObject, Poolable {
         return tmp == 0 ? null : factory.newInstance(tmp);
     }
 
+    public long getLongAndRelease() {
+        long ret = longValue();
+        releaseInstance();
+        return ret;
+    }
+
+    public int getIntAndRelease() {
+        int ret = intValue();
+        releaseInstance();
+        return ret;
+    }
+
+    public short getShortAndRelease() {
+        short ret = shortValue();
+        releaseInstance();
+        return ret;
+    }
+
+    public byte getByteAndRelease() {
+        byte ret = byteValue();
+        releaseInstance();
+        return ret;
+    }
+
     public long longValue() {
         return value.get();
     }
 
     public int intValue() {
         return (int) value.get();
+    }
+
+    public short shortValue() {
+        return (short) value.get();
+    }
+
+    public byte byteValue() {
+        return (byte) value.get();
     }
 
     @Override

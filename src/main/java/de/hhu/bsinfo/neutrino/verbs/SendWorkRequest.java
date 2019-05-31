@@ -19,8 +19,8 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
 
     public enum OpCode {
         RDMA_WRITE(0), RDMA_WRITE_WITH_IMM(1), SEND(2), SEND_WITH_IMM(3), RDMA_READ(4),
-        ATOMIC_CMP_AND_SWP(5), ATOMIC_FETCH_AND_ADD(6), LOCAL_INV(7), BIND_MW(5),
-        SEND_WITH_INV(6), TSO(7);
+        ATOMIC_CMP_AND_SWP(5), ATOMIC_FETCH_AND_ADD(6), LOCAL_INV(7), BIND_MW(8),
+        SEND_WITH_INV(9), TSO(10);
 
         private static final OpCode[] VALUES;
 

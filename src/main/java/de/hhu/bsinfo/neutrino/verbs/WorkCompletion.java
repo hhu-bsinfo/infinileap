@@ -1,13 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
+import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.Poolable;
+
 import java.util.Arrays;
 
 @LinkNative("ibv_wc")
@@ -105,6 +103,22 @@ public class WorkCompletion extends Struct {
         };
     }
 
+    public enum WorkCompletionFlag implements Flag {
+        GRH(1), IMM(1 << 1), IP_CSUM_OK(1 << 2), WITH_INV(1 << 3), TM_SYNC_REQ(1 << 4),
+        TM_MATCH(1 << 5), TM_DATA_INVALID(1 << 6);
+
+        private final int value;
+
+        WorkCompletionFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
     private final NativeLong id = longField("wr_id");
     private final NativeEnum<Status> status = enumField("status", Status.CONVERTER);
     private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
@@ -114,7 +128,7 @@ public class WorkCompletion extends Struct {
     private final NativeInteger invalidatedRemoteKey = integerField("invalidated_rkey");
     private final NativeInteger queuePairNumber = integerField("qp_num");
     private final NativeInteger sourceQueuePair = integerField("src_qp");
-    private final NativeInteger flags = integerField("wc_flags");
+    private final NativeBitMask<WorkCompletionFlag> flags = bitField("wc_flags");
     private final NativeShort partitionKeyIndex = shortField("pkey_index");
     private final NativeShort sourceLocalId = shortField("slid");
     private final NativeByte serviceLevel = byteField("sl");
@@ -201,5 +215,25 @@ public class WorkCompletion extends Struct {
             ",\n\tserviceLevel=" + serviceLevel +
             ",\n\tpathBits=" + pathBits +
             "\n}";
+    }
+
+    public static final class TagMatchingInfo extends Struct implements Poolable {
+
+        private final NativeLong tag = longField("tag");
+        private final NativeInteger userData = integerField("priv");
+
+        public TagMatchingInfo() {}
+
+        public TagMatchingInfo(final long handle) {
+            super(handle);
+        }
+
+        public long getTag() {
+            return tag.get();
+        }
+
+        public int getUserData() {
+            return userData.get();
+        }
     }
 }

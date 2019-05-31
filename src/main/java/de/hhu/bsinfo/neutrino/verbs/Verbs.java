@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.RingBufferPool;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public final class Verbs {
 
@@ -12,11 +13,13 @@ public final class Verbs {
 
     @SuppressWarnings("FieldNamingConvention")
     private static final Map<Class<? extends Poolable>, ThreadLocal<RingBufferPool<Poolable>>> poolMap = new HashMap<>();
+    private static final Supplier<RingBufferPool<Poolable>> ringBufferPoolSupplier = () -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new);
 
     static {
         System.loadLibrary("neutrino");
 
-        poolMap.put(Result.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new)));
+        poolMap.put(Result.class, ThreadLocal.withInitial(ringBufferPoolSupplier));
+        poolMap.put(WorkCompletion.TagMatchingInfo.class, ThreadLocal.withInitial(ringBufferPoolSupplier));
     }
 
     private Verbs() {
@@ -33,6 +36,7 @@ public final class Verbs {
     static native int getNumDevices();
     static native String getDeviceName(long contextHandle);
 
+    // Standard API
     static native void openDevice(int index, long resultHandle);
     static native void closeDevice(long contextHandle, long resultHandle);
     static native void queryDevice(long contextHandle, long deviceHandle, long resultHandle);
@@ -51,6 +55,28 @@ public final class Verbs {
     static native void queryQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long initialAttributesHandle, long resultHandle);
     static native void destroyQueuePair(long queuePairHandle, long resultHandle);
     static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
+
+    // Extended API
+    static native void createExtendedCompletionQueue(long contextHandle, long initialAttributesHandle, long resultHandle);
+    static native void extendedCompletionQueueToCompletionQueue(long extendedCompletionQueueHandle, long resultHandle);
+    static native void startPoll(long extendedCompletionQueueHandle, long pollCompletionQueueAttributesHandle, long resultHandle);
+    static native void nextPoll(long extendedCompletionQueueHandle, long resultHandle);
+    static native void endPoll(long extendedCompletionQueueHandle);
+    static native void readOpCode(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readVendorError(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readByteCount(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readImmediateData(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readInvalidatedRemoteKey(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readSourceQueuePair(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readWorkCompletionFlags(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readSourceLocalId(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readServiceLevel(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readPathBits(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readCompletionTimestamp(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readCompletionWallClockNanoseconds(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readCVLan(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readFlowTag(long extendedCompletionQueueHandle, long resultHandle);
+    static native void readTagMatchingInfo(long extendedCompletionQueueHandle, long tagMatchingInfoHandle);
 
     public static native void benchmarkDummyMethod(long resultHandle);
 }

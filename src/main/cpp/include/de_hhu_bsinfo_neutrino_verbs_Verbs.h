@@ -171,6 +171,166 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQue
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    createExtendedCompletionQueue
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedCompletionQueue
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    extendedCompletionQueueToCompletionQueue
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_extendedCompletionQueueToCompletionQueue
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    startPoll
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_startPoll
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    nextPoll
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_nextPoll
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    endPoll
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_endPoll
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readOpCode
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readOpCode
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readVendorError
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readVendorError
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readByteCount
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readByteCount
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readImmediateData
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readImmediateData
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readInvalidatedRemoteKey
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readInvalidatedRemoteKey
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readSourceQueuePair
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceQueuePair
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readWorkCompletionFlags
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readWorkCompletionFlags
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readSourceLocalId
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceLocalId
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readServiceLevel
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readServiceLevel
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readPathBits
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readPathBits
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readCompletionTimestamp
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionTimestamp
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readCompletionWallClockNanoseconds
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionWallClockNanoseconds
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readCVLan
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCVLan
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readFlowTag
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readFlowTag
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    readTagMatchingInfo
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readTagMatchingInfo
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    benchmarkDummyMethod
  * Signature: (J)V
  */
