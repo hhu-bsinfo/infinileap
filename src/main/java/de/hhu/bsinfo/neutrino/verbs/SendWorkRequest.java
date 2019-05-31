@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
@@ -177,7 +178,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         private final NativeLong remoteAddress = longField("remote_addr");
         private final NativeInteger remoteKey = integerField("rkey");
 
-        public Rdma(ByteBuffer buffer) {
+        public Rdma(LocalBuffer buffer) {
             super(buffer, "wr.rdma");
         }
 
@@ -214,7 +215,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         private final NativeLong swapOperand = longField("swap");
         private final NativeInteger remoteKey = integerField("rkey");
 
-        public Atomic(ByteBuffer buffer) {
+        public Atomic(LocalBuffer buffer) {
             super(buffer, "wr.atomic");
         }
 
@@ -268,7 +269,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         private final NativeInteger remoteQueuePairNumber = integerField("remote_qpn");
         private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
 
-        public Unreliable(ByteBuffer buffer) {
+        public Unreliable(LocalBuffer buffer) {
             super(buffer, "wr.ud");
         }
 

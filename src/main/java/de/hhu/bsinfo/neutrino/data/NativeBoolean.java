@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.data;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import java.nio.ByteBuffer;
 
 public class NativeBoolean extends NativeDataType {
@@ -7,7 +8,7 @@ public class NativeBoolean extends NativeDataType {
     private static final byte FALSE = 0;
     private static final byte TRUE = 1;
 
-    public NativeBoolean(ByteBuffer byteBuffer, int offset) {
+    public NativeBoolean(LocalBuffer byteBuffer, int offset) {
         super(byteBuffer, offset);
     }
 

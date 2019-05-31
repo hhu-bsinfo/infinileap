@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeBoolean;
@@ -374,7 +375,18 @@ public class QueuePair extends Struct implements AutoCloseable {
             this.signalLevel.set(signalLevel);
         }
 
-
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                "\n\tuserContext=" + userContext +
+                ",\n\tsendCompletionQueue=" + sendCompletionQueue +
+                ",\n\treceiveCompletionQueue=" + receiveCompletionQueue +
+                ",\n\tsharedReceiveQueue=" + sharedReceiveQueue +
+                ",\n\ttype=" + type +
+                ",\n\tsignalLevel=" + signalLevel +
+                ",\n\tcapabilities=" + capabilities +
+                "\n}";
+        }
     }
 
     @LinkNative("ibv_qp_cap")
@@ -389,7 +401,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         public Capabilities() {
         }
 
-        public Capabilities(ByteBuffer byteBuffer, int offset) {
+        public Capabilities(LocalBuffer byteBuffer, int offset) {
             super(byteBuffer, offset);
         }
 
@@ -460,7 +472,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         public AddressVector() {
         }
 
-        public AddressVector(ByteBuffer byteBuffer, int offset) {
+        public AddressVector(LocalBuffer byteBuffer, int offset) {
             super(byteBuffer, offset);
         }
 
@@ -542,7 +554,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         public GlobalRoute() {
         }
 
-        public GlobalRoute(ByteBuffer byteBuffer, int offset) {
+        public GlobalRoute(LocalBuffer byteBuffer, int offset) {
             super(byteBuffer, offset);
         }
 

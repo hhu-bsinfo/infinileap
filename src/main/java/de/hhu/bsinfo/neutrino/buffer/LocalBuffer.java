@@ -3,19 +3,23 @@ package de.hhu.bsinfo.neutrino.buffer;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.UnsafeProvider;
+import de.hhu.bsinfo.neutrino.verbs.MemoryRegion;
 import java.lang.ref.Cleaner;
 import java.nio.BufferOverflowException;
 import java.nio.ByteOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class LocalBuffer implements NativeObject {
+public class LocalBuffer implements NativeObject {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalBuffer.class);
 
     @SuppressWarnings("UseOfSunClasses")
     private static final sun.misc.Unsafe UNSAFE = UnsafeProvider.getUnsafe();
-
     private static final long ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
-
     private static final Cleaner CLEANER = Cleaner.create();
-    private static final Object FAKE_PARENT = new Object();
+    protected static final Object FAKE_PARENT = new Object();
+    private static final byte ZERO = 0;
 
     private final long handle;
     private final long capacity;
@@ -23,7 +27,11 @@ public final class LocalBuffer implements NativeObject {
     @SuppressWarnings("FieldCanBeLocal")
     private final Object parent;
 
-    private LocalBuffer(long handle, long capacity, Object parent) {
+    protected LocalBuffer(long handle, long capacity) {
+        this(handle, capacity, null);
+    }
+
+    protected LocalBuffer(long handle, long capacity, Object parent) {
         this.handle = handle;
         this.capacity = capacity;
         this.parent = parent;
@@ -36,31 +44,31 @@ public final class LocalBuffer implements NativeObject {
     //  Perform bound checks within each method
 
     public byte get(long index) {
-        return UNSAFE.getByte(index);
+        return UNSAFE.getByte(handle + index);
     }
 
     public short getShort(long index) {
-        return UNSAFE.getShort(index);
+        return UNSAFE.getShort(handle + index);
     }
 
     public int getInt(long index) {
-        return UNSAFE.getInt(index);
+        return UNSAFE.getInt(handle + index);
     }
 
     public long getLong(long index) {
-        return UNSAFE.getLong(index);
+        return UNSAFE.getLong(handle + index);
     }
 
     public char getChar(long index) {
-        return UNSAFE.getChar(index);
+        return UNSAFE.getChar(handle + index);
     }
 
     public float getFloat(long index) {
-        return UNSAFE.getFloat(index);
+        return UNSAFE.getFloat(handle + index);
     }
 
     public double getDouble(long index) {
-        return UNSAFE.getDouble(index);
+        return UNSAFE.getDouble(handle + index);
     }
 
     public <T extends NativeObject> T getObject(long index, ReferenceFactory<T> factory) {
@@ -76,31 +84,31 @@ public final class LocalBuffer implements NativeObject {
     }
 
     public void put(long index, byte value) {
-        UNSAFE.putByte(index, value);
+        UNSAFE.putByte(handle + index, value);
     }
 
     public void putShort(long index, short value) {
-        UNSAFE.putShort(index, value);
+        UNSAFE.putShort(handle + index, value);
     }
 
     public void putInt(long index, int value) {
-        UNSAFE.putInt(index, value);
+        UNSAFE.putInt(handle + index, value);
     }
 
     public void putLong(long index, long value) {
-        UNSAFE.putLong(index, value);
+        UNSAFE.putLong(handle + index, value);
     }
 
     public void putChar(long index, char value) {
-        UNSAFE.putChar(index, value);
+        UNSAFE.putChar(handle + index, value);
     }
 
     public void putFloat(long index, float value) {
-        UNSAFE.putFloat(index, value);
+        UNSAFE.putFloat(handle + index, value);
     }
 
     public void putDouble(long index, double value) {
-        UNSAFE.putDouble(index, value);
+        UNSAFE.putDouble(handle + index, value);
     }
 
     public void putObject(long index, NativeObject object) {
@@ -136,6 +144,10 @@ public final class LocalBuffer implements NativeObject {
         return ByteOrder.nativeOrder();
     }
 
+    public long capacity() {
+        return capacity;
+    }
+
     @Override
     public long getHandle() {
         return handle;
@@ -147,7 +159,10 @@ public final class LocalBuffer implements NativeObject {
     }
 
     public static LocalBuffer allocate(long capacity) {
-        return new LocalBuffer(UNSAFE.allocateMemory(capacity), capacity, null);
+        var handle = UNSAFE.allocateMemory(capacity);
+        UNSAFE.setMemory(handle, capacity, ZERO);
+        LOGGER.trace("Allocated memory at {}", String.format("%016X", handle));
+        return new LocalBuffer(handle, capacity);
     }
 
     public static LocalBuffer wrap(long handle, long capacity) {
@@ -165,6 +180,7 @@ public final class LocalBuffer implements NativeObject {
         @Override
         public void run() {
             UNSAFE.freeMemory(handle);
+            LOGGER.trace("Freed {}", String.format("%016X", handle));
         }
     }
 }

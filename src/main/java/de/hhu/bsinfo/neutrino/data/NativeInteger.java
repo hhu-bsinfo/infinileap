@@ -1,10 +1,11 @@
 package de.hhu.bsinfo.neutrino.data;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import java.nio.ByteBuffer;
 
 public class NativeInteger extends NativeDataType {
 
-    public NativeInteger(final ByteBuffer byteBuffer, final int offset) {
+    public NativeInteger(final LocalBuffer byteBuffer, final int offset) {
         super(byteBuffer, offset);
     }
 

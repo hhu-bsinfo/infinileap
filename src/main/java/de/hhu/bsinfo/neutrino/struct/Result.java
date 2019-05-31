@@ -1,13 +1,11 @@
 package de.hhu.bsinfo.neutrino.struct;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class Result implements NativeObject, Poolable {
 
@@ -18,16 +16,14 @@ public class Result implements NativeObject, Poolable {
     private final long handle;
 
     public Result() {
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(SIZE);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        handle = MemoryUtil.getAddress(byteBuffer);
+        var byteBuffer = LocalBuffer.allocate(SIZE);
+        handle = byteBuffer.getHandle();
         status = new NativeInteger(byteBuffer, 0);
         value = new NativeLong(byteBuffer, 4);
     }
 
     public Result(long handle) {
-        ByteBuffer byteBuffer = MemoryUtil.wrap(handle, SIZE);
-        byteBuffer.order(ByteOrder.nativeOrder());
+        var byteBuffer = LocalBuffer.wrap(handle, SIZE);
         this.handle = handle;
         status = new NativeInteger(byteBuffer, 0);
         value = new NativeLong(byteBuffer, 4);

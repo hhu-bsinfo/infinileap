@@ -1,12 +1,13 @@
 package de.hhu.bsinfo.neutrino.data;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import java.nio.ByteBuffer;
 
 public class NativeEnum<T extends Enum<T>> extends NativeDataType {
 
     private final EnumConverter<T> converter;
 
-    public NativeEnum(ByteBuffer byteBuffer, int offset, EnumConverter<T> converter) {
+    public NativeEnum(LocalBuffer byteBuffer, int offset, EnumConverter<T> converter) {
         super(byteBuffer, offset);
         this.converter = converter;
     }

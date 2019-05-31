@@ -1,10 +1,12 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.data.NativeArray;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
+import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_sge")
@@ -46,5 +48,16 @@ public class ScatterGatherElement extends Struct implements Poolable {
 
     public void setLocalKey(final int value) {
         localKey.set(value);
+    }
+
+    public static class Array extends NativeArray<ScatterGatherElement> {
+
+        public Array(long handle, int capacity) {
+            super(ScatterGatherElement::new, ScatterGatherElement.class, handle, capacity);
+        }
+
+        public Array(int capacity) {
+            super(ScatterGatherElement::new, ScatterGatherElement.class, capacity);
+        }
     }
 }

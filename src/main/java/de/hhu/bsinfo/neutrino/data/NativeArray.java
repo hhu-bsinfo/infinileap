@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.neutrino.data;
 
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.IndexedConsumer;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
@@ -48,22 +49,34 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
         return elements[index];
     }
 
-    public void apply(final int index, final Consumer<T> operations) {
+    public <S extends NativeArray<T>> S apply(final int index, final Consumer<T> operations) {
         if (index >= capacity) {
             throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index,
                 capacity));
         }
 
         ensureObject(index);
-
         operations.accept(elements[index]);
+
+        return (S) this;
     }
 
-    public void forEach(final Consumer<T> operation) {
+    public <S extends NativeArray<T>> S forEach(final Consumer<T> operation) {
         for (int i = 0; i < capacity; i++) {
             ensureObject(i);
             operation.accept(elements[i]);
         }
+
+        return (S) this;
+    }
+
+    public <S extends NativeArray<T>> S forEachIndexed(final IndexedConsumer<T> operation) {
+        for (int i = 0; i < capacity; i++) {
+            ensureObject(i);
+            operation.accept(i, elements[i]);
+        }
+
+        return (S) this;
     }
 
     protected void setCapacity(int capacity) {

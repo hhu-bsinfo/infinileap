@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.RegisteredBuffer;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
-import java.nio.ByteBuffer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,28 +22,22 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    @Nullable
-    public MemoryRegion registerMemoryRegion(int size, AccessFlag... flags) {
-        return registerMemoryRegion(ByteBuffer.allocateDirect(size), flags);
+    public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) {
+        return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
     }
 
-    @Nullable
-    public MemoryRegion registerMemoryRegion(ByteBuffer buffer, AccessFlag... flags) {
+    private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerMemoryRegion(getHandle(), MemoryUtil.getAddress(buffer), buffer.capacity(),
+        Verbs.registerMemoryRegion(getHandle(), handle, capacity,
             BitMask.of(flags), result.getHandle());
 
         MemoryRegion ret = null;
         if(result.isError()) {
             LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
-        } else {
-            ret = new MemoryRegion(result.longValue(), buffer);
         }
 
-        result.releaseInstance();
-
-        return ret;
+        return new RegisteredBuffer(result.getAndRelease(MemoryRegion::new));
     }
 
     @Nullable

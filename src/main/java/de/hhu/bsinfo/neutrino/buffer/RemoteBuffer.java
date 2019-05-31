@@ -1,13 +1,12 @@
 package de.hhu.bsinfo.neutrino.buffer;
 
-import de.hhu.bsinfo.neutrino.verbs.MemoryRegion;
+import de.hhu.bsinfo.neutrino.util.BufferUtil;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
-import de.hhu.bsinfo.neutrino.verbs.ScatterGatherElement;
 import de.hhu.bsinfo.neutrino.verbs.SendFlag;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.OpCode;
 
-public class RemoteByteBuffer {
+public class RemoteBuffer {
 
     private static final int SINGLE_ELEMENT = 1;
 
@@ -15,33 +14,29 @@ public class RemoteByteBuffer {
     private final long address;
     private final int key;
 
-    public RemoteByteBuffer(QueuePair queuePair, long address, int key) {
+    public RemoteBuffer(QueuePair queuePair, long address, int key) {
         this.queuePair = queuePair;
         this.address = address;
         this.key = key;
     }
 
-    public void read(LocalByteBuffer localBuffer) {
+    public void read(RegisteredBuffer localBuffer) {
         execute(OpCode.RDMA_READ, localBuffer);
     }
 
-    public void write(LocalByteBuffer localBuffer) {
+    public void write(RegisteredBuffer localBuffer) {
         execute(OpCode.RDMA_WRITE, localBuffer);
     }
 
-    private void execute(final OpCode operation, LocalByteBuffer localBuffer) {
-        var element = new ScatterGatherElement(config -> {
-            config.setAddress(localBuffer.getHandle());
-            config.setLength(localBuffer.capacity());
-            config.setLocalKey(localBuffer.getLocalKey());
-        });
+    private void execute(final OpCode operation, RegisteredBuffer buffer) {
+        var elements = BufferUtil.split(buffer);
 
         var request = new SendWorkRequest(config -> {
             config.setOpCode(operation);
             config.rdma.setRemoteAddress(address);
             config.rdma.setRemoteKey(key);
             config.setFlags(SendFlag.SIGNALED);
-            config.setListHandle(element.getHandle());
+            config.setListHandle(elements.getHandle());
             config.setListLength(SINGLE_ELEMENT);
         });
 
@@ -50,7 +45,7 @@ public class RemoteByteBuffer {
 
     @Override
     public String toString() {
-        return "RemoteByteBuffer {" +
+        return "RemoteBuffer {" +
             "\n\taddress=" + address +
             ",\n\tkey=" + key +
             "\n}";

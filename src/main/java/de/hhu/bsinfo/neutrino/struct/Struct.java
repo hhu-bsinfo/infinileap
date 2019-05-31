@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.struct;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeBoolean;
@@ -25,52 +26,45 @@ public class Struct implements NativeObject {
     private static final Cleaner CLEANER = Cleaner.create();
 
     private final StructInformation info;
-    private final ByteBuffer byteBuffer;
+    private final LocalBuffer byteBuffer;
     private final long handle;
     private final int baseOffset;
     private final String nameSpace;
 
     protected Struct() {
         info = StructUtil.getInfo(getClass());
-        byteBuffer = ByteBuffer.allocateDirect(info.getSize());
-        byteBuffer.order(ByteOrder.nativeOrder());
-        handle = MemoryUtil.getAddress(byteBuffer);
+        byteBuffer = LocalBuffer.allocate(info.getSize());
+        handle = byteBuffer.getHandle();
         baseOffset = 0;
         nameSpace = null;
     }
 
     protected Struct(long handle) {
         info = StructUtil.getInfo(getClass());
-        byteBuffer = MemoryUtil.wrap(handle, info.getSize());
-        byteBuffer.order(ByteOrder.nativeOrder());
+        byteBuffer = LocalBuffer.wrap(handle, info.getSize());
         baseOffset = 0;
         nameSpace = null;
         this.handle = handle;
-        CLEANER.register(this, new StructCleaner(handle));
     }
 
-    protected Struct(ByteBuffer buffer, int offset) {
+    protected Struct(LocalBuffer buffer, int offset) {
         info = StructUtil.getInfo(getClass());
         byteBuffer = buffer;
-        handle = MemoryUtil.getAddress(byteBuffer);
+        handle = buffer.getHandle();
         baseOffset = offset;
         nameSpace = null;
     }
 
-    protected Struct(ByteBuffer buffer, String nameSpace) {
+    protected Struct(LocalBuffer buffer, String nameSpace) {
         info = StructUtil.getInfo(getClass());
         byteBuffer = buffer;
-        handle = MemoryUtil.getAddress(byteBuffer);
+        handle = buffer.getHandle();
         baseOffset = 0;
         if (!nameSpace.isEmpty() && nameSpace.charAt(nameSpace.length() - 1) == '.') {
             this.nameSpace = nameSpace;
         } else {
             this.nameSpace = nameSpace + '.';
         }
-    }
-
-    protected final ByteBuffer getByteBuffer() {
-        return byteBuffer;
     }
 
     @Override

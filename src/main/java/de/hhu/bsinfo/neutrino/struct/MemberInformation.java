@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.struct;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.data.NativeString;
@@ -19,8 +20,7 @@ public class MemberInformation implements NativeObject {
     public final NativeInteger offset;
 
     public MemberInformation(long handle) {
-        ByteBuffer byteBuffer = MemoryUtil.wrap(handle, SIZE);
-        byteBuffer.order(ByteOrder.nativeOrder());
+        var byteBuffer = LocalBuffer.wrap(handle, SIZE);
         name = new NativeString(byteBuffer, 0, 32);
         offset = new NativeInteger(byteBuffer, 32);
         this.handle = handle;

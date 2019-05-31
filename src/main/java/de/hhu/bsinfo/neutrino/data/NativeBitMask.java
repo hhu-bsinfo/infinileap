@@ -1,12 +1,13 @@
 package de.hhu.bsinfo.neutrino.data;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import java.nio.ByteBuffer;
 
 public class NativeBitMask<T extends Enum<T> & Flag> extends NativeDataType {
 
-    public NativeBitMask(ByteBuffer byteBuffer, int offset) {
+    public NativeBitMask(LocalBuffer byteBuffer, int offset) {
         super(byteBuffer, offset);
     }
 

@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
@@ -66,7 +67,7 @@ public class SharedReceiveQueue extends Struct {
             super(handle);
         }
 
-        public Attributes(ByteBuffer buffer, int offset) {
+        public Attributes(LocalBuffer buffer, int offset) {
             super(buffer, offset);
         }
 

@@ -14,8 +14,6 @@ public class MemoryRegion extends Struct {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryRegion.class);
 
-    private final ByteBuffer regionBuffer;
-
     private final Context context = referenceField("context", Context::new);
     private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
     private final NativeLong address = longField("addr");
@@ -23,13 +21,8 @@ public class MemoryRegion extends Struct {
     private final NativeInteger localKey = integerField("lkey");
     private final NativeInteger remoteKey = integerField("rkey");
 
-    MemoryRegion(long handle, ByteBuffer byteBuffer) {
+    MemoryRegion(long handle) {
         super(handle);
-        regionBuffer = byteBuffer;
-    }
-
-    public ByteBuffer getBuffer() {
-        return regionBuffer;
     }
 
     public Context getContext() {

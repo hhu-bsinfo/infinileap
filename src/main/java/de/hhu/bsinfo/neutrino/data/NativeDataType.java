@@ -1,18 +1,18 @@
 package de.hhu.bsinfo.neutrino.data;
 
-import java.nio.ByteBuffer;
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 
 public class NativeDataType {
 
-    private final ByteBuffer byteBuffer;
+    private final LocalBuffer byteBuffer;
     private final int offset;
 
-    public NativeDataType(final ByteBuffer byteBuffer, final int offset) {
+    public NativeDataType(final LocalBuffer byteBuffer, final int offset) {
         this.byteBuffer = byteBuffer;
         this.offset = offset;
     }
 
-    protected ByteBuffer getByteBuffer() {
+    protected LocalBuffer getByteBuffer() {
         return byteBuffer;
     }
 
