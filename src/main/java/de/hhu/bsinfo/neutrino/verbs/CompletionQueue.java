@@ -47,7 +47,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), result.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying queue pair failed [{}]", result.getStatus());
+            LOGGER.error("Modifying queue pair failed with error [{}]", result.getStatus());
             results.setLength(0);
         } else {
             results.setLength(result.intValue());
@@ -73,7 +73,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion queue failed [{}]", result.getStatus());
+            LOGGER.error("Destroying completion queue failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();

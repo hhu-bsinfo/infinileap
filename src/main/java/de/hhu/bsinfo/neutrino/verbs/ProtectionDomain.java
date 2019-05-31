@@ -34,28 +34,28 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         Verbs.registerMemoryRegion(getHandle(), MemoryUtil.getAddress(buffer), buffer.capacity(),
             BitMask.of(flags), result.getHandle());
 
+        MemoryRegion ret = null;
         if(result.isError()) {
-            LOGGER.error("Could not register memory region");
-            return null;
+            LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
+        } else {
+            ret = new MemoryRegion(result.longValue(), buffer);
         }
 
         result.releaseInstance();
-        return new MemoryRegion(result.longValue(), buffer);
+
+        return ret;
     }
 
     @Nullable
-    public SharedReceiveQueue createSharedReceiveQueue(
-        SharedReceiveQueue.InitialAttributes initialAttributes) {
+    public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.createSharedReceiveQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not create shared receive queue");
-            return null;
+            LOGGER.error("Creating shared receive queue failed with error [{}]", result.getStatus());
         }
 
-        result.releaseInstance();
-        return result.get(SharedReceiveQueue::new);
+        return result.getAndRelease(SharedReceiveQueue::new);
     }
 
     @Nullable
@@ -64,13 +64,10 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not create queue pair");
-            return null;
+            LOGGER.error("Creating queue pair failed with error [{}]", result.getStatus());
         }
 
-        result.releaseInstance();
-
-        return result.get(QueuePair::new);
+        return result.getAndRelease(QueuePair::new);
     }
 
     @Override
@@ -79,7 +76,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not close device [{}]", result.getStatus());
+            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();

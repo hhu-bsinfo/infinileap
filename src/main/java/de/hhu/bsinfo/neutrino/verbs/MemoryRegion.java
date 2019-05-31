@@ -62,7 +62,7 @@ public class MemoryRegion extends Struct {
         Verbs.deregisterMemoryRegion(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Deregistering memory region failed [{}]", result.getStatus());
+            LOGGER.error("Deregistering memory region failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();

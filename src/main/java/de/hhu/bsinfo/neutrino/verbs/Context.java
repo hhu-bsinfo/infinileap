@@ -39,12 +39,10 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not open device with index {}", index);
-            return null;
+            LOGGER.error("Opening device {} failed with error [{}]", index, result.getStatus());
         }
 
-        result.releaseInstance();
-        return result.get(Context::new);
+        return result.getAndRelease(Context::new);
     }
 
     @Override
@@ -53,7 +51,7 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.closeDevice(handle, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not close device [{}]", result.getStatus());
+            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -70,11 +68,12 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not query device [{}]", result.getStatus());
+            LOGGER.error("Querying device failed with error [{}]", result.getStatus());
             device = null;
         }
 
         result.releaseInstance();
+
         return device;
     }
 
@@ -85,11 +84,12 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not query port [{}]", result.getStatus());
+            LOGGER.error("Querying port failed with error [{}]", result.getStatus());
             port = null;
         }
 
         result.releaseInstance();
+
         return port;
     }
 
@@ -99,7 +99,7 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateProtectionDomain(handle, result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Could not allocate protection domain");
+            LOGGER.error("Allocating protection domain failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(ProtectionDomain::new);
@@ -111,7 +111,7 @@ public final class Context implements NativeObject, AutoCloseable {
 
         Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Could not create completion queue [error={}]", result.getStatus());
+            LOGGER.error("Creating completion queueu failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(CompletionQueue::new);

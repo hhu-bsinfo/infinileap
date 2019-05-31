@@ -62,7 +62,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         Verbs.postSendWorkRequest(getHandle(), sendWorkRequests.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting send work request failed [{}]", result.getStatus());
+            LOGGER.error("Posting send work request failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -76,7 +76,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequest.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work request failed [{}]", result.getStatus());
+            LOGGER.error("Posting receive work request failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -90,7 +90,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequests.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work request failed [{}]", result.getStatus());
+            LOGGER.error("Posting receive work request failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -104,7 +104,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying queue pair failed [{}]", result.getStatus());
+            LOGGER.error("Modifying queue pair failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -122,7 +122,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         if (isError) {
-            LOGGER.error("Querying queue pair failed [{}]", result.getStatus());
+            LOGGER.error("Querying queue pair failed with error [{}]", result.getStatus());
             return null;
         }
 
@@ -139,7 +139,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         if (isError) {
-            LOGGER.error("Querying queue pair failed [{}]", result.getStatus());
+            LOGGER.error("Querying queue pair failed with error [{}]", result.getStatus());
             return null;
         }
 
@@ -152,7 +152,7 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying queue pair failed [{}]", result.getStatus());
+            LOGGER.error("Destroying queue pair failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
