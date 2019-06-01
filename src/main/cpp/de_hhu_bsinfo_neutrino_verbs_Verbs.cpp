@@ -342,8 +342,12 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readTagMatchingIn
     ibv_wc_read_tm_info(extendedCompletionQueue, tagMatchingInfo);
 }
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod (JNIEnv *env, jclass clazz, jlong resultHandle) {
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1 (JNIEnv *env, jclass clazz, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, 0, nullptr);
+}
+
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod2 (JNIEnv *env, jclass clazz) {
+    return 299792458L;
 }

@@ -331,11 +331,19 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readTagMatchingIn
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
- * Method:    benchmarkDummyMethod
+ * Method:    benchmarkDummyMethod1
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    benchmarkDummyMethod2
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod2
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

@@ -78,5 +78,7 @@ public final class Verbs {
     static native void readFlowTag(long extendedCompletionQueueHandle, long resultHandle);
     static native void readTagMatchingInfo(long extendedCompletionQueueHandle, long tagMatchingInfoHandle);
 
-    public static native void benchmarkDummyMethod(long resultHandle);
+    // Dummy methods for benchmarking JNI overhead
+    public static native void benchmarkDummyMethod1(long resultHandle);
+    public static native long benchmarkDummyMethod2();
 }
