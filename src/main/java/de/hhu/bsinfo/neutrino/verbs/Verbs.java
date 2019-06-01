@@ -62,20 +62,21 @@ public final class Verbs {
     static native void startPoll(long extendedCompletionQueueHandle, long pollCompletionQueueAttributesHandle, long resultHandle);
     static native void nextPoll(long extendedCompletionQueueHandle, long resultHandle);
     static native void endPoll(long extendedCompletionQueueHandle);
-    static native void readOpCode(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readVendorError(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readByteCount(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readImmediateData(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readInvalidatedRemoteKey(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readSourceQueuePair(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readWorkCompletionFlags(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readSourceLocalId(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readServiceLevel(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readPathBits(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readCompletionTimestamp(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readCompletionWallClockNanoseconds(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readCVLan(long extendedCompletionQueueHandle, long resultHandle);
-    static native void readFlowTag(long extendedCompletionQueueHandle, long resultHandle);
+    static native int readOpCode(long extendedCompletionQueueHandle);
+    static native int readVendorError(long extendedCompletionQueueHandle);
+    static native int readByteCount(long extendedCompletionQueueHandle);
+    static native int readImmediateData(long extendedCompletionQueueHandle);
+    static native int readInvalidatedRemoteKey(long extendedCompletionQueueHandle);
+    static native int readQueuePairNumber(long extendedCompletionQueueHandle);
+    static native int readSourceQueuePair(long extendedCompletionQueueHandle);
+    static native int readWorkCompletionFlags(long extendedCompletionQueueHandle);
+    static native int readSourceLocalId(long extendedCompletionQueueHandle);
+    static native byte readServiceLevel(long extendedCompletionQueueHandle);
+    static native byte readPathBits(long extendedCompletionQueueHandle);
+    static native long readCompletionTimestamp(long extendedCompletionQueueHandle);
+    static native long readCompletionWallClockNanoseconds(long extendedCompletionQueueHandle);
+    static native short readCVLan(long extendedCompletionQueueHandle);
+    static native int readFlowTag(long extendedCompletionQueueHandle);
     static native void readTagMatchingInfo(long extendedCompletionQueueHandle, long tagMatchingInfoHandle);
 
     // Dummy methods for benchmarking JNI overhead

@@ -8,12 +8,13 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
-@LinkNative("ibv_qp_ex")
+@LinkNative("ibv_cq_ex")
 public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCompletionQueue.class);
@@ -24,7 +25,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     private final NativeInteger maxElements = integerField("cqe");
     private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
     private final NativeEnum<WorkCompletion.Status> status = enumField("status", WorkCompletion.Status.CONVERTER);
-    private final NativeLong workRequestId = longField("workRequestId");
+    private final NativeLong workRequestId = longField("wr_id");
 
     public ExtendedCompletionQueue() {}
 
@@ -32,6 +33,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         super(handle);
     }
 
+    @Nullable
     public CompletionQueue toCompletionQueue() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -72,127 +74,63 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     }
 
     public WorkCompletion.OpCode readOpCode() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readOpCode(getHandle(), result.getHandle());
-        if(result.isError()) {
-            LOGGER.error("Reading opcode from extended completion queue failed with error [{}]", result.getStatus());
-        }
-
-        return WorkCompletion.OpCode.CONVERTER.toEnum(result.getIntAndRelease());
+        return WorkCompletion.OpCode.CONVERTER.toEnum(Verbs.readOpCode(getHandle()));
     }
 
     public int readVendorError() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readVendorError(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readVendorError(getHandle());
     }
 
     public int readByteCount() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readByteCount(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-
-        return result.getIntAndRelease();
+        return Verbs.readByteCount(getHandle());
     }
 
     public int readImmediateData() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readImmediateData(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readImmediateData(getHandle());
     }
 
     public int readInvalidatedRemoteKey() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readInvalidatedRemoteKey(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readInvalidatedRemoteKey(getHandle());
     }
 
     public int readQueuePairNumber() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readSourceQueuePair(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readQueuePairNumber(getHandle());
     }
 
     public int readSourceQueuePair() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readSourceQueuePair(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readSourceQueuePair(getHandle());
     }
 
     public int readWorkCompletionFlags() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readWorkCompletionFlags(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readWorkCompletionFlags(getHandle());
     }
 
     public int readSourceLocalId() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readSourceLocalId(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readSourceLocalId(getHandle());
     }
 
     public byte readServiceLevel() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readServiceLevel(getHandle(), result.getHandle());
-
-        return result.getByteAndRelease();
+        return Verbs.readServiceLevel(getHandle());
     }
 
     public byte readPathBits() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readPathBits(getHandle(), result.getHandle());
-
-        return result.getByteAndRelease();
+        return Verbs.readPathBits(getHandle());
     }
 
     public long readCompletionTimestamp() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readCompletionTimestamp(getHandle(), result.getHandle());
-
-        return result.getLongAndRelease();
+        return Verbs.readCompletionTimestamp(getHandle());
     }
 
     public long readCompletionWallClock() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readCompletionWallClockNanoseconds(getHandle(), result.getHandle());
-
-        return result.getLongAndRelease();
+        return Verbs.readCompletionWallClockNanoseconds(getHandle());
     }
 
     public short readCVLan() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readCVLan(getHandle(), result.getHandle());
-
-        return result.getShortAndRelease();
+        return Verbs.readCVLan(getHandle());
     }
 
     public int readFlowTag() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.readFlowTag(getHandle(), result.getHandle());
-
-        return result.getIntAndRelease();
+        return Verbs.readFlowTag(getHandle());
     }
 
     public void readTagMatchingInfo(WorkCompletion.TagMatchingInfo tagMatchingInfo) {
@@ -291,6 +229,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
     }
 
+    @LinkNative("ibv_cq_init_attr_ex")
     public static final class InitialAttributes extends Struct {
 
         private final NativeInteger maxElements = integerField("cqe");
@@ -368,6 +307,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
     }
 
+    @LinkNative("ibv_poll_cq_attr")
     public final class PollAttributes extends Struct {
 
         private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");

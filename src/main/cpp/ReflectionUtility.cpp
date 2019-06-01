@@ -387,6 +387,32 @@ ReflectionUtility::StructInfo ibv_cq_ex_struct_info {
     ibv_cq_ex_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_cq_init_attr_ex_member_infos[] = {
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, cqe),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, cq_context),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, channel),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, comp_vector),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, wc_flags),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, comp_mask),
+    GET_MEMBER_INFO(ibv_cq_init_attr_ex, flags)
+};
+
+ReflectionUtility::StructInfo ibv_cq_init_attr_ex_struct_info {
+    sizeof(ibv_cq_init_attr_ex),
+    sizeof(ibv_cq_init_attr_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_cq_init_attr_ex_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_poll_cq_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_poll_cq_attr, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_poll_cq_attr_struct_info {
+    sizeof(ibv_poll_cq_attr),
+    sizeof(ibv_poll_cq_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_poll_cq_attr_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_qp_ex_member_infos[] = {
     GET_MEMBER_INFO(ibv_qp_ex, qp_base),
     GET_MEMBER_INFO(ibv_qp_ex, comp_mask),
@@ -420,6 +446,8 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_mr", &ibv_mr_struct_info},
     {"ibv_pd", &ibv_pd_struct_info},
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},
+    {"ibv_cq_init_attr_ex", &ibv_cq_init_attr_ex_struct_info},
+    {"ibv_poll_cq_attr", &ibv_poll_cq_attr_struct_info},
     {"ibv_qp_ex", &ibv_qp_ex_struct_info},
 };
 
