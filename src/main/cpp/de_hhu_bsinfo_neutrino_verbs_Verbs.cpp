@@ -237,31 +237,31 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_endPoll (JNIEnv *
     ibv_end_poll(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readOpCode (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readOpCode (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_opcode(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readVendorError (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readVendorError (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_vendor_err(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readByteCount (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readByteCount (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_byte_len(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readImmediateData (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readImmediateData (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_imm_data(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readInvalidatedRemoteKey (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readInvalidatedRemoteKey (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_invalidated_rkey(extendedCompletionQueue);
@@ -273,55 +273,55 @@ JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readQueuePairNumb
     return ibv_wc_read_qp_num(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceQueuePair (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceQueuePair (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_src_qp(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readWorkCompletionFlags (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readWorkCompletionFlags (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_wc_flags(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceLocalId (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readSourceLocalId (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_slid(extendedCompletionQueue);
 }
 
-JNIEXPORT jbyte JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readServiceLevel (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jbyte JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readServiceLevel (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_sl(extendedCompletionQueue);
 }
 
-JNIEXPORT jbyte JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readPathBits (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jbyte JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readPathBits (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_dlid_path_bits(extendedCompletionQueue);
 }
 
-JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionTimestamp (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionTimestamp (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_completion_ts(extendedCompletionQueue);
 }
 
-JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionWallClockNanoseconds (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCompletionWallClockNanoseconds (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_completion_wallclock_ns(extendedCompletionQueue);
 }
 
-JNIEXPORT jshort JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCVLan (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jshort JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readCVLan (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_cvlan(extendedCompletionQueue);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readFlowTag (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle, jlong resultHandle) {
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readFlowTag (JNIEnv *env, jclass clazz, jlong extendedCompletionQueueHandle) {
     auto extendedCompletionQueue = NativeCall::castHandle<ibv_cq_ex>(extendedCompletionQueueHandle);
 
     return ibv_wc_read_flow_tag(extendedCompletionQueue);

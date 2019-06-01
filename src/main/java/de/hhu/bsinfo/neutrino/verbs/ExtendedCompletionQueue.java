@@ -308,11 +308,15 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     }
 
     @LinkNative("ibv_poll_cq_attr")
-    public final class PollAttributes extends Struct {
+    public static final class PollAttributes extends Struct {
 
         private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
 
         public PollAttributes() {}
+
+        public PollAttributes(Consumer<PollAttributes> configurator) {
+            configurator.accept(this);
+        }
 
         public PollAttributes(final long handle) {
             super(handle);
