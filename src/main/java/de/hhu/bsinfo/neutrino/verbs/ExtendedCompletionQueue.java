@@ -17,6 +17,53 @@ import java.util.function.Consumer;
 @LinkNative("ibv_cq_ex")
 public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
+    public enum WorkCompletionCapability implements Flag {
+        WITH_BYTE_LEN(1), WITH_IMM(1 << 1), WITH_QP_NUM(1 << 2), WITH_SRC_QP(1 << 3),
+        WITH_SLID(1 << 4), WITH_SL(1 << 5), WITH_DLID_PATH_BITS(1 << 6), WITH_COMPLETION_TIMESTAMP(1 << 7),
+        WITH_CVLAN(1 << 8), WITH_FLOW_TAG(1 << 9), WITH_TM_INFO(1 << 10), WITH_COMPLETION_TIMESTAMP_WALLCLOCK(1 << 11);
+
+        private final int value;
+
+        WorkCompletionCapability(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public enum CompatibilityFlag implements Flag {
+        FLAGS(1);
+
+        private final int value;
+
+        CompatibilityFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public enum CreationFlag implements Flag {
+        SINGLE_THREADED(1), IGNORE_OVERRUN(1 << 1);
+
+        private final int value;
+
+        CreationFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCompletionQueue.class);
 
     private final Context context = referenceField("context", Context::new);
@@ -178,54 +225,11 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        toCompletionQueue().close();
-    }
+    public void close() {
+        CompletionQueue completionQueue = toCompletionQueue();
 
-    public enum WorkCompletionFlag implements Flag {
-        WITH_BYTE_LEN(1), WITH_IMM(1 << 1), WITH_QP_NUM(1 << 2), WITH_SRC_QP(1 << 3),
-        WITH_SLID(1 << 4), WITH_SL(1 << 5), WITH_DLID_PATH_BITS(1 << 6), WITH_COMPLETION_TIMESTAMP(1 << 7),
-        WITH_CVLAN(1 << 8), WITH_FLOW_TAG(1 << 9), WITH_TM_INFO(1 << 10), WITH_COMPLETION_TIMESTAMP_WALLCLOCK(1 << 11);
-
-        private final int value;
-
-        WorkCompletionFlag(int value) {
-            this.value = value;
-        }
-
-        @Override
-        public int getValue() {
-            return value;
-        }
-    }
-
-    public enum CompatibilityFlag implements Flag {
-        FLAGS(1);
-
-        private final int value;
-
-        CompatibilityFlag(int value) {
-            this.value = value;
-        }
-
-        @Override
-        public int getValue() {
-            return value;
-        }
-    }
-
-    public enum CreationFlag implements Flag {
-        SINGLE_THREADED(1), IGNORE_OVERRUN(1 << 1);
-
-        private final int value;
-
-        CreationFlag(int value) {
-            this.value = value;
-        }
-
-        @Override
-        public int getValue() {
-            return value;
+        if(completionQueue != null) {
+            completionQueue.close();
         }
     }
 
@@ -236,7 +240,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         private final NativeLong userContext = longField("cq_context");
         private final NativeLong channel = longField("channel");
         private final NativeInteger completionVector = integerField("comp_vector");
-        private final NativeBitMask<WorkCompletionFlag> workCompletionFlags = bitField("wc_flags");
+        private final NativeBitMask<WorkCompletionCapability> workCompletionFlags = bitField("wc_flags");
         private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
         private final NativeBitMask<CreationFlag> flags = bitField("flags");
 
@@ -294,7 +298,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             completionVector.set(value);
         }
 
-        public void setWorkCompletionFlags(final WorkCompletionFlag... value) {
+        public void setWorkCompletionFlags(final WorkCompletionCapability... value) {
             workCompletionFlags.set(value);
         }
 
