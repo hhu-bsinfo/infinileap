@@ -366,6 +366,40 @@ ReflectionUtility::StructInfo ibv_pd_struct_info {
     ibv_pd_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_cq_ex_member_infos[] = {
+    GET_MEMBER_INFO(ibv_cq_ex, context),
+    GET_MEMBER_INFO(ibv_cq_ex, channel),
+    GET_MEMBER_INFO(ibv_cq_ex, cq_context),
+    GET_MEMBER_INFO(ibv_cq_ex, handle),
+    GET_MEMBER_INFO(ibv_cq_ex, cqe),
+    GET_MEMBER_INFO(ibv_cq_ex, mutex),
+    GET_MEMBER_INFO(ibv_cq_ex, cond),
+    GET_MEMBER_INFO(ibv_cq_ex, comp_events_completed),
+    GET_MEMBER_INFO(ibv_cq_ex, async_events_completed),
+    GET_MEMBER_INFO(ibv_cq_ex, comp_mask),
+    GET_MEMBER_INFO(ibv_cq_ex, status),
+    GET_MEMBER_INFO(ibv_cq_ex, wr_id)
+};
+
+ReflectionUtility::StructInfo ibv_cq_ex_struct_info {
+    sizeof(ibv_cq_ex),
+    sizeof(ibv_cq_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_cq_ex_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_qp_ex_member_infos[] = {
+    GET_MEMBER_INFO(ibv_qp_ex, qp_base),
+    GET_MEMBER_INFO(ibv_qp_ex, comp_mask),
+    GET_MEMBER_INFO(ibv_qp_ex, wr_id),
+    GET_MEMBER_INFO(ibv_qp_ex, wr_flags)
+};
+
+ReflectionUtility::StructInfo ibv_qp_ex_struct_info {
+    sizeof(ibv_qp_ex),
+    sizeof(ibv_qp_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_qp_ex_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -384,7 +418,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_qp_cap", &ibv_qp_cap_struct_info},
     {"ibv_qp", &ibv_qp_struct_info},
     {"ibv_mr", &ibv_mr_struct_info},
-    {"ibv_pd", &ibv_pd_struct_info}
+    {"ibv_pd", &ibv_pd_struct_info},
+    {"ibv_cq_ex", &ibv_cq_ex_struct_info},
+    {"ibv_qp_ex", &ibv_qp_ex_struct_info},
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
