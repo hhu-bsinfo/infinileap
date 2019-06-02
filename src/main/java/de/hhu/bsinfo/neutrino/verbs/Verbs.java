@@ -70,6 +70,7 @@ public final class Verbs {
     static native void destroyQueuePair(long queuePairHandle, long resultHandle);
 
     // Extended API
+    static native void queryExtendedDevice(long contextHandle, long extendedDeviceHandle, long queryExtendedDeviceInputHandle, long resultHandle);
     static native void createExtendedCompletionQueue(long contextHandle, long initialAttributesHandle, long resultHandle);
     static native void extendedCompletionQueueToCompletionQueue(long extendedCompletionQueueHandle, long resultHandle);
     static native void startPoll(long extendedCompletionQueueHandle, long pollCompletionQueueAttributesHandle, long resultHandle);

@@ -309,6 +309,15 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyQueuePair 
     NativeCall::setResult(result, ibv_destroy_qp(queuePair), nullptr);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryExtendedDevice (JNIEnv *env, jclass clazz, jlong contextHandle, jlong extendedDeviceHandle, jlong queryExtendedDeviceInputHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto device = NativeCall::castHandle<ibv_device_attr_ex>(extendedDeviceHandle);
+    auto queryInput = NativeCall::castHandle<ibv_query_device_ex_input>(queryExtendedDeviceInputHandle);
+
+    NativeCall::setResult(result, ibv_query_device_ex(context, queryInput, device), nullptr);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong initialAttributesHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);

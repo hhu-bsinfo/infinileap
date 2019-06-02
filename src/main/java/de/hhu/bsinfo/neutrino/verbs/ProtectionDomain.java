@@ -70,7 +70,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.of(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering device memory as memory region failed with error [{}]", result.getStatus());
+            LOGGER.error("Registering deviceAttributes memory as memory region failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(MemoryRegion::new);
@@ -118,7 +118,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing deviceAttributes failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();

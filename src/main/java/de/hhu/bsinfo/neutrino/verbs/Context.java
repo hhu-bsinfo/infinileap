@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.DeviceBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
+import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening device {} failed with error [{}]", index, result.getStatus());
+            LOGGER.error("Opening deviceAttributes {} failed with error [{}]", index, result.getStatus());
         }
 
         return result.getAndRelease(Context::new);
@@ -53,7 +53,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing deviceAttributes failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -64,13 +64,13 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public Device queryDevice() {
+    public DeviceAttributes queryDevice() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
-        var device = new Device();
+        var device = new DeviceAttributes();
 
         Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying device failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying deviceAttributes failed with error [{}]", result.getStatus());
             device = null;
         }
 
@@ -101,7 +101,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating device memory failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating deviceAttributes memory failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(DeviceMemory::new);
@@ -144,18 +144,6 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes initialAttributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.createExtendedCompletionQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
-        if (result.isError()) {
-            LOGGER.error("Creating extended completion queue failed with error [{}]", result.getStatus());
-        }
-
-        return result.getAndRelease(ExtendedCompletionQueue::new);
-    }
-
-    @Nullable
     public AsyncEvent getAsyncEvent() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var event = (AsyncEvent) Verbs.getPoolableInstance(AsyncEvent.class);
@@ -173,5 +161,33 @@ public class Context implements NativeObject, AutoCloseable {
         result.releaseInstance();
 
         return event;
+    }
+
+    @Nullable
+    public ExtendedDeviceAttributes queryExtendedDevice(QueryExtendedDeviceInput queryInput) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var device = new ExtendedDeviceAttributes();
+
+        Verbs.queryExtendedDevice(getHandle(), device.getHandle(), queryInput.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Querying extended deviceAttributes failed with error [{}]", result.getStatus());
+            device = null;
+        }
+
+        result.releaseInstance();
+
+        return device;
+    }
+
+    @Nullable
+    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes initialAttributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createExtendedCompletionQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating extended completion queue failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ExtendedCompletionQueue::new);
     }
 }

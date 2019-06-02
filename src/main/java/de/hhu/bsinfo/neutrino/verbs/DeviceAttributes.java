@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -8,7 +9,7 @@ import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 
 @LinkNative("ibv_device_attr")
-public class Device extends Struct {
+public class DeviceAttributes extends Struct {
 
     private final NativeString firmwareVersion = stringField("fw_ver", 64);
     private final NativeLong nodeGuid = longField("node_guid");
@@ -33,10 +34,14 @@ public class Device extends Struct {
     private final NativeInteger maxSharedReceiveQueueScatterGatherCount = integerField("max_srq_sge");
     private final NativeByte physicalPortCount = byteField("phys_port_cnt");
 
-    Device() {}
+    DeviceAttributes() {}
 
-    Device(long handle) {
+    DeviceAttributes(long handle) {
         super(handle);
+    }
+
+    DeviceAttributes(LocalBuffer localBuffer, int offset) {
+        super(localBuffer, offset);
     }
 
     public static int getDeviceCount() {
@@ -133,7 +138,7 @@ public class Device extends Struct {
 
     @Override
     public String toString() {
-        return "Device {" +
+        return "DeviceAttributes {" +
             "\n\tfirmwareVersion=" + firmwareVersion +
             ",\n\tnodeGuid=" + nodeGuid +
             ",\n\tsystemImageGuid=" + systemImageGuid +

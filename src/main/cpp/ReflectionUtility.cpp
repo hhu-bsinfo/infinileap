@@ -428,6 +428,128 @@ ReflectionUtility::StructInfo ibv_pd_struct_info {
     ibv_pd_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_device_attr_ex_member_infos[] = {
+    GET_MEMBER_INFO(ibv_device_attr_ex, orig_attr),
+    GET_MEMBER_INFO(ibv_device_attr_ex, comp_mask),
+    GET_MEMBER_INFO(ibv_device_attr_ex, odp_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, completion_timestamp_mask),
+    GET_MEMBER_INFO(ibv_device_attr_ex, hca_core_clock),
+    GET_MEMBER_INFO(ibv_device_attr_ex, device_cap_flags_ex),
+    GET_MEMBER_INFO(ibv_device_attr_ex, tso_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, rss_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, max_wq_type_rq),
+    GET_MEMBER_INFO(ibv_device_attr_ex, packet_pacing_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, raw_packet_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, tm_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, cq_mod_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, max_dm_size),
+    GET_MEMBER_INFO(ibv_device_attr_ex, pci_atomic_caps),
+    GET_MEMBER_INFO(ibv_device_attr_ex, xrc_odp_caps)
+};
+
+ReflectionUtility::StructInfo ibv_device_attr_ex_struct_info {
+    sizeof(ibv_device_attr_ex),
+    sizeof(ibv_device_attr_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_device_attr_ex_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_odp_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_odp_caps, general_caps),
+    GET_MEMBER_INFO(ibv_odp_caps, per_transport_caps.rc_odp_caps),
+    GET_MEMBER_INFO(ibv_odp_caps, per_transport_caps.uc_odp_caps),
+    GET_MEMBER_INFO(ibv_odp_caps, per_transport_caps.ud_odp_caps)
+};
+
+ReflectionUtility::StructInfo ibv_odp_caps_struct_info {
+    sizeof(ibv_odp_caps),
+    sizeof(ibv_odp_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_odp_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_tso_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_tso_caps, max_tso),
+    GET_MEMBER_INFO(ibv_tso_caps, supported_qpts)
+};
+
+ReflectionUtility::StructInfo ibv_tso_caps_struct_info {
+    sizeof(ibv_tso_caps),
+    sizeof(ibv_tso_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_tso_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_rss_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_rss_caps, supported_qpts),
+    GET_MEMBER_INFO(ibv_rss_caps, max_rwq_indirection_tables),
+    GET_MEMBER_INFO(ibv_rss_caps, max_rwq_indirection_table_size),
+    GET_MEMBER_INFO(ibv_rss_caps, rx_hash_fields_mask),
+    GET_MEMBER_INFO(ibv_rss_caps, rx_hash_function)
+};
+
+ReflectionUtility::StructInfo ibv_rss_caps_struct_info {
+    sizeof(ibv_rss_caps),
+    sizeof(ibv_rss_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_rss_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_packet_pacing_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_packet_pacing_caps, qp_rate_limit_min),
+    GET_MEMBER_INFO(ibv_packet_pacing_caps, qp_rate_limit_max),
+    GET_MEMBER_INFO(ibv_packet_pacing_caps, supported_qpts)
+};
+
+ReflectionUtility::StructInfo ibv_packet_pacing_caps_struct_info {
+    sizeof(ibv_packet_pacing_caps),
+    sizeof(ibv_packet_pacing_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_packet_pacing_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_tm_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_tm_caps, max_rndv_hdr_size),
+    GET_MEMBER_INFO(ibv_tm_caps, max_num_tags),
+    GET_MEMBER_INFO(ibv_tm_caps, flags),
+    GET_MEMBER_INFO(ibv_tm_caps, max_ops),
+    GET_MEMBER_INFO(ibv_tm_caps, max_sge)
+};
+
+ReflectionUtility::StructInfo ibv_tm_caps_struct_info {
+    sizeof(ibv_tm_caps),
+    sizeof(ibv_tm_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_tm_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_cq_moderation_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_cq_moderation_caps, max_cq_count),
+    GET_MEMBER_INFO(ibv_cq_moderation_caps, max_cq_period)
+};
+
+ReflectionUtility::StructInfo ibv_cq_moderation_caps_struct_info {
+    sizeof(ibv_cq_moderation_caps),
+    sizeof(ibv_cq_moderation_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_cq_moderation_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_pci_atomic_caps_member_infos[] = {
+    GET_MEMBER_INFO(ibv_pci_atomic_caps, fetch_add),
+    GET_MEMBER_INFO(ibv_pci_atomic_caps, swap),
+    GET_MEMBER_INFO(ibv_pci_atomic_caps, compare_swap)
+};
+
+ReflectionUtility::StructInfo ibv_pci_atomic_caps_struct_info {
+    sizeof(ibv_pci_atomic_caps),
+    sizeof(ibv_pci_atomic_caps_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_pci_atomic_caps_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_query_device_ex_input_member_infos[] = {
+    GET_MEMBER_INFO(ibv_query_device_ex_input, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_query_device_ex_input_struct_info {
+    sizeof(ibv_query_device_ex_input),
+    sizeof(ibv_query_device_ex_input_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_query_device_ex_input_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_cq_ex_member_infos[] = {
     GET_MEMBER_INFO(ibv_cq_ex, context),
     GET_MEMBER_INFO(ibv_cq_ex, channel),
@@ -512,6 +634,15 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_alloc_dm_attr", &ibv_alloc_dm_attr_struct_info},
     {"ibv_mr", &ibv_mr_struct_info},
     {"ibv_pd", &ibv_pd_struct_info},
+    {"ibv_device_attr_ex", &ibv_device_attr_ex_struct_info},
+    {"ibv_odp_caps", &ibv_odp_caps_struct_info},
+    {"ibv_tso_caps", &ibv_tso_caps_struct_info},
+    {"ibv_rss_caps", &ibv_rss_caps_struct_info},
+    {"ibv_packet_pacing_caps", &ibv_packet_pacing_caps_struct_info},
+    {"ibv_tm_caps", &ibv_tm_caps_struct_info},
+    {"ibv_cq_moderation_caps", &ibv_cq_moderation_caps_struct_info},
+    {"ibv_pci_atomic_caps", &ibv_pci_atomic_caps_struct_info},
+    {"ibv_query_device_ex_input", &ibv_query_device_ex_input_struct_info},
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},
     {"ibv_cq_init_attr_ex", &ibv_cq_init_attr_ex_struct_info},
     {"ibv_poll_cq_attr", &ibv_poll_cq_attr_struct_info},
