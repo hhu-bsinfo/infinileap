@@ -134,8 +134,7 @@ public class WorkCompletion extends Struct {
     private final NativeByte serviceLevel = byteField("sl");
     private final NativeByte pathBits = byteField("dlid_path_bits");
 
-    public WorkCompletion() {
-    }
+    public WorkCompletion() {}
 
     public WorkCompletion(final long handle) {
         super(handle);

@@ -15,7 +15,7 @@ public class SharedReceiveQueue extends Struct {
     private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
-    public SharedReceiveQueue(long handle) {
+    SharedReceiveQueue(long handle) {
         super(handle);
     }
 

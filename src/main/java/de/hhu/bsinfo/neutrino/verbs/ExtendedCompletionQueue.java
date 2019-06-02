@@ -67,16 +67,14 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCompletionQueue.class);
 
     private final Context context = referenceField("context", Context::new);
-    private final NativeLong channelHandle = longField("channel");
+    private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
     private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
     private final NativeEnum<WorkCompletion.Status> status = enumField("status", WorkCompletion.Status.CONVERTER);
     private final NativeLong workRequestId = longField("wr_id");
 
-    public ExtendedCompletionQueue() {}
-
-    public ExtendedCompletionQueue(final long handle) {
+    ExtendedCompletionQueue(final long handle) {
         super(handle);
     }
 
@@ -188,8 +186,8 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         return context;
     }
 
-    public long getChannelHandle() {
-        return channelHandle.get();
+    public CompletionChannel getCompletionChannel() {
+        return completionChannel;
     }
 
     public long getUserContextHandle() {
@@ -215,7 +213,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     @Override
     public String toString() {
         return "CompletionQueue {" +
-                ",\n\tchannelHandle=" + channelHandle +
+                ",\n\tcompletionChannel=" + completionChannel +
                 ",\n\tuserContextHandle=" + userContextHandle +
                 ",\n\tmaxElements=" + maxElements +
                 ",\n\tcompatibilityMask=" + compatibilityMask +
@@ -238,7 +236,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         private final NativeInteger maxElements = integerField("cqe");
         private final NativeLong userContext = longField("cq_context");
-        private final NativeLong channel = longField("channel");
+        private final NativeLong completionChannel = longField("channel");
         private final NativeInteger completionVector = integerField("comp_vector");
         private final NativeBitMask<WorkCompletionCapability> workCompletionFlags = bitField("wc_flags");
         private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
@@ -262,8 +260,8 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             return userContext.get();
         }
 
-        public long getChannel() {
-            return channel.get();
+        public long getCompletionChannel() {
+            return completionChannel.get();
         }
 
         public int getCompletionVector() {
@@ -290,8 +288,8 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             userContext.set(value);
         }
 
-        public void setChannel(final long value) {
-            channel.set(value);
+        public void setCompletionChannel(final @Nullable  CompletionChannel channel) {
+            completionChannel.set(channel == null ? 0 : channel.getHandle());
         }
 
         public void setCompletionVector(final int value) {

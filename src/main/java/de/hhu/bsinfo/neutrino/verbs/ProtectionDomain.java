@@ -22,6 +22,10 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         super(handle);
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) {
         return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
     }
@@ -29,10 +33,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerMemoryRegion(getHandle(), handle, capacity,
-            BitMask.of(flags), result.getHandle());
-
-        MemoryRegion ret = null;
+        Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.of(flags), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
         }

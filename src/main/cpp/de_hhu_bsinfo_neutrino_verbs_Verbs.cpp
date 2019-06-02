@@ -100,6 +100,34 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deregisterMemoryR
     NativeCall::setResult(result, ibv_dereg_mr(memoryRegion), nullptr);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionChannel (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+
+    auto completionChannel = ibv_create_comp_channel(context);
+
+    NativeCall::setResult(result, completionChannel == nullptr ? errno : 0, completionChannel);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getCompletionEvent (JNIEnv *env, jclass clazz, jlong completionChannelHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto completionChannel = NativeCall::castHandle<ibv_comp_channel>(completionChannelHandle);
+
+    ibv_cq *completionQueueRef = nullptr;
+    void *contextRef = nullptr;
+
+    auto ret = ibv_get_cq_event(completionChannel, &completionQueueRef, &contextRef);
+
+    NativeCall::setResult(result, ret, completionQueueRef);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletionChannel (JNIEnv *env, jclass clazz, jlong completionChannelHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto channel = NativeCall::castHandle<ibv_comp_channel>(completionChannelHandle);
+
+    NativeCall::setResult(result, ibv_destroy_comp_channel(channel), nullptr);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jint maxElements, jlong userContextHandle, jlong completionChannelHandle, jint completionVector, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
@@ -109,6 +137,29 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionQ
     auto completionQueue = ibv_create_cq(context, maxElements, userContext, completionChannel, completionVector);
 
     NativeCall::setResult(result, completionQueue == nullptr ? errno : 0, completionQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQueue (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint numEntries, jlong arrayHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto array = NativeCall::castHandle<ibv_wc>(arrayHandle);
+    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
+
+    auto workRequestCount = ibv_poll_cq(completionQueue, numEntries, array);
+
+    NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_requestNotification (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint solicitedOnly, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
+
+    NativeCall::setResult(result, ibv_req_notify_cq(completionQueue, solicitedOnly), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_acknowledgeCompletionEvents (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint ackCount) {
+    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
+
+    ibv_ack_cq_events(completionQueue, ackCount);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletionQueue (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jlong resultHandle) {
@@ -179,16 +230,6 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyQueuePair 
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
 
     NativeCall::setResult(result, ibv_destroy_qp(queuePair), nullptr);
-}
-
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQueue (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint numEntries, jlong arrayHandle, jlong resultHandle) {
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
-    auto array = NativeCall::castHandle<ibv_wc>(arrayHandle);
-    auto completionQueue = NativeCall::castHandle<ibv_cq>(completionQueueHandle);
-
-    auto workRequestCount = ibv_poll_cq(completionQueue, numEntries, array);
-
-    NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong initialAttributesHandle, jlong resultHandle) {

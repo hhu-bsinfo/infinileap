@@ -49,7 +49,7 @@ public final class Context implements NativeObject, AutoCloseable {
     public void close() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.closeDevice(handle, result.getHandle());
+        Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Closing device failed with error [{}]", result.getStatus());
         }
@@ -58,7 +58,7 @@ public final class Context implements NativeObject, AutoCloseable {
     }
 
     public String getDeviceName() {
-        return Verbs.getDeviceName(handle);
+        return Verbs.getDeviceName(getHandle());
     }
 
     @Nullable
@@ -66,7 +66,7 @@ public final class Context implements NativeObject, AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var device = new Device();
 
-        Verbs.queryDevice(handle, device.getHandle(), result.getHandle());
+        Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Querying device failed with error [{}]", result.getStatus());
             device = null;
@@ -82,7 +82,7 @@ public final class Context implements NativeObject, AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var port = new Port();
 
-        Verbs.queryPort(handle, port.getHandle(), portNumber, result.getHandle());
+        Verbs.queryPort(getHandle(), port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Querying port failed with error [{}]", result.getStatus());
             port = null;
@@ -97,7 +97,7 @@ public final class Context implements NativeObject, AutoCloseable {
     public ProtectionDomain allocateProtectionDomain() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.allocateProtectionDomain(handle, result.getHandle());
+        Verbs.allocateProtectionDomain(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating protection domain failed with error [{}]", result.getStatus());
         }
@@ -106,10 +106,22 @@ public final class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public CompletionQueue createCompletionQueue(int numElements) {
+    public CompletionChannel createCompletionChannel() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.createCompletionQueue(handle, numElements, nullptr, nullptr, 0, result.getHandle());
+        Verbs.createCompletionChannel(getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating completion channel failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(CompletionChannel::new);
+    }
+
+    @Nullable
+    public CompletionQueue createCompletionQueue(int numElements, @Nullable CompletionChannel channel) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createCompletionQueue(getHandle(), numElements, nullptr, channel == null ? nullptr : channel.getHandle(), 0, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating completion queue failed with error [{}]", result.getStatus());
         }

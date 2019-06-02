@@ -83,6 +83,18 @@ ReflectionUtility::StructInfo ibv_port_attr_struct_info {
     ibv_port_attr_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_comp_channel_member_infos[] = {
+    GET_MEMBER_INFO(ibv_comp_channel, context),
+    GET_MEMBER_INFO(ibv_comp_channel, fd),
+    GET_MEMBER_INFO(ibv_comp_channel, refcnt)
+};
+
+ReflectionUtility::StructInfo ibv_comp_channel_struct_info {
+    sizeof(ibv_comp_channel),
+    sizeof(ibv_comp_channel_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_comp_channel_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_cq_member_infos[] {
     GET_MEMBER_INFO(ibv_cq, context),
     GET_MEMBER_INFO(ibv_cq, channel),
@@ -429,6 +441,7 @@ ReflectionUtility::StructInfo ibv_qp_ex_struct_info {
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
+    {"ibv_comp_channel", &ibv_comp_channel_struct_info},
     {"ibv_cq", &ibv_cq_struct_info},
     {"ibv_wc", &ibv_wc_struct_info},
     {"ibv_sge", &ibv_sge_struct_info},

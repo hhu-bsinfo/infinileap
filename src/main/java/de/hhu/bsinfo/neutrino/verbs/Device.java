@@ -33,8 +33,7 @@ public class Device extends Struct {
     private final NativeInteger maxSharedReceiveQueueScatterGatherCount = integerField("max_srq_sge");
     private final NativeByte physicalPortCount = byteField("phys_port_cnt");
 
-    Device() {
-    }
+    Device() {}
 
     Device(long handle) {
         super(handle);

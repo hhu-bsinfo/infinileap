@@ -15,13 +15,11 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionQueue.class);
 
     private final Context context = referenceField("context", Context::new);
-    private final NativeLong channelHandle = longField("channel");
+    private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
 
-    public CompletionQueue() {}
-
-    public CompletionQueue(long handle) {
+    CompletionQueue(long handle) {
         super(handle);
     }
 
@@ -29,8 +27,8 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         return context;
     }
 
-    public long getChannelHandle() {
-        return channelHandle.get();
+    public CompletionChannel getCompletionChannel() {
+        return completionChannel;
     }
 
     public long getUserContextHandle() {
@@ -58,10 +56,28 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         return !isError;
     }
 
+    public boolean requestNotification(boolean solicitedOnly) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.requestNotification(getHandle(), solicitedOnly ? 1 : 0, result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Requesting notification from completion queue failed with error [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
+    }
+
+    public void acknowledgeEvents(int count) {
+        Verbs.acknowledgeCompletionEvents(getHandle(), count);
+    }
+
     @Override
     public String toString() {
         return "CompletionQueue {" +
-            ",\n\tchannelHandle=" + channelHandle +
+            ",\n\tcompletionChannel=" + completionChannel +
             ",\n\tuserContextHandle=" + userContextHandle +
             ",\n\tmaxElements=" + maxElements +
             "\n}";

@@ -78,10 +78,9 @@ public class Port extends Struct {
     private final NativeByte flags = byteField("flags");
     private final NativeShort portCapabilites2 = shortField("port_cap_flags2");
 
-    public Port() {
-    }
+    Port() {}
 
-    public Port(long handle) {
+    Port(long handle) {
         super(handle);
     }
 

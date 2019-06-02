@@ -20,6 +20,7 @@ import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +40,8 @@ public class QueuePair extends Struct implements AutoCloseable {
     private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
-    protected QueuePair(long handle) {
+    QueuePair(long handle) {
         super(handle);
-    }
-
-    protected QueuePair(LocalBuffer byteBuffer, int offset) {
-        super(byteBuffer, offset);
     }
 
     public boolean postSend(final SendWorkRequest sendWorkRequest) {
@@ -357,8 +354,8 @@ public class QueuePair extends Struct implements AutoCloseable {
             return sharedReceiveQueue.get();
         }
 
-        public void setSharedReceiveQueue(SharedReceiveQueue sharedReceiveQueue) {
-            this.sharedReceiveQueue.set(sharedReceiveQueue.getHandle());
+        public void setSharedReceiveQueue(@Nullable SharedReceiveQueue sharedReceiveQueue) {
+            this.sharedReceiveQueue.set(sharedReceiveQueue == null ? 0 : sharedReceiveQueue.getHandle());
         }
 
         public Type getType() {

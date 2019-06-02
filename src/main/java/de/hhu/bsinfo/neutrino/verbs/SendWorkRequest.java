@@ -75,8 +75,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
     public final Atomic atomic = anonymousField(Atomic::new);
     public final Unreliable ud = anonymousField(Unreliable::new);
 
-    public SendWorkRequest() {
-    }
+    public SendWorkRequest() {}
 
     public SendWorkRequest(Consumer<SendWorkRequest> configurator) {
         configurator.accept(this);

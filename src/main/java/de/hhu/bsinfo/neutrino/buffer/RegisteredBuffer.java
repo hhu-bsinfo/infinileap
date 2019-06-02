@@ -39,7 +39,7 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         memoryRegion.deregister();
     }
 }

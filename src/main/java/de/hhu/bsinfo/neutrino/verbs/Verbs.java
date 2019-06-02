@@ -45,7 +45,13 @@ public final class Verbs {
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
+    static native void createCompletionChannel(long contextHandle, long resultHandle);
+    static native void getCompletionEvent(long completionChannelHandle, long resultHandle);
+    static native void destroyCompletionChannel(long completionChannelHandle, long resultHandle);
     static native void createCompletionQueue(long contextHandle, int maxElements, long userContextHandle, long completionChannelHandle, int completionVector, long resultHandle);
+    static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
+    static native void requestNotification(long completionQueueHandle, int solicitedOnly, long resultHandle);
+    static native void acknowledgeCompletionEvents(long completionQueueHandle, int ackCount);
     static native void destroyCompletionQueue(long completionQueueHandle, long resultHandle);
     static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
     static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
@@ -54,7 +60,6 @@ public final class Verbs {
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void queryQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long initialAttributesHandle, long resultHandle);
     static native void destroyQueuePair(long queuePairHandle, long resultHandle);
-    static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
 
     // Extended API
     static native void createExtendedCompletionQueue(long contextHandle, long initialAttributesHandle, long resultHandle);
