@@ -44,6 +44,11 @@ public final class Verbs {
     static native void acknowledgeAsyncEvent(long asyncEventHandle);
     static native void allocateProtectionDomain(long contextHandle, long resultHandle);
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
+    static native void allocateDeviceMemory(long contextHandle, long attributesHandle, long resultHandle);
+    static native void registerDeviceMemoryAsMemoryRegion(long protectionDomainHandle, long deviceMemoryHandle, long offset, long length, int accessFlags, long resultHandle);
+    static native void copyToDeviceMemory(long deviceMemoryHandle, long offset, long sourceAddress, long length, long resultHandle);
+    static native void copyFromDeviceMemory(long targetAddress, long deviceMemoryHandle, long offset, long length, long resultHandle);
+    static native void freeDeviceMemory(long deviceMemoryHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
     static native void createAddressHandle(long protectionDomainHandle, long addressHandleAttributesHandle, long resultHandle);

@@ -1,7 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.DeviceBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +93,18 @@ public class Context implements NativeObject, AutoCloseable {
         result.releaseInstance();
 
         return port;
+    }
+
+    @Nullable
+    public DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Allocating device memory failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(DeviceMemory::new);
     }
 
     @Nullable

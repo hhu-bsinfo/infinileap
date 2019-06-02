@@ -1,11 +1,13 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.buffer.DeviceBuffer;
 import de.hhu.bsinfo.neutrino.buffer.RegisteredBuffer;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
+import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -43,6 +45,35 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         MemoryRegion region = result.getAndRelease(MemoryRegion::new);
 
         return region == null ? null : new RegisteredBuffer(region);
+    }
+
+    @Nullable
+    public DeviceBuffer allocateDeviceMemory(AllocationAttributes attributes, AccessFlag... flags) {
+        var deviceMemory = getContext().allocateDeviceMemory(attributes);
+
+        if(deviceMemory == null) {
+            return null;
+        }
+
+        var memoryRegion = registerDeviceMemory(deviceMemory, 0, attributes.getLength(), flags);
+
+        if(memoryRegion == null) {
+            return null;
+        }
+
+        return new DeviceBuffer(deviceMemory, memoryRegion, attributes.getLength());
+    }
+
+    @Nullable
+    public MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.of(flags), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Registering device memory as memory region failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(MemoryRegion::new);
     }
 
     @Nullable

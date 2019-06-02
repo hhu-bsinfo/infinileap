@@ -388,6 +388,29 @@ ReflectionUtility::MemberInfo ibv_mr_member_infos[] = {
     GET_MEMBER_INFO(ibv_mr, rkey)
 };
 
+ReflectionUtility::MemberInfo ibv_dm_member_infos[] = {
+    GET_MEMBER_INFO(ibv_dm, context),
+    GET_MEMBER_INFO(ibv_dm, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_dm_struct_info {
+    sizeof(ibv_dm),
+    sizeof(ibv_dm_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_dm_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_alloc_dm_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_alloc_dm_attr, length),
+    GET_MEMBER_INFO(ibv_alloc_dm_attr, log_align_req),
+    GET_MEMBER_INFO(ibv_alloc_dm_attr, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_alloc_dm_attr_struct_info {
+    sizeof(ibv_alloc_dm_attr),
+    sizeof(ibv_alloc_dm_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_alloc_dm_attr_member_infos
+};
+
 ReflectionUtility::StructInfo ibv_mr_struct_info {
     sizeof(ibv_mr),
     sizeof(ibv_mr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
@@ -485,6 +508,8 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_qp_attr", &ibv_qp_attr_struct_info},
     {"ibv_qp_cap", &ibv_qp_cap_struct_info},
     {"ibv_qp", &ibv_qp_struct_info},
+    {"ibv_dm", &ibv_dm_struct_info},
+    {"ibv_alloc_dm_attr", &ibv_alloc_dm_attr_struct_info},
     {"ibv_mr", &ibv_mr_struct_info},
     {"ibv_pd", &ibv_pd_struct_info},
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},

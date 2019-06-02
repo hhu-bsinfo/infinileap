@@ -48,32 +48,32 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openDevice (JNIEn
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_closeDevice (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {
-    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
 
     NativeCall::setResult(result, ibv_close_device(context), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryDevice (JNIEnv *env, jclass clazz, jlong contextHandle, jlong deviceHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto device = NativeCall::castHandle<ibv_device_attr>(deviceHandle);
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, ibv_query_device(context, device), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryPort (JNIEnv *env, jclass clazz, jlong contextHandle, jlong portHandle, jint portNumber, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto port = NativeCall::castHandle<ibv_port_attr>(portHandle);
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, ibv_query_port(context, portNumber, port), nullptr);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getAsyncEvent (JNIEnv *env, jclass clazz, jlong contextHandle, jlong asyncEventHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto asyncEvent = NativeCall::castHandle<ibv_async_event>(asyncEventHandle);
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, ibv_get_async_event(context, asyncEvent), nullptr);
 }
@@ -85,8 +85,8 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_acknowledgeAsyncE
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateProtectionDomain (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {
-    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
 
     auto protectionDomain = ibv_alloc_pd(context);
 
@@ -94,11 +94,54 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateProtectio
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deallocateProtectionDomain (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong resultHandle) {
-    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
 
     NativeCall::setResult(result, ibv_dealloc_pd(protectionDomain), nullptr);
 }
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateDeviceMemory (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_alloc_dm_attr>(attributesHandle);
+
+    auto deviceMemory = ibv_alloc_dm(context, attributes);
+
+    NativeCall::setResult(result, deviceMemory == nullptr ? errno : 0, deviceMemory);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerDeviceMemoryAsMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong deviceMemoryHandle, jlong offset, jlong length, jint accessFlags, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+    auto deviceMemory = NativeCall::castHandle<ibv_dm>(deviceMemoryHandle);
+
+    auto memoryRegion = ibv_reg_dm_mr(protectionDomain, deviceMemory, offset, length, accessFlags);
+
+    NativeCall::setResult(result, memoryRegion == nullptr ? errno : 0, memoryRegion);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_copyToDeviceMemory (JNIEnv *env, jclass clazz, jlong deviceMemoryHandle, jlong offset, jlong sourceAddress, jlong length, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto deviceMemory = NativeCall::castHandle<ibv_dm>(deviceMemoryHandle);
+
+    NativeCall::setResult(result, ibv_memcpy_to_dm(deviceMemory, offset, reinterpret_cast<const void *>(sourceAddress), length), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_copyFromDeviceMemory
+    (JNIEnv *env, jclass clazz, jlong targetAddress, jlong deviceMemoryHandle, jlong offset, jlong length, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto deviceMemory = NativeCall::castHandle<ibv_dm>(deviceMemoryHandle);
+
+    NativeCall::setResult(result, ibv_memcpy_from_dm(reinterpret_cast<void *>(targetAddress), deviceMemory, offset, length), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_freeDeviceMemory (JNIEnv *env, jclass clazz, jlong deviceMemoryHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto deviceMemory = NativeCall::castHandle<ibv_dm>(deviceMemoryHandle);
+
+    NativeCall::setResult(result, ibv_free_dm(deviceMemory), nullptr);
+}
+
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong address, jlong size, jint accessFlags, jlong resultHandle) {
     auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
