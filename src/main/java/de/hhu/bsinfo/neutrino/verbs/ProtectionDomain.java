@@ -26,10 +26,12 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return context;
     }
 
+    @Nullable
     public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) {
         return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
     }
 
+    @Nullable
     private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -38,7 +40,21 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
         }
 
-        return new RegisteredBuffer(result.getAndRelease(MemoryRegion::new));
+        MemoryRegion region = result.getAndRelease(MemoryRegion::new);
+
+        return region == null ? null : new RegisteredBuffer(region);
+    }
+
+    @Nullable
+    public AddressHandle createAddressHandle(AddressHandle.Attributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createAddressHandle(getHandle(), attributes.getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Creating address handle failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(AddressHandle::new);
     }
 
     @Nullable

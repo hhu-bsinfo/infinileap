@@ -46,6 +46,8 @@ public final class Verbs {
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
+    static native void createAddressHandle(long protectionDomainHandle, long addressHandleAttributesHandle, long resultHandle);
+    static native void destroyAddressHandle(long addressHandleHandle, long resultHandle);
     static native void createCompletionChannel(long contextHandle, long resultHandle);
     static native void getCompletionEvent(long completionChannelHandle, long resultHandle);
     static native void destroyCompletionChannel(long completionChannelHandle, long resultHandle);

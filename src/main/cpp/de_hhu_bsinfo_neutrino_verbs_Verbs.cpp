@@ -117,6 +117,23 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deregisterMemoryR
     NativeCall::setResult(result, ibv_dereg_mr(memoryRegion), nullptr);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createAddressHandle (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong addressHandleAttributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+    auto addressHandleAttributes = NativeCall::castHandle<ibv_ah_attr>(addressHandleAttributesHandle);
+
+    auto addressHandle = ibv_create_ah(protectionDomain, addressHandleAttributes);
+
+    NativeCall::setResult(result, addressHandle == nullptr ? errno : 0, addressHandle);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyAddressHandle (JNIEnv *env, jclass clazz, jlong addressHandleHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto addressHandle = NativeCall::castHandle<ibv_ah>(addressHandleHandle);
+
+    NativeCall::setResult(result, ibv_destroy_ah(addressHandle), nullptr);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createCompletionChannel (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto context = NativeCall::castHandle<ibv_context>(contextHandle);

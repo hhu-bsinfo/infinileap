@@ -264,6 +264,18 @@ ReflectionUtility::StructInfo ibv_srq_struct_info {
     ibv_srq_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_ah_member_infos[] = {
+    GET_MEMBER_INFO(ibv_ah, context),
+    GET_MEMBER_INFO(ibv_ah, pd),
+    GET_MEMBER_INFO(ibv_ah, handle)
+};
+
+ReflectionUtility::StructInfo ibv_ah_struct_info {
+    sizeof(ibv_ah),
+    sizeof(ibv_ah_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_ah_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_ah_attr_member_infos[] = {
     GET_MEMBER_INFO(ibv_ah_attr, grh),
     GET_MEMBER_INFO(ibv_ah_attr, dlid),
@@ -466,9 +478,10 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_srq_init_attr", &ibv_srq_init_attr_struct_info},
     {"ibv_srq_attr", &ibv_srq_attr_struct_info},
     {"ibv_srq", &ibv_srq_struct_info},
-    {"ibv_qp_init_attr", &ibv_qp_init_attr_struct_info},
+    {"ibv_ah", &ibv_ah_struct_info},
     {"ibv_ah_attr", &ibv_ah_attr_struct_info},
     {"ibv_global_route", &ibv_global_route_struct_info},
+    {"ibv_qp_init_attr", &ibv_qp_init_attr_struct_info},
     {"ibv_qp_attr", &ibv_qp_attr_struct_info},
     {"ibv_qp_cap", &ibv_qp_cap_struct_info},
     {"ibv_qp", &ibv_qp_struct_info},
