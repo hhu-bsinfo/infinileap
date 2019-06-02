@@ -51,7 +51,7 @@ public class WorkCompletion extends Struct {
             @Override
             public Status toEnum(int integer) {
                 if (integer < SUCCESS.value || integer > TM_RNDV_INCOMPLETE.value) {
-                    throw new IllegalArgumentException(String.format("Unkown status code provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown status code provided %d", integer));
                 }
 
                 return VALUES[integer];
@@ -95,7 +95,7 @@ public class WorkCompletion extends Struct {
             @Override
             public OpCode toEnum(int integer) {
                 if (integer < SEND.value || integer > TSO.value) {
-                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
                 }
 
                 return VALUES[integer];

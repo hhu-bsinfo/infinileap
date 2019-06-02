@@ -83,6 +83,21 @@ ReflectionUtility::StructInfo ibv_port_attr_struct_info {
     ibv_port_attr_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_async_event_member_infos[] = {
+    GET_MEMBER_INFO(ibv_async_event, element.cq),
+    GET_MEMBER_INFO(ibv_async_event, element.qp),
+    GET_MEMBER_INFO(ibv_async_event, element.srq),
+    GET_MEMBER_INFO(ibv_async_event, element.wq),
+    GET_MEMBER_INFO(ibv_async_event, element.port_num),
+    GET_MEMBER_INFO(ibv_async_event, event_type)
+};
+
+ReflectionUtility::StructInfo ibv_async_event_struct_info {
+    sizeof(ibv_async_event),
+    sizeof(ibv_async_event_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_async_event_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_comp_channel_member_infos[] = {
     GET_MEMBER_INFO(ibv_comp_channel, context),
     GET_MEMBER_INFO(ibv_comp_channel, fd),
@@ -441,6 +456,7 @@ ReflectionUtility::StructInfo ibv_qp_ex_struct_info {
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
+    {"ibv_async_event", &ibv_async_event_struct_info},
     {"ibv_comp_channel", &ibv_comp_channel_struct_info},
     {"ibv_cq", &ibv_cq_struct_info},
     {"ibv_wc", &ibv_wc_struct_info},

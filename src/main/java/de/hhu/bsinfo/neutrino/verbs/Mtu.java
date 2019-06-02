@@ -38,7 +38,7 @@ public enum Mtu {
         @Override
         public Mtu toEnum(int integer) {
             if (integer < IBV_MTU_256.value || integer > IBV_MTU_4096.value) {
-                throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
             }
 
             return VALUES[integer];

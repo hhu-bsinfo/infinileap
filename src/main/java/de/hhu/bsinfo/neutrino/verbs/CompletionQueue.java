@@ -42,10 +42,10 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     public boolean poll(WorkCompletionArray results) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), result.getHandle(), result.getHandle());
+        Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), results.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying queue pair failed with error [{}]", result.getStatus());
+            LOGGER.error("Polling completion queue failed with error [{}]", result.getStatus());
             results.setLength(0);
         } else {
             results.setLength(result.intValue());

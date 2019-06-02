@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.verbs.WorkCompletion.TagMatchingInfo;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,8 +179,12 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         return Verbs.readFlowTag(getHandle());
     }
 
-    public void readTagMatchingInfo(WorkCompletion.TagMatchingInfo tagMatchingInfo) {
-        Verbs.readTagMatchingInfo(getHandle(), tagMatchingInfo.getHandle());
+    public TagMatchingInfo readTagMatchingInfo() {
+        var ret = new TagMatchingInfo();
+
+        Verbs.readTagMatchingInfo(getHandle(), ret.getHandle());
+
+        return ret;
     }
 
     public Context getContext() {

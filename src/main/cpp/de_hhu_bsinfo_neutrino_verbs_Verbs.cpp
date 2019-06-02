@@ -6,10 +6,12 @@
 
 JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getNumDevices (JNIEnv *env, jclass clazz) {
     int numDevices = 0;
+
     ibv_device **devices = ibv_get_device_list(&numDevices);
     if (devices != nullptr) {
         ibv_free_device_list(devices);
     }
+
     return numDevices;
 }
 
@@ -27,6 +29,7 @@ JNIEXPORT jstring JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getDeviceName 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openDevice (JNIEnv *env, jclass clazz, jint index, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     int numDevices = 0;
+
     ibv_device **devices = ibv_get_device_list(&numDevices);
     if (devices == nullptr) {
         NativeCall::setResult(result, 1, nullptr);
@@ -65,6 +68,20 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryPort (JNIEnv
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, ibv_query_port(context, portNumber, port), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getAsyncEvent (JNIEnv *env, jclass clazz, jlong contextHandle, jlong asyncEventHandle, jlong resultHandle) {
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto asyncEvent = NativeCall::castHandle<ibv_async_event>(asyncEventHandle);
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+
+    NativeCall::setResult(result, ibv_get_async_event(context, asyncEvent), nullptr);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_acknowledgeAsyncEvent (JNIEnv *env, jclass clazz, jlong asyncEventHandle) {
+    auto asyncEvent = NativeCall::castHandle<ibv_async_event>(asyncEventHandle);
+
+    ibv_ack_async_event(asyncEvent);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateProtectionDomain (JNIEnv *env, jclass clazz, jlong contextHandle, jlong resultHandle) {

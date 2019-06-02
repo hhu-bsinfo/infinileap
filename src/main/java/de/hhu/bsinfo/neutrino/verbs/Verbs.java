@@ -13,13 +13,12 @@ public final class Verbs {
 
     @SuppressWarnings("FieldNamingConvention")
     private static final Map<Class<? extends Poolable>, ThreadLocal<RingBufferPool<Poolable>>> poolMap = new HashMap<>();
-    private static final Supplier<RingBufferPool<Poolable>> ringBufferPoolSupplier = () -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new);
 
     static {
         System.loadLibrary("neutrino");
 
-        poolMap.put(Result.class, ThreadLocal.withInitial(ringBufferPoolSupplier));
-        poolMap.put(WorkCompletion.TagMatchingInfo.class, ThreadLocal.withInitial(ringBufferPoolSupplier));
+        poolMap.put(Result.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new)));
+        poolMap.put(AsyncEvent.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, AsyncEvent::new)));
     }
 
     private Verbs() {
@@ -41,6 +40,8 @@ public final class Verbs {
     static native void closeDevice(long contextHandle, long resultHandle);
     static native void queryDevice(long contextHandle, long deviceHandle, long resultHandle);
     static native void queryPort(long contextHandle, long portHandle, int portNumber, long resultHandle);
+    static native void getAsyncEvent(long contextHandle, long asyncEventHandle, long resultHandle);
+    static native void acknowledgeAsyncEvent(long asyncEventHandle);
     static native void allocateProtectionDomain(long contextHandle, long resultHandle);
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);

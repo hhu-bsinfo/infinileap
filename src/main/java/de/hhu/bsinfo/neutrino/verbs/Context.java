@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Context implements NativeObject, AutoCloseable {
+public class Context implements NativeObject, AutoCloseable {
 
     static {
         System.loadLibrary("neutrino");
@@ -139,5 +139,25 @@ public final class Context implements NativeObject, AutoCloseable {
         }
 
         return result.getAndRelease(ExtendedCompletionQueue::new);
+    }
+
+    @Nullable
+    public AsyncEvent getAsyncEvent() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var event = (AsyncEvent) Verbs.getPoolableInstance(AsyncEvent.class);
+
+        Verbs.getAsyncEvent(getHandle(), event.getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Polling async event failed with error [{}]", result.getStatus());
+
+            result.releaseInstance();
+            event.releaseInstance();
+
+            return null;
+        }
+
+        result.releaseInstance();
+
+        return event;
     }
 }

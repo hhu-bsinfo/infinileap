@@ -47,7 +47,7 @@ public class Port extends Struct {
             @Override
             public State toEnum(int integer) {
                 if (integer < NOP.value || integer > DEFER.value) {
-                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
                 }
 
                 return VALUES[integer];

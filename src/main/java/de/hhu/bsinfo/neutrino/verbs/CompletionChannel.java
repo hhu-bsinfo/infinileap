@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_comp_channel")
-public final class CompletionChannel extends Struct implements AutoCloseable {
+public class CompletionChannel extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionChannel.class);
 

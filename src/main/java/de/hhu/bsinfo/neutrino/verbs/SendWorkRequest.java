@@ -54,7 +54,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
             @Override
             public OpCode toEnum(int integer) {
                 if (integer < RDMA_WRITE.value || integer > TSO.value) {
-                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
                 }
 
                 return VALUES[integer];

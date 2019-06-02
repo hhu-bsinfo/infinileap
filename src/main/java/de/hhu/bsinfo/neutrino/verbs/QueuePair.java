@@ -237,7 +237,7 @@ public class QueuePair extends Struct implements AutoCloseable {
                 if (integer < RC.value || integer > UD.value && integer < RAW_PACKET.value
                                        || integer > XRC_RECV.value && integer < DRIVER.value
                                        || integer > DRIVER.value) {
-                    throw new IllegalArgumentException(String.format("Unkown operation code provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
                 }
 
                 return VALUES[integer];
@@ -280,7 +280,7 @@ public class QueuePair extends Struct implements AutoCloseable {
             @Override
             public State toEnum(int integer) {
                 if (integer < RESET.value || integer > UNKNOWN.value) {
-                    throw new IllegalArgumentException(String.format("Unkown state provided %d", integer));
+                    throw new IllegalArgumentException(String.format("Unknown state provided %d", integer));
                 }
 
                 return VALUES[integer];

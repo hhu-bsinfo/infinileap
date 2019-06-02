@@ -38,7 +38,7 @@ public enum MigrationState {
         @Override
         public MigrationState toEnum(int integer) {
             if (integer < MIGRATED.value || integer > ARMED.value) {
-                throw new IllegalArgumentException(String.format("Unkown migration state provided %d", integer));
+                throw new IllegalArgumentException(String.format("Unknown migration state provided %d", integer));
             }
 
             return VALUES[integer];
