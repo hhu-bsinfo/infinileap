@@ -2,9 +2,9 @@ package de.hhu.bsinfo.neutrino.buffer;
 
 import de.hhu.bsinfo.neutrino.util.BufferUtil;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
-import de.hhu.bsinfo.neutrino.verbs.SendFlag;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.OpCode;
+import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
 
 public class RemoteBuffer {
 

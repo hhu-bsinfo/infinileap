@@ -7,6 +7,7 @@ import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
@@ -60,6 +61,21 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
                 return VALUES[integer];
             }
         };
+    }
+
+    public enum SendFlag implements Flag {
+        FENCE(1), SIGNALED(1 << 1), SOLICITED(1 << 2), INLINE(1 << 3), IP_CSUM(1 << 4);
+
+        private final int value;
+
+        SendFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
     }
 
     private final NativeLong id = longField("wr_id");
