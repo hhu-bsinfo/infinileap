@@ -50,6 +50,7 @@ public final class Verbs {
     static native void copyFromDeviceMemory(long targetAddress, long deviceMemoryHandle, long offset, long length, long resultHandle);
     static native void freeDeviceMemory(long deviceMemoryHandle, long resultHandle);
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
+    static native void allocateNullMemoryRegion(long protectionDomainHandle, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
     static native void createAddressHandle(long protectionDomainHandle, long addressHandleAttributesHandle, long resultHandle);
     static native void destroyAddressHandle(long addressHandleHandle, long resultHandle);

@@ -153,6 +153,15 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerMemoryReg
     NativeCall::setResult(result, memoryRegion == nullptr ? errno : 0, memoryRegion);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateNullMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong resultHandle) {
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+
+    auto memoryRegion = ibv_alloc_null_mr(protectionDomain);
+
+    NativeCall::setResult(result, memoryRegion == nullptr ? errno : 0, memoryRegion);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deregisterMemoryRegion (JNIEnv *env, jclass clazz, jlong memoryRegionHandle, jlong resultHandle) {
     auto memoryRegion = NativeCall::castHandle<ibv_mr>(memoryRegionHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);

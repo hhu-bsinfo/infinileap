@@ -48,6 +48,18 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     @Nullable
+    public MemoryRegion allocateNullMemoryRegion() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.allocateNullMemoryRegion(getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Allocating null memory region failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(MemoryRegion::new);
+    }
+
+    @Nullable
     public DeviceBuffer allocateDeviceMemory(AllocationAttributes attributes, AccessFlag... flags) {
         var deviceMemory = getContext().allocateDeviceMemory(attributes);
 
