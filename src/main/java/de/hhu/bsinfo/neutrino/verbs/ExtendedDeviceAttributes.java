@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.verbs.QueuePair.TypeFlag;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_device_attr_ex")
@@ -158,7 +159,7 @@ public class ExtendedDeviceAttributes extends Struct {
     public static final class TcpSegmentOffloadingCapabilities extends Struct {
 
         private final NativeInteger maxTcpSegmentOffloading = integerField("max_tso");
-        private final NativeInteger supportedQueuePairTypes = integerField("supported_qpts");
+        private final NativeBitMask<TypeFlag> supportedQueuePairTypes = bitField("supported_qpts");
 
         TcpSegmentOffloadingCapabilities(LocalBuffer buffer, int offset) {
             super(buffer, offset);
@@ -218,7 +219,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
         }
 
-        private final NativeInteger supportedQueuePairTypes = integerField("supported_qpts");
+        private final NativeBitMask<TypeFlag> supportedQueuePairTypes = bitField("supported_qpts");
         private final NativeInteger maxIndirectionTables = integerField("max_rwq_indirection_tables");
         private final NativeInteger maxIndirectionTableSize = integerField("max_rwq_indirection_table_size");
         private final NativeBitMask<RxHashField> rxHashFields = bitField("rx_hash_fields_mask");
@@ -265,7 +266,7 @@ public class ExtendedDeviceAttributes extends Struct {
 
         private final NativeInteger minQueuePairRateLimit = integerField("qp_rate_limit_min");
         private final NativeInteger maxQueuePairRateLimit = integerField("qp_rate_limit_max");
-        private final NativeInteger supportedQueuePairTypes = integerField("supported_qpts");
+        private final NativeBitMask<TypeFlag> supportedQueuePairTypes = bitField("supported_qpts");
 
         PacketPacingCapabilities(final LocalBuffer buffer, int offset) {
             super(buffer, offset);

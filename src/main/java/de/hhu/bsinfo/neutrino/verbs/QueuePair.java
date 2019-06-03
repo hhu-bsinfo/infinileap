@@ -244,6 +244,21 @@ public class QueuePair extends Struct implements AutoCloseable {
         };
     }
 
+    public enum TypeFlag implements Flag {
+        RC(1 << 2), UC(1 << 3), UD(1 << 4),RAW_PACKET(1 << 8), XRC_SEND(1 << 9), XRC_RECV(1 << 10);
+
+        private final int value;
+
+        TypeFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
     public enum State {
         RESET(0), INIT(1), RTR(2), RTS(3), SQD(4), SQE(5), ERR(6), UNKNOWN(7);
 
@@ -280,6 +295,49 @@ public class QueuePair extends Struct implements AutoCloseable {
             public State toEnum(int integer) {
                 if (integer < RESET.value || integer > UNKNOWN.value) {
                     throw new IllegalArgumentException(String.format("Unknown state provided %d", integer));
+                }
+
+                return VALUES[integer];
+            }
+        };
+    }
+
+    public enum MigrationState {
+        MIGRATED(0), REARM(1), ARMED(2);
+
+        private static final MigrationState[] VALUES;
+
+        static {
+            int arrayLength = Arrays.stream(values()).mapToInt(element -> element.value).max().orElseThrow() + 1;
+
+            VALUES = new MigrationState[arrayLength];
+
+            for (MigrationState element : MigrationState.values()) {
+                VALUES[element.value] = element;
+            }
+        }
+
+        private final int value;
+
+        MigrationState(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static final EnumConverter<MigrationState> CONVERTER = new EnumConverter<>() {
+
+            @Override
+            public int toInt(MigrationState enumeration) {
+                return enumeration.value;
+            }
+
+            @Override
+            public MigrationState toEnum(int integer) {
+                if (integer < MIGRATED.value || integer > ARMED.value) {
+                    throw new IllegalArgumentException(String.format("Unknown migration state provided %d", integer));
                 }
 
                 return VALUES[integer];

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StructUtil {
 
@@ -21,7 +22,7 @@ public class StructUtil {
 
     private static native void getStructInformation(String identifier, long resultHandle);
 
-    private static final Map<Class<? extends Struct>, StructInformation> CACHE = new HashMap<>();
+    private static final Map<Class<? extends Struct>, StructInformation> CACHE = new ConcurrentHashMap<>();
 
     public static StructInformation getInfo(final Class<? extends Struct> structClass) {
         return CACHE.computeIfAbsent(structClass, StructUtil::getNativeInfo);
