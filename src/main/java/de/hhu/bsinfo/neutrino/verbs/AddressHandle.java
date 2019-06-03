@@ -21,7 +21,7 @@ public class AddressHandle extends Struct {
     private final Context context = referenceField("context", Context::new);
     private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
 
-    public AddressHandle(final long handle) {
+    AddressHandle(final long handle) {
         super(handle);
     }
 
@@ -59,18 +59,14 @@ public class AddressHandle extends Struct {
 
         public final GlobalRoute globalRoute = valueField("grh", GlobalRoute::new);
 
+        Attributes(LocalBuffer byteBuffer, int offset) {
+            super(byteBuffer, offset);
+        }
+
         public Attributes() {}
 
         public Attributes(Consumer<Attributes> configurator) {
             configurator.accept(this);
-        }
-
-        public Attributes(final long handle) {
-            super(handle);
-        }
-
-        public Attributes(LocalBuffer byteBuffer, int offset) {
-            super(byteBuffer, offset);
         }
 
         public short getDestination() {
@@ -146,18 +142,14 @@ public class AddressHandle extends Struct {
         private final NativeByte hopLimit = byteField("hop_limit");
         private final NativeByte trafficClass = byteField("traffic_class");
 
+        GlobalRoute(LocalBuffer byteBuffer, int offset) {
+            super(byteBuffer, offset);
+        }
+
         public GlobalRoute() {}
 
         public GlobalRoute(Consumer<GlobalRoute> configurator) {
             configurator.accept(this);
-        }
-
-        public GlobalRoute(LocalBuffer byteBuffer, int offset) {
-            super(byteBuffer, offset);
-        }
-
-        public GlobalRoute(final long handle) {
-            super(handle);
         }
 
         public long getDestination() {

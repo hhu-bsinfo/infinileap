@@ -23,10 +23,6 @@ public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<Rec
         configurator.accept(this);
     }
 
-    public ReceiveWorkRequest(final long handle) {
-        super(handle);
-    }
-
     public long getId() {
         return id.get();
     }

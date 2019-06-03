@@ -253,10 +253,6 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             configurator.accept(this);
         }
 
-        public InitialAttributes(final long handle) {
-            super(handle);
-        }
-
         public int getMaxElements() {
             return maxElements.get();
         }
@@ -323,10 +319,6 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         public PollAttributes(Consumer<PollAttributes> configurator) {
             configurator.accept(this);
-        }
-
-        public PollAttributes(final long handle) {
-            super(handle);
         }
 
         public int getCompatibilityMask() {

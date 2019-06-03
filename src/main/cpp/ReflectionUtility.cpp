@@ -428,6 +428,38 @@ ReflectionUtility::StructInfo ibv_pd_struct_info {
     ibv_pd_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_td_member_infos[] = {
+    GET_MEMBER_INFO(ibv_td, context)
+};
+
+ReflectionUtility::StructInfo ibv_td_struct_info {
+    sizeof(ibv_td),
+    sizeof(ibv_td_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_td_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_td_init_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_td_init_attr, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_td_init_attr_struct_info {
+    sizeof(ibv_td_init_attr),
+    sizeof(ibv_td_init_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_td_init_attr_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_parent_domain_init_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_parent_domain_init_attr, pd),
+    GET_MEMBER_INFO(ibv_parent_domain_init_attr, td),
+    GET_MEMBER_INFO(ibv_parent_domain_init_attr, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_parent_domain_init_attr_struct_info {
+    sizeof(ibv_parent_domain_init_attr),
+    sizeof(ibv_parent_domain_init_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_parent_domain_init_attr_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_device_attr_ex_member_infos[] = {
     GET_MEMBER_INFO(ibv_device_attr_ex, orig_attr),
     GET_MEMBER_INFO(ibv_device_attr_ex, comp_mask),
@@ -634,6 +666,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_alloc_dm_attr", &ibv_alloc_dm_attr_struct_info},
     {"ibv_mr", &ibv_mr_struct_info},
     {"ibv_pd", &ibv_pd_struct_info},
+    {"ibv_td", &ibv_td_struct_info},
+    {"ibv_td_init_attr", &ibv_td_init_attr_struct_info},
+    {"ibv_parent_domain_init_attr", &ibv_parent_domain_init_attr_struct_info},
     {"ibv_device_attr_ex", &ibv_device_attr_ex_struct_info},
     {"ibv_odp_caps", &ibv_odp_caps_struct_info},
     {"ibv_tso_caps", &ibv_tso_caps_struct_info},

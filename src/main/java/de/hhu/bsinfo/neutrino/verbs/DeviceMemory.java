@@ -84,10 +84,6 @@ public class DeviceMemory extends Struct implements AutoCloseable {
             configurator.accept(this);
         }
 
-        public AllocationAttributes(final long handle) {
-            super(handle);
-        }
-
         public long getLength() {
             return length.get();
         }

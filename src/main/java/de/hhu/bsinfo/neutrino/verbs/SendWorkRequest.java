@@ -97,10 +97,6 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         configurator.accept(this);
     }
 
-    public SendWorkRequest(final long handle) {
-        super(handle);
-    }
-
     public long getId() {
         return id.get();
     }

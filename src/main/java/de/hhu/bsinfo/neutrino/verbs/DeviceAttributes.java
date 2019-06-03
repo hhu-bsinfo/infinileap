@@ -36,10 +36,6 @@ public class DeviceAttributes extends Struct {
 
     DeviceAttributes() {}
 
-    DeviceAttributes(long handle) {
-        super(handle);
-    }
-
     DeviceAttributes(LocalBuffer localBuffer, int offset) {
         super(localBuffer, offset);
     }

@@ -36,14 +36,6 @@ public class ExtendedDeviceAttributes extends Struct {
         super();
     }
 
-    ExtendedDeviceAttributes(final long handle) {
-        super(handle);
-    }
-
-    ExtendedDeviceAttributes(LocalBuffer localBuffer, int offset) {
-        super(localBuffer, offset);
-    }
-
     public int getCompatibilityMask() {
         return compatibilityMask.get();
     }
@@ -440,10 +432,6 @@ public class ExtendedDeviceAttributes extends Struct {
 
         public QueryExtendedDeviceInput(Consumer<QueryExtendedDeviceInput> configurator) {
             configurator.accept(this);
-        }
-
-        public QueryExtendedDeviceInput(final long handle) {
-            super(handle);
         }
 
         public int getCompatibilityMask() {

@@ -134,9 +134,7 @@ public class WorkCompletion extends Struct {
     private final NativeByte serviceLevel = byteField("sl");
     private final NativeByte pathBits = byteField("dlid_path_bits");
 
-    public WorkCompletion() {}
-
-    public WorkCompletion(final long handle) {
+    WorkCompletion(final long handle) {
         super(handle);
     }
 
@@ -221,11 +219,7 @@ public class WorkCompletion extends Struct {
         private final NativeLong tag = longField("tag");
         private final NativeInteger userData = integerField("priv");
 
-        public TagMatchingInfo() {}
-
-        public TagMatchingInfo(final long handle) {
-            super(handle);
-        }
+        TagMatchingInfo() {}
 
         public long getTag() {
             return tag.get();

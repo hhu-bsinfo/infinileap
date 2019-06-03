@@ -44,6 +44,9 @@ public final class Verbs {
     static native void acknowledgeAsyncEvent(long asyncEventHandle);
     static native void allocateProtectionDomain(long contextHandle, long resultHandle);
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
+    static native void allocateThreadDomain(long contextHandle, long attributesHandle, long resultHandle);
+    static native void deallocateThreadDomain(long threadDomainHandle, long resultHandle);
+    static native void allocateParentDomain(long contextHandle, long attributesHandle, long resultHandle);
     static native void allocateDeviceMemory(long contextHandle, long attributesHandle, long resultHandle);
     static native void registerDeviceMemoryAsMemoryRegion(long protectionDomainHandle, long deviceMemoryHandle, long offset, long length, int accessFlags, long resultHandle);
     static native void copyToDeviceMemory(long deviceMemoryHandle, long offset, long sourceAddress, long length, long resultHandle);
@@ -52,7 +55,7 @@ public final class Verbs {
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void allocateNullMemoryRegion(long protectionDomainHandle, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
-    static native void createAddressHandle(long protectionDomainHandle, long addressHandleAttributesHandle, long resultHandle);
+    static native void createAddressHandle(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void destroyAddressHandle(long addressHandleHandle, long resultHandle);
     static native void createCompletionChannel(long contextHandle, long resultHandle);
     static native void getCompletionEvent(long completionChannelHandle, long resultHandle);
@@ -72,9 +75,9 @@ public final class Verbs {
 
     // Extended API
     static native void queryExtendedDevice(long contextHandle, long extendedDeviceHandle, long queryExtendedDeviceInputHandle, long resultHandle);
-    static native void createExtendedCompletionQueue(long contextHandle, long initialAttributesHandle, long resultHandle);
+    static native void createExtendedCompletionQueue(long contextHandle, long attributesHandle, long resultHandle);
     static native void extendedCompletionQueueToCompletionQueue(long extendedCompletionQueueHandle, long resultHandle);
-    static native void startPoll(long extendedCompletionQueueHandle, long pollCompletionQueueAttributesHandle, long resultHandle);
+    static native void startPoll(long extendedCompletionQueueHandle, long attributesHandle, long resultHandle);
     static native void nextPoll(long extendedCompletionQueueHandle, long resultHandle);
     static native void endPoll(long extendedCompletionQueueHandle);
     static native int readOpCode(long extendedCompletionQueueHandle);

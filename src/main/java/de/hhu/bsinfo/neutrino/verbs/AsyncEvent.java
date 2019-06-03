@@ -103,10 +103,6 @@ public class AsyncEvent extends Struct implements Poolable {
 
     AsyncEvent() {}
 
-    AsyncEvent(final long handle) {
-        super(handle);
-    }
-
     public void acknowledge() {
         Verbs.acknowledgeAsyncEvent(getHandle());
         releaseInstance();

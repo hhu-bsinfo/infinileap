@@ -2,6 +2,8 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.DeviceBuffer;
 import de.hhu.bsinfo.neutrino.buffer.RegisteredBuffer;
+import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
@@ -9,6 +11,7 @@ import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,15 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     public Context getContext() {
         return context;
+    }
+
+    @Nullable
+    public ProtectionDomain allocateParentDomain(@Nullable ThreadDomain threadDomain) {
+        return getContext().allocateParentDomain(new ParentDomainInitialAttributes(config -> {
+            if(threadDomain != null) {
+                config.setThreadDomain(threadDomain);
+            }
+        }));
     }
 
     @Nullable
@@ -134,5 +146,43 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         }
 
         result.releaseInstance();
+    }
+
+    @LinkNative("ibv_parent_domain_init_attr")
+    public final class ParentDomainInitialAttributes extends Struct {
+
+        private final NativeLong protectionDomain = longField("pd");
+        private final NativeLong threadDomain = longField("td");
+        private final NativeInteger compatibilityMask = integerField("comp_mask");
+
+        public ParentDomainInitialAttributes() {}
+
+        public ParentDomainInitialAttributes(Consumer<ParentDomainInitialAttributes> configurator) {
+            configurator.accept(this);
+        }
+
+        public long getProtectionDomain() {
+            return protectionDomain.get();
+        }
+
+        public long getThreadDomain() {
+            return threadDomain.get();
+        }
+
+        public int getCompatibilityMask() {
+            return compatibilityMask.get();
+        }
+
+        public void setProtectionDomain(final ProtectionDomain protectionDomain) {
+            this.protectionDomain.set(protectionDomain.getHandle());
+        }
+
+        public void setThreadDomain(final ThreadDomain threadDomain) {
+            this.threadDomain.set(threadDomain.getHandle());
+        }
+
+        public void setCompatibilityMask(final int value) {
+            compatibilityMask.set(value);
+        }
     }
 }

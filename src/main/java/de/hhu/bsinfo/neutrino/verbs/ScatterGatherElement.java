@@ -16,14 +16,14 @@ public class ScatterGatherElement extends Struct implements Poolable {
     private final NativeInteger length = integerField("length");
     private final NativeInteger localKey = integerField("lkey");
 
+    private ScatterGatherElement(final long handle) {
+        super(handle);
+    }
+
     public ScatterGatherElement() {}
 
     public ScatterGatherElement(Consumer<ScatterGatherElement> configurator) {
         configurator.accept(this);
-    }
-
-    public ScatterGatherElement(final long handle) {
-        super(handle);
     }
 
     public long getAddress() {

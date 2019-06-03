@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
+import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.ParentDomainInitialAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating deviceAttributes memory failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating device memory failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(DeviceMemory::new);
@@ -114,6 +115,30 @@ public class Context implements NativeObject, AutoCloseable {
         Verbs.allocateProtectionDomain(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating protection domain failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ProtectionDomain::new);
+    }
+
+    @Nullable
+    public ThreadDomain allocateThreadDomain(ThreadDomain.InitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.allocateThreadDomain(getHandle(), attributes.getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Allocating thread domain failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ThreadDomain::new);
+    }
+
+    @Nullable
+    public ProtectionDomain allocateParentDomain(ParentDomainInitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.allocateParentDomain(getHandle(), attributes.getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Allocating parent domain failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(ProtectionDomain::new);
