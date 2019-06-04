@@ -205,10 +205,22 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes initialAttributes) {
+    public SharedReceiveQueue createExtendedSharedReceiveQueue(SharedReceiveQueue.ExtendedInitialAttributes attributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.createExtendedCompletionQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
+        Verbs.createExtendedSharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating extended shared receive queue failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(SharedReceiveQueue::new);
+    }
+
+    @Nullable
+    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createExtendedCompletionQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating extended completion queue failed with error [{}]", result.getStatus());
         }

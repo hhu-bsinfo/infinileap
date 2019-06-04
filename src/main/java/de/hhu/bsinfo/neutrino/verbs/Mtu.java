@@ -4,7 +4,7 @@ import de.hhu.bsinfo.neutrino.data.EnumConverter;
 import java.util.Arrays;
 
 public enum Mtu {
-    IBV_MTU_256(1), IBV_MTU_512(2), IBV_MTU_1024(3), IBV_MTU_2048(4), IBV_MTU_4096(5);
+    MTU_256(1), MTU_512(2), MTU_1024(3), MTU_2048(4), MTU_4096(5);
 
     private static final Mtu[] VALUES;
 
@@ -37,7 +37,7 @@ public enum Mtu {
 
         @Override
         public Mtu toEnum(int integer) {
-            if (integer < IBV_MTU_256.value || integer > IBV_MTU_4096.value) {
+            if (integer < MTU_256.value || integer > MTU_4096.value) {
                 throw new IllegalArgumentException(String.format("Unknown operation code provided %d", integer));
             }
 

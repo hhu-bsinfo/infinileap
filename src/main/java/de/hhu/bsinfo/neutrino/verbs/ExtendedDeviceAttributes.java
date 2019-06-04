@@ -179,10 +179,10 @@ public class ExtendedDeviceAttributes extends Struct {
 
         public enum RxHashField implements Flag {
             SRC_IPV4(1), DST_IPV4(1 << 1),
-            IBV_RX_HASH_SRC_IPV6(1 << 2), IBV_RX_HASH_DST_IPV6(1 << 3),
-            IBV_RX_HASH_SRC_PORT_TCP(1 << 4), IBV_RX_HASH_DST_PORT_TCP(1 << 5),
-            IBV_RX_HASH_SRC_PORT_UDP(1 << 6), IBV_RX_HASH_DST_PORT_UDP(1 << 7),
-            IBV_RX_HASH_IPSEC_SPI(1 << 8), IBV_RX_HASH_INNER(1 << 31);
+            SRC_IPV6(1 << 2), DST_IPV6(1 << 3),
+            SRC_PORT_TCP(1 << 4), DST_PORT_TCP(1 << 5),
+            SRC_PORT_UDP(1 << 6), DST_PORT_UDP(1 << 7),
+            IPSEC_SPI(1 << 8), INNER(1 << 31);
 
             private final int value;
 

@@ -621,6 +621,16 @@ ReflectionUtility::StructInfo ibv_query_device_ex_input_struct_info {
     ibv_query_device_ex_input_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_xrcd_member_infos[] = {
+    GET_MEMBER_INFO(ibv_xrcd, context)
+};
+
+ReflectionUtility::StructInfo ibv_xrcd_struct_info {
+    sizeof(ibv_xrcd),
+    sizeof(ibv_xrcd_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_xrcd_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_cq_ex_member_infos[] = {
     GET_MEMBER_INFO(ibv_cq_ex, context),
     GET_MEMBER_INFO(ibv_cq_ex, channel),
@@ -640,6 +650,34 @@ ReflectionUtility::StructInfo ibv_cq_ex_struct_info {
     sizeof(ibv_cq_ex),
     sizeof(ibv_cq_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
     ibv_cq_ex_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_srq_init_attr_ex_member_infos[] = {
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, srq_context),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, attr),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, comp_mask),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, srq_type),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, pd),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, xrcd),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, cq),
+    GET_MEMBER_INFO(ibv_srq_init_attr_ex, tm_cap)
+};
+
+ReflectionUtility::StructInfo ibv_srq_init_attr_ex_struct_info {
+    sizeof(ibv_srq_init_attr_ex),
+    sizeof(ibv_srq_init_attr_ex_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_srq_init_attr_ex_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_tm_cap_member_infos[] = {
+    GET_MEMBER_INFO(ibv_tm_cap, max_num_tags),
+    GET_MEMBER_INFO(ibv_tm_cap, max_ops)
+};
+
+ReflectionUtility::StructInfo ibv_tm_cap_struct_info {
+    sizeof(ibv_tm_cap),
+    sizeof(ibv_tm_cap_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_tm_cap_member_infos
 };
 
 ReflectionUtility::MemberInfo ibv_cq_init_attr_ex_member_infos[] = {
@@ -720,6 +758,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_cq_moderation_caps", &ibv_cq_moderation_caps_struct_info},
     {"ibv_pci_atomic_caps", &ibv_pci_atomic_caps_struct_info},
     {"ibv_query_device_ex_input", &ibv_query_device_ex_input_struct_info},
+    {"ibv_xrcd", &ibv_xrcd_struct_info},
+    {"ibv_srq_init_attr_ex", &ibv_srq_init_attr_ex_struct_info},
+    {"ibv_tm_cap", &ibv_tm_cap_struct_info},
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},
     {"ibv_cq_init_attr_ex", &ibv_cq_init_attr_ex_struct_info},
     {"ibv_poll_cq_attr", &ibv_poll_cq_attr_struct_info},

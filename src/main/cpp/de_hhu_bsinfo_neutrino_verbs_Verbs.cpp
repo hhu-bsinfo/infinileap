@@ -545,6 +545,16 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_readTagMatchingIn
     ibv_wc_read_tm_info(extendedCompletionQueue, tagMatchingInfo);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedSharedReceiveQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_srq_init_attr_ex>(attributesHandle);
+
+    auto sharedReceiveQueue = ibv_create_srq_ex(context, attributes);
+
+    NativeCall::setResult(result, sharedReceiveQueue == nullptr ? errno : 0, sharedReceiveQueue);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1 (JNIEnv *env, jclass clazz, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 

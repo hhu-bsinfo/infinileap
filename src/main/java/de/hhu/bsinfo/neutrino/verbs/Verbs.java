@@ -104,6 +104,8 @@ public final class Verbs {
     static native int readFlowTag(long extendedCompletionQueueHandle);
     static native void readTagMatchingInfo(long extendedCompletionQueueHandle, long tagMatchingInfoHandle);
 
+    static native void createExtendedSharedReceiveQueue(long contextHandle, long attributesHandle, long resultHandle);
+
     // Dummy methods for benchmarking JNI overhead
     public static native void benchmarkDummyMethod1(long resultHandle);
     public static native long benchmarkDummyMethod2();
