@@ -108,7 +108,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.allocateMemoryWindow(getHandle(), type.getValue(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating null memory window failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating memory window failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(MemoryWindow::new);

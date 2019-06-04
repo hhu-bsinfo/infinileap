@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.verbs.MemoryWindow.Type;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import de.hhu.bsinfo.neutrino.verbs.ScatterGatherElement;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
+import org.jetbrains.annotations.Nullable;
 
 public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
 
@@ -58,11 +59,19 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     public void read(RemoteBuffer remoteBuffer) {
-        remoteBuffer.read(this);
+        read(0, remoteBuffer, 0, remoteBuffer.capacity());
+    }
+
+    public void read(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+        remoteBuffer.read(index, this, offset, length);
     }
 
     public void write(RemoteBuffer remoteBuffer) {
-        remoteBuffer.write(this);
+        write(0, remoteBuffer, 0, remoteBuffer.capacity());
+    }
+
+    public void write(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+        remoteBuffer.write(index, this, offset, length);
     }
 
     public ScatterGatherElement.Array split() {
@@ -70,13 +79,12 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     public ScatterGatherElement.Array split(final long offset, final long length) {
-        long capacity = Math.abs(length - offset);
-        if (capacity <= 0) {
-            throw new IllegalArgumentException();
+        if (offset < 0 || offset >= capacity() || offset + length <= 0 || offset + length >= capacity()) {
+            throw new IllegalArgumentException(String.format("invalid offset %d with length %d", offset, length));
         }
 
-        int slots = (int) (capacity / Integer.MAX_VALUE) + 1;
-        int remainder = (int) (capacity & Integer.MAX_VALUE);
+        int slots = (int) (length / Integer.MAX_VALUE) + 1;
+        int remainder = (int) (length & Integer.MAX_VALUE);
 
         var array = new ScatterGatherElement.Array(slots + 1);
         return array.forEachIndexed((index, element) -> {
@@ -103,8 +111,12 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
         return new RegisteredBufferWindow(this, memoryWindow, offset, length);
     }
 
+    @Nullable
     public RegisteredBufferWindow allocateAndBindMemoryWindow(QueuePair queuePair, long offset, long length, AccessFlag... flags) {
         MemoryWindow memoryWindow = queuePair.getProtectionDomain().allocateMemoryWindow(Type.TYPE_1);
+        if (memoryWindow == null) {
+            return null;
+        }
 
         BindAttributes attributes = new BindAttributes(config -> {
             config.setSendFlags(SendFlag.SIGNALED);

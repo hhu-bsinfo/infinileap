@@ -56,10 +56,15 @@ public class RemoteBuffer {
         queuePair.postSend(request);
     }
 
+    public long capacity() {
+        return capacity;
+    }
+
     @Override
     public String toString() {
         return "RemoteBuffer {" +
-            "\n\taddress=" + address +
+            ",\n\taddress=" + address +
+            ",\n\tcapacity=" + capacity +
             ",\n\tkey=" + key +
             "\n}";
     }
