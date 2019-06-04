@@ -109,12 +109,12 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         Verbs.queryQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), initialAttributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
-        result.releaseInstance();
-
         if (isError) {
             LOGGER.error("Querying queue pair failed with error [{}]", result.getStatus());
-            return null;
+            attributes = null;
         }
+
+        result.releaseInstance();
 
         return attributes;
     }
@@ -127,12 +127,12 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         Verbs.queryQueuePair(getHandle(), attributes.getHandle(), 0, initialAttributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
-        result.releaseInstance();
-
         if (isError) {
             LOGGER.error("Querying queue pair failed with error [{}]", result.getStatus());
-            return null;
+            initialAttributes = null;
         }
+
+        result.releaseInstance();
 
         return initialAttributes;
     }

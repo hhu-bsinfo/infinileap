@@ -68,6 +68,9 @@ public final class Verbs {
     static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
     static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
+    static native void modifySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, int attributesMask, long resultHandle);
+    static native void querySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, long resultHandle);
+    static native void destroySharedReceiveQueue(long sharedReceiveQueueHandle, long resultHandle);
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void queryQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long initialAttributesHandle, long resultHandle);

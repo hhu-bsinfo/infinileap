@@ -90,7 +90,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateProtectio
 
     auto protectionDomain = ibv_alloc_pd(context);
 
-    NativeCall::setResult(result, protectionDomain == nullptr ? 1 : 0, protectionDomain);
+    NativeCall::setResult(result, protectionDomain == nullptr ? errno : 0, protectionDomain);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deallocateProtectionDomain (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong resultHandle) {
@@ -259,7 +259,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_pollCompletionQue
 
     auto workRequestCount = ibv_poll_cq(completionQueue, numEntries, array);
 
-    NativeCall::setResult(result, workRequestCount < 0 ? 1 : 0, workRequestCount);
+    NativeCall::setResult(result, workRequestCount < 0 ? errno : 0, workRequestCount);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_requestNotification (JNIEnv *env, jclass clazz, jlong completionQueueHandle, jint solicitedOnly, jlong resultHandle) {
@@ -308,7 +308,30 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedRecei
 
     auto sharedReceiveQueue = ibv_create_srq(protectionDomain, attributes);
 
-    NativeCall::setResult(result, sharedReceiveQueue == nullptr ? 1 : 0, sharedReceiveQueue);
+    NativeCall::setResult(result, sharedReceiveQueue == nullptr ? errno : 0, sharedReceiveQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifySharedReceiveQueue (JNIEnv *env, jclass clazz, jlong sharedReceiveQueueHandle, jlong attributesHandle, jint attributesMask, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto attributes = NativeCall::castHandle<ibv_srq_attr>(attributesHandle);
+    auto sharedReceiveQueue = NativeCall::castHandle<ibv_srq>(sharedReceiveQueueHandle);
+
+    NativeCall::setResult(result, ibv_modify_srq(sharedReceiveQueue, attributes, attributesMask), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_querySharedReceiveQueue (JNIEnv *env, jclass clazz, jlong sharedReceiveQueueHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto attributes = NativeCall::castHandle<ibv_srq_attr>(attributesHandle);
+    auto sharedReceiveQueue = NativeCall::castHandle<ibv_srq>(sharedReceiveQueueHandle);
+
+    NativeCall::setResult(result, ibv_query_srq(sharedReceiveQueue, attributes), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroySharedReceiveQueue (JNIEnv *env, jclass clazz, jlong sharedReceiveQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto sharedReceiveQueue = NativeCall::castHandle<ibv_srq>(sharedReceiveQueueHandle);
+
+    NativeCall::setResult(result, ibv_destroy_srq(sharedReceiveQueue), 0);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createQueuePair (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {
@@ -318,7 +341,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createQueuePair (
 
     auto queuePair = ibv_create_qp(protectionDomain, attributes);
 
-    NativeCall::setResult(result, queuePair == nullptr ? 1 : 0, queuePair);
+    NativeCall::setResult(result, queuePair == nullptr ? errno : 0, queuePair);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong attributesHandle, jint attributesMask, jlong resultHandle) {
