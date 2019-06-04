@@ -1,7 +1,13 @@
 package de.hhu.bsinfo.neutrino.buffer;
 
+import de.hhu.bsinfo.neutrino.verbs.AccessFlag;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion;
+import de.hhu.bsinfo.neutrino.verbs.MemoryWindow;
+import de.hhu.bsinfo.neutrino.verbs.MemoryWindow.BindAttributes;
+import de.hhu.bsinfo.neutrino.verbs.MemoryWindow.Type;
+import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import de.hhu.bsinfo.neutrino.verbs.ScatterGatherElement;
+import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
 
 public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
 
@@ -37,6 +43,10 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     public RegisteredBuffer(MemoryRegion memoryRegion, long handle, long capacity, Object parent) {
         super(handle, capacity, parent);
         this.memoryRegion = memoryRegion;
+    }
+
+    MemoryRegion getMemoryRegion() {
+        return memoryRegion;
     }
 
     public int getLocalKey() {
@@ -76,6 +86,42 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
         });
     }
 
+    public RegisteredBufferWindow bindMemoryWindow(MemoryWindow memoryWindow, QueuePair queuePair, long offset, long length, AccessFlag... flags) {
+        BindAttributes attributes = new BindAttributes(config -> {
+            config.setSendFlags(SendFlag.SIGNALED);
+
+            config.bindInfo.setMemoryRegion(memoryRegion);
+            config.bindInfo.setAddress(getHandle() + offset);
+            config.bindInfo.setLength(length);
+            config.bindInfo.setAccessFlags(flags);
+        });
+
+        if(!memoryWindow.bind(queuePair, attributes)) {
+            return null;
+        }
+
+        return new RegisteredBufferWindow(this, memoryWindow, offset, length);
+    }
+
+    public RegisteredBufferWindow allocateAndBindMemoryWindow(QueuePair queuePair, long offset, long length, AccessFlag... flags) {
+        MemoryWindow memoryWindow = queuePair.getProtectionDomain().allocateMemoryWindow(Type.TYPE_1);
+
+        BindAttributes attributes = new BindAttributes(config -> {
+            config.setSendFlags(SendFlag.SIGNALED);
+
+            config.bindInfo.setMemoryRegion(memoryRegion);
+            config.bindInfo.setAddress(getHandle() + offset);
+            config.bindInfo.setLength(length);
+            config.bindInfo.setAccessFlags(flags);
+        });
+
+        if(!memoryWindow.bind(queuePair, attributes)) {
+            return null;
+        }
+
+        return new RegisteredBufferWindow(this, memoryWindow, offset, length);
+    }
+
     @Override
     public String toString() {
         return "RegisteredBuffer {" +
@@ -85,6 +131,6 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
 
     @Override
     public void close() {
-        memoryRegion.deregister();
+        memoryRegion.close();
     }
 }

@@ -41,6 +41,18 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     @Nullable
+    private MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.of(flags), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Registering device memory memory as memory region failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(MemoryRegion::new);
+    }
+
+    @Nullable
     public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) {
         return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
     }
@@ -91,15 +103,15 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     @Nullable
-    public MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
+    public MemoryWindow allocateMemoryWindow(MemoryWindow.Type type) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.of(flags), result.getHandle());
+        Verbs.allocateMemoryWindow(getHandle(), type.getValue(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering deviceAttributes memory as memory region failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating null memory window failed with error [{}]", result.getStatus());
         }
 
-        return result.getAndRelease(MemoryRegion::new);
+        return result.getAndRelease(MemoryWindow::new);
     }
 
     @Nullable

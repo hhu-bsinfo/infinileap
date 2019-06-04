@@ -378,16 +378,6 @@ ReflectionUtility::StructInfo ibv_qp_struct_info {
     ibv_qp_member_infos
 };
 
-ReflectionUtility::MemberInfo ibv_mr_member_infos[] = {
-    GET_MEMBER_INFO(ibv_mr, context),
-    GET_MEMBER_INFO(ibv_mr, pd),
-    GET_MEMBER_INFO(ibv_mr, addr),
-    GET_MEMBER_INFO(ibv_mr, length),
-    GET_MEMBER_INFO(ibv_mr, handle),
-    GET_MEMBER_INFO(ibv_mr, lkey),
-    GET_MEMBER_INFO(ibv_mr, rkey)
-};
-
 ReflectionUtility::MemberInfo ibv_dm_member_infos[] = {
     GET_MEMBER_INFO(ibv_dm, context),
     GET_MEMBER_INFO(ibv_dm, comp_mask)
@@ -411,10 +401,59 @@ ReflectionUtility::StructInfo ibv_alloc_dm_attr_struct_info {
     ibv_alloc_dm_attr_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_mr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_mr, context),
+    GET_MEMBER_INFO(ibv_mr, pd),
+    GET_MEMBER_INFO(ibv_mr, addr),
+    GET_MEMBER_INFO(ibv_mr, length),
+    GET_MEMBER_INFO(ibv_mr, handle),
+    GET_MEMBER_INFO(ibv_mr, lkey),
+    GET_MEMBER_INFO(ibv_mr, rkey)
+};
+
 ReflectionUtility::StructInfo ibv_mr_struct_info {
     sizeof(ibv_mr),
     sizeof(ibv_mr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
     ibv_mr_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_mw_member_infos[] = {
+    GET_MEMBER_INFO(ibv_mw, context),
+    GET_MEMBER_INFO(ibv_mw, pd),
+    GET_MEMBER_INFO(ibv_mw, rkey),
+    GET_MEMBER_INFO(ibv_mw, handle),
+    GET_MEMBER_INFO(ibv_mw, type)
+};
+
+ReflectionUtility::StructInfo ibv_mw_struct_info {
+    sizeof(ibv_mw),
+    sizeof(ibv_mw_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_mw_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_mw_bind_member_infos[] = {
+    GET_MEMBER_INFO(ibv_mw_bind, wr_id),
+    GET_MEMBER_INFO(ibv_mw_bind, send_flags),
+    GET_MEMBER_INFO(ibv_mw_bind, bind_info)
+};
+
+ReflectionUtility::StructInfo ibv_mw_bind_struct_info {
+    sizeof(ibv_mw_bind),
+    sizeof(ibv_mw_bind_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_mw_bind_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_mw_bind_info_member_infos[] = {
+    GET_MEMBER_INFO(ibv_mw_bind_info, mr),
+    GET_MEMBER_INFO(ibv_mw_bind_info, addr),
+    GET_MEMBER_INFO(ibv_mw_bind_info, length),
+    GET_MEMBER_INFO(ibv_mw_bind_info, mw_access_flags)
+};
+
+ReflectionUtility::StructInfo ibv_mw_bind_info_struct_info {
+    sizeof(ibv_mw_bind_info),
+    sizeof(ibv_mw_bind_info_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_mw_bind_info_member_infos
 };
 
 ReflectionUtility::MemberInfo ibv_pd_member_infos[] = {
@@ -665,6 +704,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_dm", &ibv_dm_struct_info},
     {"ibv_alloc_dm_attr", &ibv_alloc_dm_attr_struct_info},
     {"ibv_mr", &ibv_mr_struct_info},
+    {"ibv_mw", &ibv_mw_struct_info},
+    {"ibv_mw_bind", &ibv_mw_bind_struct_info},
+    {"ibv_mw_bind_info", &ibv_mw_bind_info_struct_info},
     {"ibv_pd", &ibv_pd_struct_info},
     {"ibv_td", &ibv_td_struct_info},
     {"ibv_td_init_attr", &ibv_td_init_attr_struct_info},

@@ -55,6 +55,9 @@ public final class Verbs {
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void allocateNullMemoryRegion(long protectionDomainHandle, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
+    static native void allocateMemoryWindow(long protectionDomainHandle, int type, long resultHandle);
+    static native void bindMemoryWindow(long memoryWindowHandle, long queuePairHandle, long attributesHandle, long resultHandle);
+    static native void deallocateMemoryWindow(long memoryWindowHandle, long resultHandle);
     static native void createAddressHandle(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void destroyAddressHandle(long addressHandleHandle, long resultHandle);
     static native void createCompletionChannel(long contextHandle, long resultHandle);
@@ -78,6 +81,7 @@ public final class Verbs {
 
     // Extended API
     static native void queryExtendedDevice(long contextHandle, long extendedDeviceHandle, long queryExtendedDeviceInputHandle, long resultHandle);
+
     static native void createExtendedCompletionQueue(long contextHandle, long attributesHandle, long resultHandle);
     static native void extendedCompletionQueueToCompletionQueue(long extendedCompletionQueueHandle, long resultHandle);
     static native void startPoll(long extendedCompletionQueueHandle, long attributesHandle, long resultHandle);

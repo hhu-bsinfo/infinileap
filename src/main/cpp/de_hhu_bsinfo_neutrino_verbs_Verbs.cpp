@@ -171,8 +171,8 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_freeDeviceMemory 
 
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong address, jlong size, jint accessFlags, jlong resultHandle) {
-    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto bufferAddress = NativeCall::castHandle<void>(address);
 
     auto memoryRegion = ibv_reg_mr(protectionDomain, bufferAddress, size, accessFlags);
@@ -181,8 +181,8 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_registerMemoryReg
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateNullMemoryRegion (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong resultHandle) {
-    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
 
     auto memoryRegion = ibv_alloc_null_mr(protectionDomain);
 
@@ -194,6 +194,31 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deregisterMemoryR
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 
     NativeCall::setResult(result, ibv_dereg_mr(memoryRegion), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateMemoryWindow (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jint type, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto protectionDomain = NativeCall::castHandle<ibv_pd>(protectionDomainHandle);
+
+    auto memoryWindow = ibv_alloc_mw(protectionDomain, static_cast<ibv_mw_type>(type));
+
+    NativeCall::setResult(result, memoryWindow == nullptr ? errno : 0, memoryWindow);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_bindMemoryWindow (JNIEnv *env, jclass clazz, jlong memoryWindowHandle, jlong queuePairHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto memoryWindow = NativeCall::castHandle<ibv_mw>(memoryWindowHandle);
+    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
+    auto attributes = NativeCall::castHandle<ibv_mw_bind>(attributesHandle);
+
+    NativeCall::setResult(result, ibv_bind_mw(queuePair, memoryWindow, attributes), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_deallocateMemoryWindow (JNIEnv *env, jclass clazz, jlong memoryWindowHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto memoryWindow = NativeCall::castHandle<ibv_mw>(memoryWindowHandle);
+
+    NativeCall::setResult(result, ibv_dealloc_mw(memoryWindow), 0);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createAddressHandle (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {

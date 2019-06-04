@@ -39,8 +39,12 @@ public class QueuePair extends Struct implements AutoCloseable {
     private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
-    QueuePair(long handle) {
+    QueuePair(final long handle) {
         super(handle);
+    }
+
+    QueuePair(final LocalBuffer buffer, final int offset) {
+        super(buffer, offset);
     }
 
     private boolean postSend(final long sendWorkRequestsHandle) {

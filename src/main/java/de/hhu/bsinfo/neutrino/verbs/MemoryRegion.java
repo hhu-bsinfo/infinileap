@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_mr")
-public class MemoryRegion extends Struct {
+public class MemoryRegion extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryRegion.class);
 
@@ -49,7 +49,8 @@ public class MemoryRegion extends Struct {
         return remoteKey.get();
     }
 
-    public boolean deregister() {
+    @Override
+    public void close() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deregisterMemoryRegion(getHandle(), result.getHandle());
@@ -59,8 +60,6 @@ public class MemoryRegion extends Struct {
         }
 
         result.releaseInstance();
-
-        return !isError;
     }
 
     @Override
