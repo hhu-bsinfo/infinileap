@@ -54,13 +54,13 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
         }
 
-        MemoryRegion region = result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.getAndRelease(MemoryRegion::new);
 
-        return region == null ? null : new RegisteredBuffer(region);
+        return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion);
     }
 
     @Nullable
-    public MemoryRegion allocateNullMemoryRegion() {
+    public RegisteredBuffer allocateNullMemory() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.allocateNullMemoryRegion(getHandle(), result.getHandle());
@@ -68,7 +68,9 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Allocating null memory region failed with error [{}]", result.getStatus());
         }
 
-        return result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.getAndRelease(MemoryRegion::new);
+
+        return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion, 0, memoryRegion.getLength());
     }
 
     @Nullable

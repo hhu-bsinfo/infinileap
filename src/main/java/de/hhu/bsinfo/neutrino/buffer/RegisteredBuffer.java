@@ -7,12 +7,35 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
 
     private final MemoryRegion memoryRegion;
 
+    /**
+     * Wraps a normal memory region, which is present in the host's memory
+     */
     public RegisteredBuffer(MemoryRegion memoryRegion) {
         this(memoryRegion, null);
     }
 
+    /**
+     * Wraps a normal memory region, which is present in the host's memory
+     */
     public RegisteredBuffer(MemoryRegion memoryRegion, Object parent) {
         super(memoryRegion.getAddress(), memoryRegion.getLength(), parent);
+        this.memoryRegion = memoryRegion;
+    }
+
+    /**
+     * Wraps a memory region, which is not present in the host's memory,
+     * and needs a separate buffer in the host's memory to synchronize with (e.g. device memory).
+     */
+    public RegisteredBuffer(MemoryRegion memoryRegion, long handle, long capacity) {
+        this(memoryRegion, handle, capacity, null);
+    }
+
+    /**
+     * Wraps a memory region, which is not present in the host's memory,
+     * and needs a separate buffer in the host's memory to synchronize with (e.g. device memory).
+     */
+    public RegisteredBuffer(MemoryRegion memoryRegion, long handle, long capacity, Object parent) {
+        super(handle, capacity, parent);
         this.memoryRegion = memoryRegion;
     }
 

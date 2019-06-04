@@ -97,7 +97,7 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) {
+    DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());

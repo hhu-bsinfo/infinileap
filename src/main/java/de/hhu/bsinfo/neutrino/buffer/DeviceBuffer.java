@@ -4,24 +4,14 @@ import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory;
 import de.hhu.bsinfo.neutrino.verbs.MemoryRegion;
 
-public class DeviceBuffer extends LocalBuffer implements AutoCloseable {
+public class DeviceBuffer extends RegisteredBuffer implements AutoCloseable {
 
     private DeviceMemory deviceMemory;
-    private MemoryRegion memoryRegion;
 
     public DeviceBuffer(DeviceMemory deviceMemory, MemoryRegion memoryRegion, long capacity) {
-        super(MemoryUtil.allocateMemory(capacity), capacity);
+        super(memoryRegion, MemoryUtil.allocateMemory(capacity), capacity, null);
 
         this.deviceMemory = deviceMemory;
-        this.memoryRegion = memoryRegion;
-    }
-
-    public DeviceMemory getDeviceMemory() {
-        return deviceMemory;
-    }
-
-    public MemoryRegion getMemoryRegion() {
-        return memoryRegion;
     }
 
     public boolean readFromDevice() {
@@ -33,7 +23,7 @@ public class DeviceBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         deviceMemory.close();
     }
 }

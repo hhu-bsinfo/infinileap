@@ -179,6 +179,10 @@ public class LocalBuffer implements NativeObject {
 
         @Override
         public void run() {
+            if(handle == 0) {
+                return;
+            }
+
             UNSAFE.freeMemory(handle);
             LOGGER.trace("Freed {}", String.format("%016X", handle));
         }
