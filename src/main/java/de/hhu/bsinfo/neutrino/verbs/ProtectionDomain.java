@@ -144,7 +144,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing deviceAttributes failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing protection domain failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
