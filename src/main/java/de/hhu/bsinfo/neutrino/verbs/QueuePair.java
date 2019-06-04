@@ -43,60 +43,48 @@ public class QueuePair extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    public boolean postSend(final SendWorkRequest sendWorkRequest) {
+    private boolean postSend(final long sendWorkRequestsHandle) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postSendWorkRequest(getHandle(), sendWorkRequest.getHandle(), result.getHandle());
+        Verbs.postSendWorkRequest(getHandle(), sendWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting send work request failed [{}]", result.getStatus());
+            LOGGER.error("Posting send work requests failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
 
         return !isError;
+    }
+
+    private boolean postReceive(final long receiveWorkRequestsHandle) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequestsHandle, result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting receive work requests failed with error [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
+    }
+
+    public boolean postSend(final SendWorkRequest sendWorkRequest) {
+        return postSend(sendWorkRequest.getHandle());
     }
 
     public boolean postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.postSendWorkRequest(getHandle(), sendWorkRequests.getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Posting send work request failed with error [{}]", result.getStatus());
-        }
-
-        result.releaseInstance();
-
-        return !isError;
+        return postSend((sendWorkRequests.getHandle()));
     }
 
     public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequest.getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Posting receive work request failed with error [{}]", result.getStatus());
-        }
-
-        result.releaseInstance();
-
-        return !isError;
+        return postReceive(receiveWorkRequest.getHandle());
     }
 
     public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
-
-        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequests.getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Posting receive work request failed with error [{}]", result.getStatus());
-        }
-
-        result.releaseInstance();
-
-        return !isError;
+        return postReceive(receiveWorkRequests.getHandle());
     }
 
     public boolean modify(final Attributes attributes, final AttributeMask... flags) {
@@ -113,6 +101,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         return !isError;
     }
 
+    @Nullable
     public Attributes queryAttributes(final AttributeMask... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var attributes = new Attributes();
@@ -130,6 +119,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         return attributes;
     }
 
+    @Nullable
     public InitialAttributes queryInitialAttributes() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var attributes = new Attributes();
