@@ -158,7 +158,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         public InitialAttributes() {}
 
-        public InitialAttributes(Consumer<InitialAttributes> configurator) {
+        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
             configurator.accept(this);
         }
 
@@ -241,7 +241,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         public ExtendedInitialAttributes() {}
 
-        public ExtendedInitialAttributes(Consumer<ExtendedInitialAttributes> configurator) {
+        public ExtendedInitialAttributes(final Consumer<ExtendedInitialAttributes> configurator) {
             configurator.accept(this);
         }
 

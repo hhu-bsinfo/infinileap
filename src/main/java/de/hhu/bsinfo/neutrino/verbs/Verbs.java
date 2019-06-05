@@ -32,55 +32,75 @@ public final class Verbs {
         poolMap.get(instance.getClass()).get().returnInstance(instance);
     }
 
+    // System helper functions
+    static native int getOperationFlagCreate();
+    static native int getOperationFlagExclusive();
+
+    // Standard API
     static native int getNumDevices();
     static native String getDeviceName(long contextHandle);
 
-    // Standard API
     static native void openDevice(int index, long resultHandle);
     static native void closeDevice(long contextHandle, long resultHandle);
+
     static native void queryDevice(long contextHandle, long deviceHandle, long resultHandle);
     static native void queryPort(long contextHandle, long portHandle, int portNumber, long resultHandle);
+
     static native void getAsyncEvent(long contextHandle, long asyncEventHandle, long resultHandle);
     static native void acknowledgeAsyncEvent(long asyncEventHandle);
+
     static native void allocateProtectionDomain(long contextHandle, long resultHandle);
     static native void deallocateProtectionDomain(long protectionDomainHandle, long resultHandle);
+
     static native void allocateThreadDomain(long contextHandle, long attributesHandle, long resultHandle);
     static native void deallocateThreadDomain(long threadDomainHandle, long resultHandle);
+
     static native void allocateParentDomain(long contextHandle, long attributesHandle, long resultHandle);
+
     static native void allocateDeviceMemory(long contextHandle, long attributesHandle, long resultHandle);
     static native void registerDeviceMemoryAsMemoryRegion(long protectionDomainHandle, long deviceMemoryHandle, long offset, long length, int accessFlags, long resultHandle);
     static native void copyToDeviceMemory(long deviceMemoryHandle, long offset, long sourceAddress, long length, long resultHandle);
     static native void copyFromDeviceMemory(long targetAddress, long deviceMemoryHandle, long offset, long length, long resultHandle);
     static native void freeDeviceMemory(long deviceMemoryHandle, long resultHandle);
+
     static native void registerMemoryRegion(long protectionDomainHandle, long address, long size, int accessFlags, long resultHandle);
     static native void allocateNullMemoryRegion(long protectionDomainHandle, long resultHandle);
     static native void deregisterMemoryRegion(long memoryRegionHandle, long resultHandle);
+
     static native void allocateMemoryWindow(long protectionDomainHandle, int type, long resultHandle);
     static native void bindMemoryWindow(long memoryWindowHandle, long queuePairHandle, long attributesHandle, long resultHandle);
     static native void deallocateMemoryWindow(long memoryWindowHandle, long resultHandle);
+
     static native void createAddressHandle(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void destroyAddressHandle(long addressHandleHandle, long resultHandle);
+
     static native void createCompletionChannel(long contextHandle, long resultHandle);
     static native void getCompletionEvent(long completionChannelHandle, long resultHandle);
     static native void destroyCompletionChannel(long completionChannelHandle, long resultHandle);
+
     static native void createCompletionQueue(long contextHandle, int maxElements, long userContextHandle, long completionChannelHandle, int completionVector, long resultHandle);
     static native void pollCompletionQueue(long completionQueueHandle, int numEntries, long arrayHandle, long resultHandle);
     static native void requestNotification(long completionQueueHandle, int solicitedOnly, long resultHandle);
     static native void acknowledgeCompletionEvents(long completionQueueHandle, int ackCount);
     static native void destroyCompletionQueue(long completionQueueHandle, long resultHandle);
-    static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
-    static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
+
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void querySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, long resultHandle);
     static native void destroySharedReceiveQueue(long sharedReceiveQueueHandle, long resultHandle);
+
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void queryQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long initialAttributesHandle, long resultHandle);
+    static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
+    static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
     static native void destroyQueuePair(long queuePairHandle, long resultHandle);
 
     // Extended API
     static native void queryExtendedDevice(long contextHandle, long extendedDeviceHandle, long queryExtendedDeviceInputHandle, long resultHandle);
+
+    static native void openExtendedConnectionDomain(long contextHandle, long attributesHandle, long resultHandle);
+    static native void closeExtendedConnectionDomain(long extendedConnectionDomainHandle, long resultHandle);
 
     static native void createExtendedCompletionQueue(long contextHandle, long attributesHandle, long resultHandle);
     static native void extendedCompletionQueueToCompletionQueue(long extendedCompletionQueueHandle, long resultHandle);

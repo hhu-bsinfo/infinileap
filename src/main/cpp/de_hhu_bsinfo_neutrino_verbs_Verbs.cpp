@@ -3,6 +3,15 @@
 #include <stddef.h>
 #include <vector>
 #include <neutrino/NativeCall.hpp>
+#include <fcntl.h>
+
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getOperationFlagCreate(JNIEnv *env, jclass clazz) {
+    return O_CREAT;
+}
+
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getOperationFlagExclusive(JNIEnv *env, jclass clazz) {
+    return O_EXCL;
+}
 
 JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getNumDevices (JNIEnv *env, jclass clazz) {
     int numDevices = 0;
@@ -307,25 +316,6 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletion
     NativeCall::setResult(result, ibv_destroy_cq(completionQueue), 0);
 }
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
-    auto workRequest = NativeCall::castHandle<ibv_send_wr>(workRequestHandle);
-    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
-
-    ibv_send_wr* badWorkRequest;
-    NativeCall::setResult(result, ibv_post_send(queuePair, workRequest, &badWorkRequest), badWorkRequest);
-}
-
-
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
-    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
-    auto workRequest = NativeCall::castHandle<ibv_recv_wr>(workRequestHandle);
-    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
-
-    ibv_recv_wr* badWorkRequest;
-    NativeCall::setResult(result, ibv_post_recv(queuePair, workRequest, &badWorkRequest), badWorkRequest);
-}
-
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedReceiveQueue (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto attributes = NativeCall::castHandle<ibv_srq_init_attr>(attributesHandle);
@@ -386,6 +376,25 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair (J
     NativeCall::setResult(result, ibv_query_qp(queuePair, attributes, attributesMask, initialAttributes), 0);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto workRequest = NativeCall::castHandle<ibv_send_wr>(workRequestHandle);
+    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
+
+    ibv_send_wr* badWorkRequest;
+    NativeCall::setResult(result, ibv_post_send(queuePair, workRequest, &badWorkRequest), badWorkRequest);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto workRequest = NativeCall::castHandle<ibv_recv_wr>(workRequestHandle);
+    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
+
+    ibv_recv_wr* badWorkRequest;
+    NativeCall::setResult(result, ibv_post_recv(queuePair, workRequest, &badWorkRequest), badWorkRequest);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
@@ -400,6 +409,23 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryExtendedDevi
     auto queryInput = NativeCall::castHandle<ibv_query_device_ex_input>(queryExtendedDeviceInputHandle);
 
     NativeCall::setResult(result, ibv_query_device_ex(context, queryInput, device), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openExtendedConnectionDomain (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_xrcd_init_attr>(attributesHandle);
+
+    auto extendedConnectionDomain = ibv_open_xrcd(context, attributes);
+
+    NativeCall::setResult(result, extendedConnectionDomain == nullptr ? errno : 0, extendedConnectionDomain);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_closeExtendedConnectionDomain (JNIEnv *env, jclass clazz, jlong extendedConnectionDomainHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto extendedConnectionDomain = NativeCall::castHandle<ibv_xrcd>(extendedConnectionDomainHandle);
+
+    NativeCall::setResult(result, ibv_close_xrcd(extendedConnectionDomain), 0);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedCompletionQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {

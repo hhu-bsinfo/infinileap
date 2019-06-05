@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
+import de.hhu.bsinfo.neutrino.verbs.ExtendedConnectionDomain.InitalAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
 import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.ParentDomainInitialAttributes;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +43,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening deviceAttributes {} failed with error [{}]", index, result.getStatus());
+            LOGGER.error("Opening device {} failed with error [{}]", index, result.getStatus());
         }
 
         return result.getAndRelease(Context::new);
@@ -54,7 +55,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing deviceAttributes failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -71,7 +72,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying deviceAttributes failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying device failed with error [{}]", result.getStatus());
             device = null;
         }
 
@@ -195,13 +196,25 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryExtendedDevice(getHandle(), device.getHandle(), queryInput.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying extended deviceAttributes failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying extended device failed with error [{}]", result.getStatus());
             device = null;
         }
 
         result.releaseInstance();
 
         return device;
+    }
+
+    @Nullable
+    public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitalAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.openExtendedConnectionDomain(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Opening extended connection domain failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ExtendedConnectionDomain::new);
     }
 
     @Nullable

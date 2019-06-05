@@ -93,7 +93,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
 
     public SendWorkRequest() {}
 
-    public SendWorkRequest(Consumer<SendWorkRequest> configurator) {
+    public SendWorkRequest(final Consumer<SendWorkRequest> configurator) {
         configurator.accept(this);
     }
 

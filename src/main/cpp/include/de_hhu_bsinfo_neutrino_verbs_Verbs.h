@@ -11,6 +11,22 @@ extern "C" {
 #define de_hhu_bsinfo_neutrino_verbs_Verbs_DEFAULT_POOL_SIZE 1024L
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    getOperationFlagCreate
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getOperationFlagCreate
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    getOperationFlagExclusive
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getOperationFlagExclusive
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    getNumDevices
  * Signature: ()I
  */
@@ -283,22 +299,6 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletion
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
- * Method:    postSendWorkRequest
- * Signature: (JJJ)V
- */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest
-  (JNIEnv *, jclass, jlong, jlong, jlong);
-
-/*
- * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
- * Method:    postReceiveWorkRequest
- * Signature: (JJJ)V
- */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest
-  (JNIEnv *, jclass, jlong, jlong, jlong);
-
-/*
- * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    createSharedReceiveQueue
  * Signature: (JJJ)V
  */
@@ -355,6 +355,22 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    postSendWorkRequest
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    postReceiveWorkRequest
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    destroyQueuePair
  * Signature: (JJ)V
  */
@@ -368,6 +384,22 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyQueuePair
  */
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryExtendedDevice
   (JNIEnv *, jclass, jlong, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    openExtendedConnectionDomain
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openExtendedConnectionDomain
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    closeExtendedConnectionDomain
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_closeExtendedConnectionDomain
+  (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs

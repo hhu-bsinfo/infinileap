@@ -19,7 +19,7 @@ public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<Rec
     public ReceiveWorkRequest() {
     }
 
-    public ReceiveWorkRequest(Consumer<ReceiveWorkRequest> configurator) {
+    public ReceiveWorkRequest(final Consumer<ReceiveWorkRequest> configurator) {
         configurator.accept(this);
     }
 

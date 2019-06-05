@@ -22,7 +22,7 @@ public class ScatterGatherElement extends Struct implements Poolable {
 
     public ScatterGatherElement() {}
 
-    public ScatterGatherElement(Consumer<ScatterGatherElement> configurator) {
+    public ScatterGatherElement(final Consumer<ScatterGatherElement> configurator) {
         configurator.accept(this);
     }
 

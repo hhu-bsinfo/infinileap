@@ -373,7 +373,7 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         public InitialAttributes() {}
 
-        public InitialAttributes(Consumer<InitialAttributes> configurator) {
+        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
             configurator.accept(this);
         }
 
@@ -540,7 +540,7 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         public Attributes() {}
 
-        public Attributes(Consumer<Attributes> configurator) {
+        public Attributes(final Consumer<Attributes> configurator) {
             configurator.accept(this);
         }
 

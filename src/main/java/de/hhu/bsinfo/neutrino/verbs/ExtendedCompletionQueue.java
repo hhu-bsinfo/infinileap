@@ -249,7 +249,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         public InitialAttributes() {}
 
-        public InitialAttributes(Consumer<InitialAttributes> configurator) {
+        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
             configurator.accept(this);
         }
 
@@ -317,7 +317,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         public PollAttributes() {}
 
-        public PollAttributes(Consumer<PollAttributes> configurator) {
+        public PollAttributes(final Consumer<PollAttributes> configurator) {
             configurator.accept(this);
         }
 

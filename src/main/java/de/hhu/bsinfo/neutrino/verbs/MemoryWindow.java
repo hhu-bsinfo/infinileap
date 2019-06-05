@@ -133,7 +133,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
 
         public BindAttributes() {}
 
-        public BindAttributes(Consumer<BindAttributes> configurator) {
+        public BindAttributes(final Consumer<BindAttributes> configurator) {
             configurator.accept(this);
         }
 

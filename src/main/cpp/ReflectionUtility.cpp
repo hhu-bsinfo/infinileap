@@ -631,6 +631,18 @@ ReflectionUtility::StructInfo ibv_xrcd_struct_info {
     ibv_xrcd_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_xrcd_init_attr_member_infos[] = {
+    GET_MEMBER_INFO(ibv_xrcd_init_attr, comp_mask),
+    GET_MEMBER_INFO(ibv_xrcd_init_attr, fd),
+    GET_MEMBER_INFO(ibv_xrcd_init_attr, oflags)
+};
+
+ReflectionUtility::StructInfo ibv_xrcd_init_attr_struct_info {
+    sizeof(ibv_xrcd_init_attr),
+    sizeof(ibv_xrcd_init_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+    ibv_xrcd_init_attr_member_infos
+};
+
 ReflectionUtility::MemberInfo ibv_cq_ex_member_infos[] = {
     GET_MEMBER_INFO(ibv_cq_ex, context),
     GET_MEMBER_INFO(ibv_cq_ex, channel),
@@ -759,6 +771,7 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_pci_atomic_caps", &ibv_pci_atomic_caps_struct_info},
     {"ibv_query_device_ex_input", &ibv_query_device_ex_input_struct_info},
     {"ibv_xrcd", &ibv_xrcd_struct_info},
+    {"ibv_xrcd_init_attr", &ibv_xrcd_init_attr_struct_info},
     {"ibv_srq_init_attr_ex", &ibv_srq_init_attr_ex_struct_info},
     {"ibv_tm_cap", &ibv_tm_cap_struct_info},
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},

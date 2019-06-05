@@ -79,7 +79,7 @@ public class ExtendedDeviceAttributes extends Struct {
             ",\n\trawPacketCapabilities=" + rawPacketCapabilities +
             ",\n\tmaxDeviceMemorySize=" + maxDeviceMemorySize +
             ",\n\tonDemandPagingTransportCapabilities=" + onDemandPagingTransportCapabilities +
-            ",\n\tdeviceAttributes=" + deviceAttributes +
+            ",\n\tdevice=" + deviceAttributes +
             ",\n\tonDemandPagingCapabilities=" + onDemandPagingCapabilities +
             ",\n\ttcpSegmentationOffloadCapabilities=" + tcpSegmentationOffloadCapabilities +
             ",\n\trssCapabilities=" + rssCapabilities +
@@ -430,7 +430,7 @@ public class ExtendedDeviceAttributes extends Struct {
 
         public QueryExtendedDeviceInput() {}
 
-        public QueryExtendedDeviceInput(Consumer<QueryExtendedDeviceInput> configurator) {
+        public QueryExtendedDeviceInput(final Consumer<QueryExtendedDeviceInput> configurator) {
             configurator.accept(this);
         }
 

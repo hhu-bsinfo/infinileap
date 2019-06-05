@@ -42,7 +42,7 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
         public InitialAttributes() {}
 
-        public InitialAttributes(Consumer<InitialAttributes> configurator) {
+        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
             configurator.accept(this);
         }
 

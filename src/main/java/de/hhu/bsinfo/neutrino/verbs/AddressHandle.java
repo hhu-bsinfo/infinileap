@@ -65,7 +65,7 @@ public class AddressHandle extends Struct {
 
         public Attributes() {}
 
-        public Attributes(Consumer<Attributes> configurator) {
+        public Attributes(final Consumer<Attributes> configurator) {
             configurator.accept(this);
         }
 
@@ -148,7 +148,7 @@ public class AddressHandle extends Struct {
 
         public GlobalRoute() {}
 
-        public GlobalRoute(Consumer<GlobalRoute> configurator) {
+        public GlobalRoute(final Consumer<GlobalRoute> configurator) {
             configurator.accept(this);
         }
 

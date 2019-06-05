@@ -171,7 +171,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         public ParentDomainInitialAttributes() {}
 
-        public ParentDomainInitialAttributes(Consumer<ParentDomainInitialAttributes> configurator) {
+        public ParentDomainInitialAttributes(final Consumer<ParentDomainInitialAttributes> configurator) {
             configurator.accept(this);
         }
 
