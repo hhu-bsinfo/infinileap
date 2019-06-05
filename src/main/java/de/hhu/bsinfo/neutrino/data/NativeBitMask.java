@@ -11,6 +11,11 @@ public class NativeBitMask<T extends Enum<T> & Flag> extends NativeDataType {
         super(byteBuffer, offset);
     }
 
+    @Override
+    public long getSize() {
+        return Integer.BYTES;
+    }
+
     public final int get() {
         return getByteBuffer().getInt(getOffset());
     }

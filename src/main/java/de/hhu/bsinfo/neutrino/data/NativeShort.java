@@ -9,6 +9,11 @@ public class NativeShort extends NativeDataType {
         super(byteBuffer, offset);
     }
 
+    @Override
+    public long getSize() {
+        return Short.BYTES;
+    }
+
     public void set(final short value) {
         getByteBuffer().putShort(getOffset(), value);
     }

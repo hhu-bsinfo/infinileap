@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.data;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 
-public class NativeDataType {
+public abstract class NativeDataType {
 
     private final LocalBuffer byteBuffer;
     private final long offset;
@@ -16,9 +16,11 @@ public class NativeDataType {
         return byteBuffer;
     }
 
-    protected long getOffset() {
+    public long getOffset() {
         return offset;
     }
+
+    public abstract long getSize();
 
     @Override
     public String toString() {

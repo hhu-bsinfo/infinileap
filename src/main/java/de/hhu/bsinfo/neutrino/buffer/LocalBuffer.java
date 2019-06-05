@@ -148,6 +148,10 @@ public class LocalBuffer implements NativeObject {
         return capacity;
     }
 
+    public void clear() {
+        UNSAFE.setMemory(handle, capacity, ZERO);
+    }
+
     @Override
     public long getHandle() {
         return handle;

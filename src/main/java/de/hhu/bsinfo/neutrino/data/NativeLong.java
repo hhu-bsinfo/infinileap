@@ -9,6 +9,11 @@ public class NativeLong extends NativeDataType {
         super(byteBuffer, offset);
     }
 
+    @Override
+    public long getSize() {
+        return Long.BYTES;
+    }
+
     public void set(final long value) {
         getByteBuffer().putLong(getOffset(), value);
     }

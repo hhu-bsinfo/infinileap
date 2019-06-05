@@ -33,6 +33,11 @@ public class StructUtil {
     }
 
     private static StructInformation getNativeInfo(final Class<? extends Struct> structClass) {
+        var customStruct = structClass.getAnnotation(CustomStruct.class);
+        if (customStruct != null) {
+            return new StructInformation(customStruct);
+        }
+
         var linkNative = structClass.getAnnotation(LinkNative.class);
         if (linkNative == null) {
             throw new IllegalArgumentException(String.format("%s is missing the %s annotation", structClass.getSimpleName(), LinkNative.class.getSimpleName()));
@@ -55,5 +60,12 @@ public class StructUtil {
             result.add(factory.newInstance(handle + index * size));
         }
         return result;
+    }
+
+    private static final class EmptyStructInformation extends StructInformation {
+
+        public EmptyStructInformation(long handle) {
+            super(handle);
+        }
     }
 }

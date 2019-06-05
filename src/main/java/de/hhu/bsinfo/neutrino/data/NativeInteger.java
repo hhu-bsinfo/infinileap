@@ -9,6 +9,11 @@ public class NativeInteger extends NativeDataType {
         super(byteBuffer, offset);
     }
 
+    @Override
+    public long getSize() {
+        return Integer.BYTES;
+    }
+
     public void set(final int value) {
         getByteBuffer().putInt(getOffset(), value);
     }

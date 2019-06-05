@@ -50,6 +50,11 @@ public class NativeString extends NativeDataType {
     }
 
     @Override
+    public long getSize() {
+        return length;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " " + get();
     }

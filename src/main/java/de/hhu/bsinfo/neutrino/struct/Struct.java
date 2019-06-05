@@ -14,6 +14,8 @@ public class Struct implements NativeObject {
     private final long baseOffset;
     private final String nameSpace;
 
+    private long currentFieldOffset = 0;
+
     protected Struct() {
         info = StructUtil.getInfo(getClass());
         byteBuffer = LocalBuffer.allocate(info.getSize());
@@ -50,6 +52,10 @@ public class Struct implements NativeObject {
         }
     }
 
+    public void clear() {
+        byteBuffer.clear();
+    }
+
     @Override
     public long getHandle() {
         return handle;
@@ -68,12 +74,24 @@ public class Struct implements NativeObject {
         return new NativeByte(byteBuffer, offset);
     }
 
+    protected final NativeByte byteField() {
+        var field = new NativeByte(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final NativeShort shortField(String identifier) {
         return new NativeShort(byteBuffer, offsetOf(identifier));
     }
 
     protected final NativeShort shortField(long offset) {
         return new NativeShort(byteBuffer, offset);
+    }
+
+    protected final NativeShort shortField() {
+        var field = new NativeShort(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
     }
 
     protected final NativeInteger integerField(String identifier) {
@@ -84,12 +102,24 @@ public class Struct implements NativeObject {
         return new NativeInteger(byteBuffer, offset);
     }
 
+    protected final NativeInteger integerField(NativeDataType predecessor) {
+        var field = new NativeInteger(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final NativeLong longField(String identifier) {
         return new NativeLong(byteBuffer, offsetOf(identifier));
     }
 
     protected final NativeLong longField(long offset) {
         return new NativeLong(byteBuffer, offset);
+    }
+
+    protected final NativeLong longField() {
+        var field = new NativeLong(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
     }
 
     protected final NativeBoolean booleanField(String identifier) {
@@ -100,12 +130,24 @@ public class Struct implements NativeObject {
         return new NativeBoolean(byteBuffer, offset);
     }
 
+    protected final NativeBoolean booleanField() {
+        var field = new NativeBoolean(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(String identifier) {
         return new NativeBitMask<>(byteBuffer, offsetOf(identifier));
     }
 
     protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(long offset) {
         return new NativeBitMask<>(byteBuffer, offset);
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField() {
+        var field = new NativeBitMask<T>(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
     }
 
     protected final NativeString stringField(String identifier, int length) {
@@ -116,6 +158,12 @@ public class Struct implements NativeObject {
         return new NativeString(byteBuffer, offset, length);
     }
 
+    protected final NativeString stringField(int length) {
+        var field = new NativeString(byteBuffer, currentFieldOffset, length);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter) {
         return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter);
     }
@@ -124,12 +172,24 @@ public class Struct implements NativeObject {
         return new NativeEnum<>(byteBuffer, offset, converter);
     }
 
+    protected final <T extends Enum<T>> NativeEnum<T> enumField(EnumConverter<T> converter) {
+        var field = new NativeEnum<T>(byteBuffer, currentFieldOffset, converter);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final <T extends NativeObject> T valueField(String identifier, ValueFactory<T> factory) {
         return factory.newInstance(byteBuffer, offsetOf(identifier));
     }
 
     protected final <T extends NativeObject> T valueField(long offset, ValueFactory<T> factory) {
         return factory.newInstance(byteBuffer, offset);
+    }
+
+    protected final <T extends NativeObject> T valueField(ValueFactory<T> factory) {
+        var field = factory.newInstance(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getNativeSize();
+        return field;
     }
 
     protected final <T extends NativeObject> T referenceField(String identifier, ReferenceFactory<T> factory) {

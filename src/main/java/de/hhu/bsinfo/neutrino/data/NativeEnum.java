@@ -21,6 +21,11 @@ public class NativeEnum<T extends Enum<T>> extends NativeDataType {
     }
 
     @Override
+    public long getSize() {
+        return Integer.BYTES;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " " + get().name();
     }

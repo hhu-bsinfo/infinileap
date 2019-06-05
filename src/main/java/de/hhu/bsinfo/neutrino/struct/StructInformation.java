@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.util.CustomStruct;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
 
@@ -16,16 +17,27 @@ public class StructInformation implements NativeObject {
 
     public static final int SIZE = 16;
 
+    private final LocalBuffer buffer;
     public final NativeInteger size;
     public final NativeInteger memberCount;
     public final NativeLong memberInfoHandle;
     private final Map<String, Integer> offsetInfoMap;
 
+    public StructInformation(CustomStruct annotation) {
+        buffer = LocalBuffer.allocate(SIZE);
+        size = new NativeInteger(buffer, 0);
+        memberCount = new NativeInteger(buffer, 4);
+        memberInfoHandle = new NativeLong(buffer, 8);
+        offsetInfoMap = null;
+
+        size.set(annotation.value());
+    }
+
     public StructInformation(long handle) {
-        var byteBuffer = LocalBuffer.wrap(handle, SIZE);
-        size = new NativeInteger(byteBuffer, 0);
-        memberCount = new NativeInteger(byteBuffer, 4);
-        memberInfoHandle = new NativeLong(byteBuffer, 8);
+        buffer = LocalBuffer.wrap(handle, SIZE);
+        size = new NativeInteger(buffer, 0);
+        memberCount = new NativeInteger(buffer, 4);
+        memberInfoHandle = new NativeLong(buffer, 8);
         offsetInfoMap = StructUtil.wrap(
                             MemberInformation::new,
                             memberInfoHandle.get(),

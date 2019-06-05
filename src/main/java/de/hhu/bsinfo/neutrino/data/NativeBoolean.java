@@ -12,6 +12,11 @@ public class NativeBoolean extends NativeDataType {
         super(byteBuffer, offset);
     }
 
+    @Override
+    public long getSize() {
+        return Byte.BYTES;
+    }
+
     @SuppressWarnings("BooleanParameter")
     public void set(final boolean value) {
         getByteBuffer().put(getOffset(), value ? TRUE : FALSE);
