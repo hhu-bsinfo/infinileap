@@ -173,6 +173,14 @@ public class LocalBuffer implements NativeObject {
         return new LocalBuffer(handle, capacity, FAKE_PARENT);
     }
 
+    @Override
+    public String toString() {
+        return "LocalBuffer {\n" +
+                "\taddress=" + handle +
+                ",\n\tcapacity=" + capacity +
+                "\n}";
+    }
+
     private static final class Destructor implements Runnable {
 
         private final long handle;

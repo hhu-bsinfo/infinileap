@@ -124,7 +124,8 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     @Override
     public String toString() {
         return "RegisteredBuffer {" +
-            "\n\tmemoryRegion=" + memoryRegion +
+            "\n\t" + super.toString() +
+            ",\n\tmemoryRegion=" + memoryRegion +
             "\n}";
     }
 
