@@ -2,6 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
+import de.hhu.bsinfo.neutrino.data.NativeBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -22,11 +23,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
     private final Context context = referenceField("context", Context::new);
     private final NativeLong userContext = longField("srq_context");
-    // TODO: Setting the protection domain to null is just an ugly hack,needed because when creating
-    //       an extended shared receive queue the protection domain handle contains garbage
-    //       and referencing it results in a segmentation fault.
-    //       We should find out, why this happens and try to fix it.
-    private final ProtectionDomain protectionDomain = null;
+    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
     SharedReceiveQueue(long handle) {
@@ -49,7 +46,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         return eventsCompleted;
     }
 
-    public boolean modify(Attributes attributes, AttributesFlag... flags) {
+    public boolean modify(Attributes attributes, AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
@@ -91,12 +88,28 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
     }
 
-    public enum AttributesFlag implements Flag {
+    public enum AttributeFlag implements Flag {
         MAX_WR(1), LIMIT(1 << 1);
 
         private final int value;
 
-        AttributesFlag(int value) {
+        AttributeFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public enum ExtendedAttributeFlag implements Flag {
+        TYPE(1), PD(1 << 1), XRCD(1 << 2),
+        CQ(1 << 3), TM(1 << 4), RESERVED(1 << 5);
+
+        private final int value;
+
+        ExtendedAttributeFlag(int value) {
             this.value = value;
         }
 
@@ -149,36 +162,6 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         };
     }
 
-    @LinkNative(value = "ibv_srq_init_attr")
-    public static final class InitialAttributes extends Struct {
-
-        private final NativeLong userContext = longField("srq_context");
-
-        public final Attributes attributes = valueField("attr", Attributes::new);
-
-        public InitialAttributes() {}
-
-        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
-            configurator.accept(this);
-        }
-
-        public long getUserContext() {
-            return userContext.get();
-        }
-
-        public void setUserContext(long value) {
-            this.userContext.set(value);
-        }
-
-        @Override
-        public String toString() {
-            return "InitialAttributes {" +
-                "\n\tuserContext=" + userContext +
-                ",\n\tattributes=" + attributes +
-                "\n}";
-        }
-    }
-
     @LinkNative(value = "ibv_srq_attr")
     public static final class Attributes extends Struct {
 
@@ -226,11 +209,41 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         }
     }
 
+    @LinkNative(value = "ibv_srq_init_attr")
+    public static final class InitialAttributes extends Struct {
+
+        private final NativeLong userContext = longField("srq_context");
+
+        public final Attributes attributes = valueField("attr", Attributes::new);
+
+        public InitialAttributes() {}
+
+        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
+            configurator.accept(this);
+        }
+
+        public long getUserContext() {
+            return userContext.get();
+        }
+
+        public void setUserContext(long value) {
+            this.userContext.set(value);
+        }
+
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                "\n\tuserContext=" + userContext +
+                ",\n\tattributes=" + attributes +
+                "\n}";
+        }
+    }
+
     @LinkNative("ibv_srq_init_attr_ex")
     public static final class ExtendedInitialAttributes extends Struct {
 
         private final NativeLong userContext = longField("srq_context");
-        private final NativeInteger compatibilityMask = integerField("comp_mask");
+        private final NativeBitMask<ExtendedAttributeFlag> attributesMask = bitField("comp_mask");
         private final NativeEnum<Type> type = enumField("srq_type", Type.CONVERTER);
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong extendedConnectionDomain = longField("xrcd");
@@ -250,7 +263,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         }
 
         public int getCompatibilityMask() {
-            return compatibilityMask.get();
+            return attributesMask.get();
         }
 
         public Type getType() {
@@ -273,8 +286,8 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             userContext.set(value);
         }
 
-        public void setCompatibilityMask(final int value) {
-            compatibilityMask.set(value);
+        public void setAttributesMask(final ExtendedAttributeFlag... flags) {
+            attributesMask.set(flags);
         }
 
         public void setType(final Type value) {
@@ -285,8 +298,8 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             this.protectionDomain.set(protectionDomain.getHandle());
         }
 
-        public void setExtendedConnectionDomain(final long value) {
-            extendedConnectionDomain.set(value);
+        public void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+            this.extendedConnectionDomain.set(extendedConnectionDomain.getHandle());
         }
 
         public void setCompletionQueue(final CompletionQueue completionQueue) {
@@ -297,7 +310,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         public String toString() {
             return "ExtendedInitialAttributes {" +
                 "\n\tuserContext=" + userContext +
-                ",\n\tcompatibilityMask=" + compatibilityMask +
+                ",\n\tattributesMask=" + attributesMask +
                 ",\n\ttype=" + type +
                 ",\n\tprotectionDomain=" + protectionDomain +
                 ",\n\textendedConnectionDomain=" + extendedConnectionDomain +
