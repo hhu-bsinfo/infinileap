@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 public class NativeInteger extends NativeDataType {
 
-    public NativeInteger(final LocalBuffer byteBuffer, final int offset) {
+    public NativeInteger(final LocalBuffer byteBuffer, final long offset) {
         super(byteBuffer, offset);
     }
 

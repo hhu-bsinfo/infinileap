@@ -59,7 +59,7 @@ public class AddressHandle extends Struct {
 
         public final GlobalRoute globalRoute = valueField("grh", GlobalRoute::new);
 
-        Attributes(LocalBuffer byteBuffer, int offset) {
+        Attributes(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
         }
 
@@ -142,7 +142,7 @@ public class AddressHandle extends Struct {
         private final NativeByte hopLimit = byteField("hop_limit");
         private final NativeByte trafficClass = byteField("traffic_class");
 
-        GlobalRoute(LocalBuffer byteBuffer, int offset) {
+        GlobalRoute(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
         }
 

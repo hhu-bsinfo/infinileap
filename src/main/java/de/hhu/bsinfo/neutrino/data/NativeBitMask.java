@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class NativeBitMask<T extends Enum<T> & Flag> extends NativeDataType {
 
-    public NativeBitMask(LocalBuffer byteBuffer, int offset) {
+    public NativeBitMask(LocalBuffer byteBuffer, final long offset) {
         super(byteBuffer, offset);
     }
 

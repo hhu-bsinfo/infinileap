@@ -171,7 +171,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         Attributes() {}
 
-        Attributes(LocalBuffer buffer, int offset) {
+        Attributes(LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -327,7 +327,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         private final NativeInteger maxTags = integerField("max_num_tags");
         private final NativeInteger maxOperations = integerField("max_ops");
 
-        TagMatchingCapabilities(LocalBuffer buffer, int offset) {
+        TagMatchingCapabilities(LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 

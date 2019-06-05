@@ -8,7 +8,7 @@ public class NativeBoolean extends NativeDataType {
     private static final byte FALSE = 0;
     private static final byte TRUE = 1;
 
-    public NativeBoolean(LocalBuffer byteBuffer, int offset) {
+    public NativeBoolean(LocalBuffer byteBuffer, final long offset) {
         super(byteBuffer, offset);
     }
 

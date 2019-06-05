@@ -171,7 +171,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         private final NativeLong length = longField("length");
         private final NativeBitMask<AccessFlag> accessFlags = bitField("mw_access_flags");
 
-        BindInformation(final LocalBuffer buffer, final int offset) {
+        BindInformation(final LocalBuffer buffer, final long offset) {
             super(buffer, offset);
         }
 

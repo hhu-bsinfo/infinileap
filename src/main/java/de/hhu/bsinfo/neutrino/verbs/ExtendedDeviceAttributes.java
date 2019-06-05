@@ -97,7 +97,7 @@ public class ExtendedDeviceAttributes extends Struct {
 
         final PerTransportCapabilities perTransportCapabilities = anonymousField(PerTransportCapabilities::new);
 
-        OnDemandPagingCapabilities(final LocalBuffer buffer, int offset) {
+        OnDemandPagingCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -153,7 +153,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxTcpSegmentOffloading = integerField("max_tso");
         private final NativeBitMask<TypeFlag> supportedQueuePairTypes = bitField("supported_qpts");
 
-        TcpSegmentOffloadingCapabilities(LocalBuffer buffer, int offset) {
+        TcpSegmentOffloadingCapabilities(LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -217,7 +217,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeBitMask<RxHashField> rxHashFields = bitField("rx_hash_fields_mask");
         private final NativeBitMask<RxHashFunction> rxHashFunction = bitField("rx_hash_function");
 
-        RssCapabilities(final LocalBuffer buffer, int offset) {
+        RssCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -260,7 +260,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxQueuePairRateLimit = integerField("qp_rate_limit_max");
         private final NativeBitMask<TypeFlag> supportedQueuePairTypes = bitField("supported_qpts");
 
-        PacketPacingCapabilities(final LocalBuffer buffer, int offset) {
+        PacketPacingCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -310,7 +310,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxOutstandingOperations = integerField("max_ops");
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
 
-        TagMatchingCapabilities(final LocalBuffer buffer, int offset) {
+        TagMatchingCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -352,7 +352,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeShort maxCompletionQueueCount = shortField("max_cq_count");
         private final NativeShort maxCompletionQueuePeriod = shortField("max_cq_period");
 
-        CompletionQueueModerationCapabilities(final LocalBuffer buffer, int offset) {
+        CompletionQueueModerationCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 
@@ -397,7 +397,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeBitMask<PciAtomicOperationSize> swap = bitField("swap");
         private final NativeBitMask<PciAtomicOperationSize> compareAndSwap = bitField("compare_swap");
 
-        PciAtomicCapabilities(final LocalBuffer buffer, int offset) {
+        PciAtomicCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
         }
 

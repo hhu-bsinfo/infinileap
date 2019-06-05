@@ -1,34 +1,17 @@
 package de.hhu.bsinfo.neutrino.struct;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeBoolean;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
-import de.hhu.bsinfo.neutrino.data.NativeString;
-import de.hhu.bsinfo.neutrino.util.AnonymousFactory;
-import de.hhu.bsinfo.neutrino.util.Flag;
-import de.hhu.bsinfo.neutrino.util.MemoryUtil;
-import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
-import de.hhu.bsinfo.neutrino.util.StructUtil;
-import de.hhu.bsinfo.neutrino.util.ValueFactory;
+import de.hhu.bsinfo.neutrino.data.*;
+import de.hhu.bsinfo.neutrino.util.*;
+
 import java.lang.ref.Cleaner;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class Struct implements NativeObject {
-
-    private static final Cleaner CLEANER = Cleaner.create();
 
     private final StructInformation info;
     private final LocalBuffer byteBuffer;
     private final long handle;
-    private final int baseOffset;
+    private final long baseOffset;
     private final String nameSpace;
 
     protected Struct() {
@@ -47,7 +30,7 @@ public class Struct implements NativeObject {
         this.handle = handle;
     }
 
-    protected Struct(LocalBuffer buffer, int offset) {
+    protected Struct(LocalBuffer buffer, long offset) {
         info = StructUtil.getInfo(getClass());
         byteBuffer = buffer;
         handle = buffer.getHandle();
@@ -81,41 +64,81 @@ public class Struct implements NativeObject {
         return new NativeByte(byteBuffer, offsetOf(identifier));
     }
 
+    protected final NativeByte byteField(long offset) {
+        return new NativeByte(byteBuffer, offset);
+    }
+
     protected final NativeShort shortField(String identifier) {
         return new NativeShort(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final NativeShort shortField(long offset) {
+        return new NativeShort(byteBuffer, offset);
     }
 
     protected final NativeInteger integerField(String identifier) {
         return new NativeInteger(byteBuffer, offsetOf(identifier));
     }
 
+    protected final NativeInteger integerField(long offset) {
+        return new NativeInteger(byteBuffer, offset);
+    }
+
     protected final NativeLong longField(String identifier) {
         return new NativeLong(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final NativeLong longField(long offset) {
+        return new NativeLong(byteBuffer, offset);
     }
 
     protected final NativeBoolean booleanField(String identifier) {
         return new NativeBoolean(byteBuffer, offsetOf(identifier));
     }
 
+    protected final NativeBoolean booleanField(long offset) {
+        return new NativeBoolean(byteBuffer, offset);
+    }
+
     protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(String identifier) {
         return new NativeBitMask<>(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(long offset) {
+        return new NativeBitMask<>(byteBuffer, offset);
     }
 
     protected final NativeString stringField(String identifier, int length) {
         return new NativeString(byteBuffer, offsetOf(identifier), length);
     }
 
+    protected final NativeString stringField(long offset, int length) {
+        return new NativeString(byteBuffer, offset, length);
+    }
+
     protected final <T extends Enum<T>> NativeEnum<T> enumField(String identifier, EnumConverter<T> converter) {
         return new NativeEnum<>(byteBuffer, offsetOf(identifier), converter);
+    }
+
+    protected final <T extends Enum<T>> NativeEnum<T> enumField(long offset, EnumConverter<T> converter) {
+        return new NativeEnum<>(byteBuffer, offset, converter);
     }
 
     protected final <T extends NativeObject> T valueField(String identifier, ValueFactory<T> factory) {
         return factory.newInstance(byteBuffer, offsetOf(identifier));
     }
 
+    protected final <T extends NativeObject> T valueField(long offset, ValueFactory<T> factory) {
+        return factory.newInstance(byteBuffer, offset);
+    }
+
     protected final <T extends NativeObject> T referenceField(String identifier, ReferenceFactory<T> factory) {
         long referenceHandle = byteBuffer.getLong(offsetOf(identifier));
+        return referenceHandle == 0 ? null : factory.newInstance(referenceHandle);
+    }
 
+    protected final <T extends NativeObject> T referenceField(long offset, ReferenceFactory<T> factory) {
+        long referenceHandle = byteBuffer.getLong(offset);
         return referenceHandle == 0 ? null : factory.newInstance(referenceHandle);
     }
 
@@ -123,23 +146,9 @@ public class Struct implements NativeObject {
         return factory.newInstance(byteBuffer);
     }
 
-    private int offsetOf(String identifier) {
+    private long offsetOf(String identifier) {
         return nameSpace == null ?
             baseOffset + info.getOffset(identifier) :
             baseOffset + info.getOffset(nameSpace + identifier);
-    }
-
-    private static final class StructCleaner implements Runnable {
-
-        private final long handle;
-
-        private StructCleaner(long handle) {
-            this.handle = handle;
-        }
-
-        @Override
-        public void run() {
-            MemoryUtil.free(handle);
-        }
     }
 }

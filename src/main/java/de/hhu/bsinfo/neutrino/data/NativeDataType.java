@@ -5,9 +5,9 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 public class NativeDataType {
 
     private final LocalBuffer byteBuffer;
-    private final int offset;
+    private final long offset;
 
-    public NativeDataType(final LocalBuffer byteBuffer, final int offset) {
+    public NativeDataType(final LocalBuffer byteBuffer, final long offset) {
         this.byteBuffer = byteBuffer;
         this.offset = offset;
     }
@@ -16,7 +16,7 @@ public class NativeDataType {
         return byteBuffer;
     }
 
-    protected int getOffset() {
+    protected long getOffset() {
         return offset;
     }
 

@@ -451,7 +451,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         public Capabilities() {
         }
 
-        public Capabilities(LocalBuffer byteBuffer, int offset) {
+        public Capabilities(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
         }
 
