@@ -126,6 +126,10 @@ public final class Verbs {
 
     static native void createExtendedSharedReceiveQueue(long contextHandle, long attributesHandle, long resultHandle);
 
+    static native void createWorkQueue(long contextHandle, long attributesHandle, long resultHandle);
+    static native void modifyWorkQueue(long workQueueHandle, long attributesHandle, long resultHandle);
+    static native void destroyWorkQueue(long workQueueHandle, long resultHandle);
+
     // Dummy methods for benchmarking JNI overhead
     public static native void benchmarkDummyMethod1(long resultHandle);
     public static native long benchmarkDummyMethod2();

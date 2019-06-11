@@ -140,6 +140,15 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         return ret;
     }
 
+    @Override
+    public void close() {
+        CompletionQueue completionQueue = toCompletionQueue();
+
+        if(completionQueue != null) {
+            completionQueue.close();
+        }
+    }
+
     public Context getContext() {
         return context;
     }
@@ -178,15 +187,6 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
                 ",\n\tstatus=" + status +
                 ",\n\tworkRequestId=" + workRequestId +
                 "\n}";
-    }
-
-    @Override
-    public void close() {
-        CompletionQueue completionQueue = toCompletionQueue();
-
-        if(completionQueue != null) {
-            completionQueue.close();
-        }
     }
 
     public enum WorkCompletionCapability implements Flag {

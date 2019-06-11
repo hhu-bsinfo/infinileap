@@ -731,6 +731,58 @@ ReflectionUtility::StructInfo ibv_qp_ex_struct_info {
     ibv_qp_ex_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_wq_member_infos[] = {
+        GET_MEMBER_INFO(ibv_wq, context),
+        GET_MEMBER_INFO(ibv_wq, wq_context),
+        GET_MEMBER_INFO(ibv_wq, pd),
+        GET_MEMBER_INFO(ibv_wq, cq),
+        GET_MEMBER_INFO(ibv_wq, wq_num),
+        GET_MEMBER_INFO(ibv_wq, handle),
+        GET_MEMBER_INFO(ibv_wq, state),
+        GET_MEMBER_INFO(ibv_wq, wq_type),
+        GET_MEMBER_INFO(ibv_wq, mutex),
+        GET_MEMBER_INFO(ibv_wq, cond),
+        GET_MEMBER_INFO(ibv_wq, events_completed),
+        GET_MEMBER_INFO(ibv_wq, comp_mask)
+};
+
+ReflectionUtility::StructInfo ibv_wq_struct_info {
+        sizeof(ibv_wq),
+        sizeof(ibv_wq_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        ibv_wq_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_wq_init_attr_member_infos[] = {
+        GET_MEMBER_INFO(ibv_wq_init_attr, wq_context),
+        GET_MEMBER_INFO(ibv_wq_init_attr, wq_type),
+        GET_MEMBER_INFO(ibv_wq_init_attr, max_wr),
+        GET_MEMBER_INFO(ibv_wq_init_attr, max_sge),
+        GET_MEMBER_INFO(ibv_wq_init_attr, pd),
+        GET_MEMBER_INFO(ibv_wq_init_attr, cq),
+        GET_MEMBER_INFO(ibv_wq_init_attr, comp_mask),
+        GET_MEMBER_INFO(ibv_wq_init_attr, create_flags)
+};
+
+ReflectionUtility::StructInfo ibv_wq_init_attr_struct_info {
+        sizeof(ibv_wq_init_attr),
+        sizeof(ibv_wq_init_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        ibv_wq_init_attr_member_infos
+};
+
+ReflectionUtility::MemberInfo ibv_wq_attr_member_infos[] = {
+        GET_MEMBER_INFO(ibv_wq_attr, attr_mask),
+        GET_MEMBER_INFO(ibv_wq_attr, wq_state),
+        GET_MEMBER_INFO(ibv_wq_attr, curr_wq_state),
+        GET_MEMBER_INFO(ibv_wq_attr, flags),
+        GET_MEMBER_INFO(ibv_wq_attr, flags_mask)
+};
+
+ReflectionUtility::StructInfo ibv_wq_attr_struct_info {
+        sizeof(ibv_wq_attr),
+        sizeof(ibv_wq_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        ibv_wq_attr_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -777,6 +829,9 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_cq_ex", &ibv_cq_ex_struct_info},
     {"ibv_cq_init_attr_ex", &ibv_cq_init_attr_ex_struct_info},
     {"ibv_poll_cq_attr", &ibv_poll_cq_attr_struct_info},
+    {"ibv_wq", &ibv_wq_struct_info},
+    {"ibv_wq_init_attr", &ibv_wq_init_attr_struct_info},
+    {"ibv_wq_attr", &ibv_wq_attr_struct_info},
     {"ibv_qp_ex", &ibv_qp_ex_struct_info},
 };
 

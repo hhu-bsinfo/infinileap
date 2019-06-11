@@ -581,6 +581,31 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedSha
     NativeCall::setResult(result, sharedReceiveQueue == nullptr ? errno : 0, sharedReceiveQueue);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createWorkQueue (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_wq_init_attr>(attributesHandle);
+
+    auto workQueue = ibv_create_wq(context, attributes);
+
+    NativeCall::setResult(result, workQueue == nullptr ? errno : 0, workQueue);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyWorkQueue (JNIEnv *, jclass, jlong workQueueHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto workQueue = NativeCall::castHandle<ibv_wq>(workQueueHandle);
+    auto attributes = NativeCall::castHandle<ibv_wq_attr>(attributesHandle);
+
+    NativeCall::setResult(result, ibv_modify_wq(workQueue, attributes), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyWorkQueue (JNIEnv *, jclass, jlong workQueueHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto workQueue = NativeCall::castHandle<ibv_wq>(workQueueHandle);
+
+    NativeCall::setResult(result, ibv_destroy_wq(workQueue), 0);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1 (JNIEnv *env, jclass clazz, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 

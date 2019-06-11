@@ -3,12 +3,13 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
-import de.hhu.bsinfo.neutrino.verbs.ExtendedConnectionDomain.InitalAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
 import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.ParentDomainInitialAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.annotation.Native;
 
 public class Context implements NativeObject, AutoCloseable {
 
@@ -239,5 +240,17 @@ public class Context implements NativeObject, AutoCloseable {
         }
 
         return result.getAndRelease(ExtendedCompletionQueue::new);
+    }
+
+    @Nullable
+    public WorkQueue createWorkQueue(WorkQueue.InitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating work queue failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(WorkQueue::new);
     }
 }
