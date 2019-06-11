@@ -58,20 +58,20 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
         return memoryRegion.getRemoteKey();
     }
 
-    public void read(RemoteBuffer remoteBuffer) {
-        read(0, remoteBuffer, 0, remoteBuffer.capacity());
+    public long read(RemoteBuffer remoteBuffer) {
+        return read(0, remoteBuffer, 0, remoteBuffer.capacity());
     }
 
-    public void read(long index, RemoteBuffer remoteBuffer, long offset, long length) {
-        remoteBuffer.read(index, this, offset, length);
+    public long read(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+        return remoteBuffer.read(index, this, offset, length);
     }
 
-    public void write(RemoteBuffer remoteBuffer) {
-        write(0, remoteBuffer, 0, remoteBuffer.capacity());
+    public long write(RemoteBuffer remoteBuffer) {
+        return write(0, remoteBuffer, 0, remoteBuffer.capacity());
     }
 
-    public void write(long index, RemoteBuffer remoteBuffer, long offset, long length) {
-        remoteBuffer.write(index, this, offset, length);
+    public long write(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+        return remoteBuffer.write(index, this, offset, length);
     }
 
     public ScatterGatherElement.Array split() {

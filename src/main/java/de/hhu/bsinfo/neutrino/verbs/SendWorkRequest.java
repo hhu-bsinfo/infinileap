@@ -13,6 +13,7 @@ import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_send_wr")
@@ -78,6 +79,8 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         }
     }
 
+    private static final AtomicLong ID_COUNTER = new AtomicLong(0);
+
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
     private final NativeLong listHandle = longField("sg_list");
@@ -91,18 +94,17 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
     public final Atomic atomic = anonymousField(Atomic::new);
     public final Unreliable ud = anonymousField(Unreliable::new);
 
-    public SendWorkRequest() {}
+    public SendWorkRequest() {
+        id.set(ID_COUNTER.getAndIncrement());
+    }
 
     public SendWorkRequest(final Consumer<SendWorkRequest> configurator) {
         configurator.accept(this);
+        id.set(ID_COUNTER.getAndIncrement());
     }
 
     public long getId() {
         return id.get();
-    }
-
-    public void setId(long id) {
-        this.id.set(id);
     }
 
     public long getNext() {
