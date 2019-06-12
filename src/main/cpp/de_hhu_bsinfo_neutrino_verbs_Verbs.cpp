@@ -606,6 +606,23 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyWorkQueue 
     NativeCall::setResult(result, ibv_destroy_wq(workQueue), 0);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createReceiveWorkQueueIndirectionTable (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_rwq_ind_table_init_attr>(attributesHandle);
+
+    auto indirectionTable = ibv_create_rwq_ind_table(context, attributes);
+
+    NativeCall::setResult(result, indirectionTable == nullptr ? errno : 0, indirectionTable);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyReceiveWorkQueueIndirectionTable (JNIEnv *env, jclass clazz, jlong tableHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto table = NativeCall::castHandle<ibv_rwq_ind_table>(tableHandle);
+
+    NativeCall::setResult(result, ibv_destroy_rwq_ind_table(table), 0);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1 (JNIEnv *env, jclass clazz, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
 

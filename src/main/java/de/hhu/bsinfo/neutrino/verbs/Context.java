@@ -253,4 +253,16 @@ public class Context implements NativeObject, AutoCloseable {
 
         return result.getAndRelease(WorkQueue::new);
     }
+
+    @Nullable
+    public ReceiveWorkQueueIndirectionTable createReceiveWorkQueueIndirectionTable(ReceiveWorkQueueIndirectionTable.InitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createReceiveWorkQueueIndirectionTable(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating receive work queue indirection table failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
+    }
 }

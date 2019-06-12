@@ -129,6 +129,8 @@ public final class Verbs {
     static native void createWorkQueue(long contextHandle, long attributesHandle, long resultHandle);
     static native void modifyWorkQueue(long workQueueHandle, long attributesHandle, long resultHandle);
     static native void destroyWorkQueue(long workQueueHandle, long resultHandle);
+    static native void createReceiveWorkQueueIndirectionTable(long contextHandle, long attributesHandle, long resultHandle);
+    static native void destroyReceiveWorkQueueIndirectionTable(long tableHandle, long resultHandle);
 
     // Dummy methods for benchmarking JNI overhead
     public static native void benchmarkDummyMethod1(long resultHandle);

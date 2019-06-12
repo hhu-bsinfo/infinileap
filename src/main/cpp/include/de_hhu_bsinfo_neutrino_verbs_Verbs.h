@@ -603,6 +603,22 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyWorkQueue
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    createReceiveWorkQueueIndirectionTable
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createReceiveWorkQueueIndirectionTable
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    destroyReceiveWorkQueueIndirectionTable
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyReceiveWorkQueueIndirectionTable
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
  * Method:    benchmarkDummyMethod1
  * Signature: (J)V
  */

@@ -11,7 +11,6 @@ import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
