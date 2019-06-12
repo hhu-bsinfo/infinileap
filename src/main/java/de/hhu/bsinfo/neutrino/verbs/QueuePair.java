@@ -80,7 +80,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     public boolean postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) {
-        return postSend((sendWorkRequests.getHandle()));
+        return postSend(sendWorkRequests.getHandle());
     }
 
     public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {

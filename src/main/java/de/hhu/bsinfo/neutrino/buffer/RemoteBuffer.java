@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.buffer;
 
-import de.hhu.bsinfo.neutrino.request.CompletionManager;
+import de.hhu.bsinfo.neutrino.api.request.CompletionManager;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.OpCode;

@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.neutrino.queue;
+package de.hhu.bsinfo.neutrino.api.queue;
 
 import de.hhu.bsinfo.neutrino.scheduler.Schedulers;
 import de.hhu.bsinfo.neutrino.verbs.CompletionChannel;
@@ -12,35 +12,34 @@ import java.io.Closeable;
 
 public class QueueProcessor extends Thread implements Closeable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueueProcessor.class);
-
-    public interface Listener {
-        void onComplete(long id);
-        void onError(long id, WorkCompletion.Status status);
+    public enum Mode {
+        QUEUE, CHANNEL
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueProcessor.class);
 
     private final CompletionQueue[] completionQueues;
     private final CompletionChannel completionChannel;
 
     private final WorkCompletionArray completionArray = new WorkCompletionArray(100);
-    private final Listener listener;
+    private final CompletionHandler handler;
 
-    private transient boolean isRunning = true;
+    private volatile boolean isRunning = true;
 
     private static final String THREAD_NAME = "proc";
 
-    public QueueProcessor(final Listener listener, final CompletionQueue... completionQueues) {
+    public QueueProcessor(final CompletionHandler handler, final CompletionQueue... completionQueues) {
         super(THREAD_NAME);
         this.completionQueues = completionQueues;
         this.completionChannel = null;
-        this.listener = listener;
+        this.handler = handler;
     }
 
-    public QueueProcessor(final Listener listener, final CompletionChannel completionChannel) {
+    public QueueProcessor(final CompletionHandler handler, final CompletionChannel completionChannel) {
         super(THREAD_NAME);
         this.completionQueues = null;
         this.completionChannel = completionChannel;
-        this.listener = listener;
+        this.handler = handler;
     }
 
     @Override
@@ -97,10 +96,10 @@ public class QueueProcessor extends Thread implements Closeable {
     }
 
     private void notifyComplete(final long id) {
-        Schedulers.computation(() -> listener.onComplete(id));
+        Schedulers.computation(() -> handler.onComplete(id));
     }
 
     private void notifyError(final long id, final WorkCompletion.Status status) {
-        Schedulers.computation(() -> listener.onError(id, status));
+        Schedulers.computation(() -> handler.onError(id, status));
     }
 }

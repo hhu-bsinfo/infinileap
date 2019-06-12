@@ -1,6 +1,7 @@
-package de.hhu.bsinfo.neutrino.request;
+package de.hhu.bsinfo.neutrino.api.request;
 
-import de.hhu.bsinfo.neutrino.queue.QueueProcessor;
+import de.hhu.bsinfo.neutrino.api.queue.CompletionHandler;
+import de.hhu.bsinfo.neutrino.api.queue.QueueProcessor;
 import de.hhu.bsinfo.neutrino.verbs.CompletionChannel;
 import de.hhu.bsinfo.neutrino.verbs.CompletionQueue;
 import de.hhu.bsinfo.neutrino.verbs.WorkCompletion;
@@ -11,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.stream.IntStream;
 
-public class CompletionManager implements QueueProcessor.Listener {
+public class CompletionManager implements CompletionHandler{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionManager.class);
 
@@ -28,12 +29,10 @@ public class CompletionManager implements QueueProcessor.Listener {
 
     public CompletionManager(CompletionQueue... completionQueues) {
         queueProcessor = new QueueProcessor(this, completionQueues);
-        queueProcessor.start();
     }
 
     public CompletionManager(CompletionChannel completionChannel) {
         queueProcessor = new QueueProcessor(this, completionChannel);
-        queueProcessor.start();
     }
 
     public void setPending(long id) {
@@ -58,6 +57,10 @@ public class CompletionManager implements QueueProcessor.Listener {
         completions[index].set(Status.FULFILLED);
     }
 
+    private int getIndex(long id) {
+        return (int) (id % completions.length);
+    }
+
     @Override
     public void onComplete(long id) {
         setFulfilled(id);
@@ -67,9 +70,5 @@ public class CompletionManager implements QueueProcessor.Listener {
     public void onError(long id, WorkCompletion.Status status) {
         LOGGER.error("Request with id {} failed [{}]", id, status);
         setFulfilled(id);
-    }
-
-    private int getIndex(long id) {
-        return (int) (id % completions.length);
     }
 }
