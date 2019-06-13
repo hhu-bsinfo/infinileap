@@ -35,6 +35,20 @@ public class WorkQueue extends Struct implements AutoCloseable {
         super(buffer, offset);
     }
 
+    private boolean postReceive(final long receiveWorkRequestsHandle) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.postReceiveWorkRequestWorkQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting receive work requests to work queue failed with error [{}]", result.getStatus());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
+    }
+
     public boolean modify(Attributes attributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -49,6 +63,13 @@ public class WorkQueue extends Struct implements AutoCloseable {
         return !isError;
     }
 
+    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
+        return postReceive(receiveWorkRequest.getHandle());
+    }
+
+    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
+        return postReceive(receiveWorkRequests.getHandle());
+    }
     @Override
     public void close() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);

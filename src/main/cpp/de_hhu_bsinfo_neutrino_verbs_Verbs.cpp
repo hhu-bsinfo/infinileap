@@ -376,7 +376,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair (J
     NativeCall::setResult(result, ibv_query_qp(queuePair, attributes, attributesMask, initialAttributes), 0);
 }
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequestQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto workRequest = NativeCall::castHandle<ibv_send_wr>(workRequestHandle);
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
@@ -386,7 +386,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkReque
 }
 
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequestQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong workRequestHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto workRequest = NativeCall::castHandle<ibv_recv_wr>(workRequestHandle);
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
@@ -597,6 +597,15 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyWorkQueue (
     auto attributes = NativeCall::castHandle<ibv_wq_attr>(attributesHandle);
 
     NativeCall::setResult(result, ibv_modify_wq(workQueue, attributes), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequestWorkQueue (JNIEnv *env, jclass clazz, jlong workQueueHandle, jlong workRequestHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto workQueue = NativeCall::castHandle<ibv_wq>(workQueueHandle);
+    auto workRequest = NativeCall::castHandle<ibv_recv_wr>(workRequestHandle);
+
+    ibv_recv_wr* badWorkRequest;
+    NativeCall::setResult(result, ibv_post_wq_recv(workQueue, workRequest, &badWorkRequest), badWorkRequest);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyWorkQueue (JNIEnv *, jclass, jlong workQueueHandle, jlong resultHandle) {

@@ -355,18 +355,18 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queryQueuePair
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
- * Method:    postSendWorkRequest
+ * Method:    postSendWorkRequestQueuePair
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequest
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postSendWorkRequestQueuePair
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
- * Method:    postReceiveWorkRequest
+ * Method:    postReceiveWorkRequestQueuePair
  * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequest
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequestQueuePair
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*
@@ -591,6 +591,14 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createWorkQueue
  * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_modifyWorkQueue
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     de_hhu_bsinfo_neutrino_verbs_Verbs
+ * Method:    postReceiveWorkRequestWorkQueue
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveWorkRequestWorkQueue
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*

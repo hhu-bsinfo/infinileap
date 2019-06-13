@@ -92,8 +92,8 @@ public final class Verbs {
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifyQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void queryQueuePair(long queuePairHandle, long attributesHandle, int attributesMask, long initialAttributesHandle, long resultHandle);
-    static native void postSendWorkRequest(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
-    static native void postReceiveWorkRequest(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
+    static native void postSendWorkRequestQueuePair(long queuePairHandle, long sendWorkRequestHandle, long resultHandle);
+    static native void postReceiveWorkRequestQueuePair(long queuePairHandle, long receiveWorkRequestHandle, long resultHandle);
     static native void destroyQueuePair(long queuePairHandle, long resultHandle);
 
     // Extended API
@@ -128,6 +128,7 @@ public final class Verbs {
 
     static native void createWorkQueue(long contextHandle, long attributesHandle, long resultHandle);
     static native void modifyWorkQueue(long workQueueHandle, long attributesHandle, long resultHandle);
+    static native void postReceiveWorkRequestWorkQueue(long workQueueHandle, long attributesHandle, long resultHandle);
     static native void destroyWorkQueue(long workQueueHandle, long resultHandle);
     static native void createReceiveWorkQueueIndirectionTable(long contextHandle, long attributesHandle, long resultHandle);
     static native void destroyReceiveWorkQueueIndirectionTable(long tableHandle, long resultHandle);

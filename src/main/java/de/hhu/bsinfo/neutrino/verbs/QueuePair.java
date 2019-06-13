@@ -50,10 +50,10 @@ public class QueuePair extends Struct implements AutoCloseable {
     private boolean postSend(final long sendWorkRequestsHandle) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postSendWorkRequest(getHandle(), sendWorkRequestsHandle, result.getHandle());
+        Verbs.postSendWorkRequestQueuePair(getHandle(), sendWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting send work requests failed with error [{}]", result.getStatus());
+            LOGGER.error("Posting send work requests to queue pair failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
@@ -64,10 +64,10 @@ public class QueuePair extends Struct implements AutoCloseable {
     private boolean postReceive(final long receiveWorkRequestsHandle) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.postReceiveWorkRequest(getHandle(), receiveWorkRequestsHandle, result.getHandle());
+        Verbs.postReceiveWorkRequestQueuePair(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work requests failed with error [{}]", result.getStatus());
+            LOGGER.error("Posting receive work requests to queue pair failed with error [{}]", result.getStatus());
         }
 
         result.releaseInstance();
