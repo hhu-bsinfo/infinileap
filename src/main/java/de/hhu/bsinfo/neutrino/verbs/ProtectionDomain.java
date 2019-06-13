@@ -136,6 +136,11 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     @Nullable
+    public SharedReceiveQueue createSharedReceiveQueue(Consumer<SharedReceiveQueue.InitialAttributes> configurator) {
+        return createSharedReceiveQueue(new SharedReceiveQueue.InitialAttributes(configurator));
+    }
+
+    @Nullable
     public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -148,6 +153,11 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
+    }
+
+    @Nullable
+    public QueuePair createQueuePair(Consumer<InitialAttributes> configurator) {
+        return createQueuePair(new InitialAttributes(configurator));
     }
 
     @Nullable

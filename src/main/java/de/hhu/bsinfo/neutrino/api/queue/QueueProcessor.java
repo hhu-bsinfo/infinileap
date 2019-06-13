@@ -30,7 +30,7 @@ public class QueueProcessor extends Thread implements Closeable {
 
     public QueueProcessor(final CompletionHandler handler, final CompletionQueue... completionQueues) {
         super(THREAD_NAME);
-        this.completionQueues = completionQueues;
+        this.completionQueues = completionQueues.clone();
         this.completionChannel = null;
         this.handler = handler;
     }
@@ -84,9 +84,8 @@ public class QueueProcessor extends Thread implements Closeable {
 
     private void process(final CompletionQueue queue) {
         queue.poll(completionArray);
-        WorkCompletion workCompletion;
         for(int i = 0; i < completionArray.getLength(); i++) {
-            workCompletion = completionArray.get(i);
+            var workCompletion = completionArray.get(i);
             if (workCompletion.getStatus() == WorkCompletion.Status.SUCCESS) {
                 notifyComplete(workCompletion.getId());
             } else {

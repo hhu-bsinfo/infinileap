@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.api.connection;
 
+import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.slf4j.Logger;
@@ -128,6 +129,7 @@ public class ConnectionManager {
         }
 
         void cancel() {
+            selectionKey.attach(null);
             selectionKey.cancel();
         }
     }
