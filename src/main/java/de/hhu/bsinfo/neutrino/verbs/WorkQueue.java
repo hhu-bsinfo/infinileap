@@ -25,13 +25,13 @@ public class WorkQueue extends Struct implements AutoCloseable {
     private final NativeInteger state = integerField("state");
     private final NativeEnum<Type> type = enumField("wq_type", Type.CONVERTER);
     private final NativeInteger eventsCompleted = integerField("events_completed");
-    private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
+    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
 
     WorkQueue(final long handle) {
         super(handle);
     }
 
-    WorkQueue(final LocalBuffer buffer, final int offset) {
+    WorkQueue(final LocalBuffer buffer, final long offset) {
         super(buffer, offset);
     }
 
@@ -272,8 +272,8 @@ public class WorkQueue extends Struct implements AutoCloseable {
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong completionQueue = longField("cq");
-        private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
-        private final NativeBitMask<CreationFlag> flags = bitField("create_flags");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("create_flags");
 
         public InitialAttributes() {}
 
@@ -363,11 +363,11 @@ public class WorkQueue extends Struct implements AutoCloseable {
     @LinkNative("ibv_wq_attr")
     public static final class Attributes extends Struct {
 
-        private final NativeBitMask<AttributeFlag> attributesMask = bitField("attr_mask");
+        private final NativeIntegerBitMask<AttributeFlag> attributesMask = intBitField("attr_mask");
         private final NativeEnum<State> state = enumField("wq_state", State.CONVERTER);
         private final NativeEnum<State> currentState = enumField("curr_wq_state", State.CONVERTER);
-        private final NativeBitMask<CreationFlag> flags = bitField("flags");
-        private final NativeBitMask<CreationFlag> flagsMask = bitField("flags_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("flags");
+        private final NativeIntegerBitMask<CreationFlag> flagsMask = intBitField("flags_mask");
 
         public Attributes() {}
 

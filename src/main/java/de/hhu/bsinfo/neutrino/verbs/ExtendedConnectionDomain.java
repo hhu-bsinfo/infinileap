@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
@@ -71,9 +71,9 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     @LinkNative("ibv_xrcd_init_attr")
     public static final class InitalAttributes extends Struct {
 
-        private final NativeBitMask<AttributeFlag> attributesMask = bitField("comp_mask");
+        private final NativeIntegerBitMask<AttributeFlag> attributesMask = intBitField("comp_mask");
         private final NativeInteger fileDescriptor = integerField("fd");
-        private final NativeBitMask<OperationFlag> operationFlags = bitField("oflags");
+        private final NativeIntegerBitMask<OperationFlag> operationFlags = intBitField("oflags");
 
         public InitalAttributes() {}
 

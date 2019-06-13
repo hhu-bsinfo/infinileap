@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -24,7 +24,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
-    private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
+    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
     private final NativeEnum<WorkCompletion.Status> status = enumField("status", WorkCompletion.Status.CONVERTER);
     private final NativeLong workRequestId = longField("wr_id");
 
@@ -38,7 +38,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         Verbs.extendedCompletionQueueToCompletionQueue(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Converting extended completion queue to completion queue failed [{}]", result.getStatus());
+            LOGGER.error("Converting extended completion queue to completion queue failed with error [{}]", result.getStatus());
         }
 
         return result.getAndRelease(CompletionQueue::new);
@@ -243,9 +243,9 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         private final NativeLong userContext = longField("cq_context");
         private final NativeLong completionChannel = longField("channel");
         private final NativeInteger completionVector = integerField("comp_vector");
-        private final NativeBitMask<WorkCompletionCapability> workCompletionFlags = bitField("wc_flags");
-        private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
-        private final NativeBitMask<CreationFlag> flags = bitField("flags");
+        private final NativeIntegerBitMask<WorkCompletionCapability> workCompletionFlags = intBitField("wc_flags");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("flags");
 
         public InitialAttributes() {}
 
@@ -326,7 +326,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     @LinkNative("ibv_poll_cq_attr")
     public static final class PollAttributes extends Struct {
 
-        private final NativeBitMask<CompatibilityFlag> compatibilityMask = bitField("comp_mask");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
 
         public PollAttributes() {}
 

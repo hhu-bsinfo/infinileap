@@ -44,7 +44,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     private MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.of(flags), result.getHandle());
+        Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Registering device memory memory as memory region failed with error [{}]", result.getStatus());
         }
@@ -61,7 +61,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.of(flags), result.getHandle());
+        Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
         }

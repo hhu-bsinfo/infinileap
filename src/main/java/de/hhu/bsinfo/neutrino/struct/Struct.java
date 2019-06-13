@@ -4,8 +4,6 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.util.*;
 
-import java.lang.ref.Cleaner;
-
 public class Struct implements NativeObject {
 
     private final StructInformation info;
@@ -136,16 +134,58 @@ public class Struct implements NativeObject {
         return field;
     }
 
-    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(String identifier) {
-        return new NativeBitMask<>(byteBuffer, offsetOf(identifier));
+    protected final <T extends Enum<T> & Flag> NativeByteBitMask<T> byteBitField(String identifier) {
+        return new NativeByteBitMask<>(byteBuffer, offsetOf(identifier));
     }
 
-    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField(long offset) {
-        return new NativeBitMask<>(byteBuffer, offset);
+    protected final <T extends Enum<T> & Flag> NativeByteBitMask<T> byteBitField(long offset) {
+        return new NativeByteBitMask<>(byteBuffer, offset);
     }
 
-    protected final <T extends Enum<T> & Flag> NativeBitMask<T> bitField() {
-        var field = new NativeBitMask<T>(byteBuffer, currentFieldOffset);
+    protected final <T extends Enum<T> & Flag> NativeByteBitMask<T> byteBitField() {
+        var field = new NativeByteBitMask<T>(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeShortBitMask<T> shortBitField(String identifier) {
+        return new NativeShortBitMask<>(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeShortBitMask<T> shortBitField(long offset) {
+        return new NativeShortBitMask<>(byteBuffer, offset);
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeShortBitMask<T> shortBitField() {
+        var field = new NativeShortBitMask<T>(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField(String identifier) {
+        return new NativeIntegerBitMask<>(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField(long offset) {
+        return new NativeIntegerBitMask<>(byteBuffer, offset);
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField() {
+        var field = new NativeIntegerBitMask<T>(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeLongBitMask<T> longBitField(String identifier) {
+        return new NativeLongBitMask<>(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeLongBitMask<T> longBitField(long offset) {
+        return new NativeLongBitMask<>(byteBuffer, offset);
+    }
+
+    protected final <T extends Enum<T> & Flag> NativeLongBitMask<T> longBitField() {
+        var field = new NativeLongBitMask<T>(byteBuffer, currentFieldOffset);
         currentFieldOffset += field.getSize();
         return field;
     }

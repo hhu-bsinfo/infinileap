@@ -214,7 +214,7 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_allocateMemoryWin
     NativeCall::setResult(result, memoryWindow == nullptr ? errno : 0, memoryWindow);
 }
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_bindMemoryWindow (JNIEnv *env, jclass clazz, jlong memoryWindowHandle, jlong queuePairHandle, jlong attributesHandle, jlong resultHandle) {
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_bindMemoryWindow__JJJJ (JNIEnv *env, jclass clazz, jlong memoryWindowHandle, jlong queuePairHandle, jlong attributesHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto memoryWindow = NativeCall::castHandle<ibv_mw>(memoryWindowHandle);
     auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
@@ -630,6 +630,171 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyReceiveWor
     auto table = NativeCall::castHandle<ibv_rwq_ind_table>(tableHandle);
 
     NativeCall::setResult(result, ibv_destroy_rwq_ind_table(table), 0);
+}
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_startWorkRequest (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_start(extendedQueuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_completeWorkRequest (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_complete(extendedQueuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_abortWorkRequest (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_abort(extendedQueuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createExtendedQueuePair (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_qp_init_attr_ex>(attributesHandle);
+
+    auto queuePair = ibv_create_qp_ex(context, attributes);
+
+    NativeCall::setResult(result, queuePair == nullptr ? errno : 0, queuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_queuePairToExtendedQueuePair (JNIEnv *env, jclass clazz, jlong queuePairHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto queuePair = NativeCall::castHandle<ibv_qp>(queuePairHandle);
+
+    auto extendedQueuePair = ibv_qp_to_qp_ex(queuePair);
+
+    NativeCall::setResult(result, extendedQueuePair == nullptr ? errno : 0, extendedQueuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_atomicCompareAndSwap (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey, jlong remoteAddress, jlong compare, jlong swap) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    
+    ibv_wr_atomic_cmp_swp(extendedQueuePair, remoteKey, remoteAddress, compare, swap);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_atomicFetchAndAdd (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey, jlong remoteAddress, jlong add) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    
+    ibv_wr_atomic_fetch_add(extendedQueuePair, remoteKey, remoteAddress, add);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_bindMemoryWindow__JJIJ (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong memoryWindowHandle, jint remoteKey, jlong bindInformationHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    auto memoryWindow = NativeCall::castHandle<ibv_mw>(memoryWindowHandle);
+    auto bindInformation = NativeCall::castHandle<ibv_mw_bind_info>(bindInformationHandle);
+
+    ibv_wr_bind_mw(extendedQueuePair, memoryWindow, remoteKey, bindInformation);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_invalidateRemoteKey (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_local_inv(extendedQueuePair, remoteKey);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_rdmaRead (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey, jlong remoteAddress) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_rdma_read(extendedQueuePair, remoteKey, remoteAddress);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_rdmaWrite (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey, jlong remoteAddress) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_rdma_write(extendedQueuePair, remoteKey, remoteAddress);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_rdmaWriteImm (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey, jlong remoteAddress, jint immediateData) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_rdma_write_imm(extendedQueuePair, remoteKey, remoteAddress, immediateData);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_send (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_send(extendedQueuePair);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendImm (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint immediateData) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_send_imm(extendedQueuePair, immediateData);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendInvalidateRemoteKey (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteKey) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_send_inv(extendedQueuePair, remoteKey);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendTcpSegmentOffload (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong hdr, jshort hdrSize, jshort mss) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_send_tso(extendedQueuePair, reinterpret_cast<void *>(hdr), hdrSize, mss);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setUnreliableAddress (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong addressHandleHandle, jint remoteQueuePairNumber, jint remoteQkey) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    auto addressHandle = NativeCall::castHandle<ibv_ah>(addressHandleHandle);
+
+    ibv_wr_set_ud_addr(extendedQueuePair, addressHandle, remoteQueuePairNumber, remoteQkey);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setExtendedSharedReceiveQueueNumber (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint remoteSharedReceiveQueueNumber) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_set_xrc_srqn(extendedQueuePair, remoteSharedReceiveQueueNumber);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setInlineData (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong address, jlong length) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_set_inline_data(extendedQueuePair, reinterpret_cast<void *>(address), length);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setInlineDataList (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong bufferCount, jlong bufferListHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    auto *bufferList = NativeCall::castHandle<ibv_data_buf>(bufferListHandle);
+
+    ibv_wr_set_inline_data_list(extendedQueuePair, bufferCount, bufferList);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setScatterGatherElement (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint localKey, jlong address, jint length) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+
+    ibv_wr_set_sge(extendedQueuePair, localKey, address, length);
+}
+
+
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_setScatterGatherElementList (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jint scatterGatherElementCount, jlong scatterGatherElementListHandle) {
+    auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
+    auto scatterGatherElementList = NativeCall::castHandle<ibv_sge>(scatterGatherElementListHandle);
+
+    ibv_wr_set_sge_list(extendedQueuePair, scatterGatherElementCount, scatterGatherElementList);
 }
 
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_benchmarkDummyMethod1 (JNIEnv *env, jclass clazz, jlong resultHandle) {

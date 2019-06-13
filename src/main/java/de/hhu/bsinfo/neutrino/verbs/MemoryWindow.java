@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -127,7 +127,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
     public static final class BindAttributes extends Struct {
 
         private final NativeLong workRequestId = longField("wr_id");
-        private final NativeBitMask<SendFlag> sendFlags = bitField("send_flags");
+        private final NativeIntegerBitMask<SendFlag> sendFlags = intBitField("send_flags");
 
         public final BindInformation bindInfo = valueField("bind_info", BindInformation::new);
 
@@ -169,7 +169,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         private final NativeLong memoryRegion = longField("mr");
         private final NativeLong address = longField("addr");
         private final NativeLong length = longField("length");
-        private final NativeBitMask<AccessFlag> accessFlags = bitField("mw_access_flags");
+        private final NativeIntegerBitMask<AccessFlag> accessFlags = intBitField("mw_access_flags");
 
         BindInformation(final LocalBuffer buffer, final long offset) {
             super(buffer, offset);

@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -49,7 +49,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     public boolean modify(Attributes attributes, AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
+        Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Modifying shared receive queue failed with error [{}]", result.getStatus());
@@ -251,7 +251,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     public static final class ExtendedInitialAttributes extends Struct {
 
         private final NativeLong userContext = longField("srq_context");
-        private final NativeBitMask<ExtendedAttributeFlag> attributesMask = bitField("comp_mask");
+        private final NativeIntegerBitMask<ExtendedAttributeFlag> attributesMask = intBitField("comp_mask");
         private final NativeEnum<Type> type = enumField("srq_type", Type.CONVERTER);
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong extendedConnectionDomain = longField("xrcd");

@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
@@ -27,7 +27,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         super(handle);
     }
 
-    ReceiveWorkQueueIndirectionTable(final LocalBuffer buffer, final int offset) {
+    ReceiveWorkQueueIndirectionTable(final LocalBuffer buffer, final long offset) {
         super(buffer, offset);
     }
 
@@ -88,7 +88,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
         private final NativeInteger logarithmicTableSize = integerField("log_ind_tbl_size");
         private final NativeLong tableHandle = longField("ind_tbl");
-        private final NativeBitMask<InitialAttributeFlag> compatibilityMask = bitField("comp_mask");
+        private final NativeIntegerBitMask<InitialAttributeFlag> compatibilityMask = intBitField("comp_mask");
 
         private final LocalBuffer buffer;
 
@@ -137,6 +137,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
                     "\n\tlogarithmicTableSize=" + logarithmicTableSize +
                     ",\n\ttableHandle=" + tableHandle +
                     ",\n\tcompatibilityMask=" + compatibilityMask +
+                    ",\n\ttableBuffer=" + buffer +
                     "\n}";
         }
     }

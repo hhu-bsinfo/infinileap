@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeBoolean;
 import de.hhu.bsinfo.neutrino.data.NativeByte;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
@@ -43,7 +43,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    QueuePair(final LocalBuffer buffer, final int offset) {
+    QueuePair(final LocalBuffer buffer, final long offset) {
         super(buffer, offset);
     }
 
@@ -75,6 +75,18 @@ public class QueuePair extends Struct implements AutoCloseable {
         return !isError;
     }
 
+    @Nullable
+    public ExtendedQueuePair toExtendedQueuePair() {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.queuePairToExtendedQueuePair(getHandle(), result.getHandle());
+        if(result.isError()) {
+            LOGGER.error("Converting queue pair to extended queue pair failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(ExtendedQueuePair::new);
+    }
+
     public boolean postSend(final SendWorkRequest sendWorkRequest) {
         return postSend(sendWorkRequest.getHandle());
     }
@@ -94,7 +106,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     public boolean modify(final Attributes attributes, final AttributeMask... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), result.getHandle());
+        Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Modifying queue pair failed with error [{}]", result.getStatus());
@@ -111,7 +123,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();
 
-        Verbs.queryQueuePair(getHandle(), attributes.getHandle(), BitMask.of(flags), initialAttributes.getHandle(), result.getHandle());
+        Verbs.queryQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), initialAttributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Querying queue pair failed with error [{}]", result.getStatus());
@@ -253,7 +265,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     public enum TypeFlag implements Flag {
-        RC(1 << 2), UC(1 << 3), UD(1 << 4),RAW_PACKET(1 << 8), XRC_SEND(1 << 9), XRC_RECV(1 << 10);
+        RC(1 << 2), UC(1 << 3), UD(1 << 4), RAW_PACKET(1 << 8), XRC_SEND(1 << 9), XRC_RECV(1 << 10);
 
         private final int value;
 
@@ -462,8 +474,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeInteger maxReceiveScatterGatherElements = integerField("max_recv_sge");
         private final NativeInteger maxInlineData = integerField("max_inline_data");
 
-        public Capabilities() {
-        }
+        public Capabilities() {}
 
         public Capabilities(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
@@ -532,7 +543,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeInteger receivePacketNumber = integerField("rq_psn");
         private final NativeInteger sendPacketNumber = integerField("sq_psn");
         private final NativeInteger destination = integerField("dest_qp_num");
-        private final NativeBitMask<AccessFlag> accessFlags = bitField("qp_access_flags");
+        private final NativeIntegerBitMask<AccessFlag> accessFlags = intBitField("qp_access_flags");
         private final NativeShort partitionKeyIndex = shortField("pkey_index");
         private final NativeShort alternatePartitionKeyIndex = shortField("alt_pkey_index");
         private final NativeBoolean notifyDrained = booleanField("en_sqd_async_notify");

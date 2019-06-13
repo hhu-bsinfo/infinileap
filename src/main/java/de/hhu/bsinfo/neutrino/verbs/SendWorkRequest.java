@@ -2,7 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeBitMask;
+import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeEnum;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
@@ -85,7 +85,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
     private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
-    private final NativeBitMask<SendFlag> flags = bitField("send_flags");
+    private final NativeIntegerBitMask<SendFlag> flags = intBitField("send_flags");
     private final NativeInteger immediateData = integerField("imm_data");
     private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
 

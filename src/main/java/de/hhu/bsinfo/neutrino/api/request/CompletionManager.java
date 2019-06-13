@@ -68,7 +68,7 @@ public class CompletionManager implements CompletionHandler{
 
     @Override
     public void onError(long id, WorkCompletion.Status status) {
-        LOGGER.error("Request with id {} failed [{}]", id, status);
+        LOGGER.error("Request with id {} failed with error [{}]", id, status);
         setFulfilled(id);
     }
 }

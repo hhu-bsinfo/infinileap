@@ -265,4 +265,16 @@ public class Context implements NativeObject, AutoCloseable {
 
         return result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
     }
+
+    @Nullable
+    public QueuePair createExtendedQueuePair(ExtendedQueuePair.InitialAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.createExtendedQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Creating extended queue pair failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(QueuePair::new);
+    }
 }

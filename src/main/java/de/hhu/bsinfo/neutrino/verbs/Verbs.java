@@ -5,7 +5,6 @@ import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.RingBufferPool;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public final class Verbs {
 
@@ -132,6 +131,29 @@ public final class Verbs {
     static native void destroyWorkQueue(long workQueueHandle, long resultHandle);
     static native void createReceiveWorkQueueIndirectionTable(long contextHandle, long attributesHandle, long resultHandle);
     static native void destroyReceiveWorkQueueIndirectionTable(long tableHandle, long resultHandle);
+
+    static native void startWorkRequest(long extendedQueuePairHandle);
+    static native void completeWorkRequest(long extendedQueuePairHandle);
+    static native void abortWorkRequest(long extendedQueuePairHandle);
+    static native void createExtendedQueuePair(long contextHandle, long attributesHandle, long resultHandle);
+    static native void queuePairToExtendedQueuePair(long queuePairHandle, long resultHandle);
+    static native void atomicCompareAndSwap(long extendedQueuePairHandle, int remoteKey, long remoteAddress, long compare, long swap);
+    static native void atomicFetchAndAdd(long extendedQueuePairHandle, int remoteKey, long remoteAddress, long add);
+    static native void bindMemoryWindow(long extendedQueuePairHandle, long memoryWindowHandle, int remoteKey, long informationHandle);
+    static native void invalidateRemoteKey(long extendedQueuePairHandle, int remoteKey);
+    static native void rdmaRead(long extendedQueuePairHandle, int remoteKey, long remoteAddress);
+    static native void rdmaWrite(long extendedQueuePairHandle, int remoteKey, long remoteAddress);
+    static native void rdmaWriteImm(long extendedQueuePairHandle, int remoteKey, long remoteAddress, int immData);
+    static native void send(long extendedQueuePairHandle);
+    static native void sendImm(long extendedQueuePairHandle, int immData);
+    static native void sendInvalidateRemoteKey(long extendedQueuePairHandle, int remoteKey);
+    static native void sendTcpSegmentOffload(long extendedQueuePairHandle, long hdrHandle, short hdrSize, short mss);
+    static native void setUnreliableAddress(long extendedQueuePairHandle, long addressHandleHandle, int remoteQueuePairNumber, int remoteQkey);
+    static native void setExtendedSharedReceiveQueueNumber(long extendedQueuePairHandle, int remoteSharedReceiveQueueNumber);
+    static native void setInlineData(long extendedQueuePairHandle, long address, long length);
+    static native void setInlineDataList(long extendedQueuePairHandle, long bufferCount, long bufferListHandle);
+    static native void setScatterGatherElement(long extendedQueuePairHandle, int localKey, long address, int length);
+    static native void setScatterGatherElementList(long extendedQueuePairHandle, int scatterGatherElementCount, long scatterGatherElementListHandle);
 
     // Dummy methods for benchmarking JNI overhead
     public static native void benchmarkDummyMethod1(long resultHandle);
