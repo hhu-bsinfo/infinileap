@@ -153,6 +153,20 @@ public class QueuePair extends Struct implements AutoCloseable {
         result.releaseInstance();
     }
 
+    @Override
+    public String toString() {
+        return "QueuePair {" +
+                "\n\tuserContext=" + userContext +
+                ",\n\tsendCompletionQueue=" + sendCompletionQueue +
+                ",\n\treceiveCompletionQueue=" + receiveCompletionQueue +
+                ",\n\tsharedReceiveQueue=" + sharedReceiveQueue +
+                ",\n\tqueuePairNumber=" + queuePairNumber +
+                ",\n\tstate=" + state +
+                ",\n\ttype=" + type +
+                ",\n\teventsCompleted=" + eventsCompleted +
+                "\n}";
+    }
+
     public Context getContext() {
         return context;
     }

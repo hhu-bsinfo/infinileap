@@ -53,5 +53,12 @@ public class ThreadDomain extends Struct implements AutoCloseable {
         public void setCompatibilityMask(final int value) {
             compatibilityMask.set(value);
         }
+
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                    "\n\tcompatibilityMask=" + compatibilityMask +
+                    "\n}";
+        }
     }
 }

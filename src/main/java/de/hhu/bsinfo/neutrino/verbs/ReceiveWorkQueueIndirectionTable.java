@@ -59,6 +59,15 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         return compatibilityMask.get();
     }
 
+    @Override
+    public String toString() {
+        return "ReceiveWorkQueueIndirectionTable {" +
+                ",\n\ttableHandle=" + tableHandle +
+                ",\n\ttableNumber=" + tableNumber +
+                ",\n\tcompatibilityMask=" + compatibilityMask +
+                "\n}";
+    }
+
     public enum InitialAttributeFlag implements Flag {
         RESERVED(1);
 
@@ -120,6 +129,15 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
         public void setCompatibilityMask(final InitialAttributeFlag... flags) {
             compatibilityMask.set(flags);
+        }
+
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                    "\n\tlogarithmicTableSize=" + logarithmicTableSize +
+                    ",\n\ttableHandle=" + tableHandle +
+                    ",\n\tcompatibilityMask=" + compatibilityMask +
+                    "\n}";
         }
     }
 }

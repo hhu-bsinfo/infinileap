@@ -59,4 +59,14 @@ public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<Rec
     public void linkWith(ReceiveWorkRequest other) {
         next.set(other.getHandle());
     }
+
+    @Override
+    public String toString() {
+        return "ReceiveWorkRequest {" +
+                "\n\tid=" + id +
+                ",\n\tnext=" + next +
+                ",\n\tlistHandle=" + listHandle +
+                ",\n\tlistLength=" + listLength +
+                "\n}";
+    }
 }

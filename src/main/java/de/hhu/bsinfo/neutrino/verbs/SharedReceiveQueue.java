@@ -88,6 +88,14 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
     }
 
+    @Override
+    public String toString() {
+        return "SharedReceiveQueue {" +
+                "\n\tuserContext=" + userContext +
+                ",\n\teventsCompleted=" + eventsCompleted +
+                "\n}";
+    }
+
     public enum AttributeFlag implements Flag {
         MAX_WR(1), LIMIT(1 << 1);
 

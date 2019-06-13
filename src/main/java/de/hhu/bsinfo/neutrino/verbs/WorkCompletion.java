@@ -11,6 +11,101 @@ import java.util.Arrays;
 @LinkNative("ibv_wc")
 public class WorkCompletion extends Struct {
 
+    private final NativeLong id = longField("wr_id");
+    private final NativeEnum<Status> status = enumField("status", Status.CONVERTER);
+    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
+    private final NativeInteger vendorError = integerField("vendor_err");
+    private final NativeInteger byteCount = integerField("byte_len");
+    private final NativeInteger immediateData = integerField("imm_data");
+    private final NativeInteger invalidatedRemoteKey = integerField("invalidated_rkey");
+    private final NativeInteger queuePairNumber = integerField("qp_num");
+    private final NativeInteger sourceQueuePair = integerField("src_qp");
+    private final NativeBitMask<WorkCompletionFlag> flags = bitField("wc_flags");
+    private final NativeShort partitionKeyIndex = shortField("pkey_index");
+    private final NativeShort sourceLocalId = shortField("slid");
+    private final NativeByte serviceLevel = byteField("sl");
+    private final NativeByte pathBits = byteField("dlid_path_bits");
+
+    WorkCompletion(final long handle) {
+        super(handle);
+    }
+
+    public long getId() {
+        return id.get();
+    }
+
+    public Status getStatus() {
+        return status.get();
+    }
+
+    public OpCode getOpCode() {
+        return opCode.get();
+    }
+
+    public int getVendorError() {
+        return vendorError.get();
+    }
+
+    public int getByteCount() {
+        return byteCount.get();
+    }
+
+    public int getImmediateData() {
+        return immediateData.get();
+    }
+
+    public int getInvalidatedRemoteKey() {
+        return invalidatedRemoteKey.get();
+    }
+
+    public int getQueuePairNumber() {
+        return queuePairNumber.get();
+    }
+
+    public int getSourceQueuePair() {
+        return sourceQueuePair.get();
+    }
+
+    public int getFlags() {
+        return flags.get();
+    }
+
+    public short getPartitionKeyIndex() {
+        return partitionKeyIndex.get();
+    }
+
+    public short getSourceLocalId() {
+        return sourceLocalId.get();
+    }
+
+    public byte getServiceLevel() {
+        return serviceLevel.get();
+    }
+
+    public byte getPathBits() {
+        return pathBits.get();
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            "\n\tid=" + id +
+            ",\n\tstatus=" + status +
+            ",\n\topCode=" + opCode +
+            ",\n\tvendorError=" + vendorError +
+            ",\n\tbyteCount=" + byteCount +
+            ",\n\timmediateData=" + immediateData +
+            ",\n\tinvalidatedRemoteKey=" + invalidatedRemoteKey +
+            ",\n\tqueuePairNumber=" + queuePairNumber +
+            ",\n\tsourceQueuePair=" + sourceQueuePair +
+            ",\n\tflags=" + flags +
+            ",\n\tpartitionKeyIndex=" + partitionKeyIndex +
+            ",\n\tsourceLocalId=" + sourceLocalId +
+            ",\n\tserviceLevel=" + serviceLevel +
+            ",\n\tpathBits=" + pathBits +
+            "\n}";
+    }
+
     public enum Status {
         SUCCESS(0), LOC_LEN_ERR(1), LOC_QP_OP_ERR(2), LOC_EEC_OP_ERR(3), LOC_PROT_ERR(4),
         WR_FLUSH_ERR(5), MW_BIND_ERR(6), BAD_RESP_ERR(7), LOC_ACCESS_ERR(8), REM_INV_REQ_ERR(9),
@@ -117,101 +212,6 @@ public class WorkCompletion extends Struct {
         public int getValue() {
             return value;
         }
-    }
-
-    private final NativeLong id = longField("wr_id");
-    private final NativeEnum<Status> status = enumField("status", Status.CONVERTER);
-    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
-    private final NativeInteger vendorError = integerField("vendor_err");
-    private final NativeInteger byteCount = integerField("byte_len");
-    private final NativeInteger immediateData = integerField("imm_data");
-    private final NativeInteger invalidatedRemoteKey = integerField("invalidated_rkey");
-    private final NativeInteger queuePairNumber = integerField("qp_num");
-    private final NativeInteger sourceQueuePair = integerField("src_qp");
-    private final NativeBitMask<WorkCompletionFlag> flags = bitField("wc_flags");
-    private final NativeShort partitionKeyIndex = shortField("pkey_index");
-    private final NativeShort sourceLocalId = shortField("slid");
-    private final NativeByte serviceLevel = byteField("sl");
-    private final NativeByte pathBits = byteField("dlid_path_bits");
-
-    WorkCompletion(final long handle) {
-        super(handle);
-    }
-
-    public long getId() {
-        return id.get();
-    }
-
-    public Status getStatus() {
-        return status.get();
-    }
-
-    public OpCode getOpCode() {
-        return opCode.get();
-    }
-
-    public int getVendorError() {
-        return vendorError.get();
-    }
-
-    public int getByteCount() {
-        return byteCount.get();
-    }
-
-    public int getImmediateData() {
-        return immediateData.get();
-    }
-
-    public int getInvalidatedRemoteKey() {
-        return invalidatedRemoteKey.get();
-    }
-
-    public int getQueuePairNumber() {
-        return queuePairNumber.get();
-    }
-
-    public int getSourceQueuePair() {
-        return sourceQueuePair.get();
-    }
-
-    public int getFlags() {
-        return flags.get();
-    }
-
-    public short getPartitionKeyIndex() {
-        return partitionKeyIndex.get();
-    }
-
-    public short getSourceLocalId() {
-        return sourceLocalId.get();
-    }
-
-    public byte getServiceLevel() {
-        return serviceLevel.get();
-    }
-
-    public byte getPathBits() {
-        return pathBits.get();
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-            "\n\tid=" + id +
-            ",\n\tstatus=" + status +
-            ",\n\topCode=" + opCode +
-            ",\n\tvendorError=" + vendorError +
-            ",\n\tbyteCount=" + byteCount +
-            ",\n\timmediateData=" + immediateData +
-            ",\n\tinvalidatedRemoteKey=" + invalidatedRemoteKey +
-            ",\n\tqueuePairNumber=" + queuePairNumber +
-            ",\n\tsourceQueuePair=" + sourceQueuePair +
-            ",\n\tflags=" + flags +
-            ",\n\tpartitionKeyIndex=" + partitionKeyIndex +
-            ",\n\tsourceLocalId=" + sourceLocalId +
-            ",\n\tserviceLevel=" + serviceLevel +
-            ",\n\tpathBits=" + pathBits +
-            "\n}";
     }
 
     public static final class TagMatchingInfo extends Struct implements Poolable {

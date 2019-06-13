@@ -107,5 +107,14 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         public void setCompatibilityMask(final int value) {
             compatibilityMask.set(value);
         }
+
+        @Override
+        public String toString() {
+            return "AllocationAttributes {" +
+                    "\n\tlength=" + length +
+                    ",\n\tlogarithmicAlignmentRequirement=" + logarithmicAlignmentRequirement +
+                    ",\n\tcompatibilityMask=" + compatibilityMask +
+                    "\n}";
+        }
     }
 }

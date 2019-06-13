@@ -77,7 +77,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     @Override
     public String toString() {
         return "CompletionQueue {" +
-            ",\n\tcompletionChannel=" + completionChannel +
+            ",\n\tcompletionChannel=" + completionChannel.getHandle() +
             ",\n\tuserContextHandle=" + userContextHandle +
             ",\n\tmaxElements=" + maxElements +
             "\n}";

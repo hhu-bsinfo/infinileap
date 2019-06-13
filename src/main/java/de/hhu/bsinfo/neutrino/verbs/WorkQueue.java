@@ -118,6 +118,19 @@ public class WorkQueue extends Struct implements AutoCloseable {
         return compatibilityMask.get();
     }
 
+    @Override
+    public String toString() {
+        return "WorkQueue {" +
+                "\n\tuserContext=" + userContext +
+                ",\n\tcompletionQueue=" + completionQueue +
+                ",\n\tworkQueueNumber=" + workQueueNumber +
+                ",\n\tstate=" + state +
+                ",\n\ttype=" + type +
+                ",\n\teventsCompleted=" + eventsCompleted +
+                ",\n\tcompatibilityMask=" + compatibilityMask +
+                "\n}";
+    }
+
     public enum Type {
         RQ(0);
 
@@ -331,6 +344,20 @@ public class WorkQueue extends Struct implements AutoCloseable {
         public void setFlags(final CreationFlag... flags) {
             this.flags.set(flags);
         }
+
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                    "\n\tuserContext=" + userContext +
+                    ",\n\ttype=" + type +
+                    ",\n\tmaxWorkRequests=" + maxWorkRequests +
+                    ",\n\tmaxScatterGatherElements=" + maxScatterGatherElements +
+                    ",\n\tprotectionDomain=" + protectionDomain +
+                    ",\n\tcompletionQueue=" + completionQueue +
+                    ",\n\tcompatibilityMask=" + compatibilityMask +
+                    ",\n\tflags=" + flags +
+                    "\n}";
+        }
     }
 
     @LinkNative("ibv_wq_attr")
@@ -386,6 +413,17 @@ public class WorkQueue extends Struct implements AutoCloseable {
 
         public void setFlagsMask(final CreationFlag... value) {
             flagsMask.set(value);
+        }
+
+        @Override
+        public String toString() {
+            return "Attributes {" +
+                    "\n\tattributesMask=" + attributesMask +
+                    ",\n\tstate=" + state +
+                    ",\n\tcurrentState=" + currentState +
+                    ",\n\tflags=" + flags +
+                    ",\n\tflagsMask=" + flagsMask +
+                    "\n}";
         }
     }
 }

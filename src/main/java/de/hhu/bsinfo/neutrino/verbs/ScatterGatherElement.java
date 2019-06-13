@@ -50,6 +50,15 @@ public class ScatterGatherElement extends Struct implements Poolable {
         localKey.set(value);
     }
 
+    @Override
+    public String toString() {
+        return "ScatterGatherElement {" +
+                "\n\taddress=" + address +
+                ",\n\tlength=" + length +
+                ",\n\tlocalKey=" + localKey +
+                "\n}";
+    }
+
     public static class Array extends NativeArray<ScatterGatherElement> {
 
         public Array(long handle, int capacity) {

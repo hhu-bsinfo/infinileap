@@ -180,7 +180,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     @Override
     public String toString() {
         return "CompletionQueue {" +
-                ",\n\tcompletionChannel=" + completionChannel +
+                ",\n\tcompletionChannel=" + completionChannel.getHandle() +
                 ",\n\tuserContextHandle=" + userContextHandle +
                 ",\n\tmaxElements=" + maxElements +
                 ",\n\tcompatibilityMask=" + compatibilityMask +
@@ -308,6 +308,19 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         public void setFlags(final CreationFlag... flags) {
             this.flags.set(flags);
         }
+
+        @Override
+        public String toString() {
+            return "InitialAttributes {" +
+                    "\n\tmaxElements=" + maxElements +
+                    ",\n\tuserContext=" + userContext +
+                    ",\n\tcompletionChannel=" + completionChannel +
+                    ",\n\tcompletionVector=" + completionVector +
+                    ",\n\tworkCompletionFlags=" + workCompletionFlags +
+                    ",\n\tcompatibilityMask=" + compatibilityMask +
+                    ",\n\tflags=" + flags +
+                    "\n}";
+        }
     }
 
     @LinkNative("ibv_poll_cq_attr")
@@ -327,6 +340,13 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         public void setCompatibilityMask(final CompatibilityFlag... flags) {
             compatibilityMask.set(flags);
+        }
+
+        @Override
+        public String toString() {
+            return "PollAttributes {" +
+                    "\n\tcompatibilityMask=" + compatibilityMask +
+                    "\n}";
         }
     }
 }
