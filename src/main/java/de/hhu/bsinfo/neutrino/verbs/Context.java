@@ -42,6 +42,11 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
+    public static Context openDevice() {
+        return openDevice(0);
+    }
+
+    @Nullable
     public static Context openDevice(int index) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
@@ -88,6 +93,11 @@ public class Context implements NativeObject, AutoCloseable {
         result.releaseInstance();
 
         return device;
+    }
+
+    @Nullable
+    public Port queryPort() {
+        return queryPort(1);
     }
 
     @Nullable
@@ -178,6 +188,11 @@ public class Context implements NativeObject, AutoCloseable {
         NativeObjectRegistry.registerObject(completionChannel);
 
         return completionChannel;
+    }
+
+    @Nullable
+    public CompletionQueue createCompletionQueue(int numElements) {
+        return createCompletionQueue(numElements, null);
     }
 
     @Nullable

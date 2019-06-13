@@ -1,42 +1,15 @@
 package de.hhu.bsinfo.neutrino.api.connection;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.nio.ByteBuffer;
-import java.util.StringJoiner;
+import de.hhu.bsinfo.neutrino.buffer.RegisteredBuffer;
+import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 
 public class Connection {
 
-    private short localId;
-    private int queuePairNumber;
+    private final QueuePair queuePair;
+    private final RegisteredBuffer receiveBuffer;
 
-    public Connection() {}
-
-    public Connection(short localId, int queuePairNumber) {
-        this.localId = localId;
-        this.queuePairNumber = queuePairNumber;
-    }
-
-    public Connection(ByteBuffer buffer) {
-        localId = buffer.getShort();
-        queuePairNumber = buffer.getInt();
-    }
-
-    short getLocalId() {
-        return localId;
-    }
-
-    int getQueuePairNumber() {
-        return queuePairNumber;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", Connection.class.getSimpleName() + "[", "]")
-                .add("localId=" + localId)
-                .add("queuePairNumber=" + queuePairNumber)
-                .toString();
+    public Connection(QueuePair queuePair, RegisteredBuffer receiveBuffer) {
+        this.queuePair = queuePair;
+        this.receiveBuffer = receiveBuffer;
     }
 }

@@ -46,7 +46,6 @@ public class CompletionManager implements CompletionHandler{
     public void await(long id) {
         var index = getIndex(id);
 
-        LOGGER.info("Waiting on completion for request with id {}", id);
         while (completions[index].get() != Status.FULFILLED) {
             LockSupport.parkNanos(1);
         }

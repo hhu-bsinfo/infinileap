@@ -6,30 +6,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.locks.LockSupport;
 
 public class ConnectionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionManager.class);
 
-    private final Connection connection;
+    private final ConnectionInfo connectionInfo;
 
-    public ConnectionManager(Connection connection) {
-        this.connection = connection;
+    public ConnectionManager(ConnectionInfo connectionInfo) {
+        this.connectionInfo = connectionInfo;
     }
 
-    public Observable<Connection> listen(final InetSocketAddress bindAddress) {
+    public Observable<ConnectionInfo> listen(final InetSocketAddress bindAddress) {
         return Observable.create( emitter -> {
             try (var selector = Selector.open();
                  var serverChannel = ServerSocketChannel.open().bind(bindAddress)) {
@@ -49,7 +43,7 @@ public class ConnectionManager {
                             var client = serverChannel.accept();
                             client.configureBlocking(false);
                             var clientKey = client.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                            clientKey.attach(new Handler(client, clientKey, connection));
+                            clientKey.attach(new Handler(client, clientKey, connectionInfo));
                         }
 
                         if (handler != null && key.isReadable()) {
@@ -72,12 +66,12 @@ public class ConnectionManager {
         });
     }
 
-    public Single<Connection> connect(final InetSocketAddress serverAddress) {
+    public Single<ConnectionInfo> connect(final InetSocketAddress serverAddress) {
         return Single.fromCallable(() -> {
            try (var channel = SocketChannel.open(serverAddress)) {
                ByteBuffer buffer = ByteBuffer.allocateDirect(Short.BYTES + Integer.BYTES);
-               buffer.putShort(connection.getLocalId())
-                     .putInt(connection.getQueuePairNumber())
+               buffer.putShort(connectionInfo.getLocalId())
+                     .putInt(connectionInfo.getQueuePairNumber())
                      .flip();
 
                channel.write(buffer);
@@ -85,7 +79,7 @@ public class ConnectionManager {
                channel.read(buffer);
                buffer.flip();
 
-               return new Connection(buffer);
+               return new ConnectionInfo(buffer);
            }
         });
     }
@@ -100,12 +94,12 @@ public class ConnectionManager {
         private final SocketChannel socketChannel;
         private final SelectionKey selectionKey;
 
-        Handler(SocketChannel socketChannel, SelectionKey selectionKey, Connection connection) {
+        Handler(SocketChannel socketChannel, SelectionKey selectionKey, ConnectionInfo connectionInfo) {
             this.socketChannel = socketChannel;
             this.selectionKey = selectionKey;
 
-            sendBuffer.putShort(connection.getLocalId());
-            sendBuffer.putInt(connection.getQueuePairNumber());
+            sendBuffer.putShort(connectionInfo.getLocalId());
+            sendBuffer.putInt(connectionInfo.getQueuePairNumber());
             sendBuffer.flip();
         }
 
@@ -125,8 +119,8 @@ public class ConnectionManager {
             selectionKey.interestOpsAnd(~SelectionKey.OP_WRITE);
         }
 
-        public Connection getConnection() {
-            return new Connection(receiveBuffer.flip());
+        public ConnectionInfo getConnection() {
+            return new ConnectionInfo(receiveBuffer.flip());
         }
 
         boolean isFinished() {
