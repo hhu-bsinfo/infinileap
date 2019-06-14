@@ -51,9 +51,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     
     api 'org.slf4j:slf4j-api:1.7.26'
-    api 'io.reactivex.rxjava2:rxjava:2.2.9'
     implementation 'org.jetbrains:annotations:17.0.0'
-    implementation 'javax.inject:javax.inject:1'
     
     testImplementation 'com.greghaskins:spectrum:1.2.0'
     testImplementation 'org.assertj:assertj-core:3.12.2'
@@ -61,15 +59,15 @@ dependencies {
 
 buildConfig {
     def gitVersion = versionDetails()
-    
+
     appName = project.name
     version = project.version
 
-    clsName = 'BuildConfig' 
+    clsName = 'BuildConfig'
     packageName = 'de.hhu.bsinfo.neutrino.generated'
-    
+
     charset = 'UTF-8'
-    
+
     buildConfigField 'String', 'BUILD_DATE', new Date().format('yyyy-MM-dd HH:mm:ss')
     buildConfigField 'String', 'GIT_COMMIT', gitVersion.gitHash
     buildConfigField 'String', 'GIT_BRANCH', gitVersion.branchName

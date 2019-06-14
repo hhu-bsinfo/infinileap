@@ -1,6 +1,5 @@
 package de.hhu.bsinfo.neutrino.buffer;
 
-import de.hhu.bsinfo.neutrino.api.request.CompletionManager;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.OpCode;
@@ -13,17 +12,11 @@ public class RemoteBuffer {
     private final long capacity;
     private final int key;
 
-    // TODO(krakowski)
-    //  Find a better solution to notify completion manager
-    //  than injecting a reference inside this class
-    private final CompletionManager completionManager;
-
-    public RemoteBuffer(QueuePair queuePair, long address, long capacity, int key, CompletionManager completionManager) {
+    public RemoteBuffer(QueuePair queuePair, long address, long capacity, int key) {
         this.queuePair = queuePair;
         this.address = address;
         this.capacity = capacity;
         this.key = key;
-        this.completionManager = completionManager;
     }
 
     public long read(RegisteredBuffer localBuffer) {
@@ -57,8 +50,6 @@ public class RemoteBuffer {
             config.setListHandle(elements.getHandle());
             config.setListLength(1);
         });
-
-        completionManager.setPending(request.getId());
 
         queuePair.postSend(request);
 
