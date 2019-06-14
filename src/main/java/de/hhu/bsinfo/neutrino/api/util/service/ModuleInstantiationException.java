@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.neutrino.api.module;
+package de.hhu.bsinfo.neutrino.api.util.service;
 
 import de.hhu.bsinfo.neutrino.api.util.FormattedRuntimeException;
 

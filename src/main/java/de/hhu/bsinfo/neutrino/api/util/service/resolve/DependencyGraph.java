@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package de.hhu.bsinfo.neutrino.api.module.resolve;
+package de.hhu.bsinfo.neutrino.api.util.service.resolve;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -1,6 +1,6 @@
-package de.hhu.bsinfo.neutrino.api.module;
+package de.hhu.bsinfo.neutrino.api.util.service;
 
-public abstract class Module<T extends ModuleOptions> {
+public abstract class Service<T extends ServiceOptions> {
 
     private T options;
 
@@ -9,7 +9,7 @@ public abstract class Module<T extends ModuleOptions> {
     protected abstract void onShutdown();
 
     @SuppressWarnings("unchecked")
-    void setOptions(ModuleOptions options) {
+    void setOptions(ServiceOptions options) {
         this.options = (T) options;
     }
 

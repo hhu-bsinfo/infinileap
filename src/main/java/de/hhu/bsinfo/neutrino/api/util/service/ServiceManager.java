@@ -14,45 +14,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package de.hhu.bsinfo.neutrino.api.module;
+package de.hhu.bsinfo.neutrino.api.util.service;
 
-import de.hhu.bsinfo.neutrino.api.module.inject.DependencyInjector;
-import de.hhu.bsinfo.neutrino.api.module.resolve.DependencyManager;
-import de.hhu.bsinfo.neutrino.api.module.resolve.ModuleProvider;
+import de.hhu.bsinfo.neutrino.api.util.service.inject.DependencyInjector;
+import de.hhu.bsinfo.neutrino.api.util.service.resolve.DependencyManager;
+import de.hhu.bsinfo.neutrino.api.util.service.resolve.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class ModuleManager implements ModuleProvider {
+public class ServiceManager implements ServiceProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModuleManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManager.class);
 
-    private final Map<Class<? extends Module<?>>, ModuleContainer> modules = new HashMap<>();
-    private final DependencyManager<Module<?>> dependencyManager = new DependencyManager<>();
+    private final Map<Class<? extends Service<?>>, ServiceContainer> services = new HashMap<>();
+    private final DependencyManager<Service<?>> dependencyManager = new DependencyManager<>();
     private final DependencyInjector injector;
 
-    public ModuleManager() {
+    public ServiceManager() {
         injector = new DependencyInjector(this);
     }
 
-    public void register(final Class<? extends Module<?>> module) {
-        Class<? extends Module<?>> moduleClass = findModuleClass(module);
-        modules.put(moduleClass, new ModuleContainer(module, findOptionsClass(moduleClass)));
+    private static void loadServices() {
+        ServiceLoader.load(Service.class);
+    }
+
+    public void register(final Class<? extends Service<?>> module) {
+        Class<? extends Service<?>> moduleClass = findModuleClass(module);
+        services.put(moduleClass, new ServiceContainer(module, findOptionsClass(moduleClass)));
         dependencyManager.register(moduleClass);
     }
 
     @SuppressWarnings("unchecked")
-    private static Class<? extends Module<?>> findModuleClass(final Class<?> target) {
+    private static Class<? extends Service<?>> findModuleClass(final Class<?> target) {
         var current = target;
         while (current.getSuperclass() != null) {
-            if (current.getSuperclass().equals(Module.class)) {
-                return (Class<? extends Module<?>>) current;
+            if (current.getSuperclass().equals(Service.class)) {
+                return (Class<? extends Service<?>>) current;
             }
 
             current = target.getSuperclass();
@@ -62,48 +63,46 @@ public class ModuleManager implements ModuleProvider {
     }
 
     @SuppressWarnings("unchecked")
-    private static Class<? extends ModuleOptions> findOptionsClass(final Class<? extends Module<?>> target) {
+    private static Class<? extends ServiceOptions> findOptionsClass(final Class<? extends Service<?>> target) {
         ParameterizedType parameterizedType = (ParameterizedType) target.getGenericSuperclass();
-        return (Class<? extends ModuleOptions>) parameterizedType.getActualTypeArguments()[0];
+        return (Class<? extends ServiceOptions>) parameterizedType.getActualTypeArguments()[0];
     }
 
     public void initialize() {
         for (var module : dependencyManager.getOrderedDependencies()) {
-            ModuleContainer container = modules.get(module);
-            ModuleOptions config = container.newOptionsInstance();
+            ServiceContainer container = services.get(module);
+            ServiceOptions config = container.newOptionsInstance();
             var instance = container.newInstance(config);
             injector.inject(instance);
             instance.onInit();
         }
     }
 
-    public List<Module<? extends ModuleOptions>> getModules() {
+    public List<Service<? extends ServiceOptions>> getServices() {
         return dependencyManager.getOrderedDependencies().stream()
-                .map(modules::get)
-                .map(ModuleContainer::getInstance)
+                .map(services::get)
+                .map(ServiceContainer::getInstance)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public <T extends Module<?>> T get(Class<T> module) {
-        return module.cast(modules.get(module).getInstance());
+    public <T extends Service<?>> T get(Class<T> module) {
+        return module.cast(services.get(module).getInstance());
     }
 
-    public static class ModuleContainer {
-        private final String name;
-        private final Class<? extends Module<? extends ModuleOptions>> moduleClass;
-        private final Class<? extends ModuleOptions> optionsClass;
+    public static class ServiceContainer {
+        private final Class<? extends Service<? extends ServiceOptions>> moduleClass;
+        private final Class<? extends ServiceOptions> optionsClass;
 
-        private Module<? extends ModuleOptions> instance;
+        private Service<? extends ServiceOptions> instance;
 
-        ModuleContainer(final Class<? extends Module<?>> moduleClass, final Class<? extends ModuleOptions> optionsClass) {
-            name = moduleClass.getSimpleName();
+        ServiceContainer(final Class<? extends Service<?>> moduleClass, final Class<? extends ServiceOptions> optionsClass) {
             this.moduleClass = moduleClass;
             this.optionsClass = optionsClass;
         }
 
-        ModuleOptions newOptionsInstance() {
+        ServiceOptions newOptionsInstance() {
             try {
                 return optionsClass.getConstructor().newInstance();
             } catch (final Exception e) {
@@ -111,7 +110,7 @@ public class ModuleManager implements ModuleProvider {
             }
         }
 
-        Module<? extends ModuleOptions> newInstance(final ModuleOptions options) {
+        Service<? extends ServiceOptions> newInstance(final ServiceOptions options) {
             if (instance != null) {
                 throw new ModuleInstantiationException("An instance of {} was already created: ", instance.getClass().getSimpleName());
             }
@@ -126,19 +125,15 @@ public class ModuleManager implements ModuleProvider {
             return instance;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public Class<? extends Module<?>> getModuleClass() {
+        public Class<? extends Service<?>> getModuleClass() {
             return moduleClass;
         }
 
-        public Class<? extends ModuleOptions> getOptionsClass() {
+        public Class<? extends ServiceOptions> getOptionsClass() {
             return optionsClass;
         }
 
-        public Module<?> getInstance() {
+        public Service<?> getInstance() {
             return instance;
         }
     }

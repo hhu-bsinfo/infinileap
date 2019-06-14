@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.neutrino.api.module.inject;
+package de.hhu.bsinfo.neutrino.api.util.service.inject;
 
 @FunctionalInterface
 public interface Injector {

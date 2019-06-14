@@ -1,7 +1,7 @@
-package de.hhu.bsinfo.neutrino.api.module.inject;
+package de.hhu.bsinfo.neutrino.api.util.service.inject;
 
-import de.hhu.bsinfo.neutrino.api.module.Module;
-import de.hhu.bsinfo.neutrino.api.module.resolve.ModuleProvider;
+import de.hhu.bsinfo.neutrino.api.util.service.Service;
+import de.hhu.bsinfo.neutrino.api.util.service.resolve.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +16,9 @@ public class DependencyInjector implements Injector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyInjector.class);
 
-    private final ModuleProvider provider;
+    private final ServiceProvider provider;
 
-    public DependencyInjector(final ModuleProvider provider) {
+    public DependencyInjector(final ServiceProvider provider) {
         this.provider = provider;
     }
 
@@ -30,11 +30,11 @@ public class DependencyInjector implements Injector {
                 throw new InjectionException("Injecting final fields is not supported");
             }
 
-            if (!Module.class.isAssignableFrom(injectableField.getType())) {
+            if (!Service.class.isAssignableFrom(injectableField.getType())) {
                 throw new InjectionException("Injection is only supported for modules");
             }
 
-            var type = (Class<? extends Module<?>>) injectableField.getType();
+            var type = (Class<? extends Service<?>>) injectableField.getType();
             Object object = provider.get(type);
 
             if (object == null) {

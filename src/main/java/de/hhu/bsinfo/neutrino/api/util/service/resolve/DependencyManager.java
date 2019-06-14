@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.neutrino.api.module.resolve;
+package de.hhu.bsinfo.neutrino.api.util.service.resolve;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
