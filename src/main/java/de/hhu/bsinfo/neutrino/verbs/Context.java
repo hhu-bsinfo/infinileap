@@ -96,7 +96,7 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public Port queryPort() {
+    public PortAttributes queryPort() {
         return queryPort(1);
     }
 

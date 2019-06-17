@@ -101,7 +101,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         return postReceive(receiveWorkRequests.getHandle());
     }
 
-    public boolean modify(final Consumer<Attributes> configurator, final AttributeMask... flags) {
+    public boolean modify(final Consumer<Attributes> configurator, final AttributeFlag... flags) {
         return modify(new Attributes(configurator), flags);
     }
 
