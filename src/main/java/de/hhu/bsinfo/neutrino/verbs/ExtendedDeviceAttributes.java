@@ -1,10 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
+import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
@@ -17,7 +14,7 @@ public class ExtendedDeviceAttributes extends Struct {
     private final NativeInteger compatibilityMask = integerField("comp_mask");
     private final NativeLong completionTimestampMask = longField("completion_timestamp_mask");
     private final NativeLong coreClockFrequency = longField("hca_core_clock");
-    private final NativeLong extendedDeviceCapabilities = longField("device_cap_flags_ex");
+    private final NativeLongBitMask<DeviceAttributes.CapabilityFlag> extendedDeviceCapabilities = longBitField("device_cap_flags_ex");
     private final NativeInteger maxReceiveQueueCount = integerField("max_wq_type_rq");
     private final NativeInteger rawPacketCapabilities = integerField("raw_packet_caps");
     private final NativeLong maxDeviceMemorySize = longField("max_dm_size");
@@ -151,7 +148,7 @@ public class ExtendedDeviceAttributes extends Struct {
     public static final class TcpSegmentOffloadingCapabilities extends Struct {
 
         private final NativeInteger maxTcpSegmentOffloading = integerField("max_tso");
-        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = intBitField("supported_qpts");
+        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = integerBitField("supported_qpts");
 
         TcpSegmentOffloadingCapabilities(LocalBuffer buffer, long offset) {
             super(buffer, offset);
@@ -191,7 +188,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public int getValue() {
+            public long getValue() {
                 return value;
             }
         }
@@ -206,16 +203,16 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public int getValue() {
+            public long getValue() {
                 return value;
             }
         }
 
-        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = intBitField("supported_qpts");
+        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = integerBitField("supported_qpts");
         private final NativeInteger maxIndirectionTables = integerField("max_rwq_indirection_tables");
         private final NativeInteger maxIndirectionTableSize = integerField("max_rwq_indirection_table_size");
-        private final NativeIntegerBitMask<RxHashField> rxHashFields = intBitField("rx_hash_fields_mask");
-        private final NativeIntegerBitMask<RxHashFunction> rxHashFunction = intBitField("rx_hash_function");
+        private final NativeIntegerBitMask<RxHashField> rxHashFields = integerBitField("rx_hash_fields_mask");
+        private final NativeIntegerBitMask<RxHashFunction> rxHashFunction = integerBitField("rx_hash_function");
 
         RssCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
@@ -258,7 +255,7 @@ public class ExtendedDeviceAttributes extends Struct {
 
         private final NativeInteger minQueuePairRateLimit = integerField("qp_rate_limit_min");
         private final NativeInteger maxQueuePairRateLimit = integerField("qp_rate_limit_max");
-        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = intBitField("supported_qpts");
+        private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = integerBitField("supported_qpts");
 
         PacketPacingCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);
@@ -299,14 +296,14 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public int getValue() {
+            public long getValue() {
                 return value;
             }
         }
 
         private final NativeInteger maxRendezvousRequestHeaderSize = integerField("max_rndv_hdr_size");
         private final NativeInteger maxTaggedBufferCount = integerField("max_num_tags");
-        private final NativeIntegerBitMask<TagMatchingCapabilityFlag> flags = intBitField("flags");
+        private final NativeIntegerBitMask<TagMatchingCapabilityFlag> flags = integerBitField("flags");
         private final NativeInteger maxOutstandingOperations = integerField("max_ops");
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
 
@@ -388,14 +385,14 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public int getValue() {
+            public long getValue() {
                 return value;
             }
         }
 
-        private final NativeIntegerBitMask<PciAtomicOperationSize> fetchAndAdd = intBitField("fetch_add");
-        private final NativeIntegerBitMask<PciAtomicOperationSize> swap = intBitField("swap");
-        private final NativeIntegerBitMask<PciAtomicOperationSize> compareAndSwap = intBitField("compare_swap");
+        private final NativeIntegerBitMask<PciAtomicOperationSize> fetchAndAdd = integerBitField("fetch_add");
+        private final NativeIntegerBitMask<PciAtomicOperationSize> swap = integerBitField("swap");
+        private final NativeIntegerBitMask<PciAtomicOperationSize> compareAndSwap = integerBitField("compare_swap");
 
         PciAtomicCapabilities(final LocalBuffer buffer, long offset) {
             super(buffer, offset);

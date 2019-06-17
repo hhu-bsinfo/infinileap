@@ -24,7 +24,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
-    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
+    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
     private final NativeEnum<WorkCompletion.Status> status = enumField("status", WorkCompletion.Status.CONVERTER);
     private final NativeLong workRequestId = longField("wr_id");
 
@@ -201,7 +201,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -216,7 +216,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -231,7 +231,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -243,9 +243,9 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         private final NativeLong userContext = longField("cq_context");
         private final NativeLong completionChannel = longField("channel");
         private final NativeInteger completionVector = integerField("comp_vector");
-        private final NativeIntegerBitMask<WorkCompletionCapability> workCompletionFlags = intBitField("wc_flags");
-        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
-        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("flags");
+        private final NativeIntegerBitMask<WorkCompletionCapability> workCompletionFlags = integerBitField("wc_flags");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("flags");
 
         public InitialAttributes() {}
 
@@ -326,7 +326,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     @LinkNative("ibv_poll_cq_attr")
     public static final class PollAttributes extends Struct {
 
-        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
 
         public PollAttributes() {}
 

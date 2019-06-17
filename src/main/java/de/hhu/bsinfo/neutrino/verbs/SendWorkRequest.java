@@ -73,7 +73,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -85,7 +85,7 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
     private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
-    private final NativeIntegerBitMask<SendFlag> flags = intBitField("send_flags");
+    private final NativeIntegerBitMask<SendFlag> flags = integerBitField("send_flags");
     private final NativeInteger immediateData = integerField("imm_data");
     private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
 

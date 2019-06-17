@@ -20,7 +20,7 @@ public class WorkCompletion extends Struct {
     private final NativeInteger invalidatedRemoteKey = integerField("invalidated_rkey");
     private final NativeInteger queuePairNumber = integerField("qp_num");
     private final NativeInteger sourceQueuePair = integerField("src_qp");
-    private final NativeIntegerBitMask<WorkCompletionFlag> flags = intBitField("wc_flags");
+    private final NativeIntegerBitMask<WorkCompletionFlag> flags = integerBitField("wc_flags");
     private final NativeShort partitionKeyIndex = shortField("pkey_index");
     private final NativeShort sourceLocalId = shortField("slid");
     private final NativeByte serviceLevel = byteField("sl");
@@ -209,7 +209,7 @@ public class WorkCompletion extends Struct {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }

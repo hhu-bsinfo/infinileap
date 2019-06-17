@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Native;
-
 public class Context implements NativeObject, AutoCloseable {
 
     static {
@@ -83,9 +81,9 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public Port queryPort(int portNumber) {
+    public PortAttributes queryPort(int portNumber) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
-        var port = new Port();
+        var port = new PortAttributes();
 
         Verbs.queryPort(getHandle(), port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {

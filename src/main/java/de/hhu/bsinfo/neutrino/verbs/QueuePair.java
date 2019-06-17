@@ -274,7 +274,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -380,7 +380,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -543,7 +543,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeInteger receivePacketNumber = integerField("rq_psn");
         private final NativeInteger sendPacketNumber = integerField("sq_psn");
         private final NativeInteger destination = integerField("dest_qp_num");
-        private final NativeIntegerBitMask<AccessFlag> accessFlags = intBitField("qp_access_flags");
+        private final NativeIntegerBitMask<AccessFlag> accessFlags = integerBitField("qp_access_flags");
         private final NativeShort partitionKeyIndex = shortField("pkey_index");
         private final NativeShort alternatePartitionKeyIndex = shortField("alt_pkey_index");
         private final NativeBoolean notifyDrained = booleanField("en_sqd_async_notify");

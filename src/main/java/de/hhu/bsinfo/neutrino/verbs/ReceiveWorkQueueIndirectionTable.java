@@ -78,7 +78,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -88,7 +88,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
         private final NativeInteger logarithmicTableSize = integerField("log_ind_tbl_size");
         private final NativeLong tableHandle = longField("ind_tbl");
-        private final NativeIntegerBitMask<InitialAttributeFlag> compatibilityMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<InitialAttributeFlag> compatibilityMask = integerBitField("comp_mask");
 
         private final LocalBuffer buffer;
 

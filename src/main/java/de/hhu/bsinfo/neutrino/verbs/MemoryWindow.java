@@ -127,7 +127,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
     public static final class BindAttributes extends Struct {
 
         private final NativeLong workRequestId = longField("wr_id");
-        private final NativeIntegerBitMask<SendFlag> sendFlags = intBitField("send_flags");
+        private final NativeIntegerBitMask<SendFlag> sendFlags = integerBitField("send_flags");
 
         public final BindInformation bindInfo = valueField("bind_info", BindInformation::new);
 
@@ -169,7 +169,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         private final NativeLong memoryRegion = longField("mr");
         private final NativeLong address = longField("addr");
         private final NativeLong length = longField("length");
-        private final NativeIntegerBitMask<AccessFlag> accessFlags = intBitField("mw_access_flags");
+        private final NativeIntegerBitMask<AccessFlag> accessFlags = integerBitField("mw_access_flags");
 
         BindInformation(final LocalBuffer buffer, final long offset) {
             super(buffer, offset);

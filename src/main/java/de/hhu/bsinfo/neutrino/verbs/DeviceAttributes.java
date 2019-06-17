@@ -1,11 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeString;
+import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 
 @LinkNative("ibv_device_attr")
@@ -21,7 +19,7 @@ public class DeviceAttributes extends Struct {
     private final NativeInteger hardwareVersion = integerField("hw_ver");
     private final NativeInteger maxQueuePairCount = integerField("max_qp");
     private final NativeInteger maxQueuePairSize = integerField("max_qp_wr");
-    private final NativeInteger deviceCapabilities = integerField("device_cap_flags");
+    private final NativeIntegerBitMask<CapabilityFlag> deviceCapabilities = integerBitField("device_cap_flags");
     private final NativeInteger maxScatterGatherCount = integerField("max_sge");
     private final NativeInteger maxRdScatterGatherCount = integerField("max_sge_rd");
     private final NativeInteger maxCompletionQueueCount = integerField("max_cq");
@@ -155,9 +153,29 @@ public class DeviceAttributes extends Struct {
             ",\n\tmaxAddressHandles=" + maxAddressHandles +
             ",\n\tmaxSharedReceiveQueueCount=" + maxSharedReceiveQueueCount +
             ",\n\tmaxSharedReceiveQueueSize=" + maxSharedReceiveQueueSize +
-            ",\n\tmaxSharedReceiveQueueScatterGatherCount="
-            + maxSharedReceiveQueueScatterGatherCount +
+            ",\n\tmaxSharedReceiveQueueScatterGatherCount=" + maxSharedReceiveQueueScatterGatherCount +
             ",\n\tphysicalPortCount=" + physicalPortCount +
             "\n}";
+    }
+
+    public enum CapabilityFlag implements Flag {
+        RESIZE_MAX_WR(1), BAD_PKEY_CNTR(1 <<  1), BAD_QKEY_CNTR(1 <<  2), RAW_MULTI(1 <<  3),
+        AUTO_PATH_MIG(1 <<  4), CHANGE_PHY_PORT(1 <<  5), UD_AV_PORT_ENFORCE(1 <<  6), CURR_QP_STATE_MOD(1 <<  7),
+        SHUTDOWN_PORT(1 <<  8), INIT_TYPE(1 <<  9), PORT_ACTIVE_EVENT(1 << 10), SYS_IMAGE_GUID(1 << 11),
+        RC_RNR_NAK_GEN(1 << 12), SRQ_RESIZE(1 << 13), N_NOTIFY_CQ(1 << 14), MEM_WINDOW(1 << 17),
+        UD_IP_CSUM(1 << 18), XRC(1 << 20), MEM_MGT_EXTENSIONS(1 << 21), MEM_WINDOW_TYPE_2A(1 << 23),
+        MEM_WINDOW_TYPE_2B(1 << 24), RC_IP_CSUM(1 << 25), RAW_IP_CSUM(1 << 26), MANAGED_FLOW_STEERING(1 << 29),
+        RAW_SCATTER_FCS(1L << 34), PCI_WRITE_END_PADDING(1L << 36);
+
+        private final long value;
+
+        CapabilityFlag(long value) {
+            this.value = value;
+        }
+
+        @Override
+        public long getValue() {
+            return value;
+        }
     }
 }

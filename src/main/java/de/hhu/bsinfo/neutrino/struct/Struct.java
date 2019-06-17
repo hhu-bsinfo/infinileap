@@ -162,15 +162,15 @@ public class Struct implements NativeObject {
         return field;
     }
 
-    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField(String identifier) {
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> integerBitField(String identifier) {
         return new NativeIntegerBitMask<>(byteBuffer, offsetOf(identifier));
     }
 
-    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField(long offset) {
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> integerBitField(long offset) {
         return new NativeIntegerBitMask<>(byteBuffer, offset);
     }
 
-    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> intBitField() {
+    protected final <T extends Enum<T> & Flag> NativeIntegerBitMask<T> integerBitField() {
         var field = new NativeIntegerBitMask<T>(byteBuffer, currentFieldOffset);
         currentFieldOffset += field.getSize();
         return field;

@@ -47,7 +47,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -63,7 +63,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -71,9 +71,9 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     @LinkNative("ibv_xrcd_init_attr")
     public static final class InitalAttributes extends Struct {
 
-        private final NativeIntegerBitMask<AttributeFlag> attributesMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<AttributeFlag> attributesMask = integerBitField("comp_mask");
         private final NativeInteger fileDescriptor = integerField("fd");
-        private final NativeIntegerBitMask<OperationFlag> operationFlags = intBitField("oflags");
+        private final NativeIntegerBitMask<OperationFlag> operationFlags = integerBitField("oflags");
 
         public InitalAttributes() {}
 

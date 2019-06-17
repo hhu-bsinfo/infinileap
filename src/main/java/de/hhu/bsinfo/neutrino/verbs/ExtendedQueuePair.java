@@ -138,7 +138,7 @@ public class ExtendedQueuePair extends Struct {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -154,7 +154,7 @@ public class ExtendedQueuePair extends Struct {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -164,29 +164,29 @@ public class ExtendedQueuePair extends Struct {
         WITH_RDMA_READ(1 << 4), WITH_ATOMIC_CMP_AND_SWP(1 << 5), WITH_ATOMIC_FETCH_AND_ADD(1 << 6),WITH_LOCAL_INV(1 << 7),
         WITH_BIND_MW(1 << 8), WITH_SEND_WITH_INV(1 << 9), WITH_TSO(1 << 10);
 
-        private final int value;
+        private final long value;
 
-        SendOperationFlag(int value) {
+        SendOperationFlag(long value) {
             this.value = value;
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
 
     public enum HashFunctionFlag implements Flag {
-        TOEPLITZ(1);
+        TOEPLITZ((byte) 1);
 
-        private final int value;
+        private final byte value;
 
-        HashFunctionFlag(int value) {
+        HashFunctionFlag(byte value) {
             this.value = value;
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -196,14 +196,14 @@ public class ExtendedQueuePair extends Struct {
         SRC_PORT_TCP(1 << 4), DST_PORT_TCP(1 << 5), SRC_PORT_UDP(1 << 6), DST_PORT_UDP(1 << 7),
         IPSEC_SPI(1 << 8), INNER(1 << 31);
 
-        private final int value;
+        private final long value;
 
-        HashFieldFlag(int value) {
+        HashFieldFlag(long value) {
             this.value = value;
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -316,10 +316,10 @@ public class ExtendedQueuePair extends Struct {
         public final QueuePair.Capabilities capabilities = valueField("cap", QueuePair.Capabilities::new);
 
         // Extended Queue Pair attributes
-        private final NativeIntegerBitMask<AttributeFlag> attributeMask = intBitField("comp_mask");
+        private final NativeIntegerBitMask<AttributeFlag> attributeMask = integerBitField("comp_mask");
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong extendedConnectionDomain = longField("xrcd");
-        private final NativeIntegerBitMask<CreationFlag> creationFlags = intBitField("create_flags");
+        private final NativeIntegerBitMask<CreationFlag> creationFlags = integerBitField("create_flags");
         private final NativeShort maxTcpSegmentationOffloadHeader = shortField("max_tso_header");
         private final NativeLong receiveWorkQueueIndirectionTable = longField("rwq_ind_tbl");
         private final NativeInteger sourceQueuePairNumber = integerField("source_qpn");

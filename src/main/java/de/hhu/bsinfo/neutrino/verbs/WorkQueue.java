@@ -25,7 +25,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
     private final NativeInteger state = integerField("state");
     private final NativeEnum<Type> type = enumField("wq_type", Type.CONVERTER);
     private final NativeInteger eventsCompleted = integerField("events_completed");
-    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
+    private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
 
     WorkQueue(final long handle) {
         super(handle);
@@ -227,7 +227,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -242,7 +242,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -258,7 +258,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public int getValue() {
+        public long getValue() {
             return value;
         }
     }
@@ -272,8 +272,8 @@ public class WorkQueue extends Struct implements AutoCloseable {
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong completionQueue = longField("cq");
-        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = intBitField("comp_mask");
-        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("create_flags");
+        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("create_flags");
 
         public InitialAttributes() {}
 
@@ -363,11 +363,11 @@ public class WorkQueue extends Struct implements AutoCloseable {
     @LinkNative("ibv_wq_attr")
     public static final class Attributes extends Struct {
 
-        private final NativeIntegerBitMask<AttributeFlag> attributesMask = intBitField("attr_mask");
+        private final NativeIntegerBitMask<AttributeFlag> attributesMask = integerBitField("attr_mask");
         private final NativeEnum<State> state = enumField("wq_state", State.CONVERTER);
         private final NativeEnum<State> currentState = enumField("curr_wq_state", State.CONVERTER);
-        private final NativeIntegerBitMask<CreationFlag> flags = intBitField("flags");
-        private final NativeIntegerBitMask<CreationFlag> flagsMask = intBitField("flags_mask");
+        private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("flags");
+        private final NativeIntegerBitMask<CreationFlag> flagsMask = integerBitField("flags_mask");
 
         public Attributes() {}
 

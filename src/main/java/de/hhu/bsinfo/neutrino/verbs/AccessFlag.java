@@ -14,7 +14,7 @@ public enum AccessFlag implements Flag {
     }
 
     @Override
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 }
