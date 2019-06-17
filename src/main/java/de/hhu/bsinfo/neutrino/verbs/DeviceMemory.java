@@ -6,7 +6,6 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,11 +77,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         private final NativeInteger logarithmicAlignmentRequirement = integerField("log_align_req");
         private final NativeInteger compatibilityMask = integerField("comp_mask");
 
-        public AllocationAttributes() {}
-
-        public AllocationAttributes(final Consumer<AllocationAttributes> configurator) {
-            configurator.accept(this);
-        }
+        AllocationAttributes() {}
 
         public long getLength() {
             return length.get();
@@ -115,6 +110,33 @@ public class DeviceMemory extends Struct implements AutoCloseable {
                     ",\n\tlogarithmicAlignmentRequirement=" + logarithmicAlignmentRequirement +
                     ",\n\tcompatibilityMask=" + compatibilityMask +
                     "\n}";
+        }
+
+        public static final class Builder {
+
+            private long length;
+            private int logarithmicAlignmentRequirement;
+            private int compatibilityMask = 0;
+
+            public Builder(final long length, final int logarithmicAlignmentRequirement) {
+                this.length = length;
+                this.logarithmicAlignmentRequirement = logarithmicAlignmentRequirement;
+            }
+
+            public Builder withCompatibilityMask(final int compatibilityMask) {
+                this.compatibilityMask = compatibilityMask;
+                return this;
+            }
+
+            public AllocationAttributes build() {
+                var ret = new AllocationAttributes();
+
+                ret.setLength(length);
+                ret.setLogarithmicAlignmentRequirement(logarithmicAlignmentRequirement);
+                ret.setCompatibilityMask(compatibilityMask);
+
+                return ret;
+            }
         }
     }
 }

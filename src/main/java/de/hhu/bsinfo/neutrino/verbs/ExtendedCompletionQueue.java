@@ -243,15 +243,11 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         private final NativeLong userContext = longField("cq_context");
         private final NativeLong completionChannel = longField("channel");
         private final NativeInteger completionVector = integerField("comp_vector");
-        private final NativeIntegerBitMask<WorkCompletionCapability> workCompletionFlags = integerBitField("wc_flags");
+        private final NativeIntegerBitMask<WorkCompletionCapability> workCompletionCapabilities = integerBitField("wc_flags");
         private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
-        private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("flags");
+        private final NativeIntegerBitMask<CreationFlag> creationFlags = integerBitField("flags");
 
-        public InitialAttributes() {}
-
-        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
-            configurator.accept(this);
-        }
+        InitialAttributes() {}
 
         public int getMaxElements() {
             return maxElements.get();
@@ -269,16 +265,16 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             return completionVector.get();
         }
 
-        public long getWorkCompletionFlags() {
-            return workCompletionFlags.get();
+        public long getWorkCompletionCapabilities() {
+            return workCompletionCapabilities.get();
         }
 
         public int getCompatibilityMask() {
             return compatibilityMask.get();
         }
 
-        public int getFlags() {
-            return flags.get();
+        public int getCreationFlags() {
+            return creationFlags.get();
         }
 
         public void setMaxElements(final int value) {
@@ -289,24 +285,24 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             userContext.set(value);
         }
 
-        public void setCompletionChannel(final @Nullable  CompletionChannel channel) {
-            completionChannel.set(channel == null ? 0 : channel.getHandle());
+        public void setCompletionChannel(final CompletionChannel channel) {
+            completionChannel.set(channel.getHandle());
         }
 
         public void setCompletionVector(final int value) {
             completionVector.set(value);
         }
 
-        public void setWorkCompletionFlags(final WorkCompletionCapability... flags) {
-            workCompletionFlags.set(flags);
+        public void setWorkCompletionCapabilities(final WorkCompletionCapability... flags) {
+            workCompletionCapabilities.set(flags);
         }
 
         public void setCompatibilityMask(final CompatibilityFlag... flags) {
             compatibilityMask.set(flags);
         }
 
-        public void setFlags(final CreationFlag... flags) {
-            this.flags.set(flags);
+        public void setCreationFlags(final CreationFlag... flags) {
+            this.creationFlags.set(flags);
         }
 
         @Override
@@ -316,30 +312,90 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
                     ",\n\tuserContext=" + userContext +
                     ",\n\tcompletionChannel=" + completionChannel +
                     ",\n\tcompletionVector=" + completionVector +
-                    ",\n\tworkCompletionFlags=" + workCompletionFlags +
+                    ",\n\tworkCompletionFlags=" + workCompletionCapabilities +
                     ",\n\tcompatibilityMask=" + compatibilityMask +
-                    ",\n\tflags=" + flags +
+                    ",\n\tflags=" + creationFlags +
                     "\n}";
+        }
+
+        public static final class Builder {
+
+            private int maxElements;
+            private long userContext = 0;
+            private CompletionChannel completionChannel;
+            private int completionVector = 0;
+            private WorkCompletionCapability[] workCompletionCapabilities;
+            private CompatibilityFlag[] compatibilityMask;
+            private CreationFlag[] creationFlags;
+
+            public Builder(final int maxElements) {
+                this.maxElements = maxElements;
+            }
+
+            public Builder withUserContext(final long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+
+            public Builder withCompletionChannel(final CompletionChannel completionChannel) {
+                this.completionChannel = completionChannel;
+                return this;
+            }
+
+            public Builder withCompletionVector(final int completionVector) {
+                this.completionVector = completionVector;
+                return this;
+            }
+
+            public Builder withWorkCompletionCapabilities(final WorkCompletionCapability... flags) {
+                workCompletionCapabilities = flags;
+                return this;
+            }
+
+            public Builder withCompatibilityMask(final CompatibilityFlag... flags) {
+                compatibilityMask = flags;
+                return this;
+            }
+
+            public Builder withCreationFlags(final CreationFlag... flags) {
+                creationFlags = flags;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new InitialAttributes();
+
+                ret.setMaxElements(maxElements);
+                ret.setUserContext(userContext);
+                ret.setCompletionVector(completionVector);
+
+                if(completionChannel != null) ret.setCompletionChannel(completionChannel);
+                if(workCompletionCapabilities != null) ret.setWorkCompletionCapabilities(workCompletionCapabilities);
+                if(compatibilityMask != null) ret.setCompatibilityMask(compatibilityMask);
+                if(creationFlags != null) ret.setCreationFlags(creationFlags);
+
+                return ret;
+            }
         }
     }
 
     @LinkNative("ibv_poll_cq_attr")
     public static final class PollAttributes extends Struct {
 
-        private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
+        private final NativeInteger compatibilityMask = integerField("comp_mask");
 
         public PollAttributes() {}
 
-        public PollAttributes(final Consumer<PollAttributes> configurator) {
-            configurator.accept(this);
+        public PollAttributes(int compatibilityMask) {
+            this.compatibilityMask.set(compatibilityMask);
         }
 
         public int getCompatibilityMask() {
             return compatibilityMask.get();
         }
 
-        public void setCompatibilityMask(final CompatibilityFlag... flags) {
-            compatibilityMask.set(flags);
+        public void setCompatibilityMask(final int compatibilityMask) {
+            this.compatibilityMask.set(compatibilityMask);
         }
 
         @Override

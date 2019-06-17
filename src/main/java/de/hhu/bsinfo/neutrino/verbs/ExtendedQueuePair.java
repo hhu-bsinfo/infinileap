@@ -8,6 +8,10 @@ import de.hhu.bsinfo.neutrino.util.LinkNative;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_qp_ex")
@@ -214,10 +218,9 @@ public class ExtendedQueuePair extends Struct {
         private final NativeLong address = longField("addr");
         private final NativeLong length = longField("length");
 
-        public InlineData() {}
-
-        public InlineData(final Consumer<InlineData> configurator) {
-            configurator.accept(this);
+        public InlineData(final int address, final int length) {
+            this.address.set(address);
+            this.length.set(length);
         }
 
         public long getAddress() {
@@ -251,12 +254,10 @@ public class ExtendedQueuePair extends Struct {
         private final NativeByteBitMask<HashFunctionFlag> function = byteBitField("rx_hash_function");
         private final NativeByte keyLength = byteField("rx_hash_key_len");
         private final NativeLong key = longField("rx_hash_key");
-        private final NativeLongBitMask<HashFieldFlag> fieldsMask = longBitField("rx_hash_fields_mask");
-
-        public ReceiveHashConfiguration() {}
-
-        public ReceiveHashConfiguration(LocalBuffer byteBuffer, long offset) {
-            super(byteBuffer, offset);
+        private final NativeLongBitMask<HashFieldFlag> fieldMask = longBitField("rx_hash_fields_mask");
+        
+        ReceiveHashConfiguration(final LocalBuffer buffer, final long offset) {
+            super(buffer, offset);
         }
 
         public byte getFunction() {
@@ -271,24 +272,24 @@ public class ExtendedQueuePair extends Struct {
             return key.get();
         }
 
-        public long getFieldsMask() {
-            return fieldsMask.get();
+        public long getFieldMask() {
+            return fieldMask.get();
         }
 
-        public void setFunction(final HashFunctionFlag... flags) {
-            function.set(flags);
+        void setFunction(final HashFunctionFlag function) {
+            this.function.set(function);
         }
 
-        public void setKeyLength(final byte value) {
+        void setKeyLength(final byte value) {
             keyLength.set(value);
         }
 
-        public void setKey(final long value) {
-            key.set(value);
+        void setKey(final LocalBuffer key) {
+            this.key.set(key.getHandle());
         }
 
-        public void setFieldsMask(final HashFieldFlag... flags) {
-            fieldsMask.set(flags);
+        void setFieldMask(final HashFieldFlag... flags) {
+            fieldMask.set(flags);
         }
 
         @Override
@@ -297,7 +298,7 @@ public class ExtendedQueuePair extends Struct {
                     "\n\tfunction=" + function +
                     ",\n\tkeyLength=" + keyLength +
                     ",\n\tkey=" + key +
-                    ",\n\tfieldsMask=" + fieldsMask +
+                    ",\n\tfieldsMask=" + fieldMask +
                     "\n}";
         }
     }
@@ -389,59 +390,59 @@ public class ExtendedQueuePair extends Struct {
             return sendOperationFlags.get();
         }
 
-        public void setUserContext(final long value) {
+        void setUserContext(final long value) {
             userContext.set(value);
         }
 
-        public void setSendCompletionQueue(final CompletionQueue sendCompletionQueue) {
+        void setSendCompletionQueue(final CompletionQueue sendCompletionQueue) {
             this.sendCompletionQueue.set(sendCompletionQueue.getHandle());
         }
 
-        public void setReceiveCompletionQueue(final CompletionQueue receiveCompletionQueue) {
+        void setReceiveCompletionQueue(final CompletionQueue receiveCompletionQueue) {
             this.receiveCompletionQueue.set(receiveCompletionQueue.getHandle());
         }
 
-        public void setSharedReceiveQueue(final SharedReceiveQueue sharedReceiveQueue) {
+        void setSharedReceiveQueue(final SharedReceiveQueue sharedReceiveQueue) {
             this.sharedReceiveQueue.set(sharedReceiveQueue.getHandle());
         }
 
-        public void setType(final QueuePair.Type value) {
+        void setType(final QueuePair.Type value) {
             type.set(value);
         }
 
-        public void setSignalLevel(final int value) {
+        void setSignalLevel(final int value) {
             signalLevel.set(value);
         }
 
-        public void setAttributeMask(final AttributeFlag... flags) {
+        void setAttributeMask(final AttributeFlag... flags) {
             attributeMask.set(flags);
         }
 
-        public void setProtectionDomain(final ProtectionDomain protectionDomain) {
+        void setProtectionDomain(final ProtectionDomain protectionDomain) {
             this.protectionDomain.set(protectionDomain.getHandle());
         }
 
-        public void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+        void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
             this.extendedConnectionDomain.set(extendedConnectionDomain.getHandle());
         }
 
-        public void setCreationFlags(final CreationFlag... flags) {
+        void setCreationFlags(final CreationFlag... flags) {
             creationFlags.set(flags);
         }
 
-        public void setMaxTcpSegmentationOffloadHeader(final short value) {
+        void setMaxTcpSegmentationOffloadHeader(final short value) {
             maxTcpSegmentationOffloadHeader.set(value);
         }
 
-        public void setReceiveWorkQueueIndirectionTable(final ReceiveWorkQueueIndirectionTable indirectionTable) {
+        void setReceiveWorkQueueIndirectionTable(final ReceiveWorkQueueIndirectionTable indirectionTable) {
             receiveWorkQueueIndirectionTable.set(indirectionTable.getHandle());
         }
 
-        public void setSourceQueuePairNumber(final int value) {
+        void setSourceQueuePairNumber(final int value) {
             sourceQueuePairNumber.set(value);
         }
 
-        public void setSendOperationFlags(final SendOperationFlag... flags) {
+        void setSendOperationFlags(final SendOperationFlag... flags) {
             sendOperationFlags.set(flags);
         }
 
@@ -465,6 +466,185 @@ public class ExtendedQueuePair extends Struct {
                     ",\n\tsourceQueuePairNumber=" + sourceQueuePairNumber +
                     ",\n\tsendOperationFlags=" + sendOperationFlags +
                     "\n}";
+        }
+        
+        public static final class Builder {
+
+            // Traditional Queue Pair attributes
+            private long userContext;
+            private CompletionQueue sendCompletionQueue;
+            private CompletionQueue receiveCompletionQueue;
+            private SharedReceiveQueue sharedReceiveQueue;
+            private QueuePair.Type type;
+            private int signalLevel;
+
+            // Extended Queue Pair attributes
+            private final Set<AttributeFlag> attributeMask = new HashSet<>();
+            private ProtectionDomain protectionDomain;
+            private ExtendedConnectionDomain extendedConnectionDomain;
+            private CreationFlag[] creationFlags;
+            private short maxTcpSegmentationOffloadHeader;
+            private ReceiveWorkQueueIndirectionTable receiveWorkQueueIndirectionTable;
+            private int sourceQueuePairNumber;
+            private SendOperationFlag[] sendOperationFlags;
+
+            // Capabilities
+            private int maxSendWorkRequests;
+            private int maxReceiveWorkRequests;
+            private int maxSendScatterGatherElements;
+            private int maxReceiveScatterGatherElements;
+            private int maxInlineData;
+
+            // Receive Hash Configuration
+            private HashFunctionFlag hashFunction;
+            private byte keyLength;
+            private LocalBuffer key;
+            private HashFieldFlag[] hashFieldFlags;
+
+            public Builder(QueuePair.Type type, ProtectionDomain protectionDomain) {
+                this.type = type;
+                this.protectionDomain = protectionDomain;
+                attributeMask.add(AttributeFlag.PD);
+            }
+
+            public Builder withUserContext(final long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+
+            public Builder withSendCompletionQueue(final CompletionQueue sendCompletionQueue) {
+                this.sendCompletionQueue = sendCompletionQueue;
+                return this;
+            }
+
+            public Builder withReceiveCompletionQueue(final CompletionQueue receiveCompletionQueue) {
+                this.receiveCompletionQueue = receiveCompletionQueue;
+                return this;
+            }
+
+            public Builder withSharedReceiveQueue(final SharedReceiveQueue sharedReceiveQueue) {
+                this.sharedReceiveQueue = sharedReceiveQueue;
+                return this;
+            }
+
+            public Builder withSignalLevel(final int signalLevel) {
+                this.signalLevel = signalLevel;
+                return this;
+            }
+
+            public Builder withExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+                this.extendedConnectionDomain = extendedConnectionDomain;
+                attributeMask.add(AttributeFlag.XRCD);
+                return this;
+            }
+
+            public Builder withCreationFlags(final CreationFlag... flags) {
+                creationFlags = flags;
+                attributeMask.add(AttributeFlag.CREATE_FLAGS);
+                return this;
+            }
+
+            public Builder withMaxTcpSegmentationOffloadHeader(final short maxTcpSegmentationOffloadHeader) {
+                this.maxTcpSegmentationOffloadHeader = maxTcpSegmentationOffloadHeader;
+                attributeMask.add(AttributeFlag.MAX_TSO_HEADER);
+                return this;
+            }
+
+            public Builder withReceiveWorkQueueIndirectionTable(final ReceiveWorkQueueIndirectionTable indirectionTable) {
+                receiveWorkQueueIndirectionTable = indirectionTable;
+                attributeMask.add(AttributeFlag.IND_TABLE);
+                attributeMask.add(AttributeFlag.RX_HASH);
+                return this;
+            }
+
+            public Builder withSourceQueuePairNumber(final int sourceQueuePairNumber) {
+                this.sourceQueuePairNumber = sourceQueuePairNumber;
+                return this;
+            }
+
+            public Builder withSendOperationFlags(final SendOperationFlag... flags) {
+                sendOperationFlags = flags;
+                attributeMask.add(AttributeFlag.SEND_OPS_FLAGS);
+                return this;
+            }
+
+            public Builder withMaxSendWorkRequests(final int maxSendWorkRequests) {
+                this.maxSendWorkRequests = maxSendWorkRequests;
+                return this;
+            }
+
+            public Builder withMaxReceiveWorkRequests(final int maxReceiveWorkRequests) {
+                this.maxReceiveWorkRequests = maxReceiveWorkRequests;
+                return this;
+            }
+
+            public Builder withMaxSendScatterGatherElements(final int maxSendScatterGatherElements) {
+                this.maxSendScatterGatherElements = maxSendScatterGatherElements;
+                return this;
+            }
+
+            public Builder withMaxReceiveScatterGatherElements(final int maxReceiveScatterGatherElements) {
+                this.maxReceiveScatterGatherElements = maxReceiveScatterGatherElements;
+                return this;
+            }
+
+            public Builder withMaxInlineData(final int maxInlineData) {
+                this.maxInlineData = maxInlineData;
+                return this;
+            }
+
+            public Builder withReceiveHashFunction(HashFunctionFlag hashFunction) {
+                this.hashFunction = hashFunction;
+                return this;
+            }
+
+            public Builder withReceiveHashKeyLength(byte keyLength) {
+                this.keyLength = keyLength;
+                return this;
+            }
+
+            public Builder withReceiveHashKey(LocalBuffer key) {
+                this.key = key;
+                return this;
+            }
+
+            public Builder withReceiveHashFieldFlags(HashFieldFlag... flags) {
+                hashFieldFlags = flags;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new ExtendedQueuePair.InitialAttributes();
+
+                ret.setType(type);
+                ret.setUserContext(userContext);
+                ret.setSignalLevel(signalLevel);
+                ret.setMaxTcpSegmentationOffloadHeader(maxTcpSegmentationOffloadHeader);
+                ret.setSourceQueuePairNumber(sourceQueuePairNumber);
+                ret.setProtectionDomain(protectionDomain);
+                ret.setAttributeMask(attributeMask.toArray(new AttributeFlag[0]));
+
+                if(sendCompletionQueue != null) ret.setSendCompletionQueue(sendCompletionQueue);
+                if(receiveCompletionQueue != null) ret.setReceiveCompletionQueue(receiveCompletionQueue);
+                if(sharedReceiveQueue != null) ret.setSharedReceiveQueue(sharedReceiveQueue);
+                if(extendedConnectionDomain != null) ret.setExtendedConnectionDomain(extendedConnectionDomain);
+                if(creationFlags != null) ret.setCreationFlags(creationFlags);
+                if(receiveWorkQueueIndirectionTable != null) ret.setReceiveWorkQueueIndirectionTable(receiveWorkQueueIndirectionTable);
+                if(sendOperationFlags != null) ret.setSendOperationFlags(sendOperationFlags);
+
+                ret.capabilities.setMaxSendWorkRequests(maxSendWorkRequests);
+                ret.capabilities.setMaxReceiveWorkRequests(maxReceiveWorkRequests);
+                ret.capabilities.setMaxSendScatterGatherElements(maxSendScatterGatherElements);
+                ret.capabilities.setMaxReceiveScatterGatherElements(maxReceiveScatterGatherElements);
+                ret.capabilities.setMaxInlineData(maxInlineData);
+
+                ret.receiveHashConfiguration.setKeyLength(keyLength);
+                if(hashFunction != null) ret.receiveHashConfiguration.setFunction(hashFunction);
+                if(key != null) ret.receiveHashConfiguration.setKey(key);
+                if(hashFieldFlags != null) ret.receiveHashConfiguration.setFieldMask(hashFieldFlags);
+
+                return ret;
+            }
         }
     }
 }

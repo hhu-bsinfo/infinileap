@@ -50,7 +50,7 @@ public class AddressHandle extends Struct {
     @LinkNative("ibv_ah_attr")
     public static final class Attributes extends Struct {
 
-        private final NativeShort destination = shortField("dlid");
+        private final NativeShort remoteLocalId = shortField("dlid");
         private final NativeByte serviceLevel = byteField("sl");
         private final NativeByte sourcePathBits = byteField("src_path_bits");
         private final NativeByte staticRate = byteField("static_rate");
@@ -59,18 +59,14 @@ public class AddressHandle extends Struct {
 
         public final GlobalRoute globalRoute = valueField("grh", GlobalRoute::new);
 
+        Attributes() {}
+
         Attributes(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
         }
 
-        public Attributes() {}
-
-        public Attributes(final Consumer<Attributes> configurator) {
-            configurator.accept(this);
-        }
-
-        public short getDestination() {
-            return destination.get();
+        public short getRemoteLocalId() {
+            return remoteLocalId.get();
         }
 
         public byte getServiceLevel() {
@@ -93,8 +89,8 @@ public class AddressHandle extends Struct {
             return portNumber.get();
         }
 
-        public void setDestination(final short value) {
-            destination.set(value);
+        public void setRemoteLocalId(final short value) {
+            remoteLocalId.set(value);
         }
 
         public void setServiceLevel(final byte value) {
@@ -120,7 +116,7 @@ public class AddressHandle extends Struct {
         @Override
         public String toString() {
             return "{" +
-                "\n\tdestination=" + destination +
+                "\n\tdestination=" + remoteLocalId +
                 ",\n\tserviceLevel=" + serviceLevel +
                 ",\n\tsourcePathBits=" + sourcePathBits +
                 ",\n\tstaticRate=" + staticRate +
@@ -129,6 +125,108 @@ public class AddressHandle extends Struct {
                 ",\n\tglobalRoute=" + globalRoute +
                 "\n}";
         }
+
+        public static final class Builder {
+
+            private short remoteLocalId;
+            private byte serviceLevel;
+            private byte sourcePathBits;
+            private byte staticRate;
+            private boolean isGlobal;
+            private byte portNumber;
+
+            // Global Route
+            private long remoteGlobalId;
+            private int flowLabel;
+            private byte index;
+            private byte hopLimit;
+            private byte trafficClass;
+
+            public Builder(short remoteLocalId, byte remotePortNumber) {
+                this.remoteLocalId = remoteLocalId;
+                this.portNumber = remotePortNumber;
+
+                // Default values
+                serviceLevel = 1;
+                sourcePathBits = 0;
+                staticRate = 0;
+                isGlobal = false;
+            }
+
+            public Builder withRemoteLocalId(final short remoteLocalId) {
+                this.remoteLocalId = remoteLocalId;
+                return this;
+            }
+
+            public Builder withServiceLevel(final byte serviceLevel) {
+                this.serviceLevel = serviceLevel;
+                return this;
+            }
+
+            public Builder withSourcePathBits(final byte sourcePathBits) {
+                this.sourcePathBits = sourcePathBits;
+                return this;
+            }
+
+            public Builder withStaticRate(final byte staticRate) {
+                this.staticRate = staticRate;
+                return this;
+            }
+
+            public Builder withIsGlobal(final boolean isGlobal) {
+                this.isGlobal = isGlobal;
+                return this;
+            }
+
+            public Builder withRemotePortNumber(final byte portNumber) {
+                this.portNumber = portNumber;
+                return this;
+            }
+
+            public Builder withRemoteGlobalId(final long remoteGlobalId) {
+                this.remoteGlobalId = remoteGlobalId;
+                return this;
+            }
+
+            public Builder withFlowLabel(final int flowLabel) {
+                this.flowLabel = flowLabel;
+                return this;
+            }
+
+            public Builder withIndex(final byte index) {
+                this.index = index;
+                return this;
+            }
+
+            public Builder withHopLimit(final byte hopLimit) {
+                this.hopLimit = hopLimit;
+                return this;
+            }
+
+            public Builder withTrafficClass(final byte trafficClass) {
+                this.trafficClass = trafficClass;
+                return this;
+            }
+
+            public Attributes build() {
+                Attributes ret = new Attributes();
+
+                ret.setRemoteLocalId(remoteLocalId);
+                ret.setServiceLevel(serviceLevel);
+                ret.setSourcePathBits(sourcePathBits);
+                ret.setStaticRate(staticRate);
+                ret.setIsGlobal(isGlobal);
+                ret.setPortNumber(portNumber);
+
+                ret.globalRoute.setRemoteGlobalId(remoteGlobalId);
+                ret.globalRoute.setFlowLabel(flowLabel);
+                ret.globalRoute.setIndex(index);
+                ret.globalRoute.setHopLimit(hopLimit);
+                ret.globalRoute.setTrafficClass(trafficClass);
+
+                return ret;
+            }
+        }
     }
 
 
@@ -136,7 +234,7 @@ public class AddressHandle extends Struct {
     @LinkNative("ibv_global_route")
     public static final class GlobalRoute extends Struct {
 
-        private final NativeLong destination = longField("dgid");
+        private final NativeLong remoteGlobalId = longField("dgid");
         private final NativeInteger flowLabel = integerField("flow_label");
         private final NativeByte index = byteField("sgid_index");
         private final NativeByte hopLimit = byteField("hop_limit");
@@ -146,14 +244,8 @@ public class AddressHandle extends Struct {
             super(byteBuffer, offset);
         }
 
-        public GlobalRoute() {}
-
-        public GlobalRoute(final Consumer<GlobalRoute> configurator) {
-            configurator.accept(this);
-        }
-
-        public long getDestination() {
-            return destination.get();
+        public long getRemoteGlobalId() {
+            return remoteGlobalId.get();
         }
 
         public int getFlowLabel() {
@@ -172,30 +264,30 @@ public class AddressHandle extends Struct {
             return trafficClass.get();
         }
 
-        public void setDestination(final long value) {
-            destination.set(value);
+        void setRemoteGlobalId(final long value) {
+            remoteGlobalId.set(value);
         }
 
-        public void setFlowLabel(final int value) {
+        void setFlowLabel(final int value) {
             flowLabel.set(value);
         }
 
-        public void setIndex(final byte value) {
+        void setIndex(final byte value) {
             index.set(value);
         }
 
-        public void setHopLimit(final byte value) {
+        void setHopLimit(final byte value) {
             hopLimit.set(value);
         }
 
-        public void setTrafficClass(final byte value) {
+        void setTrafficClass(final byte value) {
             trafficClass.set(value);
         }
 
         @Override
         public String toString() {
             return "{" +
-                "\n\tdestination=" + destination +
+                "\n\tdestination=" + remoteGlobalId +
                 ",\n\tflowLabel=" + flowLabel +
                 ",\n\tindex=" + index +
                 ",\n\thopLimit=" + hopLimit +

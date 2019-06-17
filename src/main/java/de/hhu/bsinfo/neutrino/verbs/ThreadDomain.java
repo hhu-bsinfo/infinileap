@@ -42,8 +42,8 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
         public InitialAttributes() {}
 
-        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
-            configurator.accept(this);
+        public InitialAttributes(int compatibilityMask) {
+            this.compatibilityMask.set(compatibilityMask);
         }
 
         public int getCompatibilityMask() {

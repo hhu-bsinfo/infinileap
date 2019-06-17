@@ -17,7 +17,8 @@ import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
-import java.util.Arrays;
+
+import java.util.*;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         return postReceive(receiveWorkRequests.getHandle());
     }
 
-    public boolean modify(final Attributes attributes, final AttributeFlag... flags) {
+    private boolean modify(final Attributes attributes, final AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
@@ -115,6 +116,10 @@ public class QueuePair extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         return !isError;
+    }
+
+    public boolean modify(final Attributes.Builder builder) {
+        return modify(builder.build(), builder.getAttributeFlags());
     }
 
     @Nullable
@@ -422,47 +427,48 @@ public class QueuePair extends Struct implements AutoCloseable {
             return userContext.get();
         }
 
-        public void setUserContext(long userContext) {
-            this.userContext.set(userContext);
-        }
-
         public long getSendCompletionQueue() {
             return sendCompletionQueue.get();
-        }
-
-        public void setSendCompletionQueue(CompletionQueue sendCompletionQueue) {
-            this.sendCompletionQueue.set(sendCompletionQueue.getHandle());
         }
 
         public long getReceiveCompletionQueue() {
             return receiveCompletionQueue.get();
         }
 
-        public void setReceiveCompletionQueue(CompletionQueue receiveCompletionQueue) {
-            this.receiveCompletionQueue.set(receiveCompletionQueue.getHandle());
-        }
-
         public long getSharedReceiveQueue() {
             return sharedReceiveQueue.get();
-        }
-
-        public void setSharedReceiveQueue(@Nullable SharedReceiveQueue sharedReceiveQueue) {
-            this.sharedReceiveQueue.set(sharedReceiveQueue == null ? 0 : sharedReceiveQueue.getHandle());
         }
 
         public Type getType() {
             return type.get();
         }
 
-        public void setType(Type type) {
-            this.type.set(type);
-        }
-
         public int getSignalLevel() {
             return signalLevel.get();
         }
 
-        public void setSignalLevel(int signalLevel) {
+        void setUserContext(long userContext) {
+            this.userContext.set(userContext);
+        }
+
+        void setSendCompletionQueue(CompletionQueue sendCompletionQueue) {
+            this.sendCompletionQueue.set(sendCompletionQueue.getHandle());
+        }
+
+
+        void setReceiveCompletionQueue(CompletionQueue receiveCompletionQueue) {
+            this.receiveCompletionQueue.set(receiveCompletionQueue.getHandle());
+        }
+
+        void setSharedReceiveQueue(@Nullable SharedReceiveQueue sharedReceiveQueue) {
+            this.sharedReceiveQueue.set(sharedReceiveQueue == null ? 0 : sharedReceiveQueue.getHandle());
+        }
+
+        void setType(Type type) {
+            this.type.set(type);
+        }
+
+        void setSignalLevel(int signalLevel) {
             this.signalLevel.set(signalLevel);
         }
 
@@ -478,6 +484,79 @@ public class QueuePair extends Struct implements AutoCloseable {
                 ",\n\tcapabilities=" + capabilities +
                 "\n}";
         }
+
+        public static final class Builder {
+
+            private long userContext;
+            private CompletionQueue sendCompletionQueue;
+            private CompletionQueue receiveCompletionQueue;
+            private SharedReceiveQueue sharedReceiveQueue;
+            private QueuePair.Type type;
+            private int signalLevel;
+
+            // Capabilities
+            private int maxSendWorkRequests;
+            private int maxReceiveWorkRequests;
+            private int maxSendScatterGatherElements;
+            private int maxReceiveScatterGatherElements;
+            private int maxInlineData;
+
+            public Builder(Type type, CompletionQueue sendCompletionQueue, CompletionQueue receiveCompletionQueue,
+                           int maxSendWorkRequests, int maxReceiveWorkRequests, int maxSendScatterGatherElements, int maxReceiveScatterGatherElements) {
+                this.type = type;
+                this.sendCompletionQueue = sendCompletionQueue;
+                this.receiveCompletionQueue = receiveCompletionQueue;
+                this.maxSendWorkRequests = maxSendWorkRequests;
+                this.maxReceiveWorkRequests = maxReceiveWorkRequests;
+                this.maxSendScatterGatherElements = maxSendScatterGatherElements;
+                this.maxReceiveScatterGatherElements = maxReceiveScatterGatherElements;
+            }
+
+            public Builder withUserContext(final long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+
+            public Builder withSharedReceiveQueue(final SharedReceiveQueue sharedReceiveQueue) {
+                this.sharedReceiveQueue = sharedReceiveQueue;
+                return this;
+            }
+
+            public Builder withType(final QueuePair.Type type) {
+                this.type = type;
+                return this;
+            }
+
+            public Builder withSignalLevel(final int signalLevel) {
+                this.signalLevel = signalLevel;
+                return this;
+            }
+
+            public Builder withMaxInlineData(final int maxInlineData) {
+                this.maxInlineData = maxInlineData;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new InitialAttributes();
+
+                ret.setType(type);
+                ret.setUserContext(userContext);
+                ret.setSignalLevel(signalLevel);
+
+                if(sendCompletionQueue != null) ret.setSendCompletionQueue(sendCompletionQueue);
+                if(receiveCompletionQueue != null) ret.setReceiveCompletionQueue(receiveCompletionQueue);
+                if(sharedReceiveQueue != null) ret.setSharedReceiveQueue(sharedReceiveQueue);
+
+                ret.capabilities.setMaxSendWorkRequests(maxSendWorkRequests);
+                ret.capabilities.setMaxReceiveWorkRequests(maxReceiveWorkRequests);
+                ret.capabilities.setMaxSendScatterGatherElements(maxSendScatterGatherElements);
+                ret.capabilities.setMaxReceiveScatterGatherElements(maxReceiveScatterGatherElements);
+                ret.capabilities.setMaxInlineData(maxInlineData);
+
+                return ret;
+            }
+        }
     }
 
     @LinkNative("ibv_qp_cap")
@@ -489,49 +568,47 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeInteger maxReceiveScatterGatherElements = integerField("max_recv_sge");
         private final NativeInteger maxInlineData = integerField("max_inline_data");
 
-        public Capabilities() {}
-
-        public Capabilities(LocalBuffer byteBuffer, long offset) {
+        Capabilities(LocalBuffer byteBuffer, long offset) {
             super(byteBuffer, offset);
-        }
-
-        public int getMaxSendWorkRequests() {
-            return maxSendWorkRequests.get();
-        }
-
-        public void setMaxSendWorkRequests(int maxSendWorkRequests) {
-            this.maxSendWorkRequests.set(maxSendWorkRequests);
         }
 
         public int getMaxReceiveWorkRequests() {
             return maxReceiveWorkRequests.get();
         }
 
-        public void setMaxReceiveWorkRequests(int maxReceiveWorkRequests) {
-            this.maxReceiveWorkRequests.set(maxReceiveWorkRequests);
+        public int getMaxSendWorkRequests() {
+            return maxSendWorkRequests.get();
         }
 
         public int getMaxSendScatterGatherElements() {
             return maxSendScatterGatherElements.get();
         }
 
-        public void setMaxSendScatterGatherElements(int maxSendScatterGatherElements) {
-            this.maxSendScatterGatherElements.set(maxSendScatterGatherElements);
-        }
-
         public int getMaxReceiveScatterGatherElements() {
             return maxReceiveScatterGatherElements.get();
-        }
-
-        public void setMaxReceiveScatterGatherElements(int maxReceiveScatterGatherElements) {
-            this.maxReceiveScatterGatherElements.set(maxReceiveScatterGatherElements);
         }
 
         public int getMaxInlineData() {
             return maxInlineData.get();
         }
 
-        public void setMaxInlineData(int maxInlineData) {
+        void setMaxReceiveWorkRequests(int maxReceiveWorkRequests) {
+            this.maxReceiveWorkRequests.set(maxReceiveWorkRequests);
+        }
+
+        void setMaxSendWorkRequests(int maxSendWorkRequests) {
+            this.maxSendWorkRequests.set(maxSendWorkRequests);
+        }
+
+        void setMaxSendScatterGatherElements(int maxSendScatterGatherElements) {
+            this.maxSendScatterGatherElements.set(maxSendScatterGatherElements);
+        }
+
+        void setMaxReceiveScatterGatherElements(int maxReceiveScatterGatherElements) {
+            this.maxReceiveScatterGatherElements.set(maxReceiveScatterGatherElements);
+        }
+
+        void setMaxInlineData(int maxInlineData) {
             this.maxInlineData.set(maxInlineData);
         }
 
@@ -548,7 +625,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     @LinkNative("ibv_qp_open_attr")
-    public final class OpenAttributes extends Struct {
+    public static final class OpenAttributes extends Struct {
 
         private final NativeIntegerBitMask<OpenAttributeFlag> attributeMask = integerBitField("comp_mask");
         private final NativeInteger queuePairNumber = integerField("qp_num");
@@ -556,11 +633,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeLong userContext = longField("qp_context");
         private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
 
-        public OpenAttributes() {}
-
-        public OpenAttributes(LocalBuffer byteBuffer, long offset) {
-            super(byteBuffer, offset);
-        }
+        OpenAttributes() {}
 
         public int getAttributeMask() {
             return attributeMask.get();
@@ -582,24 +655,70 @@ public class QueuePair extends Struct implements AutoCloseable {
             return type.get();
         }
 
-        public void setAttributeMask(final OpenAttributeFlag... flags) {
+        void setAttributeMask(final OpenAttributeFlag... flags) {
             attributeMask.set(flags);
         }
 
-        public void setQueuePairNumber(final int value) {
+        void setQueuePairNumber(final int value) {
             queuePairNumber.set(value);
         }
 
-        public void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+        void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
             this.extendedConnectionDomain.set(extendedConnectionDomain.getHandle());
         }
 
-        public void setUserContext(final long value) {
+        void setUserContext(final long value) {
             userContext.set(value);
         }
 
-        public void setType(final Type value) {
+        void setType(final Type value) {
             type.set(value);
+        }
+
+        @Override
+        public String toString() {
+            return "OpenAttributes {" +
+                    "\n\tattributeMask=" + attributeMask +
+                    ",\n\tqueuePairNumber=" + queuePairNumber +
+                    ",\n\textendedConnectionDomain=" + extendedConnectionDomain +
+                    ",\n\tuserContext=" + userContext +
+                    ",\n\ttype=" + type +
+                    "\n}";
+        }
+
+        public static final class Builder {
+
+            private final Set<OpenAttributeFlag> attributeFlags = new HashSet<>();
+            private int queuePairNumber;
+            private ExtendedConnectionDomain extendedConnectionDomain;
+            private long userContext;
+            private Type type;
+
+            public Builder(int queuePairNumber, Type type, ExtendedConnectionDomain extendedConnectionDomain) {
+                this.type = type;
+                this.queuePairNumber = queuePairNumber;
+                this.extendedConnectionDomain = extendedConnectionDomain;
+                attributeFlags.add(OpenAttributeFlag.XRCD);
+                attributeFlags.add(OpenAttributeFlag.TYPE);
+                attributeFlags.add(OpenAttributeFlag.NUM);
+            }
+
+            public Builder withUserContext(long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+            
+            public OpenAttributes build() {
+                var ret = new OpenAttributes();
+                
+                ret.setAttributeMask(attributeFlags.toArray(new OpenAttributeFlag[0]));
+                ret.setQueuePairNumber(queuePairNumber);
+                ret.setUserContext(userContext);
+                ret.setType(type);
+                ret.setExtendedConnectionDomain(extendedConnectionDomain);
+                
+                return ret;
+            }
         }
     }
 
@@ -610,10 +729,10 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeEnum<State> currentState = enumField("cur_qp_state", State.CONVERTER);
         private final NativeEnum<Mtu> pathMtu = enumField("path_mtu", Mtu.CONVERTER);
         private final NativeEnum<MigrationState> pathMigrationState = enumField("path_mig_state", MigrationState.CONVERTER);
-        private final NativeInteger key = integerField("qkey");
+        private final NativeInteger qkey = integerField("qkey");
         private final NativeInteger receivePacketNumber = integerField("rq_psn");
         private final NativeInteger sendPacketNumber = integerField("sq_psn");
-        private final NativeInteger destination = integerField("dest_qp_num");
+        private final NativeInteger remoteQueuePairNumber = integerField("dest_qp_num");
         private final NativeIntegerBitMask<AccessFlag> accessFlags = integerBitField("qp_access_flags");
         private final NativeShort partitionKeyIndex = shortField("pkey_index");
         private final NativeShort alternatePartitionKeyIndex = shortField("alt_pkey_index");
@@ -626,23 +745,15 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeByte timeout = byteField("timeout");
         private final NativeByte retryCount = byteField("retry_cnt");
         private final NativeByte rnrRetryCount = byteField("rnr_retry");
-        private final NativeByte altPortNumber = byteField("alt_port_num");
-        private final NativeByte altTimeout = byteField("alt_timeout");
+        private final NativeByte alternatePortNumber = byteField("alt_port_num");
+        private final NativeByte alternateTimeout = byteField("alt_timeout");
         private final NativeInteger rateLimit = integerField("rate_limit");
 
         public final Capabilities capabilities = valueField("cap", Capabilities::new);
         public final AddressHandle.Attributes addressHandle = valueField("ah_attr", AddressHandle.Attributes::new);
-        public final AddressHandle.Attributes alternativeAddressHandle = valueField("alt_ah_attr", AddressHandle.Attributes::new);
+        public final AddressHandle.Attributes alternateAddressHandle = valueField("alt_ah_attr", AddressHandle.Attributes::new);
 
-        public Attributes() {}
-
-        public Attributes(final Consumer<Attributes> configurator) {
-            configurator.accept(this);
-        }
-
-        public Attributes(final long handle) {
-            super(handle);
-        }
+        Attributes() {}
 
         public State getState() {
             return state.get();
@@ -660,8 +771,8 @@ public class QueuePair extends Struct implements AutoCloseable {
             return pathMigrationState.get();
         }
 
-        public int getKey() {
-            return key.get();
+        public int getQkey() {
+            return qkey.get();
         }
 
         public int getReceivePacketNumber() {
@@ -672,8 +783,8 @@ public class QueuePair extends Struct implements AutoCloseable {
             return sendPacketNumber.get();
         }
 
-        public int getDestination() {
-            return destination.get();
+        public int getRemoteQueuePairNumber() {
+            return remoteQueuePairNumber.get();
         }
 
         public int getAccessFlags() {
@@ -724,107 +835,107 @@ public class QueuePair extends Struct implements AutoCloseable {
             return rnrRetryCount.get();
         }
 
-        public byte getAltPortNumber() {
-            return altPortNumber.get();
+        public byte getAlternatePortNumber() {
+            return alternatePortNumber.get();
         }
 
-        public byte getAltTimeout() {
-            return altTimeout.get();
+        public byte getAlternateTimeout() {
+            return alternateTimeout.get();
         }
 
         public int getRateLimit() {
             return rateLimit.get();
         }
 
-        public void setState(final State value) {
+        void setState(final State value) {
             state.set(value);
         }
 
-        public void setCurrentState(final State value) {
+        void setCurrentState(final State value) {
             currentState.set(value);
         }
 
-        public void setPathMtu(final Mtu value) {
+        void setPathMtu(final Mtu value) {
             pathMtu.set(value);
         }
 
-        public void setPathMigrationState(final MigrationState value) {
+        void setPathMigrationState(final MigrationState value) {
             pathMigrationState.set(value);
         }
 
-        public void setKey(final int value) {
-            key.set(value);
+        void setQkey(final int value) {
+            qkey.set(value);
         }
 
-        public void setReceivePacketNumber(final int value) {
+        void setReceivePacketNumber(final int value) {
             receivePacketNumber.set(value);
         }
 
-        public void setSendPacketNumber(final int value) {
+        void setSendPacketNumber(final int value) {
             sendPacketNumber.set(value);
         }
 
-        public void setDestination(final int value) {
-            destination.set(value);
+        void setRemoteQueuePairNumber(final int value) {
+            remoteQueuePairNumber.set(value);
         }
 
-        public void setAccessFlags(final AccessFlag... flags) {
+        void setAccessFlags(final AccessFlag... flags) {
             accessFlags.set(flags);
         }
 
-        public void setPartitionKeyIndex(final short value) {
+        void setPartitionKeyIndex(final short value) {
             partitionKeyIndex.set(value);
         }
 
-        public void setAlternatePartitionKeyIndex(final short value) {
+        void setAlternatePartitionKeyIndex(final short value) {
             alternatePartitionKeyIndex.set(value);
         }
 
-        public void setNotifyDrained(final boolean value) {
+        void setNotifyDrained(final boolean value) {
             notifyDrained.set(value);
         }
 
-        public void setDraining(final boolean value) {
+        void setDraining(final boolean value) {
             draining.set(value);
         }
 
-        public void setMaxInitiatorAtomicReads(final byte value) {
+        void setMaxInitiatorAtomicReads(final byte value) {
             maxInitiatorAtomicReads.set(value);
         }
 
-        public void setMaxDestinationAtomicReads(final byte value) {
+        void setMaxDestinationAtomicReads(final byte value) {
             maxDestinationAtomicReads.set(value);
         }
 
-        public void setMinRnrTimer(final byte value) {
+        void setMinRnrTimer(final byte value) {
             minRnrTimer.set(value);
         }
 
-        public void setPortNumber(final byte value) {
+        void setPortNumber(final byte value) {
             portNumber.set(value);
         }
 
-        public void setTimeout(final byte value) {
+        void setTimeout(final byte value) {
             timeout.set(value);
         }
 
-        public void setRetryCount(final byte value) {
+        void setRetryCount(final byte value) {
             retryCount.set(value);
         }
 
-        public void setRnrRetryCount(final byte value) {
+        void setRnrRetryCount(final byte value) {
             rnrRetryCount.set(value);
         }
 
-        public void setAltPortNumber(final byte value) {
-            altPortNumber.set(value);
+        void setAlternatePortNumber(final byte value) {
+            alternatePortNumber.set(value);
         }
 
-        public void setAltTimeout(final byte value) {
-            altTimeout.set(value);
+        void setAlternateTimeout(final byte value) {
+            alternateTimeout.set(value);
         }
 
-        public void setRateLimit(final int value) {
+        void setRateLimit(final int value) {
             rateLimit.set(value);
         }
 
@@ -835,10 +946,10 @@ public class QueuePair extends Struct implements AutoCloseable {
                 ",\n\tcurrentState=" + currentState +
                 ",\n\tpathMtu=" + pathMtu +
                 ",\n\tpathMigrationState=" + pathMigrationState +
-                ",\n\tkey=" + key +
+                ",\n\tkey=" + qkey +
                 ",\n\treceivedPacketNumber=" + receivePacketNumber +
                 ",\n\tsentPacketNumber=" + sendPacketNumber +
-                ",\n\tdestination=" + destination +
+                ",\n\tdestination=" + remoteQueuePairNumber +
                 ",\n\taccessFlags=" + accessFlags +
                 ",\n\tpartitionKeyIndex=" + partitionKeyIndex +
                 ",\n\talternatePartitionKeyIndex=" + alternatePartitionKeyIndex +
@@ -851,13 +962,490 @@ public class QueuePair extends Struct implements AutoCloseable {
                 ",\n\ttimeout=" + timeout +
                 ",\n\tretryCount=" + retryCount +
                 ",\n\trnrRetryCount=" + rnrRetryCount +
-                ",\n\taltPortNumber=" + altPortNumber +
-                ",\n\taltTimeout=" + altTimeout +
+                ",\n\taltPortNumber=" + alternatePortNumber +
+                ",\n\taltTimeout=" + alternateTimeout +
                 ",\n\trateLimit=" + rateLimit +
                 ",\n\tcapabilities=" + capabilities +
                 ",\n\taddressHandle=" + addressHandle +
-                ",\n\talternativeAddressHandle=" + alternativeAddressHandle +
+                ",\n\talternativeAddressHandle=" + alternateAddressHandle +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private State state;
+            private State currentState;
+            private Mtu pathMtu;
+            private MigrationState pathMigrationState;
+            private int qkey;
+            private int receivePacketNumber;
+            private int sendPacketNumber;
+            private int remoteQueuePairNumber;
+            private AccessFlag[] accessFlags;
+            private short partitionKeyIndex;
+            private short alternatePartitionKeyIndex;
+            private boolean notifyDrained;
+            private byte maxInitiatorAtomicReads;
+            private byte maxDestinationAtomicReads;
+            private byte minRnrTimer;
+            private byte portNumber;
+            private byte timeout;
+            private byte retryCount;
+            private byte rnrRetryCount;
+            private byte alternatePortNumber;
+            private byte alternateTimeout;
+            private int rateLimit;
+
+            // Capabilities
+            private int maxSendWorkRequests;
+            private int maxReceiveWorkRequests;
+            private int maxSendScatterGatherElements;
+            private int maxReceiveScatterGatherElements;
+            private int maxInlineData;
+
+            // Address Handle
+            private short remoteLocalId;
+            private byte serviceLevel;
+            private byte sourcePathBits;
+            private byte staticRate;
+            private boolean isGlobal;
+            private byte remotePortNumber;
+            private long remoteGlobalId;
+            private int flowLabel;
+            private byte index;
+            private byte hopLimit;
+            private byte trafficClass;
+
+            // Alternate Address Handle
+            private short alternateRemoteLocalId;
+            private byte alternateServiceLevel;
+            private byte alternateSourcePathBits;
+            private byte alternateStaticRate;
+            private boolean alternateIsGlobal;
+            private byte alternateRemotePortNumber;
+            private long alternateRemoteGlobalId;
+            private int alternateFlowLabel;
+            private byte alternateIndex;
+            private byte alternateHopLimit;
+            private byte alternateTrafficClass;
+
+            private final Set<AttributeFlag> attributeFlags = new HashSet<>();
+
+            public Builder() {}
+
+            public static Builder buildInitAttributesRC(final short partitionKeyIndex, final byte portNumber, final AccessFlag... accessFlags) {
+                return new Builder()
+                        .withState(State.INIT)
+                        .withPartitionKeyIndex(partitionKeyIndex)
+                        .withPortNumber(portNumber)
+                        .withAccessFlags(accessFlags);
+            }
+
+            public static Builder buildInitAttributesUD(final short partitionKeyIndex, final byte portNumber) {
+                return new Builder()
+                        .withState(State.INIT)
+                        .withPartitionKeyIndex(partitionKeyIndex)
+                        .withPortNumber(portNumber)
+                        // Default values
+                        .withQkey(0x222222);
+            }
+
+            public static Builder buildReadyToReceiveAttributesRC(final int remoteQueuePairNumber, final short remoteLocalId, final byte remotePortNumber) {
+                return new Builder()
+                        .withState(State.RTR)
+                        .withRemoteQueuePairNumber(remoteQueuePairNumber)
+                        .withRemoteLocalId(remoteLocalId)
+                        .withRemotePortNumber(remotePortNumber)
+                        // Default values
+                        .withPathMtu(Mtu.MTU_4096)
+                        .withReceivePacketNumber(0)
+                        .withMaxDestinationAtomicReads((byte) 1)
+                        .withMinRnrTimer((byte) 12)
+                        .withIsGlobal(false)
+                        .withServiceLevel((byte) 1)
+                        .withSourcePathBits((byte) 0);
+            }
+
+            public static Builder buildReadyToReceiveAttributesUD() {
+                return new Builder()
+                        .withState(State.RTR);
+            }
+
+            public static Builder buildReadyToSendAttributesRC() {
+                return new Builder()
+                        .withState(State.RTS)
+                        // Default values
+                        .withSendPacketNumber(0)
+                        .withTimeout((byte) 14)
+                        .withRetryCount((byte) 7)
+                        .withRnrRetryCount((byte) 7)
+                        .withMaxInitiatorAtomicReads((byte) 1);
+            }
+
+            public static Builder buildReadyToSendAttributesUD() {
+                return new Builder()
+                        .withState(State.RTS)
+                        // Default values
+                        .withSendPacketNumber(0);
+            }
+
+            public Builder withState(final State state) {
+                this.state = state;
+                attributeFlags.add(AttributeFlag.STATE);
+                return this;
+            }
+
+            public Builder withCurrentState(final State currentState) {
+                this.currentState = currentState;
+                attributeFlags.add(AttributeFlag.CUR_STATE);
+                return this;
+            }
+
+            public Builder withPathMtu(final Mtu pathMtu) {
+                this.pathMtu = pathMtu;
+                attributeFlags.add(AttributeFlag.PATH_MTU);
+                return this;
+            }
+
+            public Builder withPathMigrationState(final MigrationState pathMigrationState) {
+                this.pathMigrationState = pathMigrationState;
+                attributeFlags.add(AttributeFlag.PATH_MIG_STATE);
+                return this;
+            }
+
+            public Builder withQkey(final int qkey) {
+                this.qkey = qkey;
+                attributeFlags.add(AttributeFlag.QKEY);
+                return this;
+            }
+
+            public Builder withReceivePacketNumber(final int receivePacketNumber) {
+                this.receivePacketNumber = receivePacketNumber;
+                attributeFlags.add(AttributeFlag.RQ_PSN);
+                return this;
+            }
+
+            public Builder withSendPacketNumber(final int sendPacketNumber) {
+                this.sendPacketNumber = sendPacketNumber;
+                attributeFlags.add(AttributeFlag.SQ_PSN);
+                return this;
+            }
+
+            public Builder withRemoteQueuePairNumber(final int remoteQueuePairNumber) {
+                this.remoteQueuePairNumber = remoteQueuePairNumber;
+                attributeFlags.add(AttributeFlag.DEST_QPN);
+                return this;
+            }
+
+            public Builder withAccessFlags(final AccessFlag... flags) {
+                accessFlags = flags;
+                attributeFlags.add(AttributeFlag.ACCESS_FLAGS);
+                return this;
+            }
+
+            public Builder withPartitionKeyIndex(final short partitionKeyIndex) {
+                this.partitionKeyIndex = partitionKeyIndex;
+                attributeFlags.add(AttributeFlag.PKEY_INDEX);
+                return this;
+            }
+
+            public Builder withAlternatePartitionKeyIndex(final short alternatePartitionKeyIndex) {
+                this.alternatePartitionKeyIndex = alternatePartitionKeyIndex;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withNotifyDrained(final boolean notifyDrained) {
+                this.notifyDrained = notifyDrained;
+                attributeFlags.add(AttributeFlag.EN_SQD_ASYNC_NOTIFY);
+                return this;
+            }
+
+            public Builder withMaxInitiatorAtomicReads(final byte maxInitiatorAtomicReads) {
+                this.maxInitiatorAtomicReads = maxInitiatorAtomicReads;
+                attributeFlags.add(AttributeFlag.MAX_QP_RD_ATOMIC);
+                return this;
+            }
+
+            public Builder withMaxDestinationAtomicReads(final byte maxDestinationAtomicReads) {
+                this.maxDestinationAtomicReads = maxDestinationAtomicReads;
+                attributeFlags.add(AttributeFlag.MAX_DEST_RD_ATOMIC);
+                return this;
+            }
+
+            public Builder withMinRnrTimer(final byte minRnrTimer) {
+                this.minRnrTimer = minRnrTimer;
+                attributeFlags.add(AttributeFlag.MIN_RNR_TIMER);
+                return this;
+            }
+
+            public Builder withPortNumber(final byte portNumber) {
+                this.portNumber = portNumber;
+                attributeFlags.add(AttributeFlag.PORT);
+                return this;
+            }
+
+            public Builder withTimeout(final byte timeout) {
+                this.timeout = timeout;
+                attributeFlags.add(AttributeFlag.TIMEOUT);
+                return this;
+            }
+            
+            public Builder withRetryCount(final byte retryCount) {
+                this.retryCount = retryCount;
+                attributeFlags.add(AttributeFlag.RETRY_CNT);
+                return this;
+            }
+
+            public Builder withRnrRetryCount(final byte rnrRetryCount) {
+                this.rnrRetryCount = rnrRetryCount;
+                attributeFlags.add(AttributeFlag.RNR_RETRY);
+                return this;
+            }
+
+            public Builder withAlternatePortNumber(final byte alternatePortNumber) {
+                this.alternatePortNumber = alternatePortNumber;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateTimeout(final byte alternateTimeout) {
+                this.alternateTimeout = alternateTimeout;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withRateLimit(final int rateLimit) {
+                this.rateLimit = rateLimit;
+                attributeFlags.add(AttributeFlag.RATE_LIMIT);
+                return this;
+            }
+
+            public Builder withMaxSendWorkRequests(final int maxSendWorkRequests) {
+                this.maxSendWorkRequests = maxSendWorkRequests;
+                attributeFlags.add(AttributeFlag.CAP);
+                return this;
+            }
+
+            public Builder withMaxReceiveWorkRequests(final int maxReceiveWorkRequests) {
+                this.maxReceiveWorkRequests = maxReceiveWorkRequests;
+                attributeFlags.add(AttributeFlag.CAP);
+                return this;
+            }
+
+            public Builder withMaxSendScatterGatherElements(final int maxSendScatterGatherElements) {
+                this.maxSendScatterGatherElements = maxSendScatterGatherElements;
+                attributeFlags.add(AttributeFlag.CAP);
+                return this;
+            }
+
+            public Builder withMaxReceiveScatterGatherElements(final int maxReceiveScatterGatherElements) {
+                this.maxReceiveScatterGatherElements = maxReceiveScatterGatherElements;
+                attributeFlags.add(AttributeFlag.CAP);
+                return this;
+            }
+
+            public Builder withMaxInlineData(final int maxInlineData) {
+                this.maxInlineData = maxInlineData;
+                attributeFlags.add(AttributeFlag.CAP);
+                return this;
+            }
+
+            public Builder withRemoteLocalId(final short remoteLocalId) {
+                this.remoteLocalId = remoteLocalId;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withServiceLevel(final byte serviceLevel) {
+                this.serviceLevel = serviceLevel;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withSourcePathBits(final byte sourcePathBits) {
+                this.sourcePathBits = sourcePathBits;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withStaticRate(final byte staticRate) {
+                this.staticRate = staticRate;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withIsGlobal(final boolean isGlobal) {
+                this.isGlobal = isGlobal;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withRemotePortNumber(final byte remotePortNumber) {
+                this.remotePortNumber = remotePortNumber;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withRemoteGlobalId(final long remoteGlobalId) {
+                this.remoteGlobalId = remoteGlobalId;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withFlowLabel(final int flowLabel) {
+                this.flowLabel = flowLabel;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withIndex(final byte index) {
+                this.index = index;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withHopLimit(final byte hopLimit) {
+                this.hopLimit = hopLimit;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withTrafficClass(final byte trafficClass) {
+                this.trafficClass = trafficClass;
+                attributeFlags.add(AttributeFlag.AV);
+                return this;
+            }
+
+            public Builder withAlternateRemoteLocalId(final short alternateRemoteLocalId) {
+                this.alternateRemoteLocalId = alternateRemoteLocalId;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateServiceLevel(final byte alternateServiceLevel) {
+                this.alternateServiceLevel = alternateServiceLevel;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateSourcePathBits(final byte alternateSourcePathBits) {
+                this.alternateSourcePathBits = alternateSourcePathBits;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateStaticRate(final byte alternateStaticRate) {
+                this.alternateStaticRate = alternateStaticRate;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateIsGlobal(final boolean alternateIsGlobal) {
+                this.alternateIsGlobal = alternateIsGlobal;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateRemotePortNumber(final byte alternateRemotePortNumber) {
+                this.alternateRemotePortNumber = alternateRemotePortNumber;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateRemoteGlobalId(final long alternateRemoteGlobalId) {
+                this.alternateRemoteGlobalId = alternateRemoteGlobalId;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateFlowLabel(final int alternateFlowLabel) {
+                this.alternateFlowLabel = alternateFlowLabel;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateIndex(final byte alternateIndex) {
+                this.alternateIndex = alternateIndex;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateHopLimit(final byte alternateHopLimit) {
+                this.alternateHopLimit = alternateHopLimit;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+
+            public Builder withAlternateTrafficClass(final byte alternateTrafficClass) {
+                this.alternateTrafficClass = alternateTrafficClass;
+                attributeFlags.add(AttributeFlag.ALT_PATH);
+                return this;
+            }
+            
+            public Attributes build() {
+                var ret = new Attributes();
+                
+                if(state != null) ret.setState(state);
+                if(currentState != null) ret.setCurrentState(currentState); 
+                if(pathMtu != null) ret.setPathMtu(pathMtu);
+                if(pathMigrationState != null) ret.setPathMigrationState(pathMigrationState);
+                if(accessFlags != null) ret.setAccessFlags(accessFlags);
+                
+                ret.setQkey(qkey);
+                ret.setReceivePacketNumber(receivePacketNumber);
+                ret.setSendPacketNumber(sendPacketNumber);
+                ret.setRemoteQueuePairNumber(remoteQueuePairNumber);
+                ret.setPartitionKeyIndex(partitionKeyIndex);
+                ret.setAlternatePartitionKeyIndex(alternatePartitionKeyIndex);
+                ret.setNotifyDrained(notifyDrained);
+                ret.setMaxInitiatorAtomicReads(maxInitiatorAtomicReads);
+                ret.setMaxDestinationAtomicReads(maxDestinationAtomicReads);
+                ret.setMinRnrTimer(minRnrTimer);
+                ret.setPortNumber(portNumber);
+                ret.setTimeout(timeout);
+                ret.setRetryCount(retryCount);
+                ret.setRnrRetryCount(rnrRetryCount);
+                ret.setAlternatePortNumber(alternatePortNumber);
+                ret.setAlternateTimeout(alternateTimeout);
+                ret.setRateLimit(rateLimit);
+
+                ret.capabilities.setMaxSendWorkRequests(maxSendWorkRequests);
+                ret.capabilities.setMaxReceiveWorkRequests(maxReceiveWorkRequests);
+                ret.capabilities.setMaxSendScatterGatherElements(maxSendScatterGatherElements);
+                ret.capabilities.setMaxReceiveScatterGatherElements(maxReceiveScatterGatherElements);
+                ret.capabilities.setMaxInlineData(maxInlineData);
+
+                ret.addressHandle.setRemoteLocalId(remoteLocalId);
+                ret.addressHandle.setServiceLevel(serviceLevel);
+                ret.addressHandle.setSourcePathBits(sourcePathBits);
+                ret.addressHandle.setStaticRate(staticRate);
+                ret.addressHandle.setIsGlobal(isGlobal);
+                ret.addressHandle.setPortNumber(remotePortNumber);
+                ret.addressHandle.globalRoute.setRemoteGlobalId(remoteGlobalId);
+                ret.addressHandle.globalRoute.setFlowLabel(flowLabel);
+                ret.addressHandle.globalRoute.setIndex(index);
+                ret.addressHandle.globalRoute.setHopLimit(hopLimit);
+                ret.addressHandle.globalRoute.setTrafficClass(trafficClass);
+
+                ret.alternateAddressHandle.setRemoteLocalId(alternateRemoteLocalId);
+                ret.alternateAddressHandle.setServiceLevel(alternateServiceLevel);
+                ret.alternateAddressHandle.setSourcePathBits(alternateSourcePathBits);
+                ret.alternateAddressHandle.setStaticRate(alternateStaticRate);
+                ret.alternateAddressHandle.setIsGlobal(alternateIsGlobal);
+                ret.alternateAddressHandle.setPortNumber(alternateRemotePortNumber);
+                ret.alternateAddressHandle.globalRoute.setRemoteGlobalId(alternateRemoteGlobalId);
+                ret.alternateAddressHandle.globalRoute.setFlowLabel(alternateFlowLabel);
+                ret.alternateAddressHandle.globalRoute.setIndex(alternateIndex);
+                ret.alternateAddressHandle.globalRoute.setHopLimit(alternateHopLimit);
+                ret.alternateAddressHandle.globalRoute.setTrafficClass(alternateTrafficClass);
+
+                return ret;
+            }
+
+            public AttributeFlag[] getAttributeFlags() {
+                return attributeFlags.toArray(new AttributeFlag[0]);
+            }
         }
     }
 }

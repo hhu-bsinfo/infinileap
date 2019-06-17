@@ -12,6 +12,8 @@ import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +48,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         return eventsCompleted;
     }
 
-    public boolean modify(Attributes attributes, AttributeFlag... flags) {
+    private boolean modify(Attributes attributes, AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
@@ -58,6 +60,10 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         return !isError;
+    }
+
+    public boolean modify(Attributes.Builder builder) {
+        return modify(builder.build(), builder.getAttributeFlags());
     }
 
     public Attributes queryAttributes() {
@@ -173,7 +179,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     @LinkNative(value = "ibv_srq_attr")
     public static final class Attributes extends Struct {
 
-        private final NativeInteger maxWorkRequest = integerField("max_wr");
+        private final NativeInteger maxWorkRequests = integerField("max_wr");
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
         private final NativeInteger limit = integerField("srq_limit");
 
@@ -183,37 +189,72 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             super(buffer, offset);
         }
 
-        public int getMaxWorkRequest() {
-            return maxWorkRequest.get();
-        }
-
-        public void setMaxWorkRequest(int maxWorkRequest) {
-            this.maxWorkRequest.set(maxWorkRequest);
+        public int getMaxWorkRequests() {
+            return maxWorkRequests.get();
         }
 
         public int getMaxScatterGatherElements() {
             return maxScatterGatherElements.get();
         }
 
-        public void setMaxScatterGatherElements(int maxScatterGatherElements) {
-            this.maxScatterGatherElements.set(maxScatterGatherElements);
-        }
-
         public int getLimit() {
             return limit.get();
         }
 
-        public void setLimit(int limit) {
+        void setMaxWorkRequests(int maxWorkRequests) {
+            this.maxWorkRequests.set(maxWorkRequests);
+        }
+
+        void setMaxScatterGatherElements(int maxScatterGatherElements) {
+            this.maxScatterGatherElements.set(maxScatterGatherElements);
+        }
+
+        void setLimit(int limit) {
             this.limit.set(limit);
         }
 
         @Override
         public String toString() {
             return "Attributes {" +
-                "\n\tmaxWorkRequest=" + maxWorkRequest +
+                "\n\tmaxWorkRequest=" + maxWorkRequests +
                 ",\n\tmaxScatterGatherElements=" + maxScatterGatherElements +
                 ",\n\tlimit=" + limit +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private int maxWorkRequests;
+            private int limit;
+
+            private final Set<AttributeFlag> attributeFlags = new HashSet<>();
+
+            public Builder() {}
+
+            public Builder withMaxWorkRequests(final int maxWorkRequests) {
+                this.maxWorkRequests = maxWorkRequests;
+                attributeFlags.add(AttributeFlag.MAX_WR);
+                return this;
+            }
+
+            public Builder withLimit(final int limit) {
+                this.limit = limit;
+                attributeFlags.add(AttributeFlag.LIMIT);
+                return this;
+            }
+
+            public Attributes build() {
+                var ret = new Attributes();
+
+                ret.setMaxWorkRequests(maxWorkRequests);
+                ret.setLimit(limit);
+
+                return ret;
+            }
+
+            public AttributeFlag[] getAttributeFlags() {
+                return attributeFlags.toArray(new AttributeFlag[0]);
+            }
         }
     }
 
@@ -224,17 +265,13 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         public final Attributes attributes = valueField("attr", Attributes::new);
 
-        public InitialAttributes() {}
-
-        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
-            configurator.accept(this);
-        }
+        InitialAttributes() {}
 
         public long getUserContext() {
             return userContext.get();
         }
 
-        public void setUserContext(long value) {
+        void setUserContext(long value) {
             this.userContext.set(value);
         }
 
@@ -244,6 +281,37 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
                 "\n\tuserContext=" + userContext +
                 ",\n\tattributes=" + attributes +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private long userContext;
+
+            // Attributes
+            private int maxWorkRequests;
+            private int maxScatterGatherElements;
+            private int limit;
+
+            public Builder(final int maxWorkRequests, final int maxScatterGatherElements) {
+                this.maxWorkRequests = maxWorkRequests;
+                this.maxScatterGatherElements = maxScatterGatherElements;
+            }
+
+            public Builder withLimit(final int limit) {
+                this.limit = limit;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new InitialAttributes();
+
+                ret.setUserContext(userContext);
+                ret.attributes.setMaxWorkRequests(maxWorkRequests);
+                ret.attributes.setMaxScatterGatherElements(maxScatterGatherElements);
+                ret.attributes.setLimit(limit);
+
+                return ret;
+            }
         }
     }
 
@@ -260,11 +328,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         public final Attributes attributes = valueField("attr", Attributes::new);
         public final TagMatchingCapabilities tagMatchingCapabilities = valueField("tm_cap", TagMatchingCapabilities::new);
 
-        public ExtendedInitialAttributes() {}
-
-        public ExtendedInitialAttributes(final Consumer<ExtendedInitialAttributes> configurator) {
-            configurator.accept(this);
-        }
+        ExtendedInitialAttributes() {}
 
         public long getUserContext() {
             return userContext.get();
@@ -290,27 +354,27 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             return completionQueue.get();
         }
 
-        public void setUserContext(final int value) {
+        public void setUserContext(final long value) {
             userContext.set(value);
         }
 
-        public void setAttributesMask(final ExtendedAttributeFlag... flags) {
+        void setAttributesMask(final ExtendedAttributeFlag... flags) {
             attributesMask.set(flags);
         }
 
-        public void setType(final Type value) {
+        void setType(final Type value) {
             type.set(value);
         }
 
-        public void setProtectionDomain(final ProtectionDomain protectionDomain) {
+        void setProtectionDomain(final ProtectionDomain protectionDomain) {
             this.protectionDomain.set(protectionDomain.getHandle());
         }
 
-        public void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+        void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
             this.extendedConnectionDomain.set(extendedConnectionDomain.getHandle());
         }
 
-        public void setCompletionQueue(final CompletionQueue completionQueue) {
+        void setCompletionQueue(final CompletionQueue completionQueue) {
             this.completionQueue.set(completionQueue.getHandle());
         }
 
@@ -326,6 +390,94 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
                 ",\n\tattributes=" + attributes +
                 ",\n\ttagMatchingCapabilities=" + tagMatchingCapabilities +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private long userContext;
+            private Set<ExtendedAttributeFlag> attributeFlags = new HashSet<>();
+            private Type type;
+            private ProtectionDomain protectionDomain;
+            private ExtendedConnectionDomain extendedConnectionDomain;
+            private CompletionQueue completionQueue;
+
+            // Traditional Attributes
+            private int maxWorkRequests;
+            private int maxScatterGatherElements;
+            private int limit;
+
+            // Tag Matching Capabilities
+            private int maxTags;
+            private int maxOperations;
+
+            public Builder(final ProtectionDomain protectionDomain, final int maxWorkRequests, final int maxScatterGatherElements) {
+                this.protectionDomain = protectionDomain;
+                this.maxWorkRequests = maxWorkRequests;
+                this.maxScatterGatherElements = maxScatterGatherElements;
+
+                attributeFlags.add(ExtendedAttributeFlag.PD);
+            }
+
+            public Builder withUserContext(final long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+
+            public Builder withType(final Type type) {
+                this.type = type;
+                attributeFlags.add(ExtendedAttributeFlag.TYPE);
+                return this;
+            }
+
+            public Builder withExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+                this.extendedConnectionDomain = extendedConnectionDomain;
+                attributeFlags.add(ExtendedAttributeFlag.XRCD);
+                return this;
+            }
+
+            public Builder withCompletionQueue(final CompletionQueue completionQueue) {
+                this.completionQueue = completionQueue;
+                attributeFlags.add(ExtendedAttributeFlag.CQ);
+                return this;
+            }
+
+            public Builder withLimit(final int limit) {
+                this.limit = limit;
+                return this;
+            }
+
+            public Builder withMaxTags(final int maxTags) {
+                this.maxTags = maxTags;
+                attributeFlags.add(ExtendedAttributeFlag.TM);
+                return this;
+            }
+
+            public Builder withMaxOperations(final int maxOperations) {
+                this.maxOperations = maxOperations;
+                attributeFlags.add(ExtendedAttributeFlag.TM);
+                return this;
+            }
+
+            public ExtendedInitialAttributes build() {
+                var ret = new ExtendedInitialAttributes();
+
+                ret.setUserContext(userContext);
+                ret.setAttributesMask(attributeFlags.toArray(new ExtendedAttributeFlag[0]));
+
+                if(type != null) ret.setType(type);
+                if(protectionDomain != null) ret.setProtectionDomain(protectionDomain);
+                if(extendedConnectionDomain != null) ret.setExtendedConnectionDomain(extendedConnectionDomain);
+                if(completionQueue != null) ret.setCompletionQueue(completionQueue);
+
+                ret.attributes.setMaxWorkRequests(maxWorkRequests);
+                ret.attributes.setMaxScatterGatherElements(maxScatterGatherElements);
+                ret.attributes.setLimit(limit);
+
+                ret.tagMatchingCapabilities.setMaxOperations(maxOperations);
+                ret.tagMatchingCapabilities.setMaxTags(maxTags);
+
+                return ret;
+            }
         }
     }
 
@@ -347,11 +499,11 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             return maxOperations.get();
         }
 
-        public void setMaxTags(final int value) {
+        void setMaxTags(final int value) {
             maxTags.set(value);
         }
 
-        public void setMaxOperations(final int value) {
+        void setMaxOperations(final int value) {
             maxOperations.set(value);
         }
 

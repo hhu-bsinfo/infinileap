@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_wq")
@@ -275,11 +277,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
         private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("create_flags");
 
-        public InitialAttributes() {}
-
-        public InitialAttributes(final Consumer<InitialAttributes> configurator) {
-            configurator.accept(this);
-        }
+        InitialAttributes() {}
 
         public long getUserContext() {
             return userContext.get();
@@ -313,35 +311,35 @@ public class WorkQueue extends Struct implements AutoCloseable {
             return flags.get();
         }
 
-        public void setUserContext(final long value) {
+        void setUserContext(final long value) {
             userContext.set(value);
         }
 
-        public void setType(final Type value) {
+        void setType(final Type value) {
             type.set(value);
         }
 
-        public void setMaxWorkRequests(final int value) {
+        void setMaxWorkRequests(final int value) {
             maxWorkRequests.set(value);
         }
 
-        public void setMaxScatterGatherElements(final int value) {
+        void setMaxScatterGatherElements(final int value) {
             maxScatterGatherElements.set(value);
         }
 
-        public void setProtectionDomain(final ProtectionDomain protectionDomain) {
+        void setProtectionDomain(final ProtectionDomain protectionDomain) {
             this.protectionDomain.set(protectionDomain.getHandle());
         }
 
-        public void setCompletionQueue(final CompletionQueue completionQueue) {
+        void setCompletionQueue(final CompletionQueue completionQueue) {
             this.completionQueue.set(completionQueue.getHandle());
         }
 
-        public void setCompatibilityMask(final CompatibilityFlag... flags) {
+        void setCompatibilityMask(final CompatibilityFlag... flags) {
             compatibilityMask.set(flags);
         }
 
-        public void setFlags(final CreationFlag... flags) {
+        void setFlags(final CreationFlag... flags) {
             this.flags.set(flags);
         }
 
@@ -358,6 +356,57 @@ public class WorkQueue extends Struct implements AutoCloseable {
                     ",\n\tflags=" + flags +
                     "\n}";
         }
+
+        public static final class Builder {
+
+            private long userContext;
+            private Type type;
+            private int maxWorkRequests;
+            private int maxScatterGatherElements;
+            private ProtectionDomain protectionDomain;
+            private CompletionQueue completionQueue;
+            private CompatibilityFlag[] compatibilityMask;
+            private CreationFlag[] flags;
+
+            public Builder(final int maxWorkRequests, final int maxScatterGatherElements, final Type type, final ProtectionDomain protectionDomain, final CompletionQueue completionQueue) {
+                this.maxWorkRequests = maxWorkRequests;
+                this.maxScatterGatherElements = maxScatterGatherElements;
+                this.type = type;
+                this.protectionDomain = protectionDomain;
+                this.completionQueue = completionQueue;
+            }
+
+            public Builder withUserContext(final long userContext) {
+                this.userContext = userContext;
+                return this;
+            }
+
+            public Builder withCompatibilityMask(final CompatibilityFlag... flags) {
+                compatibilityMask = flags;
+                return this;
+            }
+
+            public Builder withFlags(final CreationFlag... flags) {
+                this.flags = flags;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new InitialAttributes();
+
+                ret.setUserContext(userContext);
+                ret.setMaxWorkRequests(maxWorkRequests);
+                ret.setMaxScatterGatherElements(maxScatterGatherElements);
+
+                if(type != null) ret.setType(type);
+                if(protectionDomain != null) ret.setProtectionDomain(protectionDomain);
+                if(completionQueue != null) ret.setCompletionQueue(completionQueue);
+                if(compatibilityMask != null) ret.setCompatibilityMask(compatibilityMask);
+                if(flags != null) ret.setFlags(flags);
+
+                return ret;
+            }
+        }
     }
 
     @LinkNative("ibv_wq_attr")
@@ -369,11 +418,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         private final NativeIntegerBitMask<CreationFlag> flags = integerBitField("flags");
         private final NativeIntegerBitMask<CreationFlag> flagsMask = integerBitField("flags_mask");
 
-        public Attributes() {}
-
-        public Attributes(final Consumer<Attributes> configurator) {
-            configurator.accept(this);
-        }
+        Attributes() {}
 
         public int getAttributesMask() {
             return attributesMask.get();
@@ -395,23 +440,23 @@ public class WorkQueue extends Struct implements AutoCloseable {
             return flagsMask.get();
         }
 
-        public void setAttributesMask(final AttributeFlag... flags) {
+        void setAttributesMask(final AttributeFlag... flags) {
             attributesMask.set(flags);
         }
 
-        public void setState(final State value) {
+        void setState(final State value) {
             state.set(value);
         }
 
-        public void setCurrentState(final State value) {
+        void setCurrentState(final State value) {
             currentState.set(value);
         }
 
-        public void setFlags(final CreationFlag... flags) {
+        void setFlags(final CreationFlag... flags) {
             this.flags.set(flags);
         }
 
-        public void setFlagsMask(final CreationFlag... value) {
+        void setFlagsMask(final CreationFlag... value) {
             flagsMask.set(value);
         }
 
@@ -424,6 +469,54 @@ public class WorkQueue extends Struct implements AutoCloseable {
                     ",\n\tflags=" + flags +
                     ",\n\tflagsMask=" + flagsMask +
                     "\n}";
+        }
+
+        public static final class Builder {
+
+            private final Set<AttributeFlag> attributeFlags = new HashSet<>();
+            private State state;
+            private State currentState;
+            private CreationFlag[] flags;
+            private CreationFlag[] flagsMask;
+
+            public Builder() {}
+
+            public Builder withState(final State state) {
+                this.state = state;
+                attributeFlags.add(AttributeFlag.STATE);
+                return this;
+            }
+
+            public Builder withCurrentState(final State currentState) {
+                this.currentState = currentState;
+                attributeFlags.add(AttributeFlag.CURRENT_STATE);
+                return this;
+            }
+
+            public Builder withFlags(final CreationFlag... flags) {
+                this.flags = flags;
+                attributeFlags.add(AttributeFlag.FLAGS);
+                return this;
+            }
+
+            public Builder withFlagsMask(final CreationFlag... flags) {
+                flagsMask = flags;
+                attributeFlags.add(AttributeFlag.FLAGS);
+                return this;
+            }
+
+            public Attributes build() {
+                var ret = new Attributes();
+
+                ret.setAttributesMask(attributeFlags.toArray(new AttributeFlag[0]));
+
+                if(state != null) ret.setState(state);
+                if(currentState != null) ret.setCurrentState(currentState);
+                if(flags != null) ret.setFlags(flags);
+                if(flagsMask != null) ret.setFlagsMask(flagsMask);
+
+                return ret;
+            }
         }
     }
 }

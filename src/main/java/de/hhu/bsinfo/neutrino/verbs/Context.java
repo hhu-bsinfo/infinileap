@@ -205,7 +205,7 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Nullable
-    public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitalAttributes attributes) {
+    public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitialAttributes attributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.openExtendedConnectionDomain(getHandle(), attributes.getHandle(), result.getHandle());
