@@ -275,4 +275,16 @@ public class Context implements NativeObject, AutoCloseable {
 
         return result.getAndRelease(QueuePair::new);
     }
+
+    @Nullable
+    public QueuePair openQueuePair(QueuePair.OpenAttributes attributes) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.openQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
+        if (result.isError()) {
+            LOGGER.error("Opening queue pair failed with error [{}]", result.getStatus());
+        }
+
+        return result.getAndRelease(QueuePair::new);
+    }
 }

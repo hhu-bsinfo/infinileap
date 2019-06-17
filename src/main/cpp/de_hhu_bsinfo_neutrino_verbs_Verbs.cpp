@@ -632,6 +632,16 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyReceiveWor
     NativeCall::setResult(result, ibv_destroy_rwq_ind_table(table), 0);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openQueuePair (JNIEnv *env, jclass clazz, jlong contextHandle, jlong attributesHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto context = NativeCall::castHandle<ibv_context>(contextHandle);
+    auto attributes = NativeCall::castHandle<ibv_qp_open_attr>(attributesHandle);
+
+    auto queuePair = ibv_open_qp(context, attributes);
+
+    NativeCall::setResult(result, queuePair == nullptr ? errno : 0, queuePair);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_startWorkRequest (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle) {
     auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
 

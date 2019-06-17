@@ -103,7 +103,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         return postReceive(receiveWorkRequests.getHandle());
     }
 
-    public boolean modify(final Attributes attributes, final AttributeMask... flags) {
+    public boolean modify(final Attributes attributes, final AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
@@ -118,7 +118,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     @Nullable
-    public Attributes queryAttributes(final AttributeMask... flags) {
+    public Attributes queryAttributes(final AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();
@@ -365,7 +365,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         };
     }
 
-    public enum AttributeMask implements Flag {
+    public enum AttributeFlag implements Flag {
         STATE(1), CUR_STATE(1 << 1), EN_SQD_ASYNC_NOTIFY(1 << 2), ACCESS_FLAGS(1 << 3),
         PKEY_INDEX(1 << 4), PORT(1 << 5), QKEY(1 << 6), AV(1 << 7), PATH_MTU(1 << 8),
         TIMEOUT(1 << 9), RETRY_CNT(1 << 10), RNR_RETRY(1 << 11), RQ_PSN(1 << 12),
@@ -375,7 +375,22 @@ public class QueuePair extends Struct implements AutoCloseable {
 
         private final int value;
 
-        AttributeMask(int value) {
+        AttributeFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public long getValue() {
+            return value;
+        }
+    }
+
+    public enum OpenAttributeFlag implements Flag {
+        NUM(1), XRCD(1 << 1), CONTEXT(1 << 2), TYPE(1 << 3), RESERVED(1 << 4);
+
+        private final int value;
+
+        OpenAttributeFlag(int value) {
             this.value = value;
         }
 
@@ -529,6 +544,62 @@ public class QueuePair extends Struct implements AutoCloseable {
                 ",\n\tmaxReceiveScatterGatherElements=" + maxReceiveScatterGatherElements +
                 ",\n\tmaxInlineData=" + maxInlineData +
                 "\n}";
+        }
+    }
+
+    @LinkNative("ibv_qp_open_attr")
+    public final class OpenAttributes extends Struct {
+
+        private final NativeIntegerBitMask<OpenAttributeFlag> attributeMask = integerBitField("comp_mask");
+        private final NativeInteger queuePairNumber = integerField("qp_num");
+        private final NativeLong extendedConnectionDomain = longField("xrcd");
+        private final NativeLong userContext = longField("qp_context");
+        private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
+
+        public OpenAttributes() {}
+
+        public OpenAttributes(LocalBuffer byteBuffer, long offset) {
+            super(byteBuffer, offset);
+        }
+
+        public int getAttributeMask() {
+            return attributeMask.get();
+        }
+
+        public int getQueuePairNumber() {
+            return queuePairNumber.get();
+        }
+
+        public long getExtendedConnectionDomain() {
+            return extendedConnectionDomain.get();
+        }
+
+        public long getUserContext() {
+            return userContext.get();
+        }
+
+        public Type getType() {
+            return type.get();
+        }
+
+        public void setAttributeMask(final OpenAttributeFlag... flags) {
+            attributeMask.set(flags);
+        }
+
+        public void setQueuePairNumber(final int value) {
+            queuePairNumber.set(value);
+        }
+
+        public void setExtendedConnectionDomain(final ExtendedConnectionDomain extendedConnectionDomain) {
+            this.extendedConnectionDomain.set(extendedConnectionDomain.getHandle());
+        }
+
+        public void setUserContext(final long value) {
+            userContext.set(value);
+        }
+
+        public void setType(final Type value) {
+            type.set(value);
         }
     }
 

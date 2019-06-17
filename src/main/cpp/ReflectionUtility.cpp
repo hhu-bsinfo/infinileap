@@ -858,6 +858,20 @@ ReflectionUtility::StructInfo ibv_data_buf_struct_info {
         ibv_data_buf_member_infos
 };
 
+ReflectionUtility::MemberInfo ibv_qp_open_attr_member_infos[] = {
+        GET_MEMBER_INFO(ibv_qp_open_attr, comp_mask),
+        GET_MEMBER_INFO(ibv_qp_open_attr, qp_num),
+        GET_MEMBER_INFO(ibv_qp_open_attr, xrcd),
+        GET_MEMBER_INFO(ibv_qp_open_attr, qp_context),
+        GET_MEMBER_INFO(ibv_qp_open_attr, qp_type)
+};
+
+ReflectionUtility::StructInfo ibv_qp_open_attr_struct_info {
+        sizeof(ibv_qp_open_attr),
+        sizeof(ibv_qp_open_attr_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        ibv_qp_open_attr_member_infos
+};
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -913,6 +927,7 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_qp_init_attr_ex", &ibv_qp_init_attr_ex_struct_info},
     {"ibv_rx_hash_conf", &ibv_rx_hash_conf_struct_info},
     {"ibv_data_buf", &ibv_data_buf_struct_info},
+    {"ibv_open_qp_attr", &ibv_qp_open_attr_struct_info},
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {

@@ -132,6 +132,8 @@ public final class Verbs {
     static native void createReceiveWorkQueueIndirectionTable(long contextHandle, long attributesHandle, long resultHandle);
     static native void destroyReceiveWorkQueueIndirectionTable(long tableHandle, long resultHandle);
 
+    static native void openQueuePair(long contextHandle, long attributesHandle, long resultHandle);
+
     static native void startWorkRequest(long extendedQueuePairHandle);
     static native void completeWorkRequest(long extendedQueuePairHandle);
     static native void abortWorkRequest(long extendedQueuePairHandle);
