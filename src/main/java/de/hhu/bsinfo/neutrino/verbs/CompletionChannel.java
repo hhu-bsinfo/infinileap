@@ -28,7 +28,7 @@ public class CompletionChannel extends Struct implements AutoCloseable {
 
         Verbs.getCompletionEvent(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Polling completion event from completion channel failed with error [{}]", result.getStatus());
+            LOGGER.error("Polling completion event from completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(CompletionQueue::new);
@@ -40,7 +40,7 @@ public class CompletionChannel extends Struct implements AutoCloseable {
 
         Verbs.destroyCompletionChannel(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion channel failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

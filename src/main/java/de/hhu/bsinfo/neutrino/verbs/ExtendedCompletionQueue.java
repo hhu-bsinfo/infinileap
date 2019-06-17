@@ -38,7 +38,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
         Verbs.extendedCompletionQueueToCompletionQueue(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Converting extended completion queue to completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Converting extended completion queue to completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(CompletionQueue::new);
@@ -50,7 +50,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         Verbs.startPoll(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Starting to poll extended completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Starting to poll extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getIntAndRelease() == 0;
@@ -62,7 +62,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         Verbs.nextPoll(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Polling extended completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Polling extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getIntAndRelease() == 0;

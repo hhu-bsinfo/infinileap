@@ -51,7 +51,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         Verbs.bindMemoryWindow(getHandle(), queuePair.getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Binding memory window failed with error [{}]", result.getStatus());
+            LOGGER.error("Binding memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -66,7 +66,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         Verbs.deallocateMemoryWindow(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Deallocating memory window failed with error [{}]", result.getStatus());
+            LOGGER.error("Deallocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

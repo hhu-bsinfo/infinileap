@@ -15,6 +15,8 @@ public class Result implements NativeObject, Poolable {
     private final NativeLong value;
     private final long handle;
 
+    static native String getErrorMessage(int errorNumber);
+
     public Result() {
         var byteBuffer = LocalBuffer.allocate(SIZE);
         handle = byteBuffer.getHandle();
@@ -35,6 +37,18 @@ public class Result implements NativeObject, Poolable {
 
     public int getStatus() {
         return status.get();
+    }
+
+    public String getStatusMessage() {
+        int statusNumber = status.get();
+
+        if(statusNumber == 0) {
+            return "OK";
+        } else if(statusNumber == -1) {
+            return "Unknown error";
+        } else {
+            return getErrorMessage(statusNumber);
+        }
     }
 
     public <T extends NativeObject> T get(ReferenceFactory<T> factory) {

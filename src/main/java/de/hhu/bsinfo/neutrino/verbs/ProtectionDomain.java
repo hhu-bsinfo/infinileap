@@ -46,7 +46,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering device memory memory as memory region failed with error [{}]", result.getStatus());
+            LOGGER.error("Registering device memory memory as memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(MemoryRegion::new);
@@ -63,7 +63,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering memory region failed with error [{}]", result.getStatus());
+            LOGGER.error("Registering memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         var memoryRegion = result.getAndRelease(MemoryRegion::new);
@@ -77,7 +77,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.allocateNullMemoryRegion(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating null memory region failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating null memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         var memoryRegion = result.getAndRelease(MemoryRegion::new);
@@ -108,7 +108,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.allocateMemoryWindow(getHandle(), type.getValue(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating memory window failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(MemoryWindow::new);
@@ -120,7 +120,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.createAddressHandle(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Creating address handle failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(AddressHandle::new);
@@ -132,7 +132,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.createSharedReceiveQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating shared receive queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(SharedReceiveQueue::new);
@@ -144,7 +144,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating queue pair failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(QueuePair::new);
@@ -156,7 +156,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing protection domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

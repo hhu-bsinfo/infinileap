@@ -31,7 +31,7 @@ public class AddressHandle extends Struct {
         Verbs.destroyAddressHandle(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Destroying address handle failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

@@ -41,7 +41,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         Verbs.postReceiveWorkRequestWorkQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work requests to work queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Posting receive work requests to work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -55,7 +55,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         Verbs.modifyWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying work queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Modifying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -76,7 +76,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
 
         Verbs.destroyWorkQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying work queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

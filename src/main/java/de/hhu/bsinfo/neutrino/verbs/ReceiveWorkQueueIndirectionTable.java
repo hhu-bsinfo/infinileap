@@ -37,7 +37,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
         Verbs.destroyReceiveWorkQueueIndirectionTable(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying receive work queue indirection table failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

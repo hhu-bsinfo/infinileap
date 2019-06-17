@@ -31,7 +31,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
 
         Verbs.closeExtendedConnectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

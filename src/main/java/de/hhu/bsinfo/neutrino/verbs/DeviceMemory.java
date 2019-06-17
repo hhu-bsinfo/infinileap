@@ -36,7 +36,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         Verbs.copyFromDeviceMemory(targetBuffer.getHandle() + targetOffset, getHandle(), sourceOffset, length, result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Copying from device memory to local buffer failed with error [{}]", result.getStatus());
+            LOGGER.error("Copying from device memory to local buffer failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -50,7 +50,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         Verbs.copyToDeviceMemory(getHandle(), targetOffset, sourceBuffer.getHandle() + sourceOffset, length, result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Copying from local buffer to device memory failed with error [{}]", result.getStatus());
+            LOGGER.error("Copying from local buffer to device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -65,7 +65,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         Verbs.freeDeviceMemory(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Freeing device memory failed with error [{}]", result.getStatus());
+            LOGGER.error("Freeing device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

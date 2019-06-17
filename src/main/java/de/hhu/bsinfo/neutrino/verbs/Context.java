@@ -54,7 +54,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing device failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -71,7 +71,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying device failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
             device = null;
         }
 
@@ -87,7 +87,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryPort(getHandle(), port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying port failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying port failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
             port = null;
         }
 
@@ -102,7 +102,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating device memory failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(DeviceMemory::new);
@@ -114,7 +114,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateProtectionDomain(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating protection domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ProtectionDomain::new);
@@ -126,7 +126,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateThreadDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating thread domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ThreadDomain::new);
@@ -138,7 +138,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.allocateParentDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating parent domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Allocating parent domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ProtectionDomain::new);
@@ -150,7 +150,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createCompletionChannel(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating completion channel failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(CompletionChannel::new);
@@ -162,7 +162,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createCompletionQueue(getHandle(), numElements, nullptr, channel == null ? nullptr : channel.getHandle(), 0, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(CompletionQueue::new);
@@ -175,7 +175,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.getAsyncEvent(getHandle(), event.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Polling async event failed with error [{}]", result.getStatus());
+            LOGGER.error("Polling async event failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
 
             result.releaseInstance();
             event.releaseInstance();
@@ -195,7 +195,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.queryExtendedDevice(getHandle(), device.getHandle(), queryInput.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying extended device failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying extended device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
             device = null;
         }
 
@@ -210,7 +210,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.openExtendedConnectionDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening extended connection domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Opening extended connection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ExtendedConnectionDomain::new);
@@ -222,7 +222,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createExtendedSharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended shared receive queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating extended shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(SharedReceiveQueue::new);
@@ -234,7 +234,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createExtendedCompletionQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ExtendedCompletionQueue::new);
@@ -246,7 +246,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating work queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(WorkQueue::new);
@@ -258,7 +258,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createReceiveWorkQueueIndirectionTable(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating receive work queue indirection table failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
@@ -270,7 +270,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.createExtendedQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended queue pair failed with error [{}]", result.getStatus());
+            LOGGER.error("Creating extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(QueuePair::new);
@@ -282,7 +282,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.openQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening queue pair failed with error [{}]", result.getStatus());
+            LOGGER.error("Opening queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         return result.getAndRelease(QueuePair::new);

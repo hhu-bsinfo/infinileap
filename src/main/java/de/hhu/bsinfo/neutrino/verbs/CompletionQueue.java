@@ -45,7 +45,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), results.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Polling completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Polling completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
             results.setLength(0);
         } else {
             results.setLength(result.intValue());
@@ -62,7 +62,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         Verbs.requestNotification(getHandle(), solicitedOnly ? 1 : 0, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Requesting notification from completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Requesting notification from completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -89,7 +89,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

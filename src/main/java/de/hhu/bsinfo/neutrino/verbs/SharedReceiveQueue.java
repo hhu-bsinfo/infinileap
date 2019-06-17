@@ -52,7 +52,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying shared receive queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Modifying shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
@@ -67,7 +67,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         Verbs.querySharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Querying shared receive queue failed with error [{}]", result.getStatus());
+            LOGGER.error("Querying shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
             attributes = null;
         }
 
@@ -82,7 +82,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         Verbs.destroySharedReceiveQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying shared receive failed with error [{}]", result.getStatus());
+            LOGGER.error("Destroying shared receive failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();

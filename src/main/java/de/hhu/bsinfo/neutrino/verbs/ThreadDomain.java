@@ -29,7 +29,7 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
         Verbs.deallocateThreadDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing thread domain failed with error [{}]", result.getStatus());
+            LOGGER.error("Closing thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
         result.releaseInstance();
