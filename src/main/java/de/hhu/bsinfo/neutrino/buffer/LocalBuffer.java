@@ -21,11 +21,11 @@ public class LocalBuffer implements NativeObject {
     protected static final Object FAKE_PARENT = new Object();
     private static final byte ZERO = 0;
 
-    private final long handle;
-    private final long capacity;
+    private long handle;
+    private long capacity;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final Object parent;
+    private Object parent;
 
     protected LocalBuffer(long handle, long capacity) {
         this(handle, capacity, null);
@@ -160,6 +160,15 @@ public class LocalBuffer implements NativeObject {
     @Override
     public long getNativeSize() {
         return capacity;
+    }
+
+    public void reWrap(long handle, long capacity) {
+        if(parent != FAKE_PARENT) {
+            throw new UnsupportedOperationException("Calling reWrap() is only allowed on buffers, which have been created using wrap()");
+        }
+
+        this.handle = handle;
+        this.capacity = capacity;
     }
 
     public static LocalBuffer allocate(long capacity) {

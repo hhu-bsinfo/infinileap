@@ -145,11 +145,11 @@ public class MemoryWindow extends Struct implements AutoCloseable {
             return sendFlags.get();
         }
 
-        public void setWorkRequestId(long value) {
+        void setWorkRequestId(long value) {
             workRequestId.set(value);
         }
 
-        public void setSendFlags(SendFlag... flags) {
+        void setSendFlags(SendFlag... flags) {
             sendFlags.set(flags);
         }
 
@@ -160,6 +160,49 @@ public class MemoryWindow extends Struct implements AutoCloseable {
                 ",\n\tsendFlags=" + sendFlags +
                 ",\n\tbindInfo=" + bindInfo +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private int workRequestId;
+            private SendFlag[] sendFlags;
+
+            // Bind Information
+            private MemoryRegion memoryRegion;
+            private long address;
+            private long length;
+            private AccessFlag[] accessFlags;
+
+            public Builder(final MemoryRegion memoryRegion, final long address, final long length, final AccessFlag... accessFlags) {
+                this.memoryRegion = memoryRegion;
+                this.address = address;
+                this.length = length;
+                this.accessFlags = accessFlags;
+            }
+
+            public Builder withWorkRequestId(final int workRequestId) {
+                this.workRequestId = workRequestId;
+                return this;
+            }
+
+            public Builder withSendFlags(final SendFlag... flags) {
+                sendFlags = flags;
+                return this;
+            }
+
+            public BindAttributes build() {
+                var ret = new BindAttributes();
+
+                ret.setWorkRequestId(workRequestId);
+                if(sendFlags != null) ret.setSendFlags(sendFlags);
+
+                ret.bindInfo.setLength(length);
+                ret.bindInfo.setAddress(address);
+                if(accessFlags != null) ret.bindInfo.setAccessFlags(accessFlags);
+                if(memoryRegion != null) ret.bindInfo.setMemoryRegion(memoryRegion);
+
+                return ret;
+            }
         }
     }
 
@@ -191,19 +234,19 @@ public class MemoryWindow extends Struct implements AutoCloseable {
             return accessFlags.get();
         }
 
-        public void setMemoryRegion(final MemoryRegion region) {
+        void setMemoryRegion(final MemoryRegion region) {
             memoryRegion.set(region.getHandle());
         }
 
-        public void setAddress(final long value) {
+        void setAddress(final long value) {
             address.set(value);
         }
 
-        public void setLength(final long value) {
+        void setLength(final long value) {
             length.set(value);
         }
 
-        public void setAccessFlags(final AccessFlag... flags) {
+        void setAccessFlags(final AccessFlag... flags) {
             accessFlags.set(flags);
         }
 

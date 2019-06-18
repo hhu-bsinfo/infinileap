@@ -95,14 +95,8 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     public RegisteredBufferWindow bindMemoryWindow(MemoryWindow memoryWindow, QueuePair queuePair, long offset, long length, AccessFlag... flags) {
-        BindAttributes attributes = new BindAttributes(config -> {
-            config.setSendFlags(SendFlag.SIGNALED);
-
-            config.bindInfo.setMemoryRegion(memoryRegion);
-            config.bindInfo.setAddress(getHandle() + offset);
-            config.bindInfo.setLength(length);
-            config.bindInfo.setAccessFlags(flags);
-        });
+        var attributes = new BindAttributes.Builder(memoryRegion, getHandle() + offset, length, flags)
+                .withSendFlags(SendFlag.SIGNALED).build();
 
         if(!memoryWindow.bind(queuePair, attributes)) {
             return null;
