@@ -79,7 +79,7 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     public ScatterGatherElement.Array split(final long offset, final long length) {
-        if (offset < 0 || offset >= capacity() || offset + length <= 0 || offset + length >= capacity()) {
+        if (offset < 0 || offset >= capacity() || offset + length <= 0 || offset + length > capacity()) {
             throw new IllegalArgumentException(String.format("invalid offset %d with length %d", offset, length));
         }
 
