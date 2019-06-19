@@ -100,7 +100,7 @@ public class Struct implements NativeObject {
         return new NativeInteger(byteBuffer, offset);
     }
 
-    protected final NativeInteger integerField(NativeDataType predecessor) {
+    protected final NativeInteger integerField() {
         var field = new NativeInteger(byteBuffer, currentFieldOffset);
         currentFieldOffset += field.getSize();
         return field;
