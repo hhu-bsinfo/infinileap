@@ -111,8 +111,16 @@ public class LocalBuffer implements NativeObject {
         UNSAFE.putDouble(handle + index, value);
     }
 
+    public void putObject(NativeObject object) {
+        putObject(0, object);
+    }
+
     public void putObject(long index, NativeObject object) {
         UNSAFE.copyMemory(object.getHandle(), handle + index, object.getNativeSize());
+    }
+
+    public void putBuffer(LocalBuffer source) {
+        UNSAFE.copyMemory(source.handle, handle, source.capacity);
     }
 
     public void putBuffer(long index, LocalBuffer source, long offset, long length) {
