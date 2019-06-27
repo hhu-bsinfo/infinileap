@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_send_wr")
-public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWorkRequest> {
+public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest> {
 
     public enum OpCode {
         RDMA_WRITE(0), RDMA_WRITE_WITH_IMM(1), SEND(2), SEND_WITH_IMM(3), RDMA_READ(4),
@@ -165,6 +165,11 @@ public class SendWorkRequest extends Struct implements Poolable, Linkable<SendWo
     @Override
     public void linkWith(SendWorkRequest other) {
         next.set(other.getHandle());
+    }
+
+    @Override
+    public void unlink() {
+        next.set(0);
     }
 
     @Override

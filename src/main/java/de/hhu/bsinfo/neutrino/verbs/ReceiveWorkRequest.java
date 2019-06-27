@@ -9,7 +9,7 @@ import de.hhu.bsinfo.neutrino.util.Poolable;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_recv_wr")
-public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<ReceiveWorkRequest> {
+public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRequest> {
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
@@ -58,6 +58,11 @@ public class ReceiveWorkRequest extends Struct implements Poolable, Linkable<Rec
     @Override
     public void linkWith(ReceiveWorkRequest other) {
         next.set(other.getHandle());
+    }
+
+    @Override
+    public void unlink() {
+        next.set(0);
     }
 
     @Override
