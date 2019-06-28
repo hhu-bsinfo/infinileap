@@ -14,7 +14,8 @@ import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
+
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,9 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedReceiveQueue.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
     private final NativeLong userContext = longField("srq_context");
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
+    private final ProtectionDomain protectionDomain = referenceField("pd");
     private final NativeInteger eventsCompleted = integerField("events_completed");
 
     SharedReceiveQueue(long handle) {
@@ -84,6 +85,8 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroySharedReceiveQueue(getHandle(), result.getHandle());

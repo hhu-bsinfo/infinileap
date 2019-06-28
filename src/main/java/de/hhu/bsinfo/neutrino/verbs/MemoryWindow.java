@@ -20,8 +20,8 @@ public class MemoryWindow extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryWindow.class);
 
-    private final Context context = referenceField("context", Context::new);
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
+    private final Context context = referenceField("context");
+    private final ProtectionDomain protectionDomain = referenceField("pd");
     private final NativeInteger remoteKey = integerField("rkey");
     private final NativeEnum<Type> type = enumField("type", Type.CONVERTER);
 

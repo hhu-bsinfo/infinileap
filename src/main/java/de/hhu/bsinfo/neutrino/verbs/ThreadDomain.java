@@ -4,7 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
-import java.util.function.Consumer;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
 
     ThreadDomain(final long handle) {
         super(handle);
@@ -25,6 +25,8 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateThreadDomain(getHandle(), result.getHandle());

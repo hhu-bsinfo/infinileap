@@ -12,7 +12,7 @@ public class CompletionChannel extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionChannel.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
 
     CompletionChannel(final long handle) {
         super(handle);

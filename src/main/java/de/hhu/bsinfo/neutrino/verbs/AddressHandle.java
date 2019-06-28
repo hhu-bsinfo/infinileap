@@ -9,7 +9,6 @@ import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +17,8 @@ public class AddressHandle extends Struct {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressHandle.class);
 
-    private final Context context = referenceField("context", Context::new);
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
+    private final Context context = referenceField("context");
+    private final ProtectionDomain protectionDomain = referenceField("pd");
 
     AddressHandle(final long handle) {
         super(handle);

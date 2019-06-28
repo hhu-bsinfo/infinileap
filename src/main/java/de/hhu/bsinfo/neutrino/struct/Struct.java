@@ -232,14 +232,13 @@ public class Struct implements NativeObject {
         return field;
     }
 
-    protected final <T extends NativeObject> T referenceField(String identifier, ReferenceFactory<T> factory) {
-        long referenceHandle = byteBuffer.getLong(offsetOf(identifier));
-        return referenceHandle == 0 ? null : factory.newInstance(referenceHandle);
+    protected final <T extends NativeObject> T referenceField(String identifier) {
+        return referenceField(offsetOf(identifier));
     }
 
-    protected final <T extends NativeObject> T referenceField(long offset, ReferenceFactory<T> factory) {
-        long referenceHandle = byteBuffer.getLong(offset);
-        return referenceHandle == 0 ? null : factory.newInstance(referenceHandle);
+    @SuppressWarnings("unchecked")
+    protected final <T extends NativeObject> T referenceField(long offset) {
+        return (T) NativeObjectRegistry.getObject(byteBuffer.getLong(offset));
     }
 
     protected final <T extends NativeObject> T anonymousField(AnonymousFactory<T> factory) {

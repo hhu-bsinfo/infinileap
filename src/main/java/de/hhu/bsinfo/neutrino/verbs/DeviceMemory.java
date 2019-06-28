@@ -14,7 +14,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceMemory.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
     private final NativeInteger compatibilityMask = integerField("comp_mask");
 
     DeviceMemory(final long handle) {

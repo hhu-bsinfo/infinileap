@@ -13,10 +13,7 @@ import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.data.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.BitMask;
-import de.hhu.bsinfo.neutrino.util.Flag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
-import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
+import de.hhu.bsinfo.neutrino.util.*;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -29,12 +26,12 @@ public class QueuePair extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueuePair.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
     private final NativeLong userContext = longField("qp_context");
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
-    private final CompletionQueue sendCompletionQueue = referenceField("send_cq", CompletionQueue::new);
-    private final CompletionQueue receiveCompletionQueue = referenceField("recv_cq", CompletionQueue::new);
-    private final SharedReceiveQueue sharedReceiveQueue = referenceField("srq", SharedReceiveQueue::new);
+    private final ProtectionDomain protectionDomain = referenceField("pd");
+    private final CompletionQueue sendCompletionQueue = referenceField("send_cq");
+    private final CompletionQueue receiveCompletionQueue = referenceField("recv_cq");
+    private final SharedReceiveQueue sharedReceiveQueue = referenceField("srq");
     private final NativeInteger queuePairNumber = integerField("qp_num");
     private final NativeEnum<State> state = enumField("state", State.CONVERTER);
     private final NativeEnum<Type> type = enumField("qp_type", Type.CONVERTER);
@@ -160,6 +157,8 @@ public class QueuePair extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());

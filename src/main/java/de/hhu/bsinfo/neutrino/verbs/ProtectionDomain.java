@@ -9,6 +9,7 @@ import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
 import java.util.function.Consumer;
@@ -21,7 +22,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
 
     ProtectionDomain(long handle) {
         super(handle);
@@ -135,7 +136,10 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Creating shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(SharedReceiveQueue::new);
+        SharedReceiveQueue sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
+        NativeObjectRegistry.registerObject(sharedReceiveQueue);
+
+        return sharedReceiveQueue;
     }
 
     @Nullable
@@ -147,11 +151,16 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Creating queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(QueuePair::new);
+        QueuePair queuePair = result.getAndRelease(QueuePair::new);
+        NativeObjectRegistry.registerObject(queuePair);
+
+        return queuePair;
     }
 
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());

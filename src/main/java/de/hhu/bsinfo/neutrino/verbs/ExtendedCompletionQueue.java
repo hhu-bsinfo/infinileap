@@ -8,20 +8,19 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.WorkCompletion.TagMatchingInfo;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Consumer;
 
 @LinkNative("ibv_cq_ex")
 public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCompletionQueue.class);
 
-    private final Context context = referenceField("context", Context::new);
-    private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
+    private final Context context = referenceField("context");
+    private final CompletionChannel completionChannel = referenceField("channel");
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
     private final NativeIntegerBitMask<CompatibilityFlag> compatibilityMask = integerBitField("comp_mask");
@@ -142,6 +141,8 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         CompletionQueue completionQueue = toCompletionQueue();
 
         if(completionQueue != null) {

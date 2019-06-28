@@ -14,8 +14,8 @@ public class CompletionQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionQueue.class);
 
-    private final Context context = referenceField("context", Context::new);
-    private final CompletionChannel completionChannel = referenceField("channel", CompletionChannel::new);
+    private final Context context = referenceField("context");
+    private final CompletionChannel completionChannel = referenceField("channel");
     private final NativeLong userContextHandle = longField("cq_context");
     private final NativeInteger maxElements = integerField("cqe");
 

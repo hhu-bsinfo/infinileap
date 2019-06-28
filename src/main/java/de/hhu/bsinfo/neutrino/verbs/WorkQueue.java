@@ -6,23 +6,23 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 @LinkNative("ibv_wq")
 public class WorkQueue extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkQueue.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
     private final NativeLong userContext = longField("wq_context");
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
-    private final CompletionQueue completionQueue = referenceField("cq", CompletionQueue::new);
+    private final ProtectionDomain protectionDomain = referenceField("pd");
+    private final CompletionQueue completionQueue = referenceField("cq");
     private final NativeInteger workQueueNumber = integerField("wq_num");
     private final NativeInteger state = integerField("state");
     private final NativeEnum<Type> type = enumField("wq_type", Type.CONVERTER);
@@ -74,6 +74,8 @@ public class WorkQueue extends Struct implements AutoCloseable {
     }
     @Override
     public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyWorkQueue(getHandle(), result.getHandle());

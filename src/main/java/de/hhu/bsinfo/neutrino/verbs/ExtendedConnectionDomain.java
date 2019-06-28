@@ -6,12 +6,11 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @LinkNative("ibv_xrcd")
@@ -19,7 +18,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedConnectionDomain.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
 
     public ExtendedConnectionDomain(final long handle) {
         super(handle);
@@ -30,7 +29,9 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
+        NativeObjectRegistry.deregisterObject(this);
+
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeExtendedConnectionDomain(getHandle(), result.getHandle());

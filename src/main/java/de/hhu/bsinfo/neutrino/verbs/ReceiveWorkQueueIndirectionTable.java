@@ -18,7 +18,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReceiveWorkQueueIndirectionTable.class);
 
-    private final Context context = referenceField("context", Context::new);
+    private final Context context = referenceField("context");
     private final NativeInteger tableHandle = integerField("ind_tbl_handle");
     private final NativeInteger tableNumber = integerField("ind_tbl_num");
     private final NativeInteger compatibilityMask = integerField("comp_mask");

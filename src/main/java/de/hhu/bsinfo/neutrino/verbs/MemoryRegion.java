@@ -5,7 +5,6 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
-import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +13,8 @@ public class MemoryRegion extends Struct implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryRegion.class);
 
-    private final Context context = referenceField("context", Context::new);
-    private final ProtectionDomain protectionDomain = referenceField("pd", ProtectionDomain::new);
+    private final Context context = referenceField("context");
+    private final ProtectionDomain protectionDomain = referenceField("pd");
     private final NativeLong address = longField("addr");
     private final NativeLong length = longField("length");
     private final NativeInteger localKey = integerField("lkey");
