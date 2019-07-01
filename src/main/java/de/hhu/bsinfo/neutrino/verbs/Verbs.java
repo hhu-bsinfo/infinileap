@@ -18,6 +18,7 @@ public final class Verbs {
 
         poolMap.put(Result.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new)));
         poolMap.put(AsyncEvent.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, AsyncEvent::new)));
+        poolMap.put(WorkCompletion.TagMatchingInfo.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, WorkCompletion.TagMatchingInfo::new)));
     }
 
     private Verbs() {

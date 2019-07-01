@@ -132,7 +132,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     }
 
     public TagMatchingInfo readTagMatchingInfo() {
-        var ret = new TagMatchingInfo();
+        var ret = (TagMatchingInfo) Verbs.getPoolableInstance(TagMatchingInfo.class);
 
         Verbs.readTagMatchingInfo(getHandle(), ret.getHandle());
 
