@@ -141,12 +141,11 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         CompletionQueue completionQueue = toCompletionQueue();
 
         if(completionQueue != null) {
             completionQueue.close();
+            NativeObjectRegistry.deregisterObject(this);
         }
     }
 
@@ -258,8 +257,8 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
             return userContext.get();
         }
 
-        public long getCompletionChannel() {
-            return completionChannel.get();
+        public CompletionChannel getCompletionChannel() {
+            return NativeObjectRegistry.getObject(completionChannel.get());
         }
 
         public int getCompletionVector() {
@@ -322,9 +321,9 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         public static final class Builder {
 
             private int maxElements;
-            private long userContext = 0;
+            private long userContext;
             private CompletionChannel completionChannel;
-            private int completionVector = 0;
+            private int completionVector;
             private WorkCompletionCapability[] workCompletionCapabilities;
             private CompatibilityFlag[] compatibilityMask;
             private CreationFlag[] creationFlags;

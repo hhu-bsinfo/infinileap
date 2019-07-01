@@ -5,7 +5,7 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
-import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.ParentDomainInitialAttributes;
+import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.InitialAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Opening device {} failed with error [{}]", index, result.getStatus());
         }
 
-        Context context = result.getAndRelease(Context::new);
+        var context = result.getAndRelease(Context::new);
         NativeObjectRegistry.registerObject(context);
 
         return context;
@@ -54,13 +54,13 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Closing device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -111,7 +111,10 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Allocating device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(DeviceMemory::new);
+        var deviceMemory = result.getAndRelease(DeviceMemory::new);
+        NativeObjectRegistry.registerObject(deviceMemory);
+
+        return deviceMemory;
     }
 
     @Nullable
@@ -123,7 +126,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Allocating protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        ProtectionDomain protectionDomain = result.getAndRelease(ProtectionDomain::new);
+        var protectionDomain = result.getAndRelease(ProtectionDomain::new);
         NativeObjectRegistry.registerObject(protectionDomain);
 
         return protectionDomain;
@@ -138,14 +141,13 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Allocating thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        ThreadDomain threadDomain = result.getAndRelease(ThreadDomain::new);
+        var threadDomain = result.getAndRelease(ThreadDomain::new);
         NativeObjectRegistry.registerObject(threadDomain);
 
         return threadDomain;
     }
 
-    @Nullable
-    public ProtectionDomain allocateParentDomain(ParentDomainInitialAttributes attributes) {
+    @Nullable ProtectionDomain allocateParentDomain(InitialAttributes attributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.allocateParentDomain(getHandle(), attributes.getHandle(), result.getHandle());
@@ -153,7 +155,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Allocating parent domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        ProtectionDomain protectionDomain = result.getAndRelease(ProtectionDomain::new);
+        var protectionDomain = result.getAndRelease(ProtectionDomain::new);
         NativeObjectRegistry.registerObject(protectionDomain);
 
         return protectionDomain;
@@ -168,7 +170,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        CompletionChannel completionChannel = result.getAndRelease(CompletionChannel::new);
+        var completionChannel = result.getAndRelease(CompletionChannel::new);
         NativeObjectRegistry.registerObject(completionChannel);
 
         return completionChannel;
@@ -183,7 +185,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        CompletionQueue completionQueue = result.getAndRelease(CompletionQueue::new);
+        var completionQueue = result.getAndRelease(CompletionQueue::new);
         NativeObjectRegistry.registerObject(completionQueue);
 
         return completionQueue;
@@ -234,7 +236,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Opening extended connection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        ExtendedConnectionDomain extendedConnectionDomain = result.getAndRelease(ExtendedConnectionDomain::new);
+        var extendedConnectionDomain = result.getAndRelease(ExtendedConnectionDomain::new);
         NativeObjectRegistry.registerObject(extendedConnectionDomain);
 
         return extendedConnectionDomain;
@@ -249,7 +251,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating extended shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        SharedReceiveQueue sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
+        var sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
@@ -264,7 +266,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        ExtendedCompletionQueue extendedCompletionQueue = result.getAndRelease(ExtendedCompletionQueue::new);
+        var extendedCompletionQueue = result.getAndRelease(ExtendedCompletionQueue::new);
         NativeObjectRegistry.registerObject(extendedCompletionQueue);
 
         return extendedCompletionQueue;
@@ -279,7 +281,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        WorkQueue workQueue = result.getAndRelease(WorkQueue::new);
+        var workQueue = result.getAndRelease(WorkQueue::new);
         NativeObjectRegistry.registerObject(workQueue);
 
         return workQueue;
@@ -294,7 +296,10 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
+        var indirectionTable = result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
+        NativeObjectRegistry.registerObject(indirectionTable);
+
+        return indirectionTable;
     }
 
     @Nullable
@@ -306,7 +311,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Creating extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        QueuePair queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.getAndRelease(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;
@@ -321,7 +326,7 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.error("Opening queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        QueuePair queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.getAndRelease(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;

@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,16 +337,16 @@ public class ExtendedQueuePair extends Struct {
             return userContext.get();
         }
 
-        public long getSendCompletionQueue() {
-            return sendCompletionQueue.get();
+        public CompletionQueue getSendCompletionQueue() {
+            return NativeObjectRegistry.getObject(sendCompletionQueue.get());
         }
 
-        public long getReceiveCompletionQueue() {
-            return receiveCompletionQueue.get();
+        public CompletionQueue getReceiveCompletionQueue() {
+            return NativeObjectRegistry.getObject(receiveCompletionQueue.get());
         }
 
-        public long getSharedReceiveQueue() {
-            return sharedReceiveQueue.get();
+        public SharedReceiveQueue getSharedReceiveQueue() {
+            return NativeObjectRegistry.getObject(sharedReceiveQueue.get());
         }
 
         public QueuePair.Type getType() {
@@ -360,12 +361,12 @@ public class ExtendedQueuePair extends Struct {
             return attributeMask.get();
         }
 
-        public long getProtectionDomain() {
-            return protectionDomain.get();
+        public ProtectionDomain getProtectionDomain() {
+            return NativeObjectRegistry.getObject(protectionDomain.get());
         }
 
-        public long getExtendedConnectionDomain() {
-            return extendedConnectionDomain.get();
+        public ExtendedConnectionDomain getExtendedConnectionDomain() {
+            return NativeObjectRegistry.getObject(extendedConnectionDomain.get());
         }
 
         public int getCreationFlags() {
@@ -376,8 +377,8 @@ public class ExtendedQueuePair extends Struct {
             return maxTcpSegmentationOffloadHeader.get();
         }
 
-        public long getReceiveWorkQueueIndirectionTable() {
-            return receiveWorkQueueIndirectionTable.get();
+        public ReceiveWorkQueueIndirectionTable getReceiveWorkQueueIndirectionTable() {
+            return NativeObjectRegistry.getObject(receiveWorkQueueIndirectionTable.get());
         }
 
         public int getSourceQueuePairNumber() {

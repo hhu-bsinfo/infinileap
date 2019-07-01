@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.neutrino.util;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,15 +12,20 @@ public class NativeObjectRegistry {
 
     private NativeObjectRegistry() {}
 
-    public static void registerObject(NativeObject object) {
-        objectMap.put(object.getHandle(), object);
+    public static <T extends NativeObject> void registerObject(@Nullable T object) {
+        if(object != null) {
+            objectMap.put(object.getHandle(), object);
+        }
     }
 
-    public static void deregisterObject(NativeObject object) {
-        objectMap.remove(object.getHandle());
+    public static <T extends NativeObject> void deregisterObject(@Nullable T object) {
+        if(object != null) {
+            objectMap.remove(object.getHandle());
+        }
     }
 
-    public static NativeObject getObject(long handle) {
-        return objectMap.get(handle);
+    @SuppressWarnings("unchecked")
+    public static <T extends NativeObject> T getObject(long handle) {
+        return (T) objectMap.get(handle);
     }
 }

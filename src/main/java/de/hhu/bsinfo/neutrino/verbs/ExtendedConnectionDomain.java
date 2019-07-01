@@ -29,14 +29,13 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+    public void close() {var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.closeExtendedConnectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Destroying completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();

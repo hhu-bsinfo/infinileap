@@ -9,6 +9,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -64,9 +65,10 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateMemoryWindow(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
+        if (result.isError()) {
             LOGGER.error("Deallocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -218,8 +220,8 @@ public class MemoryWindow extends Struct implements AutoCloseable {
             super(buffer, offset);
         }
 
-        public long getMemoryRegion() {
-            return memoryRegion.get();
+        public MemoryRegion getMemoryRegion() {
+            return NativeObjectRegistry.getObject(memoryRegion.get());
         }
 
         public long getAddress() {

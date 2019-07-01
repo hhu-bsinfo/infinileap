@@ -8,6 +8,7 @@ import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.Flag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,8 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         Verbs.destroyReceiveWorkQueueIndirectionTable(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Destroying receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();

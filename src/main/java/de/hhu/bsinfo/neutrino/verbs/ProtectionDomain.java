@@ -11,8 +11,7 @@ import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
-import de.hhu.bsinfo.neutrino.verbs.QueuePair.InitialAttributes;
-import java.util.function.Consumer;
+
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +33,9 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Nullable
     public ProtectionDomain allocateParentDomain(@Nullable ThreadDomain threadDomain) {
-        return getContext().allocateParentDomain(new ParentDomainInitialAttributes(config -> {
-            if(threadDomain != null) {
-                config.setThreadDomain(threadDomain);
-            }
-        }));
+        return getContext().allocateParentDomain(new InitialAttributes.Builder(this)
+                .withThreadDomain(threadDomain)
+                .build());
     }
 
     @Nullable
@@ -47,10 +44,13 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
         Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering device memory memory as memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            LOGGER.error("Registering device memory as memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        NativeObjectRegistry.registerObject(memoryRegion);
+
+        return memoryRegion;
     }
 
     @Nullable
@@ -68,6 +68,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         }
 
         var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        NativeObjectRegistry.registerObject(memoryRegion);
 
         return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion);
     }
@@ -82,6 +83,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         }
 
         var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        NativeObjectRegistry.registerObject(memoryRegion);
 
         return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion, 0, memoryRegion.getLength());
     }
@@ -112,7 +114,10 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Allocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(MemoryWindow::new);
+        var memoryWindow = result.getAndRelease(MemoryWindow::new);
+        NativeObjectRegistry.registerObject(memoryWindow);
+
+        return memoryWindow;
     }
 
     @Nullable
@@ -124,7 +129,10 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Creating address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(AddressHandle::new);
+        var addressHandle = result.getAndRelease(AddressHandle::new);
+        NativeObjectRegistry.registerObject(addressHandle);
+
+        return addressHandle;
     }
 
     @Nullable
@@ -136,14 +144,14 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Creating shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        SharedReceiveQueue sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
+        var sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
     }
 
     @Nullable
-    public QueuePair createQueuePair(InitialAttributes initialAttributes) {
+    public QueuePair createQueuePair(QueuePair.InitialAttributes initialAttributes) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
@@ -151,7 +159,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             LOGGER.error("Creating queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        QueuePair queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.getAndRelease(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;
@@ -159,53 +167,80 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Closing protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
     }
 
     @LinkNative("ibv_parent_domain_init_attr")
-    public final class ParentDomainInitialAttributes extends Struct {
+    public static final class InitialAttributes extends Struct {
 
         private final NativeLong protectionDomain = longField("pd");
         private final NativeLong threadDomain = longField("td");
         private final NativeInteger compatibilityMask = integerField("comp_mask");
 
-        public ParentDomainInitialAttributes() {}
+        InitialAttributes() {}
 
-        public ParentDomainInitialAttributes(final Consumer<ParentDomainInitialAttributes> configurator) {
-            configurator.accept(this);
+        public ProtectionDomain getProtectionDomain() {
+            return NativeObjectRegistry.getObject(protectionDomain.get());
         }
 
-        public long getProtectionDomain() {
-            return protectionDomain.get();
-        }
-
-        public long getThreadDomain() {
-            return threadDomain.get();
+        public ThreadDomain getThreadDomain() {
+            return NativeObjectRegistry.getObject(threadDomain.get());
         }
 
         public int getCompatibilityMask() {
             return compatibilityMask.get();
         }
 
-        public void setProtectionDomain(final ProtectionDomain protectionDomain) {
+        void setProtectionDomain(final ProtectionDomain protectionDomain) {
             this.protectionDomain.set(protectionDomain.getHandle());
         }
 
-        public void setThreadDomain(final ThreadDomain threadDomain) {
+        void setThreadDomain(final ThreadDomain threadDomain) {
             this.threadDomain.set(threadDomain.getHandle());
         }
 
-        public void setCompatibilityMask(final int value) {
+        void setCompatibilityMask(final int value) {
             compatibilityMask.set(value);
+        }
+
+        public static final class Builder {
+
+            private ProtectionDomain protectionDomain;
+            private ThreadDomain threadDomain;
+            private int compatibilityMask;
+
+            public Builder(ProtectionDomain protectionDomain) {
+                this.protectionDomain = protectionDomain;
+            }
+
+            public Builder withThreadDomain(ThreadDomain threadDomain) {
+                this.threadDomain = threadDomain;
+                return this;
+            }
+
+            public Builder withCompatibilityMask(int compatibilityMask) {
+                this.compatibilityMask = compatibilityMask;
+                return this;
+            }
+
+            public InitialAttributes build() {
+                var ret = new InitialAttributes();
+
+                if(protectionDomain != null) ret.setProtectionDomain(protectionDomain);
+                if(threadDomain != null) ret.setThreadDomain(threadDomain);
+                ret.setCompatibilityMask(compatibilityMask);
+
+                return ret;
+            }
         }
     }
 }

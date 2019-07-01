@@ -25,13 +25,13 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deallocateThreadDomain(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Closing thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();

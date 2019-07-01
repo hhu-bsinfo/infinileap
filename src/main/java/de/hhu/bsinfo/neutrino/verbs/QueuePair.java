@@ -157,13 +157,13 @@ public class QueuePair extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Destroying queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -426,16 +426,16 @@ public class QueuePair extends Struct implements AutoCloseable {
             return userContext.get();
         }
 
-        public long getSendCompletionQueue() {
-            return sendCompletionQueue.get();
+        public CompletionQueue getSendCompletionQueue() {
+            return NativeObjectRegistry.getObject(sendCompletionQueue.get());
         }
 
-        public long getReceiveCompletionQueue() {
-            return receiveCompletionQueue.get();
+        public CompletionQueue getReceiveCompletionQueue() {
+            return NativeObjectRegistry.getObject(receiveCompletionQueue.get());
         }
 
-        public long getSharedReceiveQueue() {
-            return sharedReceiveQueue.get();
+        public SharedReceiveQueue getSharedReceiveQueue() {
+            return NativeObjectRegistry.getObject(sharedReceiveQueue.get());
         }
 
         public Type getType() {
@@ -642,8 +642,8 @@ public class QueuePair extends Struct implements AutoCloseable {
             return queuePairNumber.get();
         }
 
-        public long getExtendedConnectionDomain() {
-            return extendedConnectionDomain.get();
+        public ExtendedConnectionDomain getExtendedConnectionDomain() {
+            return NativeObjectRegistry.getObject(extendedConnectionDomain.get());
         }
 
         public long getUserContext() {

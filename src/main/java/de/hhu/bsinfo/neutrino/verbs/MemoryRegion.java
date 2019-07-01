@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +54,10 @@ public class MemoryRegion extends Struct implements AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.deregisterMemoryRegion(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
+        if (result.isError()) {
             LOGGER.error("Deregistering memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();

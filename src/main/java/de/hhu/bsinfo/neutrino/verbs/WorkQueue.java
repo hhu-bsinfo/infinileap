@@ -74,13 +74,13 @@ public class WorkQueue extends Struct implements AutoCloseable {
     }
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroyWorkQueue(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Destroying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -297,12 +297,12 @@ public class WorkQueue extends Struct implements AutoCloseable {
             return maxScatterGatherElements.get();
         }
 
-        public long getProtectionDomain() {
-            return protectionDomain.get();
+        public ProtectionDomain getProtectionDomain() {
+            return NativeObjectRegistry.getObject(protectionDomain.get());
         }
 
-        public long getCompletionQueue() {
-            return completionQueue.get();
+        public CompletionQueue getCompletionQueue() {
+            return NativeObjectRegistry.getObject(completionQueue.get());
         }
 
         public int getCompatibilityMask() {

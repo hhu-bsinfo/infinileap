@@ -6,6 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +63,10 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.freeDeviceMemory(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if(isError) {
+        if(result.isError()) {
             LOGGER.error("Freeing device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -116,7 +118,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
 
             private long length;
             private int logarithmicAlignmentRequirement;
-            private int compatibilityMask = 0;
+            private int compatibilityMask;
 
             public Builder(final long length, final int logarithmicAlignmentRequirement) {
                 this.length = length;

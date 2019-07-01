@@ -236,9 +236,8 @@ public class Struct implements NativeObject {
         return referenceField(offsetOf(identifier));
     }
 
-    @SuppressWarnings("unchecked")
     protected final <T extends NativeObject> T referenceField(long offset) {
-        return (T) NativeObjectRegistry.getObject(byteBuffer.getLong(offset));
+        return NativeObjectRegistry.getObject(byteBuffer.getLong(offset));
     }
 
     protected final <T extends NativeObject> T anonymousField(AnonymousFactory<T> factory) {

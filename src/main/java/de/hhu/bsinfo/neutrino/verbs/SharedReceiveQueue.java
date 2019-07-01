@@ -85,13 +85,13 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        NativeObjectRegistry.deregisterObject(this);
-
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.destroySharedReceiveQueue(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Destroying shared receive failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        } else {
+            NativeObjectRegistry.deregisterObject(this);
         }
 
         result.releaseInstance();
@@ -345,19 +345,19 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             return type.get();
         }
 
-        public long getProtectionDomain() {
-            return protectionDomain.get();
+        public ProtectionDomain getProtectionDomain() {
+            return NativeObjectRegistry.getObject(protectionDomain.get());
         }
 
-        public long getExtendedConnectionDomain() {
-            return extendedConnectionDomain.get();
+        public ExtendedConnectionDomain getExtendedConnectionDomain() {
+            return NativeObjectRegistry.getObject(extendedConnectionDomain.get());
         }
 
-        public long getCompletionQueue() {
-            return completionQueue.get();
+        public CompletionQueue getCompletionQueue() {
+            return NativeObjectRegistry.getObject(completionQueue.get());
         }
 
-        public void setUserContext(final long value) {
+        void setUserContext(final long value) {
             userContext.set(value);
         }
 
