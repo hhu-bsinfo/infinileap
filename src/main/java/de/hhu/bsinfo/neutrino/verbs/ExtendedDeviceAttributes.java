@@ -425,17 +425,13 @@ public class ExtendedDeviceAttributes extends Struct {
 
         private final NativeInteger compatibilityMask = integerField("comp_mask");
 
-        public QueryExtendedDeviceInput() {}
-
-        public QueryExtendedDeviceInput(final Consumer<QueryExtendedDeviceInput> configurator) {
-            configurator.accept(this);
-        }
+        QueryExtendedDeviceInput() {}
 
         public int getCompatibilityMask() {
             return compatibilityMask.get();
         }
 
-        public void setCompatibilityMask(final int value) {
+        void setCompatibilityMask(final int value) {
             compatibilityMask.set(value);
         }
 
@@ -444,6 +440,26 @@ public class ExtendedDeviceAttributes extends Struct {
             return "QueryExtendedDeviceInput {\n" +
                 "\tcompatibilityMask=" + compatibilityMask +
                 "\n}";
+        }
+
+        public static final class Builder {
+
+            private int compatibilityMask;
+
+            public Builder() {}
+
+            public Builder withCompatibilityMask(int compatibilityMask) {
+                this.compatibilityMask = compatibilityMask;
+                return this;
+            }
+
+            public QueryExtendedDeviceInput build() {
+                var ret = new QueryExtendedDeviceInput();
+
+                ret.setCompatibilityMask(compatibilityMask);
+
+                return ret;
+            }
         }
     }
 }
