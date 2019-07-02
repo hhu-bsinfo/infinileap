@@ -37,6 +37,10 @@ public class Context implements NativeObject, AutoCloseable {
         return -1;
     }
 
+    public static int getDeviceCount() {
+        return Verbs.getNumDevices();
+    }
+
     @Nullable
     public static Context openDevice(int index) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);

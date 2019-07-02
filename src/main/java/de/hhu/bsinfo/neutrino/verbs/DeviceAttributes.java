@@ -38,10 +38,6 @@ public class DeviceAttributes extends Struct {
         super(localBuffer, offset);
     }
 
-    public static int getDeviceCount() {
-        return Verbs.getNumDevices();
-    }
-
     public String getFirmwareVersion() {
         return firmwareVersion.get();
     }
