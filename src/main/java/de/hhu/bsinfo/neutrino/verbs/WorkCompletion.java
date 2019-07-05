@@ -30,6 +30,10 @@ public class WorkCompletion extends Struct {
         super(handle);
     }
 
+    public String getStatusMessage() {
+        return Verbs.getStatusString(status.get().getValue());
+    }
+
     public long getId() {
         return id.get();
     }

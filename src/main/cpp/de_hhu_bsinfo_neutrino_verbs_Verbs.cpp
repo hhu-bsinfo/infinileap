@@ -316,6 +316,10 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroyCompletion
     NativeCall::setResult(result, ibv_destroy_cq(completionQueue), 0);
 }
 
+JNIEXPORT jstring JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_getStatusString (JNIEnv *env, jclass clazz, jlong workCompletionStatus) {
+    return env->NewStringUTF(ibv_wc_status_str(static_cast<ibv_wc_status>(workCompletionStatus)));
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_createSharedReceiveQueue (JNIEnv *env, jclass clazz, jlong protectionDomainHandle, jlong attributesHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto attributes = NativeCall::castHandle<ibv_srq_init_attr>(attributesHandle);

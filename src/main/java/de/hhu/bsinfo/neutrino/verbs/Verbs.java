@@ -83,6 +83,7 @@ public final class Verbs {
     static native void requestNotification(long completionQueueHandle, int solicitedOnly, long resultHandle);
     static native void acknowledgeCompletionEvents(long completionQueueHandle, int ackCount);
     static native void destroyCompletionQueue(long completionQueueHandle, long resultHandle);
+    static native String getStatusString(long workCompletionStatus);
 
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, int attributesMask, long resultHandle);
