@@ -47,7 +47,7 @@ public class Context implements NativeObject, AutoCloseable {
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening device {} failed with error [{}]", index, result.getStatus());
+            LOGGER.error("Opening device {} failed with error [{}]: {}", index, result.getStatus(), result.getStatusMessage());
         }
 
         var context = result.getAndRelease(Context::new);

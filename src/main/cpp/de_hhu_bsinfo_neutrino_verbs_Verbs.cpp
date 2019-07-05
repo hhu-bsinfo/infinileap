@@ -41,17 +41,19 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_openDevice (JNIEn
 
     ibv_device **devices = ibv_get_device_list(&numDevices);
     if (devices == nullptr) {
-        NativeCall::setResult(result, 1, nullptr);
+        NativeCall::setResult(result, ENODEV, nullptr);
         return;
     }
 
     if (index >= numDevices) {
         ibv_free_device_list(devices);
-        NativeCall::setResult(result, 1, nullptr);
+        NativeCall::setResult(result, ENODEV, nullptr);
         return;
     }
 
-    NativeCall::setResult(result, 0, ibv_open_device(devices[index]));
+    auto context = ibv_open_device(devices[index]);
+
+    NativeCall::setResult(result, context == nullptr ? errno : 0, context);
 
     ibv_free_device_list(devices);
 }

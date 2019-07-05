@@ -173,6 +173,10 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         return status.get();
     }
 
+    public String getStatusMessage() {
+        return Verbs.getStatusString(status.get().getValue());
+    }
+
     public long getWorkRequestId() {
         return workRequestId.get();
     }

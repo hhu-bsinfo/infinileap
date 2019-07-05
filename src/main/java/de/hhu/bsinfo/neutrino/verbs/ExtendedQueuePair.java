@@ -20,7 +20,7 @@ public class ExtendedQueuePair extends Struct {
 
     private final NativeLong compatibilityMask = longField("comp_mask");
     private final NativeLong workRequestId = longField("wr_id");
-    private final NativeInteger workRequestFlags = integerField("wr_flags");
+    private final NativeIntegerBitMask<SendWorkRequest.SendFlag> workRequestFlags = integerBitField("wr_flags");
 
     public final QueuePair baseQueuePair = valueField("qp_base", QueuePair::new);
 
@@ -118,6 +118,14 @@ public class ExtendedQueuePair extends Struct {
 
     public int getWorkRequestFlags() {
         return workRequestFlags.get();
+    }
+
+    public void setWorkRequestId(long id) {
+        workRequestId.set(id);
+    }
+
+    public void setWorkRequestFlags(SendWorkRequest.SendFlag... flags) {
+        workRequestFlags.set(flags);
     }
 
     @Override
