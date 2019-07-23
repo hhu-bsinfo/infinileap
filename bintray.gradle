@@ -1,0 +1,23 @@
+bintray {
+    user = System.getProperty('bintray.user')
+    key = System.getProperty('bintray.key')
+    publications = ['mavenPublication']
+    publish = true
+    override = true
+
+    pkg {
+        repo = 'dxram'
+        name = 'neutrino'
+        userOrg = 'hhu-bsinfo'
+        licenses = ['GPL-3.0']
+        vcsUrl = 'https://github.com/hhu-bsinfo/neutrino.git'
+        labels = ['infiniband', 'verbs', 'java', 'jni', 'networking', 'high-performance']
+        githubRepo = 'hhu-bsinfo/neutrino'
+        githubReleaseNotesFile = 'README.md'
+
+        version {
+            name = project.version
+            released  = new Date()
+        }
+    }
+}

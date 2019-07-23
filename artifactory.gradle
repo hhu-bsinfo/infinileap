@@ -1,0 +1,23 @@
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = System.getProperty('bintray.user')
+            password = System.getProperty('bintray.key')
+        }
+
+        defaults {
+            publications('mavenPublication')
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+
+    resolve {
+        repoKey = 'jcenter'
+    }
+
+    clientConfig.info.setBuildNumber(System.getProperty('build.number'))
+}

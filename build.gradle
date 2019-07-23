@@ -1,7 +1,10 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
     id 'de.fuerstenau.buildconfig' version '1.1.8'
     id 'com.palantir.git-version' version '0.11.0'
+    id 'com.jfrog.bintray' version '1.8.4'
+    id "com.jfrog.artifactory" version "4.7.5"
 }
 
 compileJava {
@@ -13,7 +16,6 @@ compileJava {
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
-
 compileJava {
     dependsOn(':jni:build', ':neutrino:generateBuildConfig')
     options.compilerArgs += ['-h', project.file('src/main/cpp/include')]
@@ -21,6 +23,28 @@ compileJava {
 
 repositories {
     mavenCentral()
+    jcenter()
+
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
 
 dependencies {
@@ -49,3 +73,7 @@ buildConfig {
     buildConfigField 'String', 'GIT_COMMIT', gitVersion.gitHash
     buildConfigField 'String', 'GIT_BRANCH', gitVersion.branchName
 }
+
+apply from: 'publish.gradle'
+apply from: 'bintray.gradle'
+apply from: 'artifactory.gradle'
