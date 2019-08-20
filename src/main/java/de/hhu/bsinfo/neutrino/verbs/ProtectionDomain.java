@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
 @LinkNative("ibv_pd")
 public class ProtectionDomain extends Struct implements AutoCloseable {
 
@@ -148,11 +150,6 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
-    }
-
-    @Nullable
-    public QueuePair createQueuePair(Consumer<InitialAttributes> configurator) {
-        return createQueuePair(new InitialAttributes(configurator));
     }
 
     @Nullable
