@@ -3,12 +3,11 @@ package de.hhu.bsinfo.neutrino.buffer;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.UnsafeProvider;
-import de.hhu.bsinfo.neutrino.verbs.MemoryRegion;
-import java.lang.ref.Cleaner;
-import java.nio.BufferOverflowException;
-import java.nio.ByteOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.ref.Cleaner;
+import java.nio.ByteOrder;
 
 public class LocalBuffer implements NativeObject {
 
@@ -40,74 +39,91 @@ public class LocalBuffer implements NativeObject {
         }
     }
 
-    // TODO(krakowski)
-    //  Perform bound checks within each method
-
     public byte get(long index) {
+        checkBounds(index, index + Byte.BYTES);
         return UNSAFE.getByte(handle + index);
     }
 
     public short getShort(long index) {
+        checkBounds(index, index + Short.BYTES);
         return UNSAFE.getShort(handle + index);
     }
 
     public int getInt(long index) {
+        checkBounds(index, index + Integer.BYTES);
         return UNSAFE.getInt(handle + index);
     }
 
     public long getLong(long index) {
+        checkBounds(index, index + Long.BYTES);
         return UNSAFE.getLong(handle + index);
     }
 
     public char getChar(long index) {
+        checkBounds(index, index + Character.BYTES);
         return UNSAFE.getChar(handle + index);
     }
 
     public float getFloat(long index) {
+        checkBounds(index, index + Float.BYTES);
         return UNSAFE.getFloat(handle + index);
     }
 
     public double getDouble(long index) {
+        checkBounds(index, index + Double.BYTES);
         return UNSAFE.getDouble(handle + index);
     }
 
     public <T extends NativeObject> T getObject(long index, ReferenceFactory<T> factory) {
-        return factory.newInstance(handle + index);
+        var object = factory.newInstance(handle + index);
+        checkBounds(index, index + object.getNativeSize());
+        return object;
     }
 
     public void getBuffer(long index, LocalBuffer target, long offset, long length) {
+        target.checkBounds(offset, offset + length);
+        checkBounds(index, index + length);
         UNSAFE.copyMemory(handle + index, target.handle + offset, length);
     }
 
     public void get(long index, byte[] target, int offset, int length) {
+        checkArrayBounds(target, offset, offset + length);
+        checkBounds(index, index + length);
         UNSAFE.copyMemory(null, handle + index, target, ARRAY_BASE_OFFSET + offset, length);
     }
 
     public void put(long index, byte value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putByte(handle + index, value);
     }
 
     public void putShort(long index, short value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putShort(handle + index, value);
     }
 
     public void putInt(long index, int value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putInt(handle + index, value);
     }
 
     public void putLong(long index, long value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putLong(handle + index, value);
     }
 
     public void putChar(long index, char value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putChar(handle + index, value);
     }
 
     public void putFloat(long index, float value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putFloat(handle + index, value);
     }
 
     public void putDouble(long index, double value) {
+        checkBounds(index, index + Byte.BYTES);
         UNSAFE.putDouble(handle + index, value);
     }
 
@@ -116,26 +132,28 @@ public class LocalBuffer implements NativeObject {
     }
 
     public void putObject(long index, NativeObject object) {
+        checkBounds(index, index + object.getNativeSize());
         UNSAFE.copyMemory(object.getHandle(), handle + index, object.getNativeSize());
     }
 
     public void putBuffer(LocalBuffer source) {
-        UNSAFE.copyMemory(source.handle, handle, source.capacity);
+        putBuffer(0, source, 0, source.capacity());
     }
 
     public void putBuffer(long index, LocalBuffer source, long offset, long length) {
+        source.checkBounds(offset, offset + length);
+        checkBounds(index, index + length);
         UNSAFE.copyMemory(source.handle + offset, handle + index, length);
     }
 
     public void put(long index, byte[] source, int offset, int length) {
+        checkArrayBounds(source, offset, offset + length);
+        checkBounds(index, index + length);
         UNSAFE.copyMemory(source, ARRAY_BASE_OFFSET + offset, null, handle + index, length);
     }
 
     public LocalBuffer slice(long index, long length) {
-        if (index + length > capacity) {
-            throw new BufferOverflowException();
-        }
-
+        checkBounds(index, index + length);
         long sliceHandle = handle + index;
         return new LocalBuffer(sliceHandle, length, this);
     }
@@ -158,6 +176,24 @@ public class LocalBuffer implements NativeObject {
 
     public void clear() {
         UNSAFE.setMemory(handle, capacity, ZERO);
+    }
+
+    /**
+     * Checks if the specified indices are within the accessible memory range.
+     */
+    private void checkBounds(long indexFrom, long indexTo) {
+        if (indexFrom >= capacity || indexFrom < 0 || indexTo > capacity || indexTo < 0 || indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException(String.format("Range [%d,%d] is not accessible", indexFrom, indexTo));
+        }
+    }
+
+    /**
+     * Checks if the specified indices are within the specified array's bounds.
+     */
+    private void checkArrayBounds(byte[] array, long indexFrom, long indexTo) {
+        if (indexFrom >= array.length || indexFrom < 0 || indexTo > array.length || indexTo < 0 || indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException(String.format("Range [%d,%d] is not accessible", indexFrom, indexTo));
+        }
     }
 
     @Override
@@ -208,7 +244,7 @@ public class LocalBuffer implements NativeObject {
 
         @Override
         public void run() {
-            if(handle == 0) {
+            if(handle == ZERO) {
                 return;
             }
 
