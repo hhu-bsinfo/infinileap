@@ -20,6 +20,14 @@ compileJava {
     options.compilerArgs += ['-h', project.file('src/main/cpp/include')]
 }
 
+compileJava.doLast {
+    project.file("$project.buildDir/install/$project.name/jni").mkdir()
+    project.copy {
+        from file("${project(':jni').buildDir}/lib/main/debug/libneutrino.so")
+        into file("${project.projectDir}/src/main/resources/NATIVE/x86_64")
+    }
+}
+
 repositories {
     mavenCentral()
     jcenter()

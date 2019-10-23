@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StructUtil {
 
     static {
-        System.loadLibrary("neutrino");
+        NativeLibrary.load("neutrino");
     }
 
     private StructUtil() {}

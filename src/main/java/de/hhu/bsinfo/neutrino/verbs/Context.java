@@ -2,6 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.util.NativeLibrary;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class Context implements NativeObject, AutoCloseable {
 
     static {
-        System.loadLibrary("neutrino");
+        NativeLibrary.load("neutrino");
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
