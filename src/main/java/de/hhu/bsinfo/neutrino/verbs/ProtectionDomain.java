@@ -60,8 +60,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
     }
 
-    @Nullable
-    private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
+    public MemoryRegion registerMemoryRegion(long handle, long capacity, AccessFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
@@ -72,6 +71,12 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         var memoryRegion = result.getAndRelease(MemoryRegion::new);
         NativeObjectRegistry.registerObject(memoryRegion);
 
+        return memoryRegion;
+    }
+
+    @Nullable
+    private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
+        var memoryRegion = registerMemoryRegion(handle, capacity, flags);
         return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion);
     }
 

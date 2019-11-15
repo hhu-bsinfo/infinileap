@@ -58,6 +58,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     
     api 'org.slf4j:slf4j-api:1.7.26'
+    api 'io.netty:netty-buffer:4.1.43.Final'
     implementation 'org.jetbrains:annotations:17.0.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'

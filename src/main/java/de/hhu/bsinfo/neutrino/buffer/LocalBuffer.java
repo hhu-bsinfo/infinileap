@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.buffer;
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.UnsafeProvider;
+import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,14 @@ public class LocalBuffer implements NativeObject {
         UNSAFE.copyMemory(null, handle + index, target, ARRAY_BASE_OFFSET + offset, length);
     }
 
+    // TODO(krakowski):
+    //  Perform bound checks on ByteBuf
+    public void get(long index, ByteBuf target, int offset, int length) {
+        checkBounds(index, index + length);
+        var targetHandle = target.memoryAddress();
+        UNSAFE.copyMemory(getHandle() + index, targetHandle + offset, length);
+    }
+
     public void put(long index, byte value) {
         checkBounds(index, index + Byte.BYTES);
         UNSAFE.putByte(handle + index, value);
@@ -150,6 +159,12 @@ public class LocalBuffer implements NativeObject {
         checkArrayBounds(source, offset, offset + length);
         checkBounds(index, index + length);
         UNSAFE.copyMemory(source, ARRAY_BASE_OFFSET + offset, null, handle + index, length);
+    }
+
+    public void put(long index, ByteBuf source, int offset, int length) {
+        checkBounds(index, index + length);
+        var sourceHandle = source.memoryAddress();
+        UNSAFE.copyMemory(sourceHandle + offset, getHandle() + index, length);
     }
 
     public LocalBuffer slice(long index, long length) {
