@@ -42,14 +42,9 @@ public class RemoteBuffer {
     private long execute(final OpCode operation, long index, RegisteredBuffer buffer, long offset, long length) {
         var elements = buffer.split(offset, length);
 
-        var request = new SendWorkRequest(config -> {
-            config.setOpCode(operation);
-            config.rdma.setRemoteAddress(address + index);
-            config.rdma.setRemoteKey(key);
-            config.setFlags(SendFlag.SIGNALED);
-            config.setListHandle(elements.getHandle());
-            config.setListLength(1);
-        });
+        var request = new SendWorkRequest.RdmaBuilder(operation, elements, address + index, key)
+                .withSendFlags(SendFlag.SIGNALED)
+                .build();
 
         queuePair.postSend(request);
 

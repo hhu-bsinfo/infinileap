@@ -1,22 +1,267 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
-import de.hhu.bsinfo.neutrino.util.Linkable;
-import de.hhu.bsinfo.neutrino.util.Poolable;
+import de.hhu.bsinfo.neutrino.util.*;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 @LinkNative("ibv_send_wr")
 public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest> {
+
+    private final NativeLong id = longField("wr_id");
+    private final NativeLong next = longField("next");
+    private final NativeLong listHandle = longField("sg_list");
+    private final NativeInteger listLength = integerField("num_sge");
+    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
+    private final NativeIntegerBitMask<SendFlag> sendFlags = integerBitField("send_flags");
+    private final NativeInteger immediateData = integerField("imm_data");
+    private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
+
+    public final Rdma rdma = anonymousField(Rdma::new);
+    public final Atomic atomic = anonymousField(Atomic::new);
+    public final Unreliable ud = anonymousField(Unreliable::new);
+
+    SendWorkRequest() {}
+
+    public long getId() {
+        return id.get();
+    }
+
+    public long getNext() {
+        return next.get();
+    }
+
+    public long getListHandle() {
+        return listHandle.get();
+    }
+
+    public int getListLength() {
+        return listLength.get();
+    }
+
+    public OpCode getOpCode() {
+        return opCode.get();
+    }
+
+    public int getSendFlags() {
+        return sendFlags.get();
+    }
+
+    public int getImmediateData() {
+        return immediateData.get();
+    }
+
+    public int getInvalidateRemoteKey() {
+        return invalidateRemoteKey.get();
+    }
+
+    public void setId(long id) {
+        this.id.set(id);
+    }
+
+    public void setNext(long next) {
+        this.next.set(next);
+    }
+
+    public void setScatterGatherElement(final ScatterGatherElement singleSge) {
+        listHandle.set(singleSge.getHandle());
+        listLength.set(1);
+    }
+
+    public void setScatterGatherElement(final ScatterGatherElement.Array list) {
+        listHandle.set(list.getHandle());
+        listLength.set((int) list.getNativeSize());
+    }
+
+    public void setOpCode(OpCode opCode) {
+        this.opCode.set(opCode);
+    }
+
+    public void setSendFlags(SendFlag... sendFlags) {
+        this.sendFlags.set(sendFlags);
+    }
+
+    public void setImmediateData(int immediateData) {
+        this.immediateData.set(immediateData);
+    }
+
+    public void setInvalidateRemoteKey(int invalidateRemoteKey) {
+        this.invalidateRemoteKey.set(invalidateRemoteKey);
+    }
+
+    void setListHandle(final long listHandle) {
+        this.listHandle.set(listHandle);
+    }
+
+    void setListLength(final int listLength) {
+        this.listLength.set(listLength);
+    }
+
+    @Override
+    public void linkWith(SendWorkRequest other) {
+        next.set(other.getHandle());
+    }
+
+    @Override
+    public void unlink() {
+        next.set(0);
+    }
+
+    @Override
+    public String toString() {
+        return "SendWorkRequest {" +
+            "\n\tid=" + id +
+            ",\n\tnext=" + next +
+            ",\n\tlistHandle=" + listHandle +
+            ",\n\tlistLength=" + listLength +
+            ",\n\topCode=" + opCode +
+            ",\n\tflags=" + sendFlags +
+            ",\n\timmediateData=" + immediateData +
+            ",\n\tinvalidateRemoteKey=" + invalidateRemoteKey +
+            ",\n\trdma=" + rdma +
+            ",\n\tatomic=" + atomic +
+            ",\n\tud=" + ud +
+            "\n}";
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class Rdma extends Struct {
+
+        private final NativeLong remoteAddress = longField("remote_addr");
+        private final NativeInteger remoteKey = integerField("rkey");
+
+        Rdma(LocalBuffer buffer) {
+            super(buffer, "wr.rdma");
+        }
+
+        public long getRemoteAddress() {
+            return remoteAddress.get();
+        }
+
+        public int getRemoteKey() {
+            return remoteKey.get();
+        }
+
+        public void setRemoteAddress(long remoteAddress) {
+            this.remoteAddress.set(remoteAddress);
+        }
+
+        public void setRemoteKey(int remoteKey) {
+            this.remoteKey.set(remoteKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\tremoteAddress=" + remoteAddress +
+                ",\n\tremoteKey=" + remoteKey +
+                "\n}";
+        }
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class Atomic extends Struct {
+
+        private final NativeLong remoteAddress = longField("remote_addr");
+        private final NativeLong compareOperand = longField("compare_add");
+        private final NativeLong swapOperand = longField("swap");
+        private final NativeInteger remoteKey = integerField("rkey");
+
+        Atomic(LocalBuffer buffer) {
+            super(buffer, "wr.atomic");
+        }
+
+        public long getRemoteAddress() {
+            return remoteAddress.get();
+        }
+
+        public long getCompareOperand() {
+            return compareOperand.get();
+        }
+
+        public long getSwapOperand() {
+            return swapOperand.get();
+        }
+
+        public int getRemoteKey() {
+            return remoteKey.get();
+        }
+
+        public void setRemoteAddress(long remoteAddress) {
+            this.remoteAddress.set(remoteAddress);
+        }
+
+        public void setCompareOperand(long compareOperand) {
+            this.compareOperand.set(compareOperand);
+        }
+
+        public void setSwapOperand(long swapOperand) {
+            this.swapOperand.set(swapOperand);
+        }
+
+        public void setRemoteKey(int remoteKey) {
+            this.remoteKey.set(remoteKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\tremoteAddress=" + remoteAddress +
+                ",\n\tcompareOperand=" + compareOperand +
+                ",\n\tswapOperand=" + swapOperand +
+                ",\n\tremoteKey=" + remoteKey +
+                "\n}";
+        }
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class Unreliable extends Struct {
+
+        private final NativeLong addressHandle = longField("ah");
+        private final NativeInteger remoteQueuePairNumber = integerField("remote_qpn");
+        private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
+
+        Unreliable(LocalBuffer buffer) {
+            super(buffer, "wr.ud");
+        }
+
+        public AddressHandle getAddressHandle() {
+            return NativeObjectRegistry.getObject(addressHandle.get());
+        }
+
+        public int getRemoteQueuePairNumber() {
+            return remoteQueuePairNumber.get();
+        }
+
+        public int getRemoteQueuePairKey() {
+            return remoteQueuePairKey.get();
+        }
+
+        public void setAddressHandle(long ah) {
+            addressHandle.set(ah);
+        }
+
+        public void setRemoteQueuePairNumber(int remoteQueuePairNumber) {
+            this.remoteQueuePairNumber.set(remoteQueuePairNumber);
+        }
+
+        void setRemoteQueuePairKey(int remoteQueuePairKey) {
+            this.remoteQueuePairKey.set(remoteQueuePairKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\taddressHandle=" + addressHandle +
+                ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
+                ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
+                "\n}";
+        }
+    }
 
     public enum OpCode {
         RDMA_WRITE(0), RDMA_WRITE_WITH_IMM(1), SEND(2), SEND_WITH_IMM(3), RDMA_READ(4),
@@ -78,250 +323,185 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         }
     }
 
-    private static final AtomicLong ID_COUNTER = new AtomicLong(0);
+    public static class Builder {
 
-    private final NativeLong id = longField("wr_id");
-    private final NativeLong next = longField("next");
-    private final NativeLong listHandle = longField("sg_list");
-    private final NativeInteger listLength = integerField("num_sge");
-    private final NativeEnum<OpCode> opCode = enumField("opcode", OpCode.CONVERTER);
-    private final NativeIntegerBitMask<SendFlag> flags = integerBitField("send_flags");
-    private final NativeInteger immediateData = integerField("imm_data");
-    private final NativeInteger invalidateRemoteKey = integerField("invalidate_rkey");
+        private static final AtomicLong ID_COUNTER = new AtomicLong(0);
 
-    public final Rdma rdma = anonymousField(Rdma::new);
-    public final Atomic atomic = anonymousField(Atomic::new);
-    public final Unreliable ud = anonymousField(Unreliable::new);
+        private final long id;
+        private final OpCode opCode;
+        private long listHandle;
+        private int listLength;
+        private SendFlag[] sendFlags;
+        private int immediateData;
+        private int invalidateRemoteKey;
 
-    public SendWorkRequest() {
-        id.set(ID_COUNTER.getAndIncrement());
-    }
-
-    public SendWorkRequest(final Consumer<SendWorkRequest> configurator) {
-        configurator.accept(this);
-        id.set(ID_COUNTER.getAndIncrement());
-    }
-
-    public long getId() {
-        return id.get();
-    }
-
-    public long getNext() {
-        return next.get();
-    }
-
-    public void setNext(long next) {
-        this.next.set(next);
-    }
-
-    public long getListHandle() {
-        return listHandle.get();
-    }
-
-    public void setListHandle(long listHandle) {
-        this.listHandle.set(listHandle);
-    }
-
-    public int getListLength() {
-        return listLength.get();
-    }
-
-    public void setListLength(int listLength) {
-        this.listLength.set(listLength);
-    }
-
-    public OpCode getOpCode() {
-        return opCode.get();
-    }
-
-    public void setOpCode(OpCode opCode) {
-        this.opCode.set(opCode);
-    }
-
-    public int getFlags() {
-        return flags.get();
-    }
-
-    public void setFlags(SendFlag... flags) {
-        this.flags.set(flags);
-    }
-
-    public int getImmediateData() {
-        return immediateData.get();
-    }
-
-    public void setImmediateData(int immediateData) {
-        this.immediateData.set(immediateData);
-    }
-
-    public int getInvalidateRemoteKey() {
-        return invalidateRemoteKey.get();
-    }
-
-    public void setInvalidateRemoteKey(int invalidateRemoteKey) {
-        this.invalidateRemoteKey.set(invalidateRemoteKey);
-    }
-
-    @Override
-    public void linkWith(SendWorkRequest other) {
-        next.set(other.getHandle());
-    }
-
-    @Override
-    public void unlink() {
-        next.set(0);
-    }
-
-    @Override
-    public String toString() {
-        return "SendWorkRequest {" +
-            "\n\tid=" + id +
-            ",\n\tnext=" + next +
-            ",\n\tlistHandle=" + listHandle +
-            ",\n\tlistLength=" + listLength +
-            ",\n\topCode=" + opCode +
-            ",\n\tflags=" + flags +
-            ",\n\timmediateData=" + immediateData +
-            ",\n\tinvalidateRemoteKey=" + invalidateRemoteKey +
-            ",\n\trdma=" + rdma +
-            ",\n\tatomic=" + atomic +
-            ",\n\tud=" + ud +
-            "\n}";
-    }
-
-    @LinkNative("ibv_send_wr")
-    public static final class Rdma extends Struct {
-
-        private final NativeLong remoteAddress = longField("remote_addr");
-        private final NativeInteger remoteKey = integerField("rkey");
-
-        public Rdma(LocalBuffer buffer) {
-            super(buffer, "wr.rdma");
+        public Builder(final OpCode opCode) {
+            id = ID_COUNTER.getAndIncrement();
+            this.opCode = opCode;
         }
 
-        public long getRemoteAddress() {
-            return remoteAddress.get();
+        public Builder(final OpCode opCode, final ScatterGatherElement singleSge) {
+            id = ID_COUNTER.getAndIncrement();
+            this.opCode = opCode;
+            listHandle = singleSge.getHandle();
+            listLength = 1;
         }
 
-        public void setRemoteAddress(long remoteAddress) {
-            this.remoteAddress.set(remoteAddress);
+        public Builder(final OpCode opCode, final ScatterGatherElement.Array list) {
+            id = ID_COUNTER.getAndIncrement();
+            this.opCode = opCode;
+            listHandle = list.getHandle();
+            listLength = (int) list.getNativeSize();
         }
 
-        public int getRemoteKey() {
-            return remoteKey.get();
+        public Builder withImmediateData(final int immediateData) {
+            this.immediateData = immediateData;
+            return this;
         }
 
-        public void setRemoteKey(int remoteKey) {
-            this.remoteKey.set(remoteKey);
+        public Builder withInvalidateRemoteKey(final int invalidateRemoteKey) {
+            this.invalidateRemoteKey = invalidateRemoteKey;
+            return this;
+        }
+
+        public Builder withSendFlags(final SendFlag... flags) {
+            sendFlags = flags;
+            return this;
+        }
+
+        public SendWorkRequest build() {
+            var ret = new SendWorkRequest();
+
+            ret.setId(id);
+            ret.setListHandle(listHandle);
+            ret.setListLength(listLength);
+            ret.setOpCode(opCode);
+            ret.setSendFlags(sendFlags);
+            ret.setImmediateData(immediateData);
+            ret.setInvalidateRemoteKey(invalidateRemoteKey);
+
+            return ret;
+        }
+    }
+
+    public static final class RdmaBuilder extends Builder {
+
+        private final long remoteAddress;
+        private final int remoteKey;
+
+        public RdmaBuilder(final OpCode opCode, final ScatterGatherElement singleSge, final long remoteAddress, final int remoteKey) {
+            super(opCode, singleSge);
+
+            if(opCode != OpCode.RDMA_WRITE && opCode != OpCode.RDMA_READ && opCode != OpCode.RDMA_WRITE_WITH_IMM) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for RDMA operation!");
+            }
+
+            this.remoteAddress = remoteAddress;
+            this.remoteKey = remoteKey;
+        }
+
+        public RdmaBuilder(final OpCode opCode, final ScatterGatherElement.Array list, final long remoteAddress, final int remoteKey) {
+            super(opCode, list);
+
+            if(opCode != OpCode.RDMA_WRITE && opCode != OpCode.RDMA_READ && opCode != OpCode.RDMA_WRITE_WITH_IMM) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for RDMA operation!");
+            }
+
+            this.remoteAddress = remoteAddress;
+            this.remoteKey = remoteKey;
         }
 
         @Override
-        public String toString() {
-            return "{" +
-                "\n\tremoteAddress=" + remoteAddress +
-                ",\n\tremoteKey=" + remoteKey +
-                "\n}";
+        public SendWorkRequest build() {
+            var ret = super.build();
+
+            ret.rdma.setRemoteAddress(remoteAddress);
+            ret.rdma.setRemoteKey(remoteKey);
+
+            return ret;
         }
     }
 
-    @LinkNative("ibv_send_wr")
-    public static final class Atomic extends Struct {
+    public static final class AtomicBuilder extends Builder {
 
-        private final NativeLong remoteAddress = longField("remote_addr");
-        private final NativeLong compareOperand = longField("compare_add");
-        private final NativeLong swapOperand = longField("swap");
-        private final NativeInteger remoteKey = integerField("rkey");
+        private final long remoteAddress;
+        private final int remoteKey;
+        private long compareOperand;
+        private long swapOperand;
 
-        public Atomic(LocalBuffer buffer) {
-            super(buffer, "wr.atomic");
+        public AtomicBuilder(final OpCode opCode, final ScatterGatherElement singleSge, final long remoteAddress, final int remoteKey) {
+            super(opCode, singleSge);
+
+            if(opCode != OpCode.ATOMIC_CMP_AND_SWP && opCode != OpCode.ATOMIC_FETCH_AND_ADD) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for ATOMIC operation!");
+            }
+
+            this.remoteAddress = remoteAddress;
+            this.remoteKey = remoteKey;
         }
 
-        public long getRemoteAddress() {
-            return remoteAddress.get();
+        public AtomicBuilder(final OpCode opCode, final ScatterGatherElement.Array list, final long remoteAddress, final int remoteKey) {
+            super(opCode, list);
+
+            if(opCode != OpCode.ATOMIC_CMP_AND_SWP && opCode != OpCode.ATOMIC_FETCH_AND_ADD) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for ATOMIC operation!");
+            }
+
+            this.remoteAddress = remoteAddress;
+            this.remoteKey = remoteKey;
         }
 
-        public void setRemoteAddress(long remoteAddress) {
-            this.remoteAddress.set(remoteAddress);
+        public AtomicBuilder withCompareOperand(final long compareOperand) {
+            this.compareOperand = compareOperand;
+            return this;
         }
 
-        public long getCompareOperand() {
-            return compareOperand.get();
-        }
-
-        public void setCompareOperand(long compareOperand) {
-            this.compareOperand.set(compareOperand);
-        }
-
-        public long getSwapOperand() {
-            return swapOperand.get();
-        }
-
-        public void setSwapOperand(long swapOperand) {
-            this.swapOperand.set(swapOperand);
-        }
-
-        public int getRemoteKey() {
-            return remoteKey.get();
-        }
-
-        public void setRemoteKey(int remoteKey) {
-            this.remoteKey.set(remoteKey);
+        public AtomicBuilder withSwapOperand(final long swapOperand) {
+            this.swapOperand = swapOperand;
+            return this;
         }
 
         @Override
-        public String toString() {
-            return "{" +
-                "\n\tremoteAddress=" + remoteAddress +
-                ",\n\tcompareOperand=" + compareOperand +
-                ",\n\tswapOperand=" + swapOperand +
-                ",\n\tremoteKey=" + remoteKey +
-                "\n}";
+        public SendWorkRequest build() {
+            var ret = super.build();
+
+            ret.atomic.setRemoteAddress(remoteAddress);
+            ret.atomic.setRemoteKey(remoteKey);
+            ret.atomic.setCompareOperand(compareOperand);
+            ret.atomic.setSwapOperand(swapOperand);
+
+            return ret;
         }
     }
 
-    @LinkNative("ibv_send_wr")
-    public static final class Unreliable extends Struct {
+    public static final class UnreliableBuilder extends Builder {
 
-        private final NativeLong addressHandle = longField("ah");
-        private final NativeInteger remoteQueuePairNumber = integerField("remote_qpn");
-        private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
+        private final long addressHandle;
+        private final int remoteQueuePairNumber;
+        private final int remoteQueuePairKey;
 
-        public Unreliable(LocalBuffer buffer) {
-            super(buffer, "wr.ud");
-        }
+        public UnreliableBuilder(final OpCode opCode, final ScatterGatherElement singleSge,
+                                 final AddressHandle addressHandle, final int remoteQueuePairNumber, final int remoteQueuePairKey) {
+            super(opCode, singleSge);
 
-        public long getAddressHandle() {
-            return addressHandle.get();
-        }
+            if(opCode != OpCode.SEND && opCode != OpCode.SEND_WITH_IMM) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for UD operation!");
+            }
 
-        public void setAddressHandle(long ah) {
-            addressHandle.set(ah);
-        }
-
-        public int getRemoteQueuePairNumber() {
-            return remoteQueuePairNumber.get();
-        }
-
-        public void setRemoteQueuePairNumber(int remoteQueuePairNumber) {
-            this.remoteQueuePairNumber.set(remoteQueuePairNumber);
-        }
-
-        public int getRemoteQueuePairKey() {
-            return remoteQueuePairKey.get();
-        }
-
-        public void setRemoteQueuePairKey(int remoteQueuePairKey) {
-            this.remoteQueuePairKey.set(remoteQueuePairKey);
+            this.addressHandle = addressHandle.getHandle();
+            this.remoteQueuePairNumber = remoteQueuePairNumber;
+            this.remoteQueuePairKey = remoteQueuePairKey;
         }
 
         @Override
-        public String toString() {
-            return "{" +
-                "\n\taddressHandle=" + addressHandle +
-                ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
-                ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
-                "\n}";
+        public SendWorkRequest build() {
+            var ret = super.build();
+
+            ret.ud.setAddressHandle(addressHandle);
+            ret.ud.setRemoteQueuePairNumber(remoteQueuePairNumber);
+            ret.ud.setRemoteQueuePairKey(remoteQueuePairKey);
+
+            return ret;
         }
     }
-
 }
