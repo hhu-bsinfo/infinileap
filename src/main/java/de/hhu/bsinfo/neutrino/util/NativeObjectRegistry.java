@@ -6,26 +6,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NativeObjectRegistry {
+public final class NativeObjectRegistry {
 
-    private static Map<Long, NativeObject> objectMap = new ConcurrentHashMap<>();
+    private static final Map<Long, NativeObject> OBJECT_MAP = new ConcurrentHashMap<>();
 
     private NativeObjectRegistry() {}
 
     public static <T extends NativeObject> void registerObject(@Nullable T object) {
         if(object != null) {
-            objectMap.put(object.getHandle(), object);
+            OBJECT_MAP.put(object.getHandle(), object);
         }
     }
 
     public static <T extends NativeObject> void deregisterObject(@Nullable T object) {
         if(object != null) {
-            objectMap.remove(object.getHandle());
+            OBJECT_MAP.remove(object.getHandle());
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends NativeObject> T getObject(long handle) {
-        return (T) objectMap.get(handle);
+    public static @Nullable <T extends NativeObject> T getObject(long handle) {
+        return (T) OBJECT_MAP.get(handle);
     }
 }

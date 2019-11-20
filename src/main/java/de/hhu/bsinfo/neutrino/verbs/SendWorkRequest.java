@@ -24,15 +24,14 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
     public final Rdma rdma = anonymousField(Rdma::new);
     public final Atomic atomic = anonymousField(Atomic::new);
     public final Unreliable ud = anonymousField(Unreliable::new);
+    public final ExtendedConnection xrc = anonymousField(ExtendedConnection::new);
+    public final BindMemoryWindow bindMemoryWindow = anonymousField(BindMemoryWindow::new);
+    public final TcpSegmentOffload tcpSegmentOffload = anonymousField(TcpSegmentOffload::new);
 
     SendWorkRequest() {}
 
     public long getId() {
         return id.get();
-    }
-
-    public long getNext() {
-        return next.get();
     }
 
     public long getListHandle() {
@@ -59,11 +58,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         return invalidateRemoteKey.get();
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id.set(id);
     }
 
-    public void setNext(long next) {
+    void setNext(final long next) {
         this.next.set(next);
     }
 
@@ -77,19 +76,19 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         listLength.set((int) list.getNativeSize());
     }
 
-    public void setOpCode(OpCode opCode) {
+    public void setOpCode(final OpCode opCode) {
         this.opCode.set(opCode);
     }
 
-    public void setSendFlags(SendFlag... sendFlags) {
+    public void setSendFlags(final SendFlag... sendFlags) {
         this.sendFlags.set(sendFlags);
     }
 
-    public void setImmediateData(int immediateData) {
+    public void setImmediateData(final int immediateData) {
         this.immediateData.set(immediateData);
     }
 
-    public void setInvalidateRemoteKey(int invalidateRemoteKey) {
+    public void setInvalidateRemoteKey(final int invalidateRemoteKey) {
         this.invalidateRemoteKey.set(invalidateRemoteKey);
     }
 
@@ -102,7 +101,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
     }
 
     @Override
-    public void linkWith(SendWorkRequest other) {
+    public void linkWith(final SendWorkRequest other) {
         next.set(other.getHandle());
     }
 
@@ -125,6 +124,9 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             ",\n\trdma=" + rdma +
             ",\n\tatomic=" + atomic +
             ",\n\tud=" + ud +
+            ",\n\txrc=" + xrc +
+            ",\n\tbindMemoryWindow=" + bindMemoryWindow +
+            ",\n\ttcpSegmentOffload=" + tcpSegmentOffload +
             "\n}";
     }
 
@@ -146,11 +148,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             return remoteKey.get();
         }
 
-        public void setRemoteAddress(long remoteAddress) {
+        public void setRemoteAddress(final long remoteAddress) {
             this.remoteAddress.set(remoteAddress);
         }
 
-        public void setRemoteKey(int remoteKey) {
+        public void setRemoteKey(final int remoteKey) {
             this.remoteKey.set(remoteKey);
         }
 
@@ -191,19 +193,19 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             return remoteKey.get();
         }
 
-        public void setRemoteAddress(long remoteAddress) {
+        public void setRemoteAddress(final long remoteAddress) {
             this.remoteAddress.set(remoteAddress);
         }
 
-        public void setCompareOperand(long compareOperand) {
+        public void setCompareOperand(final long compareOperand) {
             this.compareOperand.set(compareOperand);
         }
 
-        public void setSwapOperand(long swapOperand) {
+        public void setSwapOperand(final long swapOperand) {
             this.swapOperand.set(swapOperand);
         }
 
-        public void setRemoteKey(int remoteKey) {
+        public void setRemoteKey(final int remoteKey) {
             this.remoteKey.set(remoteKey);
         }
 
@@ -241,15 +243,15 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             return remoteQueuePairKey.get();
         }
 
-        public void setAddressHandle(long ah) {
-            addressHandle.set(ah);
+        public void setAddressHandle(final AddressHandle addressHandle) {
+            this.addressHandle.set(addressHandle.getHandle());
         }
 
-        public void setRemoteQueuePairNumber(int remoteQueuePairNumber) {
+        public void setRemoteQueuePairNumber(final int remoteQueuePairNumber) {
             this.remoteQueuePairNumber.set(remoteQueuePairNumber);
         }
 
-        void setRemoteQueuePairKey(int remoteQueuePairKey) {
+        public void setRemoteQueuePairKey(final int remoteQueuePairKey) {
             this.remoteQueuePairKey.set(remoteQueuePairKey);
         }
 
@@ -260,6 +262,114 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
                 ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
                 ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
                 "\n}";
+        }
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class ExtendedConnection extends Struct {
+
+        private final NativeInteger remoteSharedReceiveQueueNumber = integerField("remote_srqn");
+
+        ExtendedConnection(LocalBuffer buffer) {
+            super(buffer, "qp_type.xrc");
+        }
+
+        public int getRemoteSharedReceiveQueueNumber() {
+            return remoteSharedReceiveQueueNumber.get();
+        }
+
+        public void setRemoteSharedReceiveQueueNumber(final int remoteSharedReceiveQueueNumber) {
+            this.remoteSharedReceiveQueueNumber.set(remoteSharedReceiveQueueNumber);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                "\n\tremoteSharedReceiveQueueNumber=" + remoteSharedReceiveQueueNumber +
+                "\n}";
+        }
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class BindMemoryWindow extends Struct {
+
+        private final NativeLong memoryWindow = longField("mw");
+        private final NativeInteger remoteKey = integerField("rkey");
+
+        BindMemoryWindow(LocalBuffer buffer) {
+            super(buffer, "bind_mw");
+        }
+
+        public MemoryWindow.BindInformation bindInformation = valueField("bind_info", MemoryWindow.BindInformation::new);
+
+        public MemoryWindow getMemoryWindow() {
+            return NativeObjectRegistry.getObject(memoryWindow.get());
+        }
+
+        public int getRemoteKey() {
+            return remoteKey.get();
+        }
+
+        public void setMemoryWindow(final MemoryWindow memoryWindow) {
+            this.memoryWindow.set(memoryWindow.getHandle());
+        }
+
+        public void setRemoteKey(final int remoteKey) {
+            this.remoteKey.set(remoteKey);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "\n\tmemoryWindow=" + memoryWindow +
+                    ",\n\tremoteKey=" + remoteKey +
+                    ",\n\tbindInformation=" + bindInformation +
+                    "\n}";
+        }
+    }
+
+    @LinkNative("ibv_send_wr")
+    public static final class TcpSegmentOffload extends Struct {
+
+        private final NativeLong header = longField("hdr");
+        private final NativeShort headerSize = shortField("hdr_sz");
+        private final NativeShort maxSegmentSize = shortField("mss");
+
+        TcpSegmentOffload(LocalBuffer buffer) {
+            super(buffer, "tso");
+        }
+
+        public long getHeader() {
+            return header.get();
+        }
+
+        public short getHeaderSize() {
+            return headerSize.get();
+        }
+
+        public short getMaxSegmentSize() {
+            return maxSegmentSize.get();
+        }
+
+        public void setHeader(final long header) {
+            this.header.set(header);
+        }
+
+        public void setHeaderSize(final short headerSize) {
+            this.headerSize.set(headerSize);
+        }
+
+        public void setMaxSegmentSize(final short maxSegmentSize) {
+            this.maxSegmentSize.set(maxSegmentSize);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "\n\theader=" + header +
+                    ",\n\theaderSize=" + headerSize +
+                    ",\n\tmaxSegmentSize=" + maxSegmentSize +
+                    "\n}";
         }
     }
 
@@ -334,6 +444,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private SendFlag[] sendFlags;
         private int immediateData;
         private int invalidateRemoteKey;
+        private int remoteSharedReceiveQueueNumber;
 
         public Builder(final OpCode opCode) {
             id = ID_COUNTER.getAndIncrement();
@@ -369,6 +480,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             return this;
         }
 
+        public Builder withRemoteSharedReceiveQueueNumber(final int remoteSharedReceiveQueueNumber) {
+            this.remoteSharedReceiveQueueNumber = remoteSharedReceiveQueueNumber;
+            return this;
+        }
+
         public SendWorkRequest build() {
             var ret = new SendWorkRequest();
 
@@ -376,9 +492,10 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             ret.setListHandle(listHandle);
             ret.setListLength(listLength);
             ret.setOpCode(opCode);
-            ret.setSendFlags(sendFlags);
             ret.setImmediateData(immediateData);
             ret.setInvalidateRemoteKey(invalidateRemoteKey);
+            ret.xrc.setRemoteSharedReceiveQueueNumber(remoteSharedReceiveQueueNumber);
+            if(sendFlags != null) ret.setSendFlags(sendFlags);
 
             return ret;
         }
@@ -476,7 +593,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
 
     public static final class UnreliableBuilder extends Builder {
 
-        private final long addressHandle;
+        private final AddressHandle addressHandle;
         private final int remoteQueuePairNumber;
         private final int remoteQueuePairKey;
 
@@ -488,7 +605,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for UD operation!");
             }
 
-            this.addressHandle = addressHandle.getHandle();
+            this.addressHandle = addressHandle;
             this.remoteQueuePairNumber = remoteQueuePairNumber;
             this.remoteQueuePairKey = remoteQueuePairKey;
         }
@@ -500,6 +617,80 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
             ret.ud.setAddressHandle(addressHandle);
             ret.ud.setRemoteQueuePairNumber(remoteQueuePairNumber);
             ret.ud.setRemoteQueuePairKey(remoteQueuePairKey);
+
+            return ret;
+        }
+    }
+
+    public static final class BindMemoryWindowBuilder extends Builder {
+
+        private final MemoryWindow memoryWindow;
+        private final int remoteKey;
+
+        // Bind Information
+        private final MemoryRegion memoryRegion;
+        private final long address;
+        private final long length;
+        private final AccessFlag[] accessFlags;
+
+        public BindMemoryWindowBuilder(final OpCode opCode, final MemoryWindow memoryWindow, final int remoteKey,
+                                       final MemoryRegion memoryRegion, final long address, final long length, final AccessFlag... accessFlags) {
+            super(opCode);
+
+            if(opCode != OpCode.BIND_MW) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for BIND MEMORY WINDOW operation!");
+            }
+
+            this.memoryWindow = memoryWindow;
+            this.remoteKey = remoteKey;
+
+            this.memoryRegion = memoryRegion;
+            this.address = address;
+            this.length = length;
+            this.accessFlags = accessFlags;
+        }
+
+        @Override
+        public SendWorkRequest build() {
+            var ret = super.build();
+
+            ret.bindMemoryWindow.setRemoteKey(remoteKey);
+            if(memoryWindow != null) ret.bindMemoryWindow.setMemoryWindow(memoryWindow);
+
+            ret.bindMemoryWindow.bindInformation.setAddress(address);
+            ret.bindMemoryWindow.bindInformation.setLength(length);
+            if(memoryRegion != null) ret.bindMemoryWindow.bindInformation.setMemoryRegion(memoryRegion);
+            if(accessFlags != null) ret.bindMemoryWindow.bindInformation.setAccessFlags(accessFlags);
+
+            return ret;
+        }
+    }
+
+    public static final class TcpSegmentOffloadBuilder extends Builder {
+
+        private final long header;
+        private final short headerSize;
+        private final short maxSegmentSize;
+
+        public TcpSegmentOffloadBuilder(final OpCode opCode, final long header, final short headerSize, final short maxSegmentSize) {
+            super(opCode);
+
+            if(opCode != OpCode.TSO) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for TCP SEGMENT OFFLOAD operation!");
+            }
+
+            this.header = header;
+            this.headerSize = headerSize;
+            this.maxSegmentSize = maxSegmentSize;
+        }
+
+        @Override
+        public SendWorkRequest build() {
+            var ret = super.build();
+
+            ret.tcpSegmentOffload.setHeader(header);
+            ret.tcpSegmentOffload.setHeaderSize(headerSize);
+            ret.tcpSegmentOffload.setMaxSegmentSize(maxSegmentSize);
 
             return ret;
         }

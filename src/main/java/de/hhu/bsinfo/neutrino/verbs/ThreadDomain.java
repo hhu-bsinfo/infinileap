@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 @LinkNative("ibv_td")
 public class ThreadDomain extends Struct implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProtectionDomain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadDomain.class);
 
     private final Context context = referenceField("context");
 
@@ -59,8 +59,8 @@ public class ThreadDomain extends Struct implements AutoCloseable {
         @Override
         public String toString() {
             return "InitialAttributes {" +
-                    "\n\tcompatibilityMask=" + compatibilityMask +
-                    "\n}";
+                "\n\tcompatibilityMask=" + compatibilityMask +
+                "\n}";
         }
     }
 }

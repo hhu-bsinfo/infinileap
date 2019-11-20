@@ -762,10 +762,10 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendInvalidateRem
 }
 
 
-JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendTcpSegmentOffload (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong hdr, jshort hdrSize, jshort mss) {
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_sendTcpSegmentOffload (JNIEnv *env, jclass clazz, jlong extendedQueuePairHandle, jlong header, jshort headerSize, jshort maxSegmentSize) {
     auto extendedQueuePair = NativeCall::castHandle<ibv_qp_ex>(extendedQueuePairHandle);
 
-    ibv_wr_send_tso(extendedQueuePair, reinterpret_cast<void *>(hdr), hdrSize, mss);
+    ibv_wr_send_tso(extendedQueuePair, reinterpret_cast<void *>(header), headerSize, maxSegmentSize);
 }
 
 

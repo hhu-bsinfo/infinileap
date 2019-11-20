@@ -80,8 +80,8 @@ public class ExtendedQueuePair extends Struct {
         Verbs.sendInvalidateRemoteKey(getHandle(), remoteKey);
     }
 
-    public void sendTcpSegmentOffload(long hdrHandle, short hdrSize, short mss) {
-        Verbs.sendTcpSegmentOffload(getHandle(), hdrHandle, hdrSize, mss);
+    public void sendTcpSegmentOffload(long headerHandle, short headerSize, short maxSegmentSize) {
+        Verbs.sendTcpSegmentOffload(getHandle(), headerHandle, headerSize, maxSegmentSize);
     }
 
     public void setUnreliableAddress(AddressHandle addressHandle, int remoteQueuePairNumber, int remoteQKey) {

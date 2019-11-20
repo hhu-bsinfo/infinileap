@@ -152,7 +152,7 @@ public final class Verbs {
     static native void send(long extendedQueuePairHandle);
     static native void sendImm(long extendedQueuePairHandle, int immData);
     static native void sendInvalidateRemoteKey(long extendedQueuePairHandle, int remoteKey);
-    static native void sendTcpSegmentOffload(long extendedQueuePairHandle, long hdrHandle, short hdrSize, short mss);
+    static native void sendTcpSegmentOffload(long extendedQueuePairHandle, long headerHandle, short headerSize, short maxSegmentSize);
     static native void setUnreliableAddress(long extendedQueuePairHandle, long addressHandleHandle, int remoteQueuePairNumber, int remoteQkey);
     static native void setExtendedSharedReceiveQueueNumber(long extendedQueuePairHandle, int remoteSharedReceiveQueueNumber);
     static native void setInlineData(long extendedQueuePairHandle, long address, long length);
