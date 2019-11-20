@@ -28,6 +28,23 @@ public enum Mtu {
         return value;
     }
 
+    public int getMtuValue() {
+        switch (this) {
+            case MTU_256:
+                return 256;
+            case MTU_512:
+                return 512;
+            case MTU_1024:
+                return 1024;
+            case MTU_2048:
+                return 2048;
+            case MTU_4096:
+                return 4096;
+            default:
+                return 4096;
+        }
+    }
+
     public static final EnumConverter<Mtu> CONVERTER = new EnumConverter<>() {
 
         @Override
@@ -44,4 +61,18 @@ public enum Mtu {
             return VALUES[integer];
         }
     };
+
+    public static Mtu fromValue(int mtu) {
+        if (mtu <= MTU_256.value) {
+            return MTU_256;
+        } else if (mtu > MTU_256.value && mtu <= MTU_512.value) {
+            return MTU_512;
+        } else if (mtu > MTU_512.value && mtu <= MTU_1024.value) {
+            return MTU_1024;
+        } else if (mtu > MTU_1024.value && mtu <= MTU_2048.value) {
+            return MTU_2048;
+        } else {
+            return MTU_4096;
+        }
+    }
 }
