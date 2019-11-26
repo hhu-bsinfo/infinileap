@@ -24,4 +24,8 @@ public class RegisteredByteBuf {
     public int getRemoteKey() {
         return memoryRegion.getRemoteKey();
     }
+
+    public void clear() {
+        actual.clear();
+    }
 }
