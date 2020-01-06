@@ -4,10 +4,8 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.*;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLong;
 
 @LinkNative("ibv_send_wr")
 public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest> {
@@ -435,10 +433,8 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
 
     public static class Builder {
 
-        private static final AtomicLong ID_COUNTER = new AtomicLong(0);
-
-        private final long id;
-        private final OpCode opCode;
+        private long id;
+        private OpCode opCode;
         private long listHandle;
         private int listLength;
         private SendFlag[] sendFlags;
@@ -446,23 +442,28 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private int invalidateRemoteKey;
         private int remoteSharedReceiveQueueNumber;
 
-        public Builder(final OpCode opCode) {
-            id = ID_COUNTER.getAndIncrement();
-            this.opCode = opCode;
+        public Builder() {}
+
+        public Builder withId(final int id) {
+            this.id = id;
+            return this;
         }
 
-        public Builder(final OpCode opCode, final ScatterGatherElement singleSge) {
-            id = ID_COUNTER.getAndIncrement();
+        public Builder withOpCode(final OpCode opCode) {
             this.opCode = opCode;
+            return this;
+        }
+
+        public Builder withScatterGatherElement(final ScatterGatherElement singleSge) {
             listHandle = singleSge.getHandle();
             listLength = 1;
+            return this;
         }
 
-        public Builder(final OpCode opCode, final ScatterGatherElement.Array list) {
-            id = ID_COUNTER.getAndIncrement();
-            this.opCode = opCode;
+        public Builder withScatterGatherList(final ScatterGatherElement.Array list) {
             listHandle = list.getHandle();
             listLength = (int) list.getNativeSize();
+            return this;
         }
 
         public Builder withImmediateData(final int immediateData) {
@@ -501,28 +502,43 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         }
     }
 
+    public static final class MessageBuilder extends Builder {
+
+        public MessageBuilder(final OpCode opCode, final ScatterGatherElement singleSge) {
+            withOpCode(opCode);
+            withScatterGatherElement(singleSge);
+        }
+
+        public MessageBuilder(final OpCode opCode, final ScatterGatherElement.Array list) {
+            withOpCode(opCode);
+            withScatterGatherList(list);
+        }
+    }
+
     public static final class RdmaBuilder extends Builder {
 
         private final long remoteAddress;
         private final int remoteKey;
 
         public RdmaBuilder(final OpCode opCode, final ScatterGatherElement singleSge, final long remoteAddress, final int remoteKey) {
-            super(opCode, singleSge);
-
             if(opCode != OpCode.RDMA_WRITE && opCode != OpCode.RDMA_READ && opCode != OpCode.RDMA_WRITE_WITH_IMM) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for RDMA operation!");
             }
+
+            withOpCode(opCode);
+            withScatterGatherElement(singleSge);
 
             this.remoteAddress = remoteAddress;
             this.remoteKey = remoteKey;
         }
 
         public RdmaBuilder(final OpCode opCode, final ScatterGatherElement.Array list, final long remoteAddress, final int remoteKey) {
-            super(opCode, list);
-
             if(opCode != OpCode.RDMA_WRITE && opCode != OpCode.RDMA_READ && opCode != OpCode.RDMA_WRITE_WITH_IMM) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for RDMA operation!");
             }
+
+            withOpCode(opCode);
+            withScatterGatherList(list);
 
             this.remoteAddress = remoteAddress;
             this.remoteKey = remoteKey;
@@ -547,22 +563,24 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private long swapOperand;
 
         public AtomicBuilder(final OpCode opCode, final ScatterGatherElement singleSge, final long remoteAddress, final int remoteKey) {
-            super(opCode, singleSge);
-
             if(opCode != OpCode.ATOMIC_CMP_AND_SWP && opCode != OpCode.ATOMIC_FETCH_AND_ADD) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for ATOMIC operation!");
             }
+
+            withOpCode(opCode);
+            withScatterGatherElement(singleSge);
 
             this.remoteAddress = remoteAddress;
             this.remoteKey = remoteKey;
         }
 
         public AtomicBuilder(final OpCode opCode, final ScatterGatherElement.Array list, final long remoteAddress, final int remoteKey) {
-            super(opCode, list);
-
             if(opCode != OpCode.ATOMIC_CMP_AND_SWP && opCode != OpCode.ATOMIC_FETCH_AND_ADD) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for ATOMIC operation!");
             }
+
+            withOpCode(opCode);
+            withScatterGatherList(list);
 
             this.remoteAddress = remoteAddress;
             this.remoteKey = remoteKey;
@@ -599,11 +617,26 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
 
         public UnreliableBuilder(final OpCode opCode, final ScatterGatherElement singleSge,
                                  final AddressHandle addressHandle, final int remoteQueuePairNumber, final int remoteQueuePairKey) {
-            super(opCode, singleSge);
-
             if(opCode != OpCode.SEND && opCode != OpCode.SEND_WITH_IMM) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for UD operation!");
             }
+
+            withOpCode(opCode);
+            withScatterGatherElement(singleSge);
+
+            this.addressHandle = addressHandle;
+            this.remoteQueuePairNumber = remoteQueuePairNumber;
+            this.remoteQueuePairKey = remoteQueuePairKey;
+        }
+
+        public UnreliableBuilder(final OpCode opCode, final ScatterGatherElement.Array list,
+                                  final AddressHandle addressHandle, final int remoteQueuePairNumber, final int remoteQueuePairKey) {
+            if(opCode != OpCode.SEND && opCode != OpCode.SEND_WITH_IMM) {
+                throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for UD operation!");
+            }
+
+            withOpCode(opCode);
+            withScatterGatherList(list);
 
             this.addressHandle = addressHandle;
             this.remoteQueuePairNumber = remoteQueuePairNumber;
@@ -635,11 +668,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
 
         public BindMemoryWindowBuilder(final OpCode opCode, final MemoryWindow memoryWindow, final int remoteKey,
                                        final MemoryRegion memoryRegion, final long address, final long length, final AccessFlag... accessFlags) {
-            super(opCode);
-
             if(opCode != OpCode.BIND_MW) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for BIND MEMORY WINDOW operation!");
             }
+
+            withOpCode(opCode);
 
             this.memoryWindow = memoryWindow;
             this.remoteKey = remoteKey;
@@ -673,11 +706,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final short maxSegmentSize;
 
         public TcpSegmentOffloadBuilder(final OpCode opCode, final long header, final short headerSize, final short maxSegmentSize) {
-            super(opCode);
-
             if(opCode != OpCode.TSO) {
                 throw new IllegalArgumentException("Invalid opcode [" + opCode + "] for TCP SEGMENT OFFLOAD operation!");
             }
+
+            withOpCode(opCode);
 
             this.header = header;
             this.headerSize = headerSize;

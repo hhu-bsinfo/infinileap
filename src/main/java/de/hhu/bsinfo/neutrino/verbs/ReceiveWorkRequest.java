@@ -34,12 +34,18 @@ public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRe
         return listLength.get();
     }
 
-    void setId(final long value) {
+    public void setId(final long value) {
         id.set(value);
     }
 
-    void setNext(final long value) {
-        next.set(value);
+    public void setScatterGatherElement(final ScatterGatherElement singleSge) {
+        listHandle.set(singleSge.getHandle());
+        listLength.set(1);
+    }
+
+    public void setScatterGatherElement(final ScatterGatherElement.Array list) {
+        listHandle.set(list.getHandle());
+        listLength.set((int) list.getNativeSize());
     }
 
     void setListHandle(final long value) {
@@ -72,26 +78,25 @@ public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRe
 
     public static final class Builder {
 
-        private static final AtomicLong ID_COUNTER = new AtomicLong(0);
-
-        private final long id;
+        private long id;
         private long listHandle;
         private int listLength;
 
-        public Builder() {
-            id = ID_COUNTER.getAndIncrement();
+        public Builder withId(final int id) {
+            this.id = id;
+            return this;
         }
 
-        public Builder(final ScatterGatherElement singleSge) {
-            id = ID_COUNTER.getAndIncrement();
+        public Builder withScatterGatherElement(final ScatterGatherElement singleSge) {
             listHandle = singleSge.getHandle();
             listLength = 1;
+            return this;
         }
 
-        public Builder(final ScatterGatherElement.Array list) {
-            id = ID_COUNTER.getAndIncrement();
+        public Builder withScatterGatherList(final ScatterGatherElement.Array list) {
             listHandle = list.getHandle();
             listLength = (int) list.getNativeSize();
+            return this;
         }
 
         public ReceiveWorkRequest build() {
