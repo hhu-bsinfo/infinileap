@@ -348,6 +348,15 @@ JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_querySharedReceiv
     NativeCall::setResult(result, ibv_query_srq(sharedReceiveQueue, attributes), 0);
 }
 
+JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_postReceiveSharedReceiveQueue (JNIEnv *env, jclass clazz, jlong sharedReceiveQueueHandle, jlong receiveWorkRequestHandle, jlong resultHandle) {
+    auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
+    auto receiveWorkRequest = NativeCall::castHandle<ibv_recv_wr>(receiveWorkRequestHandle);
+    auto sharedReceiveQueue = NativeCall::castHandle<ibv_srq>(sharedReceiveQueueHandle);
+
+    ibv_recv_wr* badWorkRequest;
+    NativeCall::setResult(result, ibv_post_srq_recv(sharedReceiveQueue, receiveWorkRequest, &badWorkRequest), badWorkRequest);
+}
+
 JNIEXPORT void JNICALL Java_de_hhu_bsinfo_neutrino_verbs_Verbs_destroySharedReceiveQueue (JNIEnv *env, jclass clazz, jlong sharedReceiveQueueHandle, jlong resultHandle) {
     auto result = NativeCall::castHandle<NativeCall::Result>(resultHandle);
     auto sharedReceiveQueue = NativeCall::castHandle<ibv_srq>(sharedReceiveQueueHandle);

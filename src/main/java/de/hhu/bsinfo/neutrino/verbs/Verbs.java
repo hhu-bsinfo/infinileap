@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.util.AtomicIntegerStack;
 import de.hhu.bsinfo.neutrino.util.NativeLibrary;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.RingBufferPool;
@@ -20,13 +21,16 @@ public final class Verbs {
         poolMap.put(Result.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new)));
         poolMap.put(AsyncEvent.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, AsyncEvent::new)));
         poolMap.put(WorkCompletion.TagMatchingInfo.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, WorkCompletion.TagMatchingInfo::new)));
+        poolMap.put(SendWorkRequest.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, SendWorkRequest::new)));
+        poolMap.put(ReceiveWorkRequest.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, ReceiveWorkRequest::new)));
+        poolMap.put(ScatterGatherElement.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, ScatterGatherElement::new)));
     }
 
     private Verbs() {
     }
 
-    public static Poolable getPoolableInstance(Class<? extends Poolable> clazz) {
-        return poolMap.get(clazz).get().getInstance();
+    public static <T extends Poolable> T getPoolableInstance(Class<T> clazz) {
+        return clazz.cast(poolMap.get(clazz).get().getInstance());
     }
 
     public static void returnPoolableInstance(Poolable instance) {
@@ -89,6 +93,7 @@ public final class Verbs {
     static native void createSharedReceiveQueue(long protectionDomainHandle, long attributesHandle, long resultHandle);
     static native void modifySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, int attributesMask, long resultHandle);
     static native void querySharedReceiveQueue(long sharedReceiveQueueHandle, long attributesHandle, long resultHandle);
+    static native void postReceiveSharedReceiveQueue(long sharedReceiveQueueHandle, long receiveWorkRequestHandle, long resultHandle);
     static native void destroySharedReceiveQueue(long sharedReceiveQueueHandle, long resultHandle);
 
     static native void createQueuePair(long protectionDomainHandle, long attributesHandle, long resultHandle);

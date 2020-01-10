@@ -9,7 +9,7 @@ import de.hhu.bsinfo.neutrino.util.Linkable;
 import java.util.concurrent.atomic.AtomicLong;
 
 @LinkNative("ibv_recv_wr")
-public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRequest> {
+public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRequest>, Poolable {
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");

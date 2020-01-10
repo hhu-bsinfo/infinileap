@@ -233,7 +233,7 @@ public class LocalBuffer implements NativeObject {
     public static LocalBuffer allocate(long capacity) {
         var handle = UNSAFE.allocateMemory(capacity);
         UNSAFE.setMemory(handle, capacity, ZERO);
-        LOGGER.trace("Allocated memory at {}", String.format("%016X", handle));
+//        LOGGER.trace("Allocated memory at {}", String.format("%016X", handle));
         return new LocalBuffer(handle, capacity);
     }
 
@@ -264,7 +264,7 @@ public class LocalBuffer implements NativeObject {
             }
 
             UNSAFE.freeMemory(handle);
-            LOGGER.trace("Freed {}", String.format("%016X", handle));
+//            LOGGER.trace("Freed {}", String.format("%016X", handle));
         }
     }
 }

@@ -72,4 +72,11 @@ public class MemoryRegion extends Struct implements AutoCloseable {
             ",\n\tremoteKey=" + remoteKey +
             "\n}";
     }
+
+    public static final AccessFlag[] DEFAULT_ACCESS_FLAGS = {
+            AccessFlag.LOCAL_WRITE,
+            AccessFlag.REMOTE_READ,
+            AccessFlag.REMOTE_WRITE,
+            AccessFlag.MW_BIND
+    };
 }

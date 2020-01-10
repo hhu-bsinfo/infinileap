@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 @LinkNative("ibv_comp_channel")
 public class CompletionChannel extends Struct implements AutoCloseable {
 
@@ -27,12 +29,17 @@ public class CompletionChannel extends Struct implements AutoCloseable {
     public CompletionQueue getCompletionEvent() {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
+        var then = System.currentTimeMillis();
         Verbs.getCompletionEvent(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Polling completion event from completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(CompletionQueue::new);
+        if (System.currentTimeMillis() - then > Duration.ofSeconds(1).toMillis()) {
+            LOGGER.warn("Waited {} seconds for completion event", (System.currentTimeMillis() - then) / 1000);
+        }
+
+        return result.getAndRelease(NativeObjectRegistry::getObject);
     }
 
     @Override

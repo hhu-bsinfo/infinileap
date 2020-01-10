@@ -1,37 +1,52 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AtomicIntegerStack {
 
+    private static final class Node implements Poolable {
+        private int value;
+        private Node next;
+
+        @Override
+        public void releaseInstance() {
+            NODE_POOL.get().returnInstance(this);
+        }
+    }
+
     private static final int STACK_EMPTY = -1;
 
-    private final int[] stack;
-    private final AtomicInteger index;
+    private final AtomicReference<Node> head = new AtomicReference<>();
 
-    public AtomicIntegerStack(int size) {
-        stack = new int[size];
-        index = new AtomicInteger(0);
-    }
+    private static final ThreadLocal<RingBufferPool<Node>> NODE_POOL = ThreadLocal.withInitial(() -> new RingBufferPool<>(4096, Node::new));
 
     public int pop() {
-        var newIndex = index.decrementAndGet();
-        if (newIndex < 0) {
-            index.set(0);
-            return STACK_EMPTY;
-        }
+        Node expectedHead;
+        Node newHead;
 
-        return stack[newIndex];
+        do {
+            expectedHead = head.get();
+            if (expectedHead == null) {
+                return STACK_EMPTY;
+            }
+
+            newHead = expectedHead.next;
+        } while (!head.compareAndSet(expectedHead, newHead));
+
+        var value = expectedHead.value;
+        expectedHead.releaseInstance();
+        return value;
     }
 
-    public boolean push(int value) {
-        var oldIndex = index.getAndIncrement();
-        if (oldIndex >= stack.length) {
-            index.set(stack.length);
-            return false;
-        }
+    public void push(int value) {
+        var pool = NODE_POOL.get();
+        Node expectedHead;
+        Node newHead = pool.getInstance();
+        newHead.value = value;
 
-        stack[oldIndex] = value;
-        return true;
+        do {
+            expectedHead = head.get();
+            newHead.next = expectedHead;
+        } while (!head.compareAndSet(expectedHead, newHead));
     }
 }

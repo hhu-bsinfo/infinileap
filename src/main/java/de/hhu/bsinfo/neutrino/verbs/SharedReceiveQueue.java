@@ -1,11 +1,7 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
@@ -49,7 +45,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         return eventsCompleted;
     }
 
-    private boolean modify(Attributes attributes, AttributeFlag... flags) {
+    public boolean modify(Attributes attributes, AttributeFlag... flags) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
@@ -81,6 +77,28 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         return attributes;
+    }
+
+    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
+        return postReceive(receiveWorkRequest.getHandle());
+    }
+
+    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
+        return postReceive(receiveWorkRequests.getHandle());
+    }
+
+    private boolean postReceive(final long receiveWorkRequestsHandle) {
+        var result = (Result) Verbs.getPoolableInstance(Result.class);
+
+        Verbs.postReceiveSharedReceiveQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
+        boolean isError = result.isError();
+        if (isError) {
+            LOGGER.error("Posting receive work requests to shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        }
+
+        result.releaseInstance();
+
+        return !isError;
     }
 
     @Override

@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 @LinkNative("ibv_cq")
 public class CompletionQueue extends Struct implements AutoCloseable {
 
+    public static final boolean SOLICITED_EVENTS_ONLY = true;
+    public static final boolean ALL_EVENTS = false;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionQueue.class);
 
     private final Context context = referenceField("context");

@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 public class Context implements NativeObject, AutoCloseable {
 
     static {
@@ -216,6 +218,7 @@ public class Context implements NativeObject, AutoCloseable {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
         var event = (AsyncEvent) Verbs.getPoolableInstance(AsyncEvent.class);
 
+        var then = System.currentTimeMillis();
         Verbs.getAsyncEvent(getHandle(), event.getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Polling async event failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
@@ -224,6 +227,10 @@ public class Context implements NativeObject, AutoCloseable {
             event.releaseInstance();
 
             return null;
+        }
+
+        if (System.currentTimeMillis() - then > Duration.ofSeconds(1).toMillis()) {
+            LOGGER.warn("Waited {} seconds for async event {}", (System.currentTimeMillis() - then) / 1000, event.getEventType());
         }
 
         result.releaseInstance();
