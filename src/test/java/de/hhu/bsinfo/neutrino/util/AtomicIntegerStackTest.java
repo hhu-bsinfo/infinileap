@@ -13,9 +13,9 @@ class AtomicIntegerStackTest {
 
     @Test
     public void testSingleThreaded() {
-        var stack = new AtomicIntegerStack(DEFAULT_SIZE);
+        var stack = new AtomicIntegerStack();
         for (int i = 0; i < DEFAULT_SIZE; i++) {
-            assertThat(stack.push(i)).isTrue();
+            stack.push(i);
         }
 
         for (int i = 1023; i >= 0; i--) {
@@ -25,7 +25,7 @@ class AtomicIntegerStackTest {
 
     @Test
     public void testMultiThreaded() {
-        var stack = new AtomicIntegerStack(DEFAULT_SIZE);
+        var stack = new AtomicIntegerStack();
 
         IntStream.rangeClosed(0, 1023)
                 .parallel()
