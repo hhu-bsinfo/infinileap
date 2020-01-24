@@ -22,18 +22,4 @@ class AtomicIntegerStackTest {
             assertThat(stack.pop()).isEqualTo(i);
         }
     }
-
-    @Test
-    public void testMultiThreaded() {
-        var stack = new AtomicIntegerStack();
-
-        IntStream.rangeClosed(0, 1023)
-                .parallel()
-                .forEach(stack::push);
-
-        IntStream.generate(stack::pop)
-                .limit(1023)
-                .parallel()
-                .forEach(value -> assertThat(value).isBetween(0, 1023));
-    }
 }

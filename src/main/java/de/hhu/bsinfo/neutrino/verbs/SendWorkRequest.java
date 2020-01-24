@@ -8,7 +8,7 @@ import de.hhu.bsinfo.neutrino.util.*;
 import java.util.Arrays;
 
 @LinkNative("ibv_send_wr")
-public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest> {
+public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>, Poolable {
 
     private final NativeLong id = longField("wr_id");
     private final NativeLong next = longField("next");
@@ -90,11 +90,11 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         this.invalidateRemoteKey.set(invalidateRemoteKey);
     }
 
-    void setListHandle(final long listHandle) {
+    public void setListHandle(final long listHandle) {
         this.listHandle.set(listHandle);
     }
 
-    void setListLength(final int listLength) {
+    public void setListLength(final int listLength) {
         this.listLength.set(listLength);
     }
 

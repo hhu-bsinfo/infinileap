@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Linkable;
+import de.hhu.bsinfo.neutrino.util.Poolable;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,11 +49,11 @@ public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRe
         listLength.set((int) list.getNativeSize());
     }
 
-    void setListHandle(final long value) {
+    public void setListHandle(final long value) {
         listHandle.set(value);
     }
 
-    void setListLength(final int value) {
+    public void setListLength(final int value) {
         listLength.set(value);
     }
 
