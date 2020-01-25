@@ -1,7 +1,9 @@
 #include <neutrino/ReflectionUtility.hpp>
 #include <infiniband/verbs.h>
+#include <sys/epoll.h>
 
 #define GET_MEMBER_INFO(structName, memberName) ReflectionUtility::MemberInfo{#memberName, offsetof(struct structName, memberName)}
+#define GET_UNION_MEMBER_INFO(unionName, memberName) ReflectionUtility::MemberInfo{#memberName, offsetof(unionName, memberName)}
 
 ReflectionUtility::MemberInfo ibv_device_attr_member_infos[] = {
     GET_MEMBER_INFO(ibv_device_attr, fw_ver),
@@ -872,6 +874,33 @@ ReflectionUtility::StructInfo ibv_qp_open_attr_struct_info {
         ibv_qp_open_attr_member_infos
 };
 
+// Epoll
+
+ReflectionUtility::MemberInfo epoll_data_t_member_infos[] = {
+        GET_UNION_MEMBER_INFO(epoll_data_t, ptr),
+        GET_UNION_MEMBER_INFO(epoll_data_t, fd),
+        GET_UNION_MEMBER_INFO(epoll_data_t, u32),
+        GET_UNION_MEMBER_INFO(epoll_data_t, u64),
+};
+
+ReflectionUtility::StructInfo epoll_data_t_struct_infos {
+        sizeof(epoll_data_t),
+        sizeof(epoll_data_t_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        epoll_data_t_member_infos
+};
+
+ReflectionUtility::MemberInfo epoll_event_member_infos[] = {
+        GET_MEMBER_INFO(epoll_event, events),
+        GET_MEMBER_INFO(epoll_event, data)
+};
+
+ReflectionUtility::StructInfo epoll_event_struct_infos {
+        sizeof(epoll_event),
+        sizeof(epoll_event_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        epoll_event_member_infos
+};
+
+
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
     {"ibv_port_attr", &ibv_port_attr_struct_info},
@@ -928,6 +957,8 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_rx_hash_conf", &ibv_rx_hash_conf_struct_info},
     {"ibv_data_buf", &ibv_data_buf_struct_info},
     {"ibv_open_qp_attr", &ibv_qp_open_attr_struct_info},
+    {"epoll_data_t", &epoll_data_t_struct_infos},
+    {"epoll_event", &epoll_event_struct_infos},
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {
