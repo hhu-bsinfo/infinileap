@@ -9,26 +9,26 @@ extern "C" {
 #endif
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_Epoll
- * Method:    create
+ * Method:    create0
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_create
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_create0
   (JNIEnv *, jclass, jint);
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_Epoll
- * Method:    control
+ * Method:    control0
  * Signature: (IIIJ)I
  */
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_control
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_control0
   (JNIEnv *, jclass, jint, jint, jint, jlong);
 
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_Epoll
- * Method:    wait
+ * Method:    wait0
  * Signature: (IJII)I
  */
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_wait
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_Epoll_wait0
   (JNIEnv *, jclass, jint, jlong, jint, jint);
 
 #ifdef __cplusplus
