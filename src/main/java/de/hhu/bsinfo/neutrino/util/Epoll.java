@@ -18,7 +18,7 @@ public final class Epoll {
     public static Epoll create(int size) {
         // TODO(krakowski):
         //  Check errors
-        var fd = new FileDescriptor(create0(size));
+        var fd = FileDescriptor.create(create0(size));
         return new Epoll(fd);
     }
 

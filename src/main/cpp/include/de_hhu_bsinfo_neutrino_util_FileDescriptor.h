@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_FileDescriptor_close0
   (JNIEnv *, jclass, jint);
 
+/*
+ * Class:     de_hhu_bsinfo_neutrino_util_FileDescriptor
+ * Method:    setMode0
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_FileDescriptor_setMode0
+  (JNIEnv *, jclass, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif
