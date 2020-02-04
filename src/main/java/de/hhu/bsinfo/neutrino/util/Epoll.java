@@ -7,6 +7,8 @@ import de.hhu.bsinfo.neutrino.struct.Struct;
 
 public final class Epoll {
 
+    private static final int DEFAULT_SIZE = 1024;
+
     private final FileDescriptor epfd;
 
     private Epoll(FileDescriptor epfd) {
@@ -14,6 +16,10 @@ public final class Epoll {
     }
 
     private static native int create0(int size);
+
+    public static Epoll create() {
+        return create(DEFAULT_SIZE);
+    }
 
     public static Epoll create(int size) {
         // TODO(krakowski):

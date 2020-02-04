@@ -7,6 +7,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef de_hhu_bsinfo_neutrino_util_Epoll_DEFAULT_SIZE
+#define de_hhu_bsinfo_neutrino_util_Epoll_DEFAULT_SIZE 1024L
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_Epoll
  * Method:    create0

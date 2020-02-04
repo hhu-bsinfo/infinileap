@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
@@ -16,6 +17,7 @@ public class CompletionChannel extends Struct implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionChannel.class);
 
     private final Context context = referenceField("context");
+    private NativeInteger fd = integerField("fd");
 
     CompletionChannel(final long handle) {
         super(handle);
@@ -23,6 +25,10 @@ public class CompletionChannel extends Struct implements AutoCloseable {
 
     public Context getContext() {
         return context;
+    }
+
+    public int getFileDescriptor() {
+        return fd.get();
     }
 
     @Nullable
