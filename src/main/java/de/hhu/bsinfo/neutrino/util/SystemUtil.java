@@ -54,5 +54,13 @@ public final class SystemUtil {
         return Architecture.UNKNOWN;
     }
 
+    public static Throwable lastError() {
+        return new NativeError(getErrorMessage());
+    }
 
+    public static String getErrorMessage() {
+        return getErrorMessage0();
+    }
+
+    private static native String getErrorMessage0();
 }

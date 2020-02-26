@@ -900,6 +900,24 @@ ReflectionUtility::StructInfo epoll_event_struct_infos {
         epoll_event_member_infos
 };
 
+// Benchmark
+
+struct complex_t {
+    double real;
+    double imaginary;
+};
+
+ReflectionUtility::MemberInfo complex_t_member_infos[] = {
+        GET_MEMBER_INFO(complex_t, real),
+        GET_MEMBER_INFO(complex_t, imaginary)
+};
+
+ReflectionUtility::StructInfo complex_t_struct_infos {
+        sizeof(complex_t),
+        sizeof(complex_t_member_infos) / sizeof(ReflectionUtility::MemberInfo),
+        complex_t_member_infos
+};
+
 
 std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtility::structInfos {
     {"ibv_device_attr", &ibv_device_attr_struct_info},
@@ -959,6 +977,7 @@ std::unordered_map<std::string, ReflectionUtility::StructInfo*> ReflectionUtilit
     {"ibv_open_qp_attr", &ibv_qp_open_attr_struct_info},
     {"epoll_data_t", &epoll_data_t_struct_infos},
     {"epoll_event", &epoll_event_struct_infos},
+    {"complex_t", &complex_t_struct_infos}
 };
 
 ReflectionUtility::StructInfo *ReflectionUtility::getStructInfo(const std::string& identifier) {

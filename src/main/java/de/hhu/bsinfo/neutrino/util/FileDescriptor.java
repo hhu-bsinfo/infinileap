@@ -3,7 +3,7 @@ package de.hhu.bsinfo.neutrino.util;
 import java.io.Closeable;
 import java.io.IOException;
 
-public final class FileDescriptor implements Closeable {
+public class FileDescriptor implements Closeable {
 
     private final int handle;
 

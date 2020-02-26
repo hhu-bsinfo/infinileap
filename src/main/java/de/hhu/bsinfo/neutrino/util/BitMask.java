@@ -33,7 +33,7 @@ public final class BitMask {
 
     @SafeVarargs
     public static <T extends Enum<T> & Flag> long longOf(final T... flags) {
-        int mask = 0;
+        long mask = 0;
         for(var flag : flags) {
             mask |= flag.getValue();
         }

@@ -30,15 +30,23 @@ public final class Epoll {
 
     private static native int control0(int epfd, int op, int fd, long event);
 
-    public void add(FileDescriptor fd, EventType... eventTypes) {
-        var event = new Event();
-        event.eventTypes.set(eventTypes);
+    public void add(FileDescriptor fd, long data, EventType... eventTypes) {
+        var event = new Event(data, eventTypes);
         control0(epfd.get(), Operation.ADD.value, fd.get(), event.getHandle());
     }
 
-    public void modify(FileDescriptor fd, EventType... eventTypes) {
-        var event = new Event();
-        event.eventTypes.set(eventTypes);
+    public void add(EventFileDescriptor fd, long data, EventType... eventTypes) {
+        var event = new Event(data, eventTypes);
+        control0(epfd.get(), Operation.ADD.value, fd.get(), event.getHandle());
+    }
+
+    public void modify(FileDescriptor fd, long data, EventType... eventTypes) {
+        var event = new Event(data, eventTypes);
+        control0(epfd.get(), Operation.MODIFY.value, fd.get(), event.getHandle());
+    }
+
+    public void modify(EventFileDescriptor fd, long data, EventType... eventTypes) {
+        var event = new Event(data, eventTypes);
         control0(epfd.get(), Operation.MODIFY.value, fd.get(), event.getHandle());
     }
 
@@ -46,10 +54,8 @@ public final class Epoll {
         control0(epfd.get(), Operation.DELETE.value, fd.get(), 1);
     }
 
-    public void control(Operation operation, FileDescriptor fd, EventType... eventTypes) {
-        var event = new Event();
-        event.eventTypes.set(eventTypes);
-        control0(epfd.get(), operation.value, fd.get(), event.getHandle());
+    public void delete(EventFileDescriptor fd) {
+        control0(epfd.get(), Operation.DELETE.value, fd.get(), 1);
     }
 
     private static native int wait0(int epfd, long events, int maxEvents, int timeout);
@@ -66,7 +72,10 @@ public final class Epoll {
         private final NativeIntegerBitMask<EventType> eventTypes = integerBitField("events");
         private final NativeLong data = longField("data");
 
-        public Event() {}
+        public Event(long data, EventType... eventTypes) {
+            this.eventTypes.set(eventTypes);
+            this.data.set(data);
+        }
 
         public Event(long handle) {
             super(handle);

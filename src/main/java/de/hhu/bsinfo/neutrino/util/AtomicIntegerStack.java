@@ -33,17 +33,14 @@ public class AtomicIntegerStack {
             newHead = expectedHead.next;
         } while (!head.compareAndSet(expectedHead, newHead));
 
-        var value = expectedHead.value;
-        expectedHead.releaseInstance();
-        return value;
+        return expectedHead.value;
     }
 
     public void push(int value) {
-        var pool = NODE_POOL.get();
-        Node expectedHead;
-        Node newHead = pool.getInstance();
+        Node newHead = new Node();
         newHead.value = value;
 
+        Node expectedHead;
         do {
             expectedHead = head.get();
             newHead.next = expectedHead;

@@ -10,6 +10,8 @@ import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
 @LinkNative("ibv_cq")
 public class CompletionQueue extends Struct implements AutoCloseable {
 
@@ -44,9 +46,13 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     }
 
     public boolean poll(WorkCompletionArray results) {
+        return poll(results, results.getCapacity());
+    }
+
+    public boolean poll(WorkCompletionArray results, int entries) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
-        Verbs.pollCompletionQueue(getHandle(), results.getCapacity(), results.getHandle(), result.getHandle());
+        Verbs.pollCompletionQueue(getHandle(), entries, results.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Polling completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
@@ -58,6 +64,10 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         return !isError;
+    }
+
+    public boolean requestNotification() {
+        return requestNotification(ALL_EVENTS);
     }
 
     public boolean requestNotification(boolean solicitedOnly) {
@@ -72,6 +82,10 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         result.releaseInstance();
 
         return !isError;
+    }
+
+    public void acknowledgeEvent() {
+        Verbs.acknowledgeCompletionEvents(getHandle(), 1);
     }
 
     public void acknowledgeEvents(int count) {
@@ -120,6 +134,21 @@ public class CompletionQueue extends Struct implements AutoCloseable {
             }
 
             return super.get(index);
+        }
+
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <S extends NativeArray<WorkCompletion>> S forEach(Consumer<WorkCompletion> operation) {
+            for (int i = 0; i < length; i++) {
+                operation.accept(getUnchecked(i));
+            }
+
+            return (S) this;
+        }
+
+        public boolean isEmpty() {
+            return length == 0;
         }
 
         public int getLength() {

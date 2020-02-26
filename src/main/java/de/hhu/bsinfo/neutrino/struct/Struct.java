@@ -120,6 +120,20 @@ public class Struct implements NativeObject {
         return field;
     }
 
+    protected final NativeDouble doubleField(String identifier) {
+        return new NativeDouble(byteBuffer, offsetOf(identifier));
+    }
+
+    protected final NativeDouble doubleField(long offset) {
+        return new NativeDouble(byteBuffer, offset);
+    }
+
+    protected final NativeDouble doubleField() {
+        var field = new NativeDouble(byteBuffer, currentFieldOffset);
+        currentFieldOffset += field.getSize();
+        return field;
+    }
+
     protected final NativeBoolean booleanField(String identifier) {
         return new NativeBoolean(byteBuffer, offsetOf(identifier));
     }

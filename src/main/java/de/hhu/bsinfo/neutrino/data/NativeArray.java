@@ -49,6 +49,11 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
         return elements[index];
     }
 
+    protected T getUnchecked(final int index) {
+        ensureObject(index);
+        return elements[index];
+    }
+
     public <S extends NativeArray<T>> S apply(final int index, final Consumer<T> operations) {
         if (index >= capacity) {
             throw new IndexOutOfBoundsException(String.format("Index %d is outside array with size %d", index,
@@ -62,7 +67,11 @@ public class NativeArray<T extends NativeObject> implements NativeObject {
     }
 
     public <S extends NativeArray<T>> S forEach(final Consumer<T> operation) {
-        for (int i = 0; i < capacity; i++) {
+        return forEach(capacity, operation);
+    }
+
+    public <S extends NativeArray<T>> S forEach(int limit, final Consumer<T> operation)  {
+        for (int i = 0; i < limit; i++) {
             ensureObject(i);
             operation.accept(elements[i]);
         }
