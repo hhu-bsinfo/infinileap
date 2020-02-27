@@ -6,10 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.BitMask;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
-import de.hhu.bsinfo.neutrino.util.MemoryUtil;
-import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import de.hhu.bsinfo.neutrino.util.*;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +63,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Registering memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new NativeError(SystemUtil.getErrorMessage());
         }
 
         var memoryRegion = result.getAndRelease(MemoryRegion::new);

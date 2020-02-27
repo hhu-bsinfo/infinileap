@@ -2,8 +2,10 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
+import de.hhu.bsinfo.neutrino.util.NativeError;
 import de.hhu.bsinfo.neutrino.util.NativeLibrary;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
 import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.InitialAttributes;
@@ -185,6 +187,7 @@ public class Context implements NativeObject, AutoCloseable {
         Verbs.createCompletionChannel(getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new NativeError(SystemUtil.getErrorMessage());
         }
 
         var completionChannel = result.getAndRelease(CompletionChannel::new);
@@ -193,18 +196,17 @@ public class Context implements NativeObject, AutoCloseable {
         return completionChannel;
     }
 
-    @Nullable
     public CompletionQueue createCompletionQueue(int numElements) {
         return createCompletionQueue(numElements, null);
     }
 
-    @Nullable
     public CompletionQueue createCompletionQueue(int numElements, @Nullable CompletionChannel channel) {
         var result = (Result) Verbs.getPoolableInstance(Result.class);
 
         Verbs.createCompletionQueue(getHandle(), numElements, nullptr, channel == null ? nullptr : channel.getHandle(), 0, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new NativeError(SystemUtil.getErrorMessage());
         }
 
         var completionQueue = result.getAndRelease(CompletionQueue::new);
