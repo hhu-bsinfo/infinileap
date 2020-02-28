@@ -48,7 +48,7 @@ public final class EventFileDescriptor implements Closeable {
     /**
      * Reads the file descriptor's internal counter.
      */
-    public int read() {
+    public long read() {
         var value = read0(handle);
         if (value == STATUS_ERROR) {
             throw new IllegalArgumentException("Reading counter failed", SystemUtil.lastError());
@@ -75,7 +75,7 @@ public final class EventFileDescriptor implements Closeable {
 
     private static native int create0(int count, int flags);
 
-    private static native int read0(int fd);
+    private static native long read0(int fd);
 
     private static native int increment0(int fd, long value);
 

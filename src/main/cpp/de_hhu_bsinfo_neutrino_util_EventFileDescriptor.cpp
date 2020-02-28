@@ -10,8 +10,11 @@ JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_crea
     return eventfd(counter, flags);
 }
 
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_read0 (JNIEnv *env, jclass clazz, jint handle) {
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_read0 (JNIEnv *env, jclass clazz, jint handle) {
     eventfd_t value;
+
+    // TODO(krakowski):
+    //  Check for errors and throw java exception if read failed
     eventfd_read(handle, &value);
     return value;
 }

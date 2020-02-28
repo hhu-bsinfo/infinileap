@@ -22,9 +22,9 @@ JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_crea
 /*
  * Class:     de_hhu_bsinfo_neutrino_util_EventFileDescriptor
  * Method:    read0
- * Signature: (I)I
+ * Signature: (I)J
  */
-JNIEXPORT jint JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_read0
+JNIEXPORT jlong JNICALL Java_de_hhu_bsinfo_neutrino_util_EventFileDescriptor_read0
   (JNIEnv *, jclass, jint);
 
 /*
