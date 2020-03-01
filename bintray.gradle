@@ -6,8 +6,8 @@ bintray {
     override = true
 
     pkg {
-        repo = 'dxram'
-        name = 'neutrino'
+        repo = 'neutrino'
+        name = 'core'
         userOrg = 'hhu-bsinfo'
         licenses = ['GPL-3.0']
         vcsUrl = 'https://github.com/hhu-bsinfo/neutrino.git'
