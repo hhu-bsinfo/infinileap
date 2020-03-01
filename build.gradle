@@ -17,7 +17,7 @@ version = getProperty('projectVersion')
 
 compileJava {
     dependsOn(':native:build')
-    options.compilerArgs += ['-h', project(':native').file('src/main/cpp/public')]
+    options.compilerArgs += ['-h', project(':native').file('src/main/public')]
 }
 
 compileJava.doLast {
