@@ -15,8 +15,6 @@ public final class Epoll {
         this.epfd = epfd;
     }
 
-    private static native int create0(int size);
-
     public static Epoll create() {
         return create(DEFAULT_SIZE);
     }
@@ -28,44 +26,32 @@ public final class Epoll {
         return new Epoll(fd);
     }
 
-    private static native int control0(int epfd, int op, int fd, long event);
-
     public void add(FileDescriptor fd, long data, EventType... eventTypes) {
         var event = new Event(data, eventTypes);
-        control0(epfd.get(), Operation.ADD.value, fd.get(), event.getHandle());
-    }
-
-    public void add(EventFileDescriptor fd, long data, EventType... eventTypes) {
-        var event = new Event(data, eventTypes);
-        control0(epfd.get(), Operation.ADD.value, fd.get(), event.getHandle());
+        control0(epfd.getHandle(), Operation.ADD.value, fd.getHandle(), event.getHandle());
     }
 
     public void modify(FileDescriptor fd, long data, EventType... eventTypes) {
         var event = new Event(data, eventTypes);
-        control0(epfd.get(), Operation.MODIFY.value, fd.get(), event.getHandle());
-    }
-
-    public void modify(EventFileDescriptor fd, long data, EventType... eventTypes) {
-        var event = new Event(data, eventTypes);
-        control0(epfd.get(), Operation.MODIFY.value, fd.get(), event.getHandle());
+        control0(epfd.getHandle(), Operation.MODIFY.value, fd.getHandle(), event.getHandle());
     }
 
     public void delete(FileDescriptor fd) {
-        control0(epfd.get(), Operation.DELETE.value, fd.get(), 1);
+        control0(epfd.getHandle(), Operation.DELETE.value, fd.getHandle(), 1);
     }
-
-    public void delete(EventFileDescriptor fd) {
-        control0(epfd.get(), Operation.DELETE.value, fd.get(), 1);
-    }
-
-    private static native int wait0(int epfd, long events, int maxEvents, int timeout);
 
     public void wait(EventArray events, int timeout) {
         // TODO(krakowski):
         //  Check errors
-        var length = wait0(epfd.get(), events.getHandle(), events.getCapacity(), timeout);
+        var length = wait0(epfd.getHandle(), events.getHandle(), events.getCapacity(), timeout);
         events.setLength(length);
     }
+
+    private static native int create0(int size);
+
+    private static native int control0(int epfd, int op, int fd, long event);
+
+    private static native int wait0(int epfd, long events, int maxEvents, int timeout);
 
     @LinkNative("epoll_event")
     public static class Event extends Struct {

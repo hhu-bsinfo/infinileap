@@ -1,21 +1,14 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import java.io.Closeable;
 import java.io.IOException;
 
-public final class EventFileDescriptor implements Closeable {
+public final class EventFileDescriptor extends FileDescriptor {
 
     private static final int STATUS_OK = 0;
     private static final int STATUS_ERROR = -1;
 
-    private final int handle;
-
     private EventFileDescriptor(int handle) {
-        this.handle = handle;
-    }
-
-    public int get() {
-        return handle;
+        super(handle);
     }
 
     /**
@@ -49,6 +42,7 @@ public final class EventFileDescriptor implements Closeable {
      * Reads the file descriptor's internal counter.
      */
     public long read() {
+        var handle = getHandle();
         var value = read0(handle);
         if (value == STATUS_ERROR) {
             throw new IllegalArgumentException("Reading counter failed", SystemUtil.lastError());
@@ -68,6 +62,7 @@ public final class EventFileDescriptor implements Closeable {
      * Increments the file descriptor's internal counter by the specified value.
      */
     public void increment(long value) {
+        var handle = getHandle();
         if (increment0(handle, value) != STATUS_OK) {
             throw new IllegalArgumentException("Incrementing counter failed", SystemUtil.lastError());
         }
@@ -79,10 +74,9 @@ public final class EventFileDescriptor implements Closeable {
 
     private static native int increment0(int fd, long value);
 
-    private static native int close0(int fd);
-
     @Override
     public void close() throws IOException {
+        var handle = getHandle();
         if (close0(handle) != 0) {
             throw new IOException("closing file descriptor failed");
         }
