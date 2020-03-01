@@ -16,14 +16,13 @@ group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 compileJava {
-    dependsOn(':jni:build')
-    options.compilerArgs += ['-h', project.file('src/main/cpp/include')]
+    dependsOn(':native:build')
+    options.compilerArgs += ['-h', project(':native').file('src/main/cpp/public')]
 }
 
 compileJava.doLast {
-    project.file("$project.buildDir/install/$project.name/jni").mkdir()
     project.copy {
-        from file("${project(':jni').buildDir}/lib/main/debug/libneutrino.so")
+        from file("${project(':native').buildDir}/lib/main/debug/libneutrino.so")
         into file("${project.projectDir}/src/main/resources/NATIVE/x86_64")
     }
 }
