@@ -6,7 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
                 "\n}";
     }
 
-    public enum InitialAttributeFlag implements Flag {
+    public enum InitialAttributeFlag implements LongFlag {
         RESERVED(1);
 
         private final int value;

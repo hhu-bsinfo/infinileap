@@ -3,10 +3,9 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.TypeFlag;
-import java.util.function.Consumer;
 
 @LinkNative("ibv_device_attr_ex")
 public class ExtendedDeviceAttributes extends Struct {
@@ -174,7 +173,7 @@ public class ExtendedDeviceAttributes extends Struct {
     @LinkNative("ibv_rss_caps")
     private final static class RssCapabilities extends Struct {
 
-        public enum RxHashField implements Flag {
+        public enum RxHashField implements LongFlag {
             SRC_IPV4(1), DST_IPV4(1 << 1),
             SRC_IPV6(1 << 2), DST_IPV6(1 << 3),
             SRC_PORT_TCP(1 << 4), DST_PORT_TCP(1 << 5),
@@ -193,7 +192,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
         }
 
-        public enum RxHashFunction implements Flag {
+        public enum RxHashFunction implements LongFlag {
             TOEPLITZ(1);
 
             private final int value;
@@ -286,7 +285,7 @@ public class ExtendedDeviceAttributes extends Struct {
     @LinkNative("ibv_tm_caps")
     public static final class TagMatchingCapabilities extends Struct {
 
-        public enum TagMatchingCapabilityFlag implements Flag {
+        public enum TagMatchingCapabilityFlag implements LongFlag {
             RC(1);
 
             private final int value;
@@ -373,7 +372,7 @@ public class ExtendedDeviceAttributes extends Struct {
     @LinkNative("ibv_pci_atomic_caps")
     public static final class PciAtomicCapabilities extends Struct {
 
-        public enum PciAtomicOperationSize implements Flag {
+        public enum PciAtomicOperationSize implements LongFlag {
             SUPPORTS_4_BYTE_SIZE(1),
             SUPPORTS_8_BYTE_SIZE(1 << 1),
             SUPPORTS_16_BYTE_SIZE(1 << 2);

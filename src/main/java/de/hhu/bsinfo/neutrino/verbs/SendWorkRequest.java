@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.*;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 
 import java.util.Arrays;
 
@@ -416,7 +417,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         };
     }
 
-    public enum SendFlag implements Flag {
+    public enum SendFlag implements LongFlag {
         FENCE(1), SIGNALED(1 << 1), SOLICITED(1 << 2), INLINE(1 << 3), IP_CSUM(1 << 4);
 
         private final int value;

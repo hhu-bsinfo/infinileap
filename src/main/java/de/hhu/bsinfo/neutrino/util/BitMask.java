@@ -1,11 +1,13 @@
 package de.hhu.bsinfo.neutrino.util;
 
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
+
 public final class BitMask {
 
     private BitMask() {}
 
     @SafeVarargs
-    public static <T extends Enum<T> & Flag> byte byteOf(final T... flags) {
+    public static <T extends Enum<T> & LongFlag> byte byteOf(final T... flags) {
         byte mask = 0;
         for(var flag : flags) {
             mask |= (byte) flag.getValue();
@@ -14,7 +16,7 @@ public final class BitMask {
     }
 
     @SafeVarargs
-    public static <T extends Enum<T> & Flag> short shortOf(final T... flags) {
+    public static <T extends Enum<T> & LongFlag> short shortOf(final T... flags) {
         short mask = 0;
         for(var flag : flags) {
             mask |= (short) flag.getValue();
@@ -23,7 +25,7 @@ public final class BitMask {
     }
 
     @SafeVarargs
-    public static <T extends Enum<T> & Flag> int intOf(final T... flags) {
+    public static <T extends Enum<T> & LongFlag> int intOf(final T... flags) {
         int mask = 0;
         for(var flag : flags) {
             mask |= flag.getValue();
@@ -32,7 +34,7 @@ public final class BitMask {
     }
 
     @SafeVarargs
-    public static <T extends Enum<T> & Flag> long longOf(final T... flags) {
+    public static <T extends Enum<T> & LongFlag> long longOf(final T... flags) {
         long mask = 0;
         for(var flag : flags) {
             mask |= flag.getValue();
@@ -40,19 +42,19 @@ public final class BitMask {
         return mask;
     }
 
-    public static <T extends Enum<T> & Flag> boolean isSet(final byte mask, final T flag) {
+    public static <T extends Enum<T> & LongFlag> boolean isSet(final byte mask, final T flag) {
         return (mask & flag.getValue()) != 0;
     }
 
-    public static <T extends Enum<T> & Flag> boolean isSet(final short mask, final T flag) {
+    public static <T extends Enum<T> & LongFlag> boolean isSet(final short mask, final T flag) {
         return (mask & flag.getValue()) != 0;
     }
 
-    public static <T extends Enum<T> & Flag> boolean isSet(final int mask, final T flag) {
+    public static <T extends Enum<T> & LongFlag> boolean isSet(final int mask, final T flag) {
         return (mask & flag.getValue()) != 0;
     }
 
-    public static <T extends Enum<T> & Flag> boolean isSet(final long mask, final T flag) {
+    public static <T extends Enum<T> & LongFlag> boolean isSet(final long mask, final T flag) {
         return (mask & flag.getValue()) != 0;
     }
 }

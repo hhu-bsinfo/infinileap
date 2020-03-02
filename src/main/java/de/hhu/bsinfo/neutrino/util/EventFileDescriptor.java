@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.neutrino.util;
 
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import java.io.IOException;
 
 public final class EventFileDescriptor extends FileDescriptor {
@@ -82,7 +83,7 @@ public final class EventFileDescriptor extends FileDescriptor {
         }
     }
 
-    public enum OpenMode implements Flag {
+    public enum OpenMode implements LongFlag {
         NONBLOCK(0x800), CLOEXEC(0x80000), SEMAPHORE(0x1);
 
         private final int value;

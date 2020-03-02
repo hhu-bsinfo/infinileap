@@ -6,7 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.WorkCompletion.TagMatchingInfo;
@@ -193,7 +193,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
                 "\n}";
     }
 
-    public enum WorkCompletionCapability implements Flag {
+    public enum WorkCompletionCapability implements LongFlag {
         WITH_BYTE_LEN(1), WITH_IMM(1 << 1), WITH_QP_NUM(1 << 2), WITH_SRC_QP(1 << 3),
         WITH_SLID(1 << 4), WITH_SL(1 << 5), WITH_DLID_PATH_BITS(1 << 6), WITH_COMPLETION_TIMESTAMP(1 << 7),
         WITH_CVLAN(1 << 8), WITH_FLOW_TAG(1 << 9), WITH_TM_INFO(1 << 10), WITH_COMPLETION_TIMESTAMP_WALLCLOCK(1 << 11);
@@ -210,7 +210,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
     }
 
-    public enum CompatibilityFlag implements Flag {
+    public enum CompatibilityFlag implements LongFlag {
         FLAGS(1);
 
         private final int value;
@@ -225,7 +225,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
     }
 
-    public enum CreationFlag implements Flag {
+    public enum CreationFlag implements LongFlag {
         SINGLE_THREADED(1), IGNORE_OVERRUN(1 << 1);
 
         private final int value;

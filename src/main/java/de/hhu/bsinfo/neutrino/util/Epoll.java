@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeArray;
 import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 
 public final class Epoll {
 
@@ -72,7 +73,7 @@ public final class Epoll {
         }
     }
 
-    public enum EventType implements Flag {
+    public enum EventType implements LongFlag {
         EPOLLIN(0x001), EPOLLPRI(0x002), EPOLLOUT(0x004), EPOLLRDNORM(0x040), EPOLLRDBAND(0x080), EPOLLWRNORM(0x100),
         EPOLLWRBAND(0x200), EPOLLMSG(0x400), EPOLLERR(0x008), EPOLLHUP(0x010), EPOLLRDHUP(0x2000), EPOLLONESHOT(1 << 30),
         EPOLLET(1 << 31);

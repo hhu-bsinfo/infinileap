@@ -4,7 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         result.releaseInstance();
     }
 
-    public enum AttributeFlag implements Flag {
+    public enum AttributeFlag implements LongFlag {
         FD(1), OFLAGS(1 << 1), RESERVED(1 << 2);
 
         private final int value;
@@ -56,7 +56,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         }
     }
 
-    public enum OperationFlag implements Flag {
+    public enum OperationFlag implements LongFlag {
         O_CREAT(Verbs.getOperationFlagCreate()),
         O_EXCL(Verbs.getOperationFlagExclusive());
 

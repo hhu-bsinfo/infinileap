@@ -3,7 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
@@ -138,7 +138,7 @@ public class ExtendedQueuePair extends Struct {
                 "\n}";
     }
 
-    public enum AttributeFlag implements Flag {
+    public enum AttributeFlag implements LongFlag {
         PD(1), XRCD(1 << 1), CREATE_FLAGS(1 << 2), MAX_TSO_HEADER(1 << 3),
         IND_TABLE(1 << 4), RX_HASH(1 << 5), SEND_OPS_FLAGS(1 << 6);
 
@@ -154,7 +154,7 @@ public class ExtendedQueuePair extends Struct {
         }
     }
 
-    public enum CreationFlag implements Flag {
+    public enum CreationFlag implements LongFlag {
         BLOCK_SELF_MCAST_LB(1 << 1), SCATTER_FCS(1 << 8), CVLAN_STRIPPING(1 << 9),
         SOURCE_QPN(1 << 10), PCI_WRITE_END_PADDING(1 << 11);
 
@@ -170,7 +170,7 @@ public class ExtendedQueuePair extends Struct {
         }
     }
 
-    public enum SendOperationFlag implements Flag {
+    public enum SendOperationFlag implements LongFlag {
         WITH_RDMA_WRITE(1), WITH_RDMA_WRITE_WITH_IMM(1 << 1), WITH_SEND(1 << 2), WITH_SEND_WITH_IMM(1 << 3),
         WITH_RDMA_READ(1 << 4), WITH_ATOMIC_CMP_AND_SWP(1 << 5), WITH_ATOMIC_FETCH_AND_ADD(1 << 6),WITH_LOCAL_INV(1 << 7),
         WITH_BIND_MW(1 << 8), WITH_SEND_WITH_INV(1 << 9), WITH_TSO(1 << 10);
@@ -187,7 +187,7 @@ public class ExtendedQueuePair extends Struct {
         }
     }
 
-    public enum HashFunctionFlag implements Flag {
+    public enum HashFunctionFlag implements LongFlag {
         TOEPLITZ((byte) 1);
 
         private final byte value;
@@ -202,7 +202,7 @@ public class ExtendedQueuePair extends Struct {
         }
     }
 
-    public enum HashFieldFlag implements Flag {
+    public enum HashFieldFlag implements LongFlag {
         SRC_IPV4(1), DST_IPV4(1 << 1), SRC_IPV6(1 << 2), DST_IPV6(1 << 3),
         SRC_PORT_TCP(1 << 4), DST_PORT_TCP(1 << 5), SRC_PORT_UDP(1 << 6), DST_PORT_UDP(1 << 7),
         IPSEC_SPI(1 << 8), INNER(1 << 31);

@@ -4,7 +4,7 @@ import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.Flag;
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
@@ -221,7 +221,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         };
     }
     
-    public enum AttributeFlag implements Flag {
+    public enum AttributeFlag implements LongFlag {
         STATE(1), CURRENT_STATE(1 << 1), FLAGS(1 << 2), RESERVED(1 << 3);
 
         private final int value;
@@ -236,7 +236,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         }
     }
 
-    public enum CompatibilityFlag implements Flag {
+    public enum CompatibilityFlag implements LongFlag {
         FLAGS(1), RESERVED(1 << 1);
 
         private final int value;
@@ -251,7 +251,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
         }
     }
 
-    public enum CreationFlag implements Flag {
+    public enum CreationFlag implements LongFlag {
         CVLAN_STRIPPING(1), SCATTER_FCS(1 << 1), DELAY_DROP(1 << 2),
         PCI_WRITE_END_PADDING(1 << 3), RESERVED(1 << 4);
 

@@ -1,5 +1,7 @@
 package de.hhu.bsinfo.neutrino.util;
 
+import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -34,7 +36,7 @@ public class FileDescriptor implements Closeable {
 
     protected static native int setMode0(int fd, int mode);
 
-    public enum OpenMode implements Flag {
+    public enum OpenMode implements LongFlag {
         NONBLOCK(0x0004), APPEND(0x0008), SHLOCK(0x0010), EXLOCK(0x0020), ASYNC(0x0040), FSYNC(0x0080);
 
         private final int value;
