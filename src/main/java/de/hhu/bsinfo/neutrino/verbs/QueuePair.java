@@ -18,6 +18,7 @@ import de.hhu.bsinfo.neutrino.util.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -270,7 +271,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         };
     }
 
-    public enum TypeFlag implements LongFlag {
+    public enum TypeFlag implements IntegerFlag {
         RC(1 << 2), UC(1 << 3), UD(1 << 4), RAW_PACKET(1 << 8), XRC_SEND(1 << 9), XRC_RECV(1 << 10);
 
         private final int value;
@@ -280,7 +281,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
@@ -371,7 +372,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         };
     }
 
-    public enum AttributeFlag implements LongFlag {
+    public enum AttributeFlag implements IntegerFlag {
         STATE(1), CUR_STATE(1 << 1), EN_SQD_ASYNC_NOTIFY(1 << 2), ACCESS_FLAGS(1 << 3),
         PKEY_INDEX(1 << 4), PORT(1 << 5), QKEY(1 << 6), AV(1 << 7), PATH_MTU(1 << 8),
         TIMEOUT(1 << 9), RETRY_CNT(1 << 10), RNR_RETRY(1 << 11), RQ_PSN(1 << 12),
@@ -386,12 +387,12 @@ public class QueuePair extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum OpenAttributeFlag implements LongFlag {
+    public enum OpenAttributeFlag implements IntegerFlag {
         NUM(1), XRCD(1 << 1), CONTEXT(1 << 2), TYPE(1 << 3), RESERVED(1 << 4);
 
         private final int value;
@@ -401,7 +402,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

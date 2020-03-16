@@ -9,6 +9,8 @@ import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 
 public class Result implements NativeObject, Poolable {
 
+    private static final ThreadLocal<Result> LOCAL_RESULT = ThreadLocal.withInitial(Result::new);
+
     private static final int SIZE = Integer.BYTES + Long.BYTES;
 
     private final NativeInteger status;
@@ -99,6 +101,10 @@ public class Result implements NativeObject, Poolable {
 
     public byte byteValue() {
         return (byte) value.get();
+    }
+
+    public static Result localInstance() {
+        return LOCAL_RESULT.get();
     }
 
     @Override

@@ -2,8 +2,11 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.util.flag.ShortFlag;
+
 import java.util.Arrays;
 
 @LinkNative("ibv_port_attr")
@@ -197,7 +200,7 @@ public class PortAttributes extends Struct {
         };
     }
 
-    public enum CapabilityFlag implements LongFlag {
+    public enum CapabilityFlag implements IntegerFlag {
         SM(1 << 1), NOTICE_SUP(1 << 2), TRAP_SUP(1 << 3), OPT_IPD_SUP(1 << 4),
         AUTO_MIGR_SUP(1 << 5), SL_MAP_SUP(1 << 6), MKEY_NVRAM(1 << 7), PKEY_NVRAM(1 << 8),
         LED_INFO_SUP(1 << 9), SYS_IMAGE_GUID_SUP(1 << 11), PKEY_SW_EXT_PORT_TRAP_SUP(1 << 12), EXTENDED_SPEEDS_SUP(1 << 14),
@@ -212,12 +215,12 @@ public class PortAttributes extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum ExtendedCapabilityFlag implements LongFlag {
+    public enum ExtendedCapabilityFlag implements ShortFlag {
         SET_NODE_DESC_SUP((short) 1), INFO_EXT_SUP((short) (1 << 1)), VIRT_SUP((short) (1 << 2)),
         SWITCH_PORT_STATE_TABLE_SUP((short) (1 << 3)), LINK_WIDTH_2X_SUP((short) (1 << 4)), LINK_SPEED_HDR_SUP((short) (1 << 5));
 
@@ -228,7 +231,7 @@ public class PortAttributes extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public short getValue() {
             return value;
         }
     }

@@ -6,6 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
@@ -71,7 +72,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
                 "\n}";
     }
 
-    public enum InitialAttributeFlag implements LongFlag {
+    public enum InitialAttributeFlag implements IntegerFlag {
         RESERVED(1);
 
         private final int value;
@@ -81,7 +82,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

@@ -6,6 +6,7 @@ import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.data.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
@@ -193,7 +194,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
                 "\n}";
     }
 
-    public enum WorkCompletionCapability implements LongFlag {
+    public enum WorkCompletionCapability implements IntegerFlag {
         WITH_BYTE_LEN(1), WITH_IMM(1 << 1), WITH_QP_NUM(1 << 2), WITH_SRC_QP(1 << 3),
         WITH_SLID(1 << 4), WITH_SL(1 << 5), WITH_DLID_PATH_BITS(1 << 6), WITH_COMPLETION_TIMESTAMP(1 << 7),
         WITH_CVLAN(1 << 8), WITH_FLOW_TAG(1 << 9), WITH_TM_INFO(1 << 10), WITH_COMPLETION_TIMESTAMP_WALLCLOCK(1 << 11);
@@ -205,12 +206,12 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum CompatibilityFlag implements LongFlag {
+    public enum CompatibilityFlag implements IntegerFlag {
         FLAGS(1);
 
         private final int value;
@@ -220,12 +221,12 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum CreationFlag implements LongFlag {
+    public enum CreationFlag implements IntegerFlag {
         SINGLE_THREADED(1), IGNORE_OVERRUN(1 << 1);
 
         private final int value;
@@ -235,7 +236,7 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

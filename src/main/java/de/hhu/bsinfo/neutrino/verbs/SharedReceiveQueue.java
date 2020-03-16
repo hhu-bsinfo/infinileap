@@ -5,6 +5,7 @@ import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.BitMask;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import java.util.Arrays;
@@ -123,7 +124,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
                 "\n}";
     }
 
-    public enum AttributeFlag implements LongFlag {
+    public enum AttributeFlag implements IntegerFlag {
         MAX_WR(1), LIMIT(1 << 1);
 
         private final int value;
@@ -133,12 +134,12 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum ExtendedAttributeFlag implements LongFlag {
+    public enum ExtendedAttributeFlag implements IntegerFlag {
         TYPE(1), PD(1 << 1), XRCD(1 << 2),
         CQ(1 << 3), TM(1 << 4), RESERVED(1 << 5);
 
@@ -149,7 +150,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

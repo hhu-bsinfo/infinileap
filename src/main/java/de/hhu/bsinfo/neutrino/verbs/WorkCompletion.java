@@ -2,6 +2,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
@@ -202,7 +203,7 @@ public class WorkCompletion extends Struct {
         };
     }
 
-    public enum WorkCompletionFlag implements LongFlag {
+    public enum WorkCompletionFlag implements IntegerFlag {
         GRH(1), IMM(1 << 1), IP_CSUM_OK(1 << 2), WITH_INV(1 << 3), TM_SYNC_REQ(1 << 4),
         TM_MATCH(1 << 5), TM_DATA_INVALID(1 << 6);
 
@@ -213,7 +214,7 @@ public class WorkCompletion extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

@@ -3,6 +3,8 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.ByteFlag;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
@@ -138,7 +140,7 @@ public class ExtendedQueuePair extends Struct {
                 "\n}";
     }
 
-    public enum AttributeFlag implements LongFlag {
+    public enum AttributeFlag implements IntegerFlag {
         PD(1), XRCD(1 << 1), CREATE_FLAGS(1 << 2), MAX_TSO_HEADER(1 << 3),
         IND_TABLE(1 << 4), RX_HASH(1 << 5), SEND_OPS_FLAGS(1 << 6);
 
@@ -149,12 +151,12 @@ public class ExtendedQueuePair extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum CreationFlag implements LongFlag {
+    public enum CreationFlag implements IntegerFlag {
         BLOCK_SELF_MCAST_LB(1 << 1), SCATTER_FCS(1 << 8), CVLAN_STRIPPING(1 << 9),
         SOURCE_QPN(1 << 10), PCI_WRITE_END_PADDING(1 << 11);
 
@@ -165,7 +167,7 @@ public class ExtendedQueuePair extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
@@ -187,7 +189,7 @@ public class ExtendedQueuePair extends Struct {
         }
     }
 
-    public enum HashFunctionFlag implements LongFlag {
+    public enum HashFunctionFlag implements ByteFlag {
         TOEPLITZ((byte) 1);
 
         private final byte value;
@@ -197,7 +199,7 @@ public class ExtendedQueuePair extends Struct {
         }
 
         @Override
-        public long getValue() {
+        public byte getValue() {
             return value;
         }
     }

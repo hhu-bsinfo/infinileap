@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.TypeFlag;
@@ -13,7 +14,7 @@ public class ExtendedDeviceAttributes extends Struct {
     private final NativeInteger compatibilityMask = integerField("comp_mask");
     private final NativeLong completionTimestampMask = longField("completion_timestamp_mask");
     private final NativeLong coreClockFrequency = longField("hca_core_clock");
-    private final NativeLongBitMask<DeviceAttributes.CapabilityFlag> extendedDeviceCapabilities = longBitField("device_cap_flags_ex");
+    private final NativeLongBitMask<DeviceAttributes.ExtendedCapabilityFlag> extendedDeviceCapabilities = longBitField("device_cap_flags_ex");
     private final NativeInteger maxReceiveQueueCount = integerField("max_wq_type_rq");
     private final NativeInteger rawPacketCapabilities = integerField("raw_packet_caps");
     private final NativeLong maxDeviceMemorySize = longField("max_dm_size");
@@ -171,9 +172,9 @@ public class ExtendedDeviceAttributes extends Struct {
     }
 
     @LinkNative("ibv_rss_caps")
-    private final static class RssCapabilities extends Struct {
+    private static final class RssCapabilities extends Struct {
 
-        public enum RxHashField implements LongFlag {
+        public enum RxHashField implements IntegerFlag {
             SRC_IPV4(1), DST_IPV4(1 << 1),
             SRC_IPV6(1 << 2), DST_IPV6(1 << 3),
             SRC_PORT_TCP(1 << 4), DST_PORT_TCP(1 << 5),
@@ -187,12 +188,12 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public long getValue() {
+            public int getValue() {
                 return value;
             }
         }
 
-        public enum RxHashFunction implements LongFlag {
+        public enum RxHashFunction implements IntegerFlag {
             TOEPLITZ(1);
 
             private final int value;
@@ -202,7 +203,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public long getValue() {
+            public int getValue() {
                 return value;
             }
         }
@@ -285,7 +286,7 @@ public class ExtendedDeviceAttributes extends Struct {
     @LinkNative("ibv_tm_caps")
     public static final class TagMatchingCapabilities extends Struct {
 
-        public enum TagMatchingCapabilityFlag implements LongFlag {
+        public enum TagMatchingCapabilityFlag implements IntegerFlag {
             RC(1);
 
             private final int value;
@@ -295,7 +296,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public long getValue() {
+            public int getValue() {
                 return value;
             }
         }
@@ -372,7 +373,7 @@ public class ExtendedDeviceAttributes extends Struct {
     @LinkNative("ibv_pci_atomic_caps")
     public static final class PciAtomicCapabilities extends Struct {
 
-        public enum PciAtomicOperationSize implements LongFlag {
+        public enum PciAtomicOperationSize implements IntegerFlag {
             SUPPORTS_4_BYTE_SIZE(1),
             SUPPORTS_8_BYTE_SIZE(1 << 1),
             SUPPORTS_16_BYTE_SIZE(1 << 2);
@@ -384,7 +385,7 @@ public class ExtendedDeviceAttributes extends Struct {
             }
 
             @Override
-            public long getValue() {
+            public int getValue() {
                 return value;
             }
         }

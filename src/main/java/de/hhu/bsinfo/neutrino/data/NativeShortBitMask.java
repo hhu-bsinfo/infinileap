@@ -3,8 +3,9 @@ package de.hhu.bsinfo.neutrino.data;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.util.BitMask;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
+import de.hhu.bsinfo.neutrino.util.flag.ShortFlag;
 
-public class NativeShortBitMask<T extends Enum<T> & LongFlag> extends NativeDataType {
+public class NativeShortBitMask<T extends Enum<T> & ShortFlag> extends NativeDataType {
 
     public NativeShortBitMask(LocalBuffer byteBuffer, final long offset) {
         super(byteBuffer, offset);

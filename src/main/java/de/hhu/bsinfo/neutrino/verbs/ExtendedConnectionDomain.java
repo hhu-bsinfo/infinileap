@@ -4,6 +4,7 @@ import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
 import de.hhu.bsinfo.neutrino.data.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
@@ -41,7 +42,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         result.releaseInstance();
     }
 
-    public enum AttributeFlag implements LongFlag {
+    public enum AttributeFlag implements IntegerFlag {
         FD(1), OFLAGS(1 << 1), RESERVED(1 << 2);
 
         private final int value;
@@ -51,12 +52,12 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }
 
-    public enum OperationFlag implements LongFlag {
+    public enum OperationFlag implements IntegerFlag {
         O_CREAT(Verbs.getOperationFlagCreate()),
         O_EXCL(Verbs.getOperationFlagExclusive());
 
@@ -67,7 +68,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
         }
 
         @Override
-        public long getValue() {
+        public int getValue() {
             return value;
         }
     }

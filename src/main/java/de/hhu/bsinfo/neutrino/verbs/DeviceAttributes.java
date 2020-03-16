@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
 import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 import de.hhu.bsinfo.neutrino.util.LinkNative;
 
@@ -154,7 +155,27 @@ public class DeviceAttributes extends Struct {
             "\n}";
     }
 
-    public enum CapabilityFlag implements LongFlag {
+    public enum CapabilityFlag implements IntegerFlag {
+        RESIZE_MAX_WR(1), BAD_PKEY_CNTR(1 <<  1), BAD_QKEY_CNTR(1 <<  2), RAW_MULTI(1 <<  3),
+        AUTO_PATH_MIG(1 <<  4), CHANGE_PHY_PORT(1 <<  5), UD_AV_PORT_ENFORCE(1 <<  6), CURR_QP_STATE_MOD(1 <<  7),
+        SHUTDOWN_PORT(1 <<  8), INIT_TYPE(1 <<  9), PORT_ACTIVE_EVENT(1 << 10), SYS_IMAGE_GUID(1 << 11),
+        RC_RNR_NAK_GEN(1 << 12), SRQ_RESIZE(1 << 13), N_NOTIFY_CQ(1 << 14), MEM_WINDOW(1 << 17),
+        UD_IP_CSUM(1 << 18), XRC(1 << 20), MEM_MGT_EXTENSIONS(1 << 21), MEM_WINDOW_TYPE_2A(1 << 23),
+        MEM_WINDOW_TYPE_2B(1 << 24), RC_IP_CSUM(1 << 25), RAW_IP_CSUM(1 << 26), MANAGED_FLOW_STEERING(1 << 29);
+
+        private final int value;
+
+        CapabilityFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public enum ExtendedCapabilityFlag implements LongFlag {
         RESIZE_MAX_WR(1), BAD_PKEY_CNTR(1 <<  1), BAD_QKEY_CNTR(1 <<  2), RAW_MULTI(1 <<  3),
         AUTO_PATH_MIG(1 <<  4), CHANGE_PHY_PORT(1 <<  5), UD_AV_PORT_ENFORCE(1 <<  6), CURR_QP_STATE_MOD(1 <<  7),
         SHUTDOWN_PORT(1 <<  8), INIT_TYPE(1 <<  9), PORT_ACTIVE_EVENT(1 << 10), SYS_IMAGE_GUID(1 << 11),
@@ -165,7 +186,7 @@ public class DeviceAttributes extends Struct {
 
         private final long value;
 
-        CapabilityFlag(long value) {
+        ExtendedCapabilityFlag(long value) {
             this.value = value;
         }
 

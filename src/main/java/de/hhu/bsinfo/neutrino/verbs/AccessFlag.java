@@ -1,8 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
+import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 
-public enum AccessFlag implements LongFlag {
+public enum AccessFlag implements IntegerFlag {
     LOCAL_WRITE(1), REMOTE_WRITE(1 << 1), REMOTE_READ(1 << 2),
     REMOTE_ATOMIC(1 << 3), MW_BIND(1 << 4), ZERO_BASED(1 << 5),
     ON_DEMAND(1 << 6);
@@ -14,7 +15,7 @@ public enum AccessFlag implements LongFlag {
     }
 
     @Override
-    public long getValue() {
+    public int getValue() {
         return value;
     }
 }
