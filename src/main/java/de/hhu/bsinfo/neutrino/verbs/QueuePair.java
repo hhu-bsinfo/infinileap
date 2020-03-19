@@ -449,28 +449,28 @@ public class QueuePair extends Struct implements AutoCloseable {
             return signalLevel.get();
         }
 
-        void setUserContext(long userContext) {
+        public void setUserContext(long userContext) {
             this.userContext.set(userContext);
         }
 
-        void setSendCompletionQueue(CompletionQueue sendCompletionQueue) {
+        public void setSendCompletionQueue(CompletionQueue sendCompletionQueue) {
             this.sendCompletionQueue.set(sendCompletionQueue.getHandle());
         }
 
 
-        void setReceiveCompletionQueue(CompletionQueue receiveCompletionQueue) {
+        public void setReceiveCompletionQueue(CompletionQueue receiveCompletionQueue) {
             this.receiveCompletionQueue.set(receiveCompletionQueue.getHandle());
         }
 
-        void setSharedReceiveQueue(@Nullable SharedReceiveQueue sharedReceiveQueue) {
+        public void setSharedReceiveQueue(@Nullable SharedReceiveQueue sharedReceiveQueue) {
             this.sharedReceiveQueue.set(sharedReceiveQueue == null ? 0 : sharedReceiveQueue.getHandle());
         }
 
-        void setType(Type type) {
+        public void setType(Type type) {
             this.type.set(type);
         }
 
-        void setSignalLevel(int signalLevel) {
+        public void setSignalLevel(int signalLevel) {
             this.signalLevel.set(signalLevel);
         }
 
@@ -594,23 +594,23 @@ public class QueuePair extends Struct implements AutoCloseable {
             return maxInlineData.get();
         }
 
-        void setMaxReceiveWorkRequests(int maxReceiveWorkRequests) {
+        public void setMaxReceiveWorkRequests(int maxReceiveWorkRequests) {
             this.maxReceiveWorkRequests.set(maxReceiveWorkRequests);
         }
 
-        void setMaxSendWorkRequests(int maxSendWorkRequests) {
+        public void setMaxSendWorkRequests(int maxSendWorkRequests) {
             this.maxSendWorkRequests.set(maxSendWorkRequests);
         }
 
-        void setMaxSendScatterGatherElements(int maxSendScatterGatherElements) {
+        public void setMaxSendScatterGatherElements(int maxSendScatterGatherElements) {
             this.maxSendScatterGatherElements.set(maxSendScatterGatherElements);
         }
 
-        void setMaxReceiveScatterGatherElements(int maxReceiveScatterGatherElements) {
+        public void setMaxReceiveScatterGatherElements(int maxReceiveScatterGatherElements) {
             this.maxReceiveScatterGatherElements.set(maxReceiveScatterGatherElements);
         }
 
-        void setMaxInlineData(int maxInlineData) {
+        public void setMaxInlineData(int maxInlineData) {
             this.maxInlineData.set(maxInlineData);
         }
 

@@ -37,7 +37,7 @@ public final class AddressInfo extends Struct implements Closeable {
     private final NativeLong connection = longField("ai_connect");
     private final AddressInfo next = referenceField("ai_next", AddressInfo::new);
 
-    AddressInfo() {}
+    public AddressInfo() {}
 
     AddressInfo(long handle) {
         super(handle);

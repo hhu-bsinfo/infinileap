@@ -251,7 +251,12 @@ public class Struct implements NativeObject {
     }
 
     protected final <T extends NativeObject> T referenceField(String identifier, ReferenceFactory<T> factory) {
-        return factory.newInstance(byteBuffer.getLong(offsetOf(identifier)));
+        var handle = byteBuffer.getLong(offsetOf(identifier));
+        if (handle == 0) {
+            return null;
+        }
+
+        return factory.newInstance(handle);
     }
 
     protected final <T extends NativeObject> T referenceField(String identifier) {

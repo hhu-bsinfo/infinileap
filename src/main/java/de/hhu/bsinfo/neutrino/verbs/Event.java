@@ -13,8 +13,8 @@ public final class Event extends Struct {
     private final NativeLong listenIdentifier = longField("listen_id");
     private final NativeInteger event = integerField("event");
     private final NativeInteger status = integerField("status");
-    private final NativeLong conn = longField("conn");
-    private final NativeLong ud = longField("ud");
+    private final NativeLong conn = longField("param.conn");
+    private final NativeLong ud = longField("param.ud");
 
     Event() {}
 

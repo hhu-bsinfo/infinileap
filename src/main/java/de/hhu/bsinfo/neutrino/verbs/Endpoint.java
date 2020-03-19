@@ -49,7 +49,12 @@ public final class Endpoint extends Struct implements Closeable {
     public void connect(@Nullable ConnectionParameters parameters) {
         var result = Result.localInstance();
 
-        CommunicationManager.connect0(getHandle(), parameters != null ? parameters.getHandle() : 0, result.getHandle());
+        CommunicationManager.connect0(
+            getHandle(),
+            parameters != null ? parameters.getHandle() : 0,
+            result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
@@ -58,16 +63,25 @@ public final class Endpoint extends Struct implements Closeable {
     public void disconnect() {
         var result = Result.localInstance();
 
-        CommunicationManager.disconnect0(getHandle(), result.getHandle());
+        CommunicationManager.disconnect0(
+                getHandle(),
+                result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
     }
 
-    public void accept(Endpoint client, ConnectionParameters parameters) {
+    public void accept(Endpoint client, @Nullable ConnectionParameters parameters) {
         var result = Result.localInstance();
 
-        CommunicationManager.accept0(client.getHandle(), parameters.getHandle(), result.getHandle());
+        CommunicationManager.accept0(
+            client.getHandle(),
+            parameters != null ? parameters.getHandle() : 0,
+            result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
@@ -87,7 +101,12 @@ public final class Endpoint extends Struct implements Closeable {
     public void listen() {
         var result = Result.localInstance();
 
-        CommunicationManager.listen0(getHandle(), DEFAULT_BACKLOG, result.getHandle());
+        CommunicationManager.listen0(
+                getHandle(),
+                DEFAULT_BACKLOG,
+                result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
@@ -97,7 +116,11 @@ public final class Endpoint extends Struct implements Closeable {
     public void close() {
         var result = Result.localInstance();
 
-        CommunicationManager.destroyEndpoint0(getHandle(), result.getHandle());
+        CommunicationManager.destroyEndpoint0(
+                getHandle(),
+                result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }

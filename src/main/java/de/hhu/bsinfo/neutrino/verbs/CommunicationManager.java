@@ -3,6 +3,7 @@ package de.hhu.bsinfo.neutrino.verbs;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.util.NativeError;
 import de.hhu.bsinfo.neutrino.util.SystemUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 
@@ -12,10 +13,16 @@ public final class CommunicationManager {
 
     public static AddressInfo getAddressInfo(InetSocketAddress socketAddress, AddressInfo hints) {
         var result = Result.localInstance();
-        var host = socketAddress.getAddress().getHostAddress();
+        var host = socketAddress.getAddress().isAnyLocalAddress() ? null : socketAddress.getAddress().getHostAddress();
         var port = String.valueOf(socketAddress.getPort());
 
-        getAddressInfo0(host, port, hints.getHandle(), result.getHandle());
+        getAddressInfo0(
+                host,
+                port,
+                hints.getHandle(),
+                result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
@@ -23,10 +30,16 @@ public final class CommunicationManager {
         return result.get(AddressInfo::new);
     }
 
-    public static Endpoint createEndpoint(AddressInfo addressInfo, ProtectionDomain protectionDomain, QueuePair.InitialAttributes attributes) {
+    public static Endpoint createEndpoint(AddressInfo addressInfo, @Nullable ProtectionDomain protectionDomain, QueuePair.InitialAttributes attributes) {
         var result = Result.localInstance();
 
-        createEndpoint0(addressInfo.getHandle(), protectionDomain.getHandle(), attributes.getHandle(), result.getHandle());
+        createEndpoint0(
+            addressInfo.getHandle(),
+            protectionDomain != null ? protectionDomain.getHandle() : 0,
+            attributes.getHandle(),
+            result.getHandle()
+        );
+
         if (result.isError()) {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
