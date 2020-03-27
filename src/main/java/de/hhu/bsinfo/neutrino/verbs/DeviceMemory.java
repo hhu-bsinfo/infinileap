@@ -31,7 +31,7 @@ public class DeviceMemory extends Struct implements AutoCloseable {
     }
 
     public boolean copyFromDeviceMemory(long sourceOffset, LocalBuffer targetBuffer, long targetOffset, long length) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.copyFromDeviceMemory(targetBuffer.getHandle() + targetOffset, getHandle(), sourceOffset, length, result.getHandle());
         boolean isError = result.isError();
@@ -39,13 +39,11 @@ public class DeviceMemory extends Struct implements AutoCloseable {
             LOGGER.error("Copying from device memory to local buffer failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
-
         return !isError;
     }
 
     public boolean copyToDeviceMemory(LocalBuffer sourceBuffer, long sourceOffset, long targetOffset, long length) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.copyToDeviceMemory(getHandle(), targetOffset, sourceBuffer.getHandle() + sourceOffset, length, result.getHandle());
         boolean isError = result.isError();
@@ -53,14 +51,12 @@ public class DeviceMemory extends Struct implements AutoCloseable {
             LOGGER.error("Copying from local buffer to device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
-
         return !isError;
     }
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.freeDeviceMemory(getHandle(), result.getHandle());
         if(result.isError()) {
@@ -68,8 +64,6 @@ public class DeviceMemory extends Struct implements AutoCloseable {
         } else {
             NativeObjectRegistry.deregisterObject(this);
         }
-
-        result.releaseInstance();
     }
 
     @LinkNative("ibv_alloc_dm_attr")

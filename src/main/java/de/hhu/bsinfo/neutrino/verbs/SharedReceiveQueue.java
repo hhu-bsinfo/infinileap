@@ -47,7 +47,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     }
 
     public boolean modify(Attributes attributes, AttributeFlag... flags) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
@@ -55,7 +55,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             LOGGER.error("Modifying shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }
@@ -65,7 +65,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     }
 
     public Attributes queryAttributes() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var attributes = new Attributes();
 
         Verbs.querySharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
@@ -75,7 +75,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             attributes = null;
         }
 
-        result.releaseInstance();
+
 
         return attributes;
     }
@@ -89,7 +89,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
     }
 
     private boolean postReceive(final long receiveWorkRequestsHandle) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.postReceiveSharedReceiveQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
@@ -97,14 +97,14 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             LOGGER.error("Posting receive work requests to shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroySharedReceiveQueue(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -113,7 +113,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @Override

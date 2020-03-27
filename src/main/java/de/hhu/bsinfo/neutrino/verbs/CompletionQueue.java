@@ -50,7 +50,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     }
 
     public boolean poll(WorkCompletionArray results, int entries) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.pollCompletionQueue(getHandle(), entries, results.getHandle(), result.getHandle());
         boolean isError = result.isError();
@@ -61,7 +61,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
             results.setLength(result.intValue());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }
@@ -71,7 +71,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     }
 
     public boolean requestNotification(boolean solicitedOnly) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.requestNotification(getHandle(), solicitedOnly ? 1 : 0, result.getHandle());
         boolean isError = result.isError();
@@ -79,7 +79,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
             LOGGER.error("Requesting notification from completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }
@@ -103,7 +103,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -112,7 +112,7 @@ public class CompletionQueue extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     public static class WorkCompletionArray extends NativeArray<WorkCompletion> {

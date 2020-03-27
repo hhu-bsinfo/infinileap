@@ -30,7 +30,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {var result = (Result) Verbs.getPoolableInstance(Result.class);
+    public void close() {var result = Result.localInstance();
 
         Verbs.closeExtendedConnectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -39,7 +39,7 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     public enum AttributeFlag implements IntegerFlag {

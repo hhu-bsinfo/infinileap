@@ -53,14 +53,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public static Context openDevice(int index) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
             LOGGER.error("Opening device {} failed with error [{}]: {}", index, result.getStatus(), result.getStatusMessage());
         }
 
-        var context = result.getAndRelease(Context::new);
+        var context = result.get(Context::new);
         NativeObjectRegistry.registerObject(context);
 
         return context;
@@ -68,7 +68,7 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -77,7 +77,7 @@ public class Context implements NativeObject, AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     public String getDeviceName() {
@@ -86,7 +86,7 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public DeviceAttributes queryDevice() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var device = new DeviceAttributes();
 
         Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
@@ -95,7 +95,7 @@ public class Context implements NativeObject, AutoCloseable {
             device = null;
         }
 
-        result.releaseInstance();
+
 
         return device;
     }
@@ -107,7 +107,7 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public PortAttributes queryPort(int portNumber) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var port = new PortAttributes();
 
         Verbs.queryPort(getHandle(), port.getHandle(), portNumber, result.getHandle());
@@ -116,21 +116,21 @@ public class Context implements NativeObject, AutoCloseable {
             port = null;
         }
 
-        result.releaseInstance();
+
 
         return port;
     }
 
     @Nullable
     DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var deviceMemory = result.getAndRelease(DeviceMemory::new);
+        var deviceMemory = result.get(DeviceMemory::new);
         NativeObjectRegistry.registerObject(deviceMemory);
 
         return deviceMemory;
@@ -138,14 +138,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public ProtectionDomain allocateProtectionDomain() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateProtectionDomain(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var protectionDomain = result.getAndRelease(ProtectionDomain::new);
+        var protectionDomain = result.get(ProtectionDomain::new);
         NativeObjectRegistry.registerObject(protectionDomain);
 
         return protectionDomain;
@@ -153,28 +153,28 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public ThreadDomain allocateThreadDomain(ThreadDomain.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateThreadDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            return null;
         }
 
-        var threadDomain = result.getAndRelease(ThreadDomain::new);
+        var threadDomain = result.get(ThreadDomain::new);
         NativeObjectRegistry.registerObject(threadDomain);
 
         return threadDomain;
     }
 
     @Nullable ProtectionDomain allocateParentDomain(InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateParentDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating parent domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var protectionDomain = result.getAndRelease(ProtectionDomain::new);
+        var protectionDomain = result.get(ProtectionDomain::new);
         NativeObjectRegistry.registerObject(protectionDomain);
 
         return protectionDomain;
@@ -182,7 +182,7 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public CompletionChannel createCompletionChannel() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createCompletionChannel(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -190,7 +190,7 @@ public class Context implements NativeObject, AutoCloseable {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
 
-        var completionChannel = result.getAndRelease(CompletionChannel::new);
+        var completionChannel = result.get(CompletionChannel::new);
         NativeObjectRegistry.registerObject(completionChannel);
 
         return completionChannel;
@@ -201,7 +201,7 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     public CompletionQueue createCompletionQueue(int numElements, @Nullable CompletionChannel channel) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createCompletionQueue(getHandle(), numElements, nullptr, channel == null ? nullptr : channel.getHandle(), 0, result.getHandle());
         if (result.isError()) {
@@ -209,7 +209,7 @@ public class Context implements NativeObject, AutoCloseable {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
 
-        var completionQueue = result.getAndRelease(CompletionQueue::new);
+        var completionQueue = result.get(CompletionQueue::new);
         NativeObjectRegistry.registerObject(completionQueue);
 
         return completionQueue;
@@ -217,7 +217,7 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public AsyncEvent getAsyncEvent() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var event = (AsyncEvent) Verbs.getPoolableInstance(AsyncEvent.class);
 
         var then = System.currentTimeMillis();
@@ -225,7 +225,7 @@ public class Context implements NativeObject, AutoCloseable {
         if(result.isError()) {
             LOGGER.error("Polling async event failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
 
-            result.releaseInstance();
+
             event.releaseInstance();
 
             return null;
@@ -235,14 +235,14 @@ public class Context implements NativeObject, AutoCloseable {
             LOGGER.warn("Waited {} seconds for async event {}", (System.currentTimeMillis() - then) / 1000, event.getEventType());
         }
 
-        result.releaseInstance();
+
 
         return event;
     }
 
     @Nullable
     public ExtendedDeviceAttributes queryExtendedDevice(QueryExtendedDeviceInput queryInput) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var device = new ExtendedDeviceAttributes();
 
         Verbs.queryExtendedDevice(getHandle(), device.getHandle(), queryInput.getHandle(), result.getHandle());
@@ -251,21 +251,21 @@ public class Context implements NativeObject, AutoCloseable {
             device = null;
         }
 
-        result.releaseInstance();
+
 
         return device;
     }
 
     @Nullable
     public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.openExtendedConnectionDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Opening extended connection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var extendedConnectionDomain = result.getAndRelease(ExtendedConnectionDomain::new);
+        var extendedConnectionDomain = result.get(ExtendedConnectionDomain::new);
         NativeObjectRegistry.registerObject(extendedConnectionDomain);
 
         return extendedConnectionDomain;
@@ -273,14 +273,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public SharedReceiveQueue createExtendedSharedReceiveQueue(SharedReceiveQueue.ExtendedInitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createExtendedSharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating extended shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
+        var sharedReceiveQueue = result.get(SharedReceiveQueue::new);
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
@@ -288,14 +288,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createExtendedCompletionQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var extendedCompletionQueue = result.getAndRelease(ExtendedCompletionQueue::new);
+        var extendedCompletionQueue = result.get(ExtendedCompletionQueue::new);
         NativeObjectRegistry.registerObject(extendedCompletionQueue);
 
         return extendedCompletionQueue;
@@ -303,14 +303,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public WorkQueue createWorkQueue(WorkQueue.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var workQueue = result.getAndRelease(WorkQueue::new);
+        var workQueue = result.get(WorkQueue::new);
         NativeObjectRegistry.registerObject(workQueue);
 
         return workQueue;
@@ -318,14 +318,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public ReceiveWorkQueueIndirectionTable createReceiveWorkQueueIndirectionTable(ReceiveWorkQueueIndirectionTable.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createReceiveWorkQueueIndirectionTable(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var indirectionTable = result.getAndRelease(ReceiveWorkQueueIndirectionTable::new);
+        var indirectionTable = result.get(ReceiveWorkQueueIndirectionTable::new);
         NativeObjectRegistry.registerObject(indirectionTable);
 
         return indirectionTable;
@@ -333,14 +333,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public QueuePair createExtendedQueuePair(ExtendedQueuePair.InitialAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createExtendedQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.get(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;
@@ -348,14 +348,14 @@ public class Context implements NativeObject, AutoCloseable {
 
     @Nullable
     public QueuePair openQueuePair(QueuePair.OpenAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.openQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Opening queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.get(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;

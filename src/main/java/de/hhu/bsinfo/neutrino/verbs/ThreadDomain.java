@@ -25,7 +25,7 @@ public class ThreadDomain extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.deallocateThreadDomain(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -34,7 +34,7 @@ public class ThreadDomain extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @LinkNative("ibv_td_init_attr")

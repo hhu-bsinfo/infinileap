@@ -35,7 +35,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroyReceiveWorkQueueIndirectionTable(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -44,7 +44,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     public Context getContext() {

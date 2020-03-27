@@ -25,7 +25,7 @@ public class AddressHandle extends Struct {
     }
 
     public boolean destroy() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroyAddressHandle(getHandle(), result.getHandle());
         boolean isError = result.isError();
@@ -33,7 +33,7 @@ public class AddressHandle extends Struct {
             LOGGER.error("Destroying address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }

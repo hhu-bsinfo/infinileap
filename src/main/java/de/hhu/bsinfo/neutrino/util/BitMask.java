@@ -13,7 +13,7 @@ public final class BitMask {
     public static <T extends Enum<T> & ByteFlag> byte byteOf(final T... flags) {
         byte mask = 0;
         for(var flag : flags) {
-            mask |= (byte) flag.getValue();
+            mask |= flag.getValue();
         }
         return mask;
     }
@@ -22,7 +22,7 @@ public final class BitMask {
     public static <T extends Enum<T> & ShortFlag> short shortOf(final T... flags) {
         short mask = 0;
         for(var flag : flags) {
-            mask |= (short) flag.getValue();
+            mask |= flag.getValue();
         }
         return mask;
     }

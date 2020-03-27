@@ -51,7 +51,7 @@ public class MemoryRegion extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.deregisterMemoryRegion(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -60,7 +60,7 @@ public class MemoryRegion extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @Override

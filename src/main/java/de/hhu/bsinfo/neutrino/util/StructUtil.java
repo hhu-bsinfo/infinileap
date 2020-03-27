@@ -43,14 +43,14 @@ public class StructUtil {
             throw new IllegalArgumentException(String.format("%s is missing the %s annotation", structClass.getSimpleName(), LinkNative.class.getSimpleName()));
         }
 
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         getStructInformation(linkNative.value(), result.getHandle());
         if (result.isError()) {
-            result.releaseInstance();
+
             throw new IllegalArgumentException(String.format("No struct information found for %s", linkNative.value()));
         }
 
-        result.releaseInstance();
+
         return result.get(StructInformation::new);
     }
 

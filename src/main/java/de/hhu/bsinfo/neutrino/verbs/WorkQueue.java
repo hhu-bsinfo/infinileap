@@ -39,7 +39,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
     }
 
     private boolean postReceive(final long receiveWorkRequestsHandle) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.postReceiveWorkRequestWorkQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
@@ -47,21 +47,17 @@ public class WorkQueue extends Struct implements AutoCloseable {
             LOGGER.error("Posting receive work requests to work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
-
         return !isError;
     }
 
     public boolean modify(Attributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.modifyWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Modifying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
-
-        result.releaseInstance();
 
         return !isError;
     }
@@ -75,7 +71,7 @@ public class WorkQueue extends Struct implements AutoCloseable {
     }
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroyWorkQueue(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -83,8 +79,6 @@ public class WorkQueue extends Struct implements AutoCloseable {
         } else {
             NativeObjectRegistry.deregisterObject(this);
         }
-
-        result.releaseInstance();
     }
 
     public Context getContext() {

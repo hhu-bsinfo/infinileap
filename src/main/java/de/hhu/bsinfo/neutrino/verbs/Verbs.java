@@ -1,10 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.util.AtomicIntegerStack;
 import de.hhu.bsinfo.neutrino.util.NativeLibrary;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.RingBufferPool;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public final class Verbs {
     static {
         NativeLibrary.load("neutrino");
 
-        poolMap.put(Result.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, Result::new)));
         poolMap.put(AsyncEvent.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, AsyncEvent::new)));
         poolMap.put(WorkCompletion.TagMatchingInfo.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, WorkCompletion.TagMatchingInfo::new)));
         poolMap.put(SendWorkRequest.class, ThreadLocal.withInitial(() -> new RingBufferPool<>(DEFAULT_POOL_SIZE, SendWorkRequest::new)));

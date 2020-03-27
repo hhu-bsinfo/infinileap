@@ -47,7 +47,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
     }
 
     public boolean bind(QueuePair queuePair, BindAttributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.bindMemoryWindow(getHandle(), queuePair.getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
@@ -55,14 +55,14 @@ public class MemoryWindow extends Struct implements AutoCloseable {
             LOGGER.error("Binding memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
+
 
         return !isError;
     }
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.deallocateMemoryWindow(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -71,7 +71,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @Override

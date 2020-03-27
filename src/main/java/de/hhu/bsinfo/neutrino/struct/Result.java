@@ -7,7 +7,7 @@ import de.hhu.bsinfo.neutrino.data.NativeObject;
 import de.hhu.bsinfo.neutrino.util.Poolable;
 import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
 
-public class Result implements NativeObject, Poolable {
+public class Result implements NativeObject {
 
     private static final ThreadLocal<Result> LOCAL_RESULT = ThreadLocal.withInitial(Result::new);
 
@@ -54,37 +54,8 @@ public class Result implements NativeObject, Poolable {
     }
 
     public <T extends NativeObject> T get(ReferenceFactory<T> factory) {
-        return factory.newInstance(value.get());
-    }
-
-    public <T extends NativeObject> T getAndRelease(ReferenceFactory<T> factory) {
-        long tmp = value.get();
-        releaseInstance();
-        return tmp == 0 ? null : factory.newInstance(tmp);
-    }
-
-    public long getLongAndRelease() {
-        long ret = longValue();
-        releaseInstance();
-        return ret;
-    }
-
-    public int getIntAndRelease() {
-        int ret = intValue();
-        releaseInstance();
-        return ret;
-    }
-
-    public short getShortAndRelease() {
-        short ret = shortValue();
-        releaseInstance();
-        return ret;
-    }
-
-    public byte getByteAndRelease() {
-        byte ret = byteValue();
-        releaseInstance();
-        return ret;
+        var handle = value.get();
+        return handle == 0 ? null : factory.newInstance(handle);
     }
 
     public long longValue() {

@@ -39,14 +39,14 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Nullable
     private MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Registering device memory as memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.get(MemoryRegion::new);
         NativeObjectRegistry.registerObject(memoryRegion);
 
         return memoryRegion;
@@ -58,7 +58,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     public MemoryRegion registerMemoryRegion(long handle, long capacity, AccessFlag... flags) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
@@ -66,7 +66,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             throw new NativeError(SystemUtil.getErrorMessage());
         }
 
-        var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.get(MemoryRegion::new);
         NativeObjectRegistry.registerObject(memoryRegion);
 
         return memoryRegion;
@@ -80,14 +80,14 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Nullable
     public RegisteredBuffer allocateNullMemory() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateNullMemoryRegion(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating null memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var memoryRegion = result.getAndRelease(MemoryRegion::new);
+        var memoryRegion = result.get(MemoryRegion::new);
         NativeObjectRegistry.registerObject(memoryRegion);
 
         return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion, 0, memoryRegion.getLength());
@@ -112,14 +112,14 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Nullable
     public MemoryWindow allocateMemoryWindow(MemoryWindow.Type type) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.allocateMemoryWindow(getHandle(), type.getValue(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Allocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var memoryWindow = result.getAndRelease(MemoryWindow::new);
+        var memoryWindow = result.get(MemoryWindow::new);
         NativeObjectRegistry.registerObject(memoryWindow);
 
         return memoryWindow;
@@ -127,44 +127,44 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Nullable
     public AddressHandle createAddressHandle(AddressHandle.Attributes attributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createAddressHandle(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Creating address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        var addressHandle = result.getAndRelease(AddressHandle::new);
+        var addressHandle = result.get(AddressHandle::new);
         NativeObjectRegistry.registerObject(addressHandle);
 
         return addressHandle;
     }
 
-    @Nullable
     public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.InitialAttributes initialAttributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createSharedReceiveQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new NativeError(SystemUtil.getErrorMessage());
         }
 
-        var sharedReceiveQueue = result.getAndRelease(SharedReceiveQueue::new);
+        var sharedReceiveQueue = result.get(SharedReceiveQueue::new);
         NativeObjectRegistry.registerObject(sharedReceiveQueue);
 
         return sharedReceiveQueue;
     }
 
-    @Nullable
     public QueuePair createQueuePair(QueuePair.InitialAttributes initialAttributes) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
             LOGGER.error("Creating queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new NativeError(SystemUtil.getErrorMessage());
         }
 
-        var queuePair = result.getAndRelease(QueuePair::new);
+        var queuePair = result.get(QueuePair::new);
         NativeObjectRegistry.registerObject(queuePair);
 
         return queuePair;
@@ -172,7 +172,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -181,7 +181,7 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @LinkNative("ibv_parent_domain_init_attr")

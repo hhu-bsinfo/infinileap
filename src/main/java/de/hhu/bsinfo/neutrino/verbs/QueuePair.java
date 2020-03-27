@@ -49,7 +49,7 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     private boolean postSend(final long sendWorkRequestsHandle) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.postSendWorkRequestQueuePair(getHandle(), sendWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
@@ -57,13 +57,11 @@ public class QueuePair extends Struct implements AutoCloseable {
             LOGGER.error("Posting send work requests to queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
-
         return !isError;
     }
 
     private boolean postReceive(final long receiveWorkRequestsHandle) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.postReceiveWorkRequestQueuePair(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
@@ -71,21 +69,19 @@ public class QueuePair extends Struct implements AutoCloseable {
             LOGGER.error("Posting receive work requests to queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        result.releaseInstance();
-
         return !isError;
     }
 
     @Nullable
     public ExtendedQueuePair toExtendedQueuePair() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.queuePairToExtendedQueuePair(getHandle(), result.getHandle());
         if(result.isError()) {
             LOGGER.error("Converting queue pair to extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
 
-        return result.getAndRelease(ExtendedQueuePair::new);
+        return result.get(ExtendedQueuePair::new);
     }
 
     public boolean postSend(final SendWorkRequest sendWorkRequest) {
@@ -105,15 +101,13 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     private boolean modify(final Attributes attributes, final AttributeFlag... flags) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
             LOGGER.error("Modifying queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
         }
-
-        result.releaseInstance();
 
         return !isError;
     }
@@ -124,7 +118,7 @@ public class QueuePair extends Struct implements AutoCloseable {
 
     @Nullable
     public Attributes queryAttributes(final AttributeFlag... flags) {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();
 
@@ -135,14 +129,14 @@ public class QueuePair extends Struct implements AutoCloseable {
             attributes = null;
         }
 
-        result.releaseInstance();
+
 
         return attributes;
     }
 
     @Nullable
     public InitialAttributes queryInitialAttributes() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
         var attributes = new Attributes();
         var initialAttributes = new InitialAttributes();
 
@@ -153,14 +147,14 @@ public class QueuePair extends Struct implements AutoCloseable {
             initialAttributes = null;
         }
 
-        result.releaseInstance();
+
 
         return initialAttributes;
     }
 
     @Override
     public void close() {
-        var result = (Result) Verbs.getPoolableInstance(Result.class);
+        var result = Result.localInstance();
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());
         if (result.isError()) {
@@ -169,7 +163,7 @@ public class QueuePair extends Struct implements AutoCloseable {
             NativeObjectRegistry.deregisterObject(this);
         }
 
-        result.releaseInstance();
+
     }
 
     @Override
