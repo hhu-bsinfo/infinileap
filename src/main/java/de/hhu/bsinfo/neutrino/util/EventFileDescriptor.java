@@ -44,13 +44,17 @@ public final class EventFileDescriptor extends FileDescriptor {
      * Reads the file descriptor's internal counter.
      */
     public long read() {
-        var handle = getHandle();
-        var value = read0(handle);
+        var value = read0(getHandle());
         if (value == STATUS_ERROR) {
             throw new IllegalArgumentException("Reading counter failed", SystemUtil.lastError());
         }
 
         return value;
+    }
+
+
+    public void fire() {
+        increment();
     }
 
     /**
