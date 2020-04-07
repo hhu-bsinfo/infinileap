@@ -68,8 +68,7 @@ public final class EventFileDescriptor extends FileDescriptor {
      * Increments the file descriptor's internal counter by the specified value.
      */
     public void increment(long value) {
-        var handle = getHandle();
-        if (increment0(handle, value) != STATUS_OK) {
+        if (increment0(getHandle(), value) != STATUS_OK) {
             throw new IllegalArgumentException("Incrementing counter failed", SystemUtil.lastError());
         }
     }
