@@ -1,18 +1,22 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.EnumConverter;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeEnum;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Consumer;
+
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,32 +50,25 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         return type.get();
     }
 
-    public boolean bind(QueuePair queuePair, BindAttributes attributes) {
+    public void bind(QueuePair queuePair, BindAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.bindMemoryWindow(getHandle(), queuePair.getHandle(), attributes.getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if (isError) {
-            LOGGER.error("Binding memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        if (result.isError()) {
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
-
-        return !isError;
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.deallocateMemoryWindow(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Deallocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     @Override
@@ -216,7 +213,7 @@ public class MemoryWindow extends Struct implements AutoCloseable {
         private final NativeLong length = longField("length");
         private final NativeIntegerBitMask<AccessFlag> accessFlags = integerBitField("mw_access_flags");
 
-        BindInformation(final LocalBuffer buffer, final long offset) {
+        BindInformation(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 

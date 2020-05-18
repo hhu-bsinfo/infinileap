@@ -1,22 +1,24 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeArray;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeArray;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Poolable;
-import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
-import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @LinkNative("ibv_sge")
 public class ScatterGatherElement extends Struct implements Poolable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ScatterGatherElement.class);
 
     private final NativeLong address = longField("addr");
     private final NativeInteger length = integerField("length");
     private final NativeInteger localKey = integerField("lkey");
 
-    private ScatterGatherElement(final long handle) {
+    public ScatterGatherElement(final long handle) {
         super(handle);
     }
 
@@ -55,17 +57,13 @@ public class ScatterGatherElement extends Struct implements Poolable {
     @Override
     public String toString() {
         return "ScatterGatherElement {" +
-                "\n\taddress=" + address +
+                "\n\taddress=" + address.toHexString() +
                 ",\n\tlength=" + length +
-                ",\n\tlocalKey=" + localKey +
+                ",\n\tlocalKey=" + localKey.toHexString() +
                 "\n}";
     }
 
     public static class Array extends NativeArray<ScatterGatherElement> {
-
-        public Array(long handle, int capacity) {
-            super(ScatterGatherElement::new, ScatterGatherElement.class, handle, capacity);
-        }
 
         public Array(int capacity) {
             super(ScatterGatherElement::new, ScatterGatherElement.class, capacity);

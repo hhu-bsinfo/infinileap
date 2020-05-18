@@ -1,13 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.Linkable;
 import de.hhu.bsinfo.neutrino.util.Poolable;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 @LinkNative("ibv_recv_wr")
 public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRequest>, Poolable {
@@ -17,7 +15,11 @@ public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRe
     private final NativeLong listHandle = longField("sg_list");
     private final NativeInteger listLength = integerField("num_sge");
 
-    ReceiveWorkRequest() {}
+    public ReceiveWorkRequest() {}
+
+    public ReceiveWorkRequest(long handle) {
+        super(handle);
+    }
 
     public long getId() {
         return id.get();
@@ -69,10 +71,10 @@ public class ReceiveWorkRequest extends Struct implements Linkable<ReceiveWorkRe
 
     @Override
     public String toString() {
-        return "ReceiveWorkRequest {" +
-                "\n\tid=" + id +
-                ",\n\tnext=" + next +
-                ",\n\tlistHandle=" + listHandle +
+        return "ReceiveWorkRequest@" + Long.toHexString(getHandle()) + " {" +
+                "\n\tid=" + id.toHexString() +
+                ",\n\tnext=" + next.toHexString() +
+                ",\n\tlistHandle=" + listHandle.toHexString() +
                 ",\n\tlistLength=" + listLength +
                 "\n}";
     }

@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("rdma_event_channel")
 public final class EventChannel extends Struct {
@@ -16,7 +16,7 @@ public final class EventChannel extends Struct {
         super(handle);
     }
 
-    EventChannel(LocalBuffer buffer, long offset) {
+    EventChannel(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 

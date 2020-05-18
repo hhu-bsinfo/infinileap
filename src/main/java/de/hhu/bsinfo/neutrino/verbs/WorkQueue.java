@@ -1,16 +1,17 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,51 +35,47 @@ public class WorkQueue extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    WorkQueue(final LocalBuffer buffer, final long offset) {
+    WorkQueue(final AtomicBuffer buffer, final int offset) {
         super(buffer, offset);
     }
 
-    private boolean postReceive(final long receiveWorkRequestsHandle) {
+    private void postReceive(final long receiveWorkRequestsHandle) throws IOException {
         var result = Result.localInstance();
 
         Verbs.postReceiveWorkRequestWorkQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work requests to work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return !isError;
     }
 
-    public boolean modify(Attributes attributes) {
+    public void modify(Attributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.modifyWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return !isError;
     }
 
-    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
-        return postReceive(receiveWorkRequest.getHandle());
+    public void postReceive(final ReceiveWorkRequest receiveWorkRequest) throws IOException {
+        postReceive(receiveWorkRequest.getHandle());
     }
 
-    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
-        return postReceive(receiveWorkRequests.getHandle());
+    public void postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) throws IOException {
+        postReceive(receiveWorkRequests.getHandle());
     }
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroyWorkQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
+
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public Context getContext() {

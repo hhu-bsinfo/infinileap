@@ -11,8 +11,6 @@ import java.util.Arrays;
 
 public class FileDescriptor implements Closeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileDescriptor.class);
-
     private final int handle;
 
     FileDescriptor(int handle) {
@@ -29,7 +27,6 @@ public class FileDescriptor implements Closeable {
 
     public final OpenMode[] getFlags() {
         var flags = getFlags0(handle);
-        LOG.info("{}", flags);
         return Arrays.stream(OpenMode.values())
                 .filter(mode -> BitMask.isSet(flags, mode))
                 .toArray(OpenMode[]::new);
@@ -53,8 +50,15 @@ public class FileDescriptor implements Closeable {
     protected static native int getFlags0(int fd);
 
     public enum OpenMode implements IntegerFlag {
-        NONBLOCK(0x0004), APPEND(0x0008), SHLOCK(0x0010),
-        EXLOCK(0x0020), ASYNC(0x0040), FSYNC(0x0080);
+        READ_ONLY   (0x000),
+        WRITE_ONLY  (0x001),
+        READ_WRITE  (0x002),
+        CREATE      (0x040),
+        EXCLUSIVE   (0x080),
+        NOCTTY      (0x100),
+        TRUNCATE    (0x200),
+        APPEND      (0x400),
+        NONBLOCK    (0x800);
 
         private final int value;
 

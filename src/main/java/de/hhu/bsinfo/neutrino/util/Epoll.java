@@ -1,16 +1,19 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import de.hhu.bsinfo.neutrino.data.NativeArray;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeArray;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
 
 public final class Epoll {
 
     private static final int DEFAULT_SIZE = 1024;
 
+    /**
+     * The epoll file descriptor used by this epoll instance.
+     */
     private final FileDescriptor epfd;
 
     private Epoll(FileDescriptor epfd) {
@@ -104,10 +107,6 @@ public final class Epoll {
     public static class EventArray extends NativeArray<Event> {
 
         private int length;
-
-        public EventArray(long handle, int capacity) {
-            super(Event::new, Event.class, handle, capacity);
-        }
 
         public EventArray(int capacity) {
             super(Event::new, Event.class, capacity);

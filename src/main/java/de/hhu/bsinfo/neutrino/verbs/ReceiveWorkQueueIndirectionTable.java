@@ -1,18 +1,21 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.MemoryAlignment;
+import de.hhu.bsinfo.neutrino.util.MemoryUtil;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_rwq_ind_table")
@@ -29,22 +32,20 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         super(handle);
     }
 
-    ReceiveWorkQueueIndirectionTable(final LocalBuffer buffer, final long offset) {
+    ReceiveWorkQueueIndirectionTable(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroyReceiveWorkQueueIndirectionTable(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public Context getContext() {
@@ -94,14 +95,14 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
         private final NativeLong tableHandle = longField("ind_tbl");
         private final NativeIntegerBitMask<InitialAttributeFlag> compatibilityMask = integerBitField("comp_mask");
 
-        private final LocalBuffer buffer;
+        private final AtomicBuffer buffer;
 
         public InitialAttributes(int logarithmicTableSize) {
             this.logarithmicTableSize.set(logarithmicTableSize);
 
-            buffer = LocalBuffer.allocate((long) (Math.pow(2, logarithmicTableSize) * Long.BYTES));
+            buffer = MemoryUtil.allocateAligned((int) (Math.pow(2, logarithmicTableSize) * Long.BYTES), MemoryAlignment.CACHE);
 
-            tableHandle.set(buffer.getHandle());
+            tableHandle.set(buffer.addressOffset());
         }
 
         public InitialAttributes(int logarithmicTableSize, Consumer<InitialAttributes> configurator) {
@@ -121,7 +122,7 @@ public class ReceiveWorkQueueIndirectionTable extends Struct implements AutoClos
             return compatibilityMask.get();
         }
 
-        public void setWorkQueue(final long index, final WorkQueue workQueue) {
+        public void setWorkQueue(final int index, final WorkQueue workQueue) {
             long size = (long) Math.pow(2, logarithmicTableSize.get());
 
             if(index > size) {

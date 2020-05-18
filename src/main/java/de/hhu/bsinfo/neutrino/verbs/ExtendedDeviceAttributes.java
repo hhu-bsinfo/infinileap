@@ -1,12 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair.TypeFlag;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("ibv_device_attr_ex")
 public class ExtendedDeviceAttributes extends Struct {
@@ -94,7 +93,7 @@ public class ExtendedDeviceAttributes extends Struct {
 
         final PerTransportCapabilities perTransportCapabilities = anonymousField(PerTransportCapabilities::new);
 
-        OnDemandPagingCapabilities(final LocalBuffer buffer, long offset) {
+        OnDemandPagingCapabilities(final AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -117,7 +116,7 @@ public class ExtendedDeviceAttributes extends Struct {
             private final NativeInteger ucOnDemandPagingCapabilities = integerField("uc_odp_caps");
             private final NativeInteger udOnDemandPagingCapabilities = integerField("ud_odp_caps");
 
-            PerTransportCapabilities(LocalBuffer buffer) {
+            PerTransportCapabilities(AtomicBuffer buffer) {
                 super(buffer, "per_transport_caps");
             }
 
@@ -150,7 +149,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxTcpSegmentOffloading = integerField("max_tso");
         private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = integerBitField("supported_qpts");
 
-        TcpSegmentOffloadingCapabilities(LocalBuffer buffer, long offset) {
+        TcpSegmentOffloadingCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -214,7 +213,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeIntegerBitMask<RxHashField> rxHashFields = integerBitField("rx_hash_fields_mask");
         private final NativeIntegerBitMask<RxHashFunction> rxHashFunction = integerBitField("rx_hash_function");
 
-        RssCapabilities(final LocalBuffer buffer, long offset) {
+        RssCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -257,7 +256,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxQueuePairRateLimit = integerField("qp_rate_limit_max");
         private final NativeIntegerBitMask<TypeFlag> supportedQueuePairTypes = integerBitField("supported_qpts");
 
-        PacketPacingCapabilities(final LocalBuffer buffer, long offset) {
+        PacketPacingCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -307,7 +306,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeInteger maxOutstandingOperations = integerField("max_ops");
         private final NativeInteger maxScatterGatherElements = integerField("max_sge");
 
-        TagMatchingCapabilities(final LocalBuffer buffer, long offset) {
+        TagMatchingCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -349,7 +348,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeShort maxCompletionQueueCount = shortField("max_cq_count");
         private final NativeShort maxCompletionQueuePeriod = shortField("max_cq_period");
 
-        CompletionQueueModerationCapabilities(final LocalBuffer buffer, long offset) {
+        CompletionQueueModerationCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -394,7 +393,7 @@ public class ExtendedDeviceAttributes extends Struct {
         private final NativeIntegerBitMask<PciAtomicOperationSize> swap = integerBitField("swap");
         private final NativeIntegerBitMask<PciAtomicOperationSize> compareAndSwap = integerBitField("compare_swap");
 
-        PciAtomicCapabilities(final LocalBuffer buffer, long offset) {
+        PciAtomicCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 

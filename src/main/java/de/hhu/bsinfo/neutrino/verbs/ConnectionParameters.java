@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeByte;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 
 @LinkNative("rdma_conn_param")
 public final class ConnectionParameters extends Struct {

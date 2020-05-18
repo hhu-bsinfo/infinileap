@@ -5,13 +5,14 @@ import de.hhu.bsinfo.neutrino.verbs.MemoryWindow;
 import de.hhu.bsinfo.neutrino.verbs.QueuePair;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 
+import java.io.IOException;
+
 public class RegisteredBufferWindow extends RegisteredBuffer {
 
     private MemoryWindow memoryWindow;
 
     public RegisteredBufferWindow(RegisteredBuffer parent, MemoryWindow memoryWindow, long windowOffset, long windowCapacity) {
         super(parent.getMemoryRegion(), parent.getHandle() + windowOffset, windowCapacity, FAKE_PARENT);
-
         this.memoryWindow = memoryWindow;
     }
 
@@ -25,21 +26,18 @@ public class RegisteredBufferWindow extends RegisteredBuffer {
         throw new UnsupportedOperationException("You cannot bind a memory window to another memory window! Use the window's parent memory region instead.");
     }
 
-    public boolean rebind(RegisteredBuffer parent, QueuePair queuePair, long windowOffset, long windowCapacity, AccessFlag... flags) {
+    public void rebind(RegisteredBuffer parent, QueuePair queuePair, long windowOffset, long windowCapacity, AccessFlag... flags) throws IOException {
         var attributes = new MemoryWindow.BindAttributes.Builder(parent.getMemoryRegion(), parent.getHandle() + windowOffset, windowCapacity, flags)
                 .withSendFlags(SendWorkRequest.SendFlag.SIGNALED).build();
 
-        if(memoryWindow.bind(queuePair, attributes)) {
-            reWrap(parent.getHandle() + windowOffset, windowCapacity);
-            return true;
-        }
-
-        return false;
+        memoryWindow.bind(queuePair, attributes);
+        reWrap(parent.getHandle() + windowOffset, windowCapacity);
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         memoryWindow.close();
+        super.close();
     }
 
     @Override

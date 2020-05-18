@@ -10,6 +10,8 @@ import de.hhu.bsinfo.neutrino.verbs.ScatterGatherElement;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+
 public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
 
     private final MemoryRegion memoryRegion;
@@ -58,19 +60,19 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
         return memoryRegion.getRemoteKey();
     }
 
-    public long read(RemoteBuffer remoteBuffer) {
+    public long read(RemoteBuffer remoteBuffer) throws IOException {
         return read(0, remoteBuffer, 0, remoteBuffer.capacity());
     }
 
-    public long read(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+    public long read(long index, RemoteBuffer remoteBuffer, long offset, long length) throws IOException {
         return remoteBuffer.read(index, this, offset, length);
     }
 
-    public long write(RemoteBuffer remoteBuffer) {
+    public long write(RemoteBuffer remoteBuffer) throws IOException {
         return write(0, remoteBuffer, 0, remoteBuffer.capacity());
     }
 
-    public long write(long index, RemoteBuffer remoteBuffer, long offset, long length) {
+    public long write(long index, RemoteBuffer remoteBuffer, long offset, long length) throws IOException {
         return remoteBuffer.write(index, this, offset, length);
     }
 
@@ -94,19 +96,16 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
         });
     }
 
-    public RegisteredBufferWindow bindMemoryWindow(MemoryWindow memoryWindow, QueuePair queuePair, long offset, long length, AccessFlag... flags) {
+    public RegisteredBufferWindow bindMemoryWindow(MemoryWindow memoryWindow, QueuePair queuePair, long offset, long length, AccessFlag... flags) throws IOException {
         var attributes = new BindAttributes.Builder(memoryRegion, getHandle() + offset, length, flags)
                 .withSendFlags(SendFlag.SIGNALED).build();
 
-        if(!memoryWindow.bind(queuePair, attributes)) {
-            return null;
-        }
-
+        memoryWindow.bind(queuePair, attributes);
         return new RegisteredBufferWindow(this, memoryWindow, offset, length);
     }
 
     @Nullable
-    public RegisteredBufferWindow allocateAndBindMemoryWindow(QueuePair queuePair, long offset, long length, AccessFlag... flags) {
+    public RegisteredBufferWindow allocateAndBindMemoryWindow(QueuePair queuePair, long offset, long length, AccessFlag... flags) throws IOException {
         MemoryWindow memoryWindow = queuePair.getProtectionDomain().allocateMemoryWindow(Type.TYPE_1);
         if (memoryWindow == null) {
             return null;
@@ -124,7 +123,7 @@ public class RegisteredBuffer extends LocalBuffer implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         memoryRegion.close();
     }
 }

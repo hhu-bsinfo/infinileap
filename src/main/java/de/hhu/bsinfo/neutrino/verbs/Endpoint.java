@@ -1,15 +1,14 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeByte;
+import de.hhu.bsinfo.neutrino.struct.field.NativeEnum;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeError;
 import de.hhu.bsinfo.neutrino.util.SystemUtil;
+import org.agrona.concurrent.AtomicBuffer;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
@@ -42,11 +41,11 @@ public final class Endpoint extends Struct implements Closeable {
         super(handle);
     }
 
-    Endpoint(LocalBuffer buffer, long offset) {
+    Endpoint(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 
-    public void connect(@Nullable ConnectionParameters parameters) {
+    public void connect(@Nullable ConnectionParameters parameters) throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.connect0(
@@ -56,11 +55,11 @@ public final class Endpoint extends Struct implements Closeable {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 
-    public void disconnect() {
+    public void disconnect() throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.disconnect0(
@@ -69,11 +68,11 @@ public final class Endpoint extends Struct implements Closeable {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 
-    public void accept(Endpoint client, @Nullable ConnectionParameters parameters) {
+    public void accept(Endpoint client, @Nullable ConnectionParameters parameters) throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.accept0(
@@ -83,22 +82,22 @@ public final class Endpoint extends Struct implements Closeable {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 
-    public Endpoint getRequest() {
+    public Endpoint getRequest() throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.getRequest0(getHandle(), result.getHandle());
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.get(Endpoint::new);
     }
 
-    public void listen() {
+    public void listen() throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.listen0(
@@ -108,12 +107,12 @@ public final class Endpoint extends Struct implements Closeable {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.destroyEndpoint0(
@@ -122,7 +121,7 @@ public final class Endpoint extends Struct implements Closeable {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 

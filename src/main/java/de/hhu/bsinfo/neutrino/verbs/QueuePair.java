@@ -1,25 +1,27 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeBoolean;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLinkedList;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
+import de.hhu.bsinfo.neutrino.struct.field.EnumConverter;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeBoolean;
+import de.hhu.bsinfo.neutrino.struct.field.NativeByte;
+import de.hhu.bsinfo.neutrino.struct.field.NativeEnum;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLinkedList;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.field.NativeShort;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.*;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
+import de.hhu.bsinfo.neutrino.util.factory.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
+import org.agrona.concurrent.AtomicBuffer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,76 +46,69 @@ public class QueuePair extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    QueuePair(final LocalBuffer buffer, final long offset) {
+    QueuePair(final AtomicBuffer buffer, final int offset) {
         super(buffer, offset);
     }
 
-    private boolean postSend(final long sendWorkRequestsHandle) {
+    private void postSend(final long sendWorkRequestsHandle) throws IOException {
         var result = Result.localInstance();
 
         Verbs.postSendWorkRequestQueuePair(getHandle(), sendWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting send work requests to queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return !isError;
     }
 
-    private boolean postReceive(final long receiveWorkRequestsHandle) {
+    private void postReceive(final long receiveWorkRequestsHandle) throws IOException {
         var result = Result.localInstance();
 
         Verbs.postReceiveWorkRequestQueuePair(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work requests to queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return !isError;
     }
 
-    @Nullable
-    public ExtendedQueuePair toExtendedQueuePair() {
+    public ExtendedQueuePair toExtendedQueuePair() throws IOException {
         var result = Result.localInstance();
 
         Verbs.queuePairToExtendedQueuePair(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Converting queue pair to extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.get(ExtendedQueuePair::new);
     }
 
-    public boolean postSend(final SendWorkRequest sendWorkRequest) {
-        return postSend(sendWorkRequest.getHandle());
+    public void postSend(final SendWorkRequest sendWorkRequest) throws IOException {
+        postSend(sendWorkRequest.getHandle());
     }
 
-    public boolean postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) {
-        return postSend(sendWorkRequests.getHandle());
+    public void postSend(final NativeLinkedList<SendWorkRequest> sendWorkRequests) throws IOException {
+        postSend(sendWorkRequests.getHandle());
     }
 
-    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
-        return postReceive(receiveWorkRequest.getHandle());
+    public void postReceive(final ReceiveWorkRequest receiveWorkRequest) throws IOException {
+        postReceive(receiveWorkRequest.getHandle());
     }
 
-    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
-        return postReceive(receiveWorkRequests.getHandle());
+    public void postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) throws IOException {
+        postReceive(receiveWorkRequests.getHandle());
     }
 
-    private boolean modify(final Attributes attributes, final AttributeFlag... flags) {
+    private void modify(final Attributes attributes, final AttributeFlag... flags) throws IOException {
         var result = Result.localInstance();
 
         Verbs.modifyQueuePair(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return !isError;
     }
 
-    public boolean modify(final Attributes.Builder builder) {
-        return modify(builder.build(), builder.getAttributeFlags());
+    public void modify(final Attributes.Builder builder) throws IOException {
+        modify(builder.build(), builder.getAttributeFlags());
     }
 
     @Nullable
@@ -153,17 +148,15 @@ public class QueuePair extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroyQueuePair(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     @Override
@@ -564,7 +557,7 @@ public class QueuePair extends Struct implements AutoCloseable {
         private final NativeInteger maxReceiveScatterGatherElements = integerField("max_recv_sge");
         private final NativeInteger maxInlineData = integerField("max_inline_data");
 
-        Capabilities(LocalBuffer byteBuffer, long offset) {
+        Capabilities(AtomicBuffer byteBuffer, int offset) {
             super(byteBuffer, offset);
         }
 

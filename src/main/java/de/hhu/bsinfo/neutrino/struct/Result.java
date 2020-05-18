@@ -1,13 +1,15 @@
 package de.hhu.bsinfo.neutrino.struct;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.util.MemoryAlignment;
+import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.Poolable;
-import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
+import de.hhu.bsinfo.neutrino.util.factory.ReferenceFactory;
+import org.agrona.concurrent.AtomicBuffer;
 
-public class Result implements NativeObject {
+public class Result implements NativeObject, Poolable {
 
     private static final ThreadLocal<Result> LOCAL_RESULT = ThreadLocal.withInitial(Result::new);
 
@@ -20,14 +22,14 @@ public class Result implements NativeObject {
     static native String getErrorMessage(int errorNumber);
 
     public Result() {
-        var byteBuffer = LocalBuffer.allocate(SIZE);
-        handle = byteBuffer.getHandle();
+        AtomicBuffer byteBuffer = MemoryUtil.allocateAligned(SIZE, MemoryAlignment.CACHE);
+        handle = byteBuffer.addressOffset();
         status = new NativeInteger(byteBuffer, 0);
         value = new NativeLong(byteBuffer, 4);
     }
 
     public Result(long handle) {
-        var byteBuffer = LocalBuffer.wrap(handle, SIZE);
+        AtomicBuffer byteBuffer = MemoryUtil.wrap(handle, SIZE);
         this.handle = handle;
         status = new NativeInteger(byteBuffer, 0);
         value = new NativeLong(byteBuffer, 4);
@@ -84,7 +86,7 @@ public class Result implements NativeObject {
     }
 
     @Override
-    public long getNativeSize() {
+    public int getNativeSize() {
         return SIZE;
     }
 

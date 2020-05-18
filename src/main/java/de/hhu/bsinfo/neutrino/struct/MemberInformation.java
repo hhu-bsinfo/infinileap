@@ -1,16 +1,17 @@
 package de.hhu.bsinfo.neutrino.struct;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.data.NativeString;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.field.NativeString;
 
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import lombok.extern.slf4j.Slf4j;
+import org.agrona.concurrent.AtomicBuffer;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class MemberInformation implements NativeObject {
 
     public static final int SIZE = 36;
@@ -20,7 +21,7 @@ public class MemberInformation implements NativeObject {
     public final NativeInteger offset;
 
     public MemberInformation(long handle) {
-        var byteBuffer = LocalBuffer.wrap(handle, SIZE);
+        AtomicBuffer byteBuffer = MemoryUtil.wrap(handle, SIZE);
         name = new NativeString(byteBuffer, 0, 32);
         offset = new NativeInteger(byteBuffer, 32);
         this.handle = handle;
@@ -48,7 +49,7 @@ public class MemberInformation implements NativeObject {
     }
 
     @Override
-    public long getNativeSize() {
+    public int getNativeSize() {
         return SIZE;
     }
 }

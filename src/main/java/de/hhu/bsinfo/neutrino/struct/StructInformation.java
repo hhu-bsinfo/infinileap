@@ -1,30 +1,30 @@
 package de.hhu.bsinfo.neutrino.struct;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.util.CustomStruct;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.util.MemoryAlignment;
 import de.hhu.bsinfo.neutrino.util.MemoryUtil;
 import de.hhu.bsinfo.neutrino.util.StructUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.agrona.concurrent.AtomicBuffer;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class StructInformation implements NativeObject {
 
     public static final int SIZE = 16;
 
-    private final LocalBuffer buffer;
+    private final AtomicBuffer buffer;
     public final NativeInteger size;
     public final NativeInteger memberCount;
     public final NativeLong memberInfoHandle;
     private final Map<String, Integer> offsetInfoMap;
 
     public StructInformation(CustomStruct annotation) {
-        buffer = LocalBuffer.allocate(SIZE);
+        buffer = MemoryUtil.allocateAligned(SIZE, MemoryAlignment.CACHE);
         size = new NativeInteger(buffer, 0);
         memberCount = new NativeInteger(buffer, 4);
         memberInfoHandle = new NativeLong(buffer, 8);
@@ -34,7 +34,7 @@ public class StructInformation implements NativeObject {
     }
 
     public StructInformation(long handle) {
-        buffer = LocalBuffer.wrap(handle, SIZE);
+        buffer = MemoryUtil.wrap(handle, SIZE);
         size = new NativeInteger(buffer, 0);
         memberCount = new NativeInteger(buffer, 4);
         memberInfoHandle = new NativeLong(buffer, 8);
@@ -67,7 +67,7 @@ public class StructInformation implements NativeObject {
     }
 
     @Override
-    public long getNativeSize() {
+    public int getNativeSize() {
         return SIZE;
     }
 }

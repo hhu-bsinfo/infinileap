@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("rdma_ib_addr")
 public final class InfinibandAddress extends Struct {
@@ -19,7 +19,7 @@ public final class InfinibandAddress extends Struct {
         super(handle);
     }
 
-    InfinibandAddress(LocalBuffer buffer, long offset) {
+    InfinibandAddress(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 

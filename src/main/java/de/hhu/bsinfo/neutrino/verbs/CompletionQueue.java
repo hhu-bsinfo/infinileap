@@ -1,19 +1,36 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeArray;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeArray;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 @LinkNative("ibv_cq")
 public class CompletionQueue extends Struct implements AutoCloseable {
+
+    public enum NotificationType {
+        ALL(0x0),
+        SOLICITED(0x1);
+
+        private final int value;
+
+        NotificationType(int value) {
+            this.value = value;
+        }
+
+        public int get() {
+            return value;
+        }
+    }
 
     public static final boolean SOLICITED_EVENTS_ONLY = true;
     public static final boolean ALL_EVENTS = false;
@@ -45,43 +62,34 @@ public class CompletionQueue extends Struct implements AutoCloseable {
         return maxElements.get();
     }
 
-    public boolean poll(WorkCompletionArray results) {
-        return poll(results, results.getCapacity());
+    public void poll(WorkCompletionArray results) throws IOException {
+        poll(results, results.getCapacity());
     }
 
-    public boolean poll(WorkCompletionArray results, int entries) {
+    public void poll(WorkCompletionArray results, int entries) throws IOException {
         var result = Result.localInstance();
 
         Verbs.pollCompletionQueue(getHandle(), entries, results.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Polling completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            results.setLength(0);
-        } else {
-            results.setLength(result.intValue());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
-
-        return !isError;
+        results.setLength(result.intValue());
     }
 
-    public boolean requestNotification() {
-        return requestNotification(ALL_EVENTS);
+    public void requestNotification() throws IOException {
+        requestNotification(NotificationType.ALL);
     }
 
-    public boolean requestNotification(boolean solicitedOnly) {
+    public void requestNotification(NotificationType type) throws IOException {
         var result = Result.localInstance();
 
-        Verbs.requestNotification(getHandle(), solicitedOnly ? 1 : 0, result.getHandle());
+        Verbs.requestNotification(getHandle(), type.get(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Requesting notification from completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
-
-        return !isError;
     }
 
     public void acknowledgeEvent() {
@@ -102,26 +110,20 @@ public class CompletionQueue extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroyCompletionQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public static class WorkCompletionArray extends NativeArray<WorkCompletion> {
 
         private int length;
-
-        public WorkCompletionArray(long handle, int capacity) {
-            super(WorkCompletion::new, WorkCompletion.class, handle, capacity);
-        }
 
         public WorkCompletionArray(int capacity) {
             super(WorkCompletion::new, WorkCompletion.class, capacity);

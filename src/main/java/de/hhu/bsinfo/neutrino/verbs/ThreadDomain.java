@@ -1,12 +1,15 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 @LinkNative("ibv_td")
 public class ThreadDomain extends Struct implements AutoCloseable {
@@ -24,17 +27,15 @@ public class ThreadDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.deallocateThreadDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing thread domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     @LinkNative("ibv_td_init_attr")

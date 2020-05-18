@@ -1,16 +1,17 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,16 +31,14 @@ public class ExtendedConnectionDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {var result = Result.localInstance();
-
+    public void close() throws IOException {
+        var result = Result.localInstance();
         Verbs.closeExtendedConnectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public enum AttributeFlag implements IntegerFlag {

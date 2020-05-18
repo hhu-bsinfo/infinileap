@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("rdma_addr")
 public final class Address extends Struct {
@@ -24,7 +24,7 @@ public final class Address extends Struct {
         super(handle);
     }
 
-    Address(LocalBuffer buffer, long offset) {
+    Address(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 

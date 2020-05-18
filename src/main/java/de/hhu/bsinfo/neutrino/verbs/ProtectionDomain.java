@@ -2,8 +2,9 @@ package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.DeviceBuffer;
 import de.hhu.bsinfo.neutrino.buffer.RegisteredBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
 import de.hhu.bsinfo.neutrino.util.*;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Consumer;
+import java.io.IOException;
 
 @LinkNative("ibv_pd")
 public class ProtectionDomain extends Struct implements AutoCloseable {
@@ -30,20 +31,18 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return context;
     }
 
-    @Nullable
-    public ProtectionDomain allocateParentDomain(@Nullable ThreadDomain threadDomain) {
+    public ProtectionDomain allocateParentDomain(@Nullable ThreadDomain threadDomain) throws IOException {
         return getContext().allocateParentDomain(new InitialAttributes.Builder(this)
                 .withThreadDomain(threadDomain)
                 .build());
     }
 
-    @Nullable
-    private MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) {
+    private MemoryRegion registerDeviceMemory(DeviceMemory deviceMemory, long offset, long length, AccessFlag... flags) throws IOException {
         var result = Result.localInstance();
 
         Verbs.registerDeviceMemoryAsMemoryRegion(getHandle(), deviceMemory.getHandle(), offset, length, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering device memory as memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var memoryRegion = result.get(MemoryRegion::new);
@@ -52,18 +51,16 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return memoryRegion;
     }
 
-    @Nullable
-    public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) {
-        return registerMemory(MemoryUtil.allocateMemory(capacity), capacity, flags);
+    public RegisteredBuffer allocateMemory(long capacity, AccessFlag... flags) throws IOException {
+        return registerMemory(UnsafeProvider.getUnsafe().allocateMemory(capacity), capacity, flags);
     }
 
-    public MemoryRegion registerMemoryRegion(long handle, long capacity, AccessFlag... flags) {
+    public MemoryRegion registerMemoryRegion(long handle, long capacity, AccessFlag... flags) throws IOException {
         var result = Result.localInstance();
 
         Verbs.registerMemoryRegion(getHandle(), handle, capacity, BitMask.intOf(flags), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Registering memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var memoryRegion = result.get(MemoryRegion::new);
@@ -72,19 +69,17 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return memoryRegion;
     }
 
-    @Nullable
-    private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) {
+    private RegisteredBuffer registerMemory(long handle, long capacity, AccessFlag... flags) throws IOException {
         var memoryRegion = registerMemoryRegion(handle, capacity, flags);
-        return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion);
+        return new RegisteredBuffer(memoryRegion);
     }
 
-    @Nullable
-    public RegisteredBuffer allocateNullMemory() {
+    public RegisteredBuffer allocateNullMemory() throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateNullMemoryRegion(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating null memory region failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var memoryRegion = result.get(MemoryRegion::new);
@@ -93,30 +88,18 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return memoryRegion == null ? null : new RegisteredBuffer(memoryRegion, 0, memoryRegion.getLength());
     }
 
-    @Nullable
-    public DeviceBuffer allocateDeviceMemory(AllocationAttributes attributes, AccessFlag... flags) {
+    public DeviceBuffer allocateDeviceMemory(AllocationAttributes attributes, AccessFlag... flags) throws IOException {
         var deviceMemory = getContext().allocateDeviceMemory(attributes);
-
-        if(deviceMemory == null) {
-            return null;
-        }
-
         var memoryRegion = registerDeviceMemory(deviceMemory, 0, attributes.getLength(), flags);
-
-        if(memoryRegion == null) {
-            return null;
-        }
-
         return new DeviceBuffer(deviceMemory, memoryRegion, attributes.getLength());
     }
 
-    @Nullable
-    public MemoryWindow allocateMemoryWindow(MemoryWindow.Type type) {
+    public MemoryWindow allocateMemoryWindow(MemoryWindow.Type type) throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateMemoryWindow(getHandle(), type.getValue(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating memory window failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var memoryWindow = result.get(MemoryWindow::new);
@@ -125,13 +108,12 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return memoryWindow;
     }
 
-    @Nullable
-    public AddressHandle createAddressHandle(AddressHandle.Attributes attributes) {
+    public AddressHandle createAddressHandle(AddressHandle.Attributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createAddressHandle(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Creating address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var addressHandle = result.get(AddressHandle::new);
@@ -140,13 +122,12 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return addressHandle;
     }
 
-    public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.InitialAttributes initialAttributes) {
+    public SharedReceiveQueue createSharedReceiveQueue(SharedReceiveQueue.InitialAttributes initialAttributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createSharedReceiveQueue(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var sharedReceiveQueue = result.get(SharedReceiveQueue::new);
@@ -155,13 +136,12 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
         return sharedReceiveQueue;
     }
 
-    public QueuePair createQueuePair(QueuePair.InitialAttributes initialAttributes) {
+    public QueuePair createQueuePair(QueuePair.InitialAttributes initialAttributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createQueuePair(getHandle(), initialAttributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var queuePair = result.get(QueuePair::new);
@@ -171,17 +151,15 @@ public class ProtectionDomain extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.deallocateProtectionDomain(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     @LinkNative("ibv_parent_domain_init_attr")

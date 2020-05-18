@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("rdma_route")
 public final class Route extends Struct {
@@ -19,7 +19,7 @@ public final class Route extends Struct {
         super(handle);
     }
 
-    Route(final LocalBuffer buffer, final long offset) {
+    Route(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 

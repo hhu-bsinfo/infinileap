@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.bench;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
+import org.agrona.concurrent.AtomicBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -17,8 +17,8 @@ public class JniCall {
     public static native byte checkSumHeapByteBuffer(ByteBuffer byteBuffer);
 
     private static native byte checkSumLocalBuffer(long handle, long capacity);
-    public static byte checkSumLocalBuffer(LocalBuffer buffer) {
-        return checkSumLocalBuffer(buffer.getHandle(), buffer.capacity());
+    public static byte checkSumLocalBuffer(AtomicBuffer buffer) {
+        return checkSumLocalBuffer(buffer.addressOffset(), buffer.capacity());
     }
 
 

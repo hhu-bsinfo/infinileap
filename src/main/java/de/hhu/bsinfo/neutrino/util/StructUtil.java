@@ -1,13 +1,11 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.struct.StructInformation;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.*;
 
-import de.hhu.bsinfo.neutrino.verbs.Verbs;
+import de.hhu.bsinfo.neutrino.util.factory.ReferenceFactory;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

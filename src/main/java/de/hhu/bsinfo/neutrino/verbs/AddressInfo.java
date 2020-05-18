@@ -1,20 +1,21 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeEnum;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeError;
 import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.io.IOException;
 
 @LinkNative("rdma_addrinfo")
 public final class AddressInfo extends Struct implements Closeable {
@@ -43,7 +44,7 @@ public final class AddressInfo extends Struct implements Closeable {
         super(handle);
     }
 
-    AddressInfo(LocalBuffer buffer, long offset) {
+    AddressInfo(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 
@@ -164,12 +165,12 @@ public final class AddressInfo extends Struct implements Closeable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         CommunicationManager.freeAddressInfo0(getHandle(), result.getHandle());
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
     }
 

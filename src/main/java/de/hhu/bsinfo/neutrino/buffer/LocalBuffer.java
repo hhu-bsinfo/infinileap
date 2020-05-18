@@ -1,10 +1,8 @@
 package de.hhu.bsinfo.neutrino.buffer;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
-import de.hhu.bsinfo.neutrino.util.ReferenceFactory;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
+import de.hhu.bsinfo.neutrino.util.factory.ReferenceFactory;
 import de.hhu.bsinfo.neutrino.util.UnsafeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.Cleaner;
 import java.nio.ByteOrder;
@@ -19,6 +17,7 @@ public class LocalBuffer implements NativeObject {
     private static final byte ZERO = 0;
 
     private long handle;
+
     private long capacity;
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -200,8 +199,8 @@ public class LocalBuffer implements NativeObject {
     }
 
     @Override
-    public long getNativeSize() {
-        return capacity;
+    public int getNativeSize() {
+        return (int) capacity;
     }
 
     public void reWrap(long handle, long capacity) {

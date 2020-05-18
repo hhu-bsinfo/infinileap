@@ -5,6 +5,8 @@ import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.OpCode;
 import de.hhu.bsinfo.neutrino.verbs.SendWorkRequest.SendFlag;
 
+import java.io.IOException;
+
 public class RemoteBuffer {
 
     private final QueuePair queuePair;
@@ -19,27 +21,27 @@ public class RemoteBuffer {
         this.key = key;
     }
 
-    public long read(RegisteredBuffer localBuffer) {
+    public long read(RegisteredBuffer localBuffer) throws IOException {
         return execute(OpCode.RDMA_READ, localBuffer);
     }
 
-    public long read(long index, RegisteredBuffer buffer, long offset, long length) {
+    public long read(long index, RegisteredBuffer buffer, long offset, long length) throws IOException {
         return execute(OpCode.RDMA_READ, index, buffer, offset, length);
     }
 
-    public long write(RegisteredBuffer localBuffer) {
+    public long write(RegisteredBuffer localBuffer) throws IOException {
         return execute(OpCode.RDMA_WRITE, localBuffer);
     }
 
-    public long write(long index, RegisteredBuffer buffer, long offset, long length) {
+    public long write(long index, RegisteredBuffer buffer, long offset, long length) throws IOException {
         return execute(OpCode.RDMA_WRITE, index, buffer, offset, length);
     }
 
-    private long execute(final OpCode operation, RegisteredBuffer buffer) {
+    private long execute(final OpCode operation, RegisteredBuffer buffer) throws IOException {
         return execute(operation, 0, buffer, 0, buffer.capacity());
     }
 
-    private long execute(final OpCode operation, long index, RegisteredBuffer buffer, long offset, long length) {
+    private long execute(final OpCode operation, long index, RegisteredBuffer buffer, long offset, long length) throws IOException {
         var elements = buffer.split(offset, length);
 
         var request = new SendWorkRequest.RdmaBuilder(operation, elements, address + index, key)

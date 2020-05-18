@@ -1,11 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("ibv_device_attr")
 public class DeviceAttributes extends Struct {
@@ -35,8 +35,8 @@ public class DeviceAttributes extends Struct {
 
     DeviceAttributes() {}
 
-    DeviceAttributes(LocalBuffer localBuffer, long offset) {
-        super(localBuffer, offset);
+    DeviceAttributes(AtomicBuffer buffer, int offset) {
+        super(buffer, offset);
     }
 
     public String getFirmwareVersion() {

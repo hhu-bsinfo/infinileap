@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import org.agrona.concurrent.AtomicBuffer;
 
 @LinkNative("rdma_cm_event")
 public final class Event extends Struct {
@@ -22,7 +22,7 @@ public final class Event extends Struct {
         super(handle);
     }
 
-    Event(LocalBuffer buffer, long offset) {
+    Event(AtomicBuffer buffer, int offset) {
         super(buffer, offset);
     }
 

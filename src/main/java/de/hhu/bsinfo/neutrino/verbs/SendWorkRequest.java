@@ -1,11 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
 import de.hhu.bsinfo.neutrino.util.*;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
+import org.agrona.concurrent.AtomicBuffer;
 
 import java.util.Arrays;
 
@@ -28,10 +28,18 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
     public final BindMemoryWindow bindMemoryWindow = anonymousField(BindMemoryWindow::new);
     public final TcpSegmentOffload tcpSegmentOffload = anonymousField(TcpSegmentOffload::new);
 
-    SendWorkRequest() {}
+    public SendWorkRequest() {}
+
+    public SendWorkRequest(long handle) {
+        super(handle);
+    }
 
     public long getId() {
         return id.get();
+    }
+
+    public long getNext() {
+        return next.get();
     }
 
     public long getListHandle() {
@@ -61,6 +69,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
     public void setId(final long id) {
         this.id.set(id);
     }
+
 
     void setNext(final long next) {
         this.next.set(next);
@@ -113,9 +122,9 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
     @Override
     public String toString() {
         return "SendWorkRequest {" +
-            "\n\tid=" + id +
-            ",\n\tnext=" + next +
-            ",\n\tlistHandle=" + listHandle +
+            "\n\tid=" + id.toHexString() +
+            ",\n\tnext=" + next.toHexString() +
+            ",\n\tlistHandle=" + listHandle.toHexString() +
             ",\n\tlistLength=" + listLength +
             ",\n\topCode=" + opCode +
             ",\n\tflags=" + sendFlags +
@@ -136,7 +145,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final NativeLong remoteAddress = longField("remote_addr");
         private final NativeInteger remoteKey = integerField("rkey");
 
-        Rdma(LocalBuffer buffer) {
+        Rdma(AtomicBuffer buffer) {
             super(buffer, "wr.rdma");
         }
 
@@ -159,8 +168,8 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         @Override
         public String toString() {
             return "{" +
-                "\n\tremoteAddress=" + remoteAddress +
-                ",\n\tremoteKey=" + remoteKey +
+                "\n\tremoteAddress=" + remoteAddress.toHexString() +
+                ",\n\tremoteKey=" + remoteKey.toHexString() +
                 "\n}";
         }
     }
@@ -173,7 +182,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final NativeLong swapOperand = longField("swap");
         private final NativeInteger remoteKey = integerField("rkey");
 
-        Atomic(LocalBuffer buffer) {
+        Atomic(AtomicBuffer buffer) {
             super(buffer, "wr.atomic");
         }
 
@@ -212,10 +221,10 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         @Override
         public String toString() {
             return "{" +
-                "\n\tremoteAddress=" + remoteAddress +
+                "\n\tremoteAddress=" + remoteAddress.toHexString() +
                 ",\n\tcompareOperand=" + compareOperand +
                 ",\n\tswapOperand=" + swapOperand +
-                ",\n\tremoteKey=" + remoteKey +
+                ",\n\tremoteKey=" + remoteKey.toHexString() +
                 "\n}";
         }
     }
@@ -227,7 +236,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final NativeInteger remoteQueuePairNumber = integerField("remote_qpn");
         private final NativeInteger remoteQueuePairKey = integerField("remote_qkey");
 
-        Unreliable(LocalBuffer buffer) {
+        Unreliable(AtomicBuffer buffer) {
             super(buffer, "wr.ud");
         }
 
@@ -258,7 +267,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         @Override
         public String toString() {
             return "{" +
-                "\n\taddressHandle=" + addressHandle +
+                "\n\taddressHandle=" + addressHandle.toHexString() +
                 ",\n\tremoteQueuePairNumber=" + remoteQueuePairNumber +
                 ",\n\tremoteQueuePairKey=" + remoteQueuePairKey +
                 "\n}";
@@ -270,7 +279,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
 
         private final NativeInteger remoteSharedReceiveQueueNumber = integerField("remote_srqn");
 
-        ExtendedConnection(LocalBuffer buffer) {
+        ExtendedConnection(AtomicBuffer buffer) {
             super(buffer, "qp_type.xrc");
         }
 
@@ -296,7 +305,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final NativeLong memoryWindow = longField("mw");
         private final NativeInteger remoteKey = integerField("rkey");
 
-        BindMemoryWindow(LocalBuffer buffer) {
+        BindMemoryWindow(AtomicBuffer buffer) {
             super(buffer, "bind_mw");
         }
 
@@ -321,8 +330,8 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         @Override
         public String toString() {
             return "{" +
-                    "\n\tmemoryWindow=" + memoryWindow +
-                    ",\n\tremoteKey=" + remoteKey +
+                    "\n\tmemoryWindow=" + memoryWindow.toHexString() +
+                    ",\n\tremoteKey=" + remoteKey.toHexString() +
                     ",\n\tbindInformation=" + bindInformation +
                     "\n}";
         }
@@ -335,7 +344,7 @@ public class SendWorkRequest extends Struct implements Linkable<SendWorkRequest>
         private final NativeShort headerSize = shortField("hdr_sz");
         private final NativeShort maxSegmentSize = shortField("mss");
 
-        TcpSegmentOffload(LocalBuffer buffer) {
+        TcpSegmentOffload(AtomicBuffer buffer) {
             super(buffer, "tso");
         }
 

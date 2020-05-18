@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.util;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;

@@ -1,13 +1,14 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
 import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
 import de.hhu.bsinfo.neutrino.util.flag.ByteFlag;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,7 +266,7 @@ public class ExtendedQueuePair extends Struct {
         private final NativeLong key = longField("rx_hash_key");
         private final NativeLongBitMask<HashFieldFlag> fieldMask = longBitField("rx_hash_fields_mask");
         
-        ReceiveHashConfiguration(final LocalBuffer buffer, final long offset) {
+        ReceiveHashConfiguration(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 

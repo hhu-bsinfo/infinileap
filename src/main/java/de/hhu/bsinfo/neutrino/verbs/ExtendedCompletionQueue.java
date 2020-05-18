@@ -1,19 +1,21 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeIntegerBitMask;
-import de.hhu.bsinfo.neutrino.data.NativeEnum;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeIntegerBitMask;
+import de.hhu.bsinfo.neutrino.struct.field.NativeEnum;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
 import de.hhu.bsinfo.neutrino.verbs.WorkCompletion.TagMatchingInfo;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 @LinkNative("ibv_cq_ex")
 public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
@@ -32,37 +34,34 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
         super(handle);
     }
 
-    @Nullable
-    public CompletionQueue toCompletionQueue() {
+    public CompletionQueue toCompletionQueue() throws IOException {
         var result = Result.localInstance();
 
         Verbs.extendedCompletionQueueToCompletionQueue(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Converting extended completion queue to completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.get(CompletionQueue::new);
     }
 
-    public boolean startPolling(final PollAttributes attributes) {
+    public void startPolling(final PollAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.startPoll(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Starting to poll extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-        return result.intValue() == 0;
     }
 
-    public boolean pollNext() {
+    public boolean pollNext() throws IOException {
         var result = Result.localInstance();
 
         Verbs.nextPoll(getHandle(), result.getHandle());
         boolean isError = result.isError();
         if(isError) {
-            LOGGER.error("Polling extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.intValue() == 0;
@@ -141,13 +140,10 @@ public class ExtendedCompletionQueue extends Struct implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         CompletionQueue completionQueue = toCompletionQueue();
-
-        if(completionQueue != null) {
-            completionQueue.close();
-            NativeObjectRegistry.deregisterObject(this);
-        }
+        completionQueue.close();
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public Context getContext() {

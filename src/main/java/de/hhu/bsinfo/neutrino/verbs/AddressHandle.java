@@ -1,16 +1,19 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.NativeBoolean;
-import de.hhu.bsinfo.neutrino.data.NativeByte;
-import de.hhu.bsinfo.neutrino.data.NativeInteger;
-import de.hhu.bsinfo.neutrino.data.NativeLong;
-import de.hhu.bsinfo.neutrino.data.NativeShort;
+import de.hhu.bsinfo.neutrino.struct.field.NativeBoolean;
+import de.hhu.bsinfo.neutrino.struct.field.NativeByte;
+import de.hhu.bsinfo.neutrino.struct.field.NativeInteger;
+import de.hhu.bsinfo.neutrino.struct.field.NativeLong;
+import de.hhu.bsinfo.neutrino.struct.field.NativeShort;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 @LinkNative("ibv_ah")
 public class AddressHandle extends Struct {
@@ -24,18 +27,13 @@ public class AddressHandle extends Struct {
         super(handle);
     }
 
-    public boolean destroy() {
+    public void destroy() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroyAddressHandle(getHandle(), result.getHandle());
-        boolean isError = result.isError();
-        if(isError) {
-            LOGGER.error("Destroying address handle failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+        if(result.isError()) {
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
-
-        return !isError;
     }
 
     public Context getContext() {
@@ -60,8 +58,8 @@ public class AddressHandle extends Struct {
 
         Attributes() {}
 
-        Attributes(LocalBuffer byteBuffer, long offset) {
-            super(byteBuffer, offset);
+        Attributes(AtomicBuffer buffer, int offset) {
+            super(buffer, offset);
         }
 
         public short getRemoteLocalId() {
@@ -239,8 +237,8 @@ public class AddressHandle extends Struct {
         private final NativeByte hopLimit = byteField("hop_limit");
         private final NativeByte trafficClass = byteField("traffic_class");
 
-        GlobalRoute(LocalBuffer byteBuffer, long offset) {
-            super(byteBuffer, offset);
+        GlobalRoute(AtomicBuffer buffer, int offset) {
+            super(buffer, offset);
         }
 
         public long getRemoteGlobalId() {

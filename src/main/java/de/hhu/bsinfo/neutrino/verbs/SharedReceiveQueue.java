@@ -1,18 +1,20 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.buffer.LocalBuffer;
-import de.hhu.bsinfo.neutrino.data.*;
 import de.hhu.bsinfo.neutrino.struct.Result;
 import de.hhu.bsinfo.neutrino.struct.Struct;
+import de.hhu.bsinfo.neutrino.struct.field.*;
 import de.hhu.bsinfo.neutrino.util.BitMask;
+import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
-import de.hhu.bsinfo.neutrino.util.flag.LongFlag;
-import de.hhu.bsinfo.neutrino.util.LinkNative;
+import de.hhu.bsinfo.neutrino.struct.LinkNative;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
+import org.agrona.concurrent.AtomicBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,74 +48,61 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         return eventsCompleted;
     }
 
-    public boolean modify(Attributes attributes, AttributeFlag... flags) {
+    public void modify(Attributes attributes, AttributeFlag... flags) throws IOException {
         var result = Result.localInstance();
 
         Verbs.modifySharedReceiveQueue(getHandle(), attributes.getHandle(), BitMask.intOf(flags), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Modifying shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
-
-        return !isError;
     }
 
-    public boolean modify(Attributes.Builder builder) {
-        return modify(builder.build(), builder.getAttributeFlags());
+    public void modify(Attributes.Builder builder) throws IOException {
+        modify(builder.build(), builder.getAttributeFlags());
     }
 
-    public Attributes queryAttributes() {
+    public Attributes queryAttributes() throws IOException {
         var result = Result.localInstance();
         var attributes = new Attributes();
 
         Verbs.querySharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Querying shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            attributes = null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
 
         return attributes;
     }
 
-    public boolean postReceive(final ReceiveWorkRequest receiveWorkRequest) {
-        return postReceive(receiveWorkRequest.getHandle());
+    public void postReceive(final ReceiveWorkRequest receiveWorkRequest) throws IOException {
+        postReceive(receiveWorkRequest.getHandle());
     }
 
-    public boolean postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) {
-        return postReceive(receiveWorkRequests.getHandle());
+    public void postReceive(final NativeLinkedList<ReceiveWorkRequest> receiveWorkRequests) throws IOException {
+        postReceive(receiveWorkRequests.getHandle());
     }
 
-    private boolean postReceive(final long receiveWorkRequestsHandle) {
+    private void postReceive(final long receiveWorkRequestsHandle) throws IOException {
         var result = Result.localInstance();
 
         Verbs.postReceiveSharedReceiveQueue(getHandle(), receiveWorkRequestsHandle, result.getHandle());
         boolean isError = result.isError();
         if (isError) {
-            LOGGER.error("Posting receive work requests to shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
-
-        return !isError;
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.destroySharedReceiveQueue(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Destroying shared receive failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     @Override
@@ -207,7 +196,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
 
         Attributes() {}
 
-        Attributes(LocalBuffer buffer, long offset) {
+        Attributes(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 
@@ -509,7 +498,7 @@ public class SharedReceiveQueue extends Struct implements AutoCloseable {
         private final NativeInteger maxTags = integerField("max_num_tags");
         private final NativeInteger maxOperations = integerField("max_ops");
 
-        TagMatchingCapabilities(LocalBuffer buffer, long offset) {
+        TagMatchingCapabilities(AtomicBuffer buffer, int offset) {
             super(buffer, offset);
         }
 

@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.EnumConverter;
+import de.hhu.bsinfo.neutrino.struct.field.EnumConverter;
 import java.util.Arrays;
 
 public enum Mtu {

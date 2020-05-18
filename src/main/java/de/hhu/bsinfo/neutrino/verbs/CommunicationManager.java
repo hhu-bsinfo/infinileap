@@ -5,13 +5,14 @@ import de.hhu.bsinfo.neutrino.util.NativeError;
 import de.hhu.bsinfo.neutrino.util.SystemUtil;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public final class CommunicationManager {
 
     private CommunicationManager() {}
 
-    public static AddressInfo getAddressInfo(InetSocketAddress socketAddress, AddressInfo hints) {
+    public static AddressInfo getAddressInfo(InetSocketAddress socketAddress, AddressInfo hints) throws IOException {
         var result = Result.localInstance();
         var host = socketAddress.getAddress().isAnyLocalAddress() ? null : socketAddress.getAddress().getHostAddress();
         var port = String.valueOf(socketAddress.getPort());
@@ -24,13 +25,13 @@ public final class CommunicationManager {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.get(AddressInfo::new);
     }
 
-    public static Endpoint createEndpoint(AddressInfo addressInfo, @Nullable ProtectionDomain protectionDomain, QueuePair.InitialAttributes attributes) {
+    public static Endpoint createEndpoint(AddressInfo addressInfo, @Nullable ProtectionDomain protectionDomain, QueuePair.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         createEndpoint0(
@@ -41,7 +42,7 @@ public final class CommunicationManager {
         );
 
         if (result.isError()) {
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         return result.get(Endpoint::new);

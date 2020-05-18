@@ -1,11 +1,8 @@
 package de.hhu.bsinfo.neutrino.verbs;
 
-import de.hhu.bsinfo.neutrino.data.NativeObject;
+import de.hhu.bsinfo.neutrino.struct.field.NativeObject;
 import de.hhu.bsinfo.neutrino.struct.Result;
-import de.hhu.bsinfo.neutrino.util.NativeError;
-import de.hhu.bsinfo.neutrino.util.NativeLibrary;
-import de.hhu.bsinfo.neutrino.util.NativeObjectRegistry;
-import de.hhu.bsinfo.neutrino.util.SystemUtil;
+import de.hhu.bsinfo.neutrino.util.*;
 import de.hhu.bsinfo.neutrino.verbs.DeviceMemory.AllocationAttributes;
 import de.hhu.bsinfo.neutrino.verbs.ExtendedDeviceAttributes.QueryExtendedDeviceInput;
 import de.hhu.bsinfo.neutrino.verbs.ProtectionDomain.InitialAttributes;
@@ -13,9 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 
 public class Context implements NativeObject, AutoCloseable {
+
+    private static final int DEFAULT_DEVICE_NUMBER = 0;
+    private static final int DEFAULT_PORT_NUMBER = 1;
 
     static {
         NativeLibrary.load("neutrino");
@@ -24,9 +25,6 @@ public class Context implements NativeObject, AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
     private final long handle;
-
-    @SuppressWarnings("FieldNamingConvention")
-    private static final long nullptr = 0L;
 
     Context(long handle) {
         this.handle = handle;
@@ -38,7 +36,7 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Override
-    public long getNativeSize() {
+    public int getNativeSize() {
         return -1;
     }
 
@@ -46,18 +44,16 @@ public class Context implements NativeObject, AutoCloseable {
         return Verbs.getNumDevices();
     }
 
-    @Nullable
-    public static Context openDevice() {
-        return openDevice(0);
+    public static Context openDevice() throws IOException {
+        return openDevice(DEFAULT_DEVICE_NUMBER);
     }
 
-    @Nullable
-    public static Context openDevice(int index) {
+    public static Context openDevice(int index) throws IOException {
         var result = Result.localInstance();
 
         Verbs.openDevice(index, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening device {} failed with error [{}]: {}", index, result.getStatus(), result.getStatusMessage());
+            throw new IOException(Message.format("Opening device {} failed with error [{}]: {}", index, result.getStatus(), result.getStatusMessage()));
         }
 
         var context = result.get(Context::new);
@@ -67,67 +63,55 @@ public class Context implements NativeObject, AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         var result = Result.localInstance();
 
         Verbs.closeDevice(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Closing device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-        } else {
-            NativeObjectRegistry.deregisterObject(this);
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
-
+        NativeObjectRegistry.deregisterObject(this);
     }
 
     public String getDeviceName() {
         return Verbs.getDeviceName(getHandle());
     }
 
-    @Nullable
-    public DeviceAttributes queryDevice() {
+    public DeviceAttributes queryDevice() throws IOException {
         var result = Result.localInstance();
         var device = new DeviceAttributes();
 
         Verbs.queryDevice(getHandle(), device.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            device = null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
 
         return device;
     }
 
-    @Nullable
-    public PortAttributes queryPort() {
-        return queryPort(1);
+    public PortAttributes queryPort() throws IOException {
+        return queryPort(DEFAULT_PORT_NUMBER);
     }
 
-    @Nullable
-    public PortAttributes queryPort(int portNumber) {
+    public PortAttributes queryPort(int portNumber) throws IOException {
         var result = Result.localInstance();
         var port = new PortAttributes();
 
         Verbs.queryPort(getHandle(), port.getHandle(), portNumber, result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying port failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            port = null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
-
-
 
         return port;
     }
 
-    @Nullable
-    DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) {
+    DeviceMemory allocateDeviceMemory(AllocationAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateDeviceMemory(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating device memory failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var deviceMemory = result.get(DeviceMemory::new);
@@ -136,13 +120,12 @@ public class Context implements NativeObject, AutoCloseable {
         return deviceMemory;
     }
 
-    @Nullable
-    public ProtectionDomain allocateProtectionDomain() {
+    public ProtectionDomain allocateProtectionDomain() throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateProtectionDomain(getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating protection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var protectionDomain = result.get(ProtectionDomain::new);
@@ -151,13 +134,12 @@ public class Context implements NativeObject, AutoCloseable {
         return protectionDomain;
     }
 
-    @Nullable
-    public ThreadDomain allocateThreadDomain(ThreadDomain.InitialAttributes attributes) {
+    public ThreadDomain allocateThreadDomain(ThreadDomain.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateThreadDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            return null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var threadDomain = result.get(ThreadDomain::new);
@@ -166,12 +148,12 @@ public class Context implements NativeObject, AutoCloseable {
         return threadDomain;
     }
 
-    @Nullable ProtectionDomain allocateParentDomain(InitialAttributes attributes) {
+    ProtectionDomain allocateParentDomain(InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.allocateParentDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Allocating parent domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var protectionDomain = result.get(ProtectionDomain::new);
@@ -180,14 +162,12 @@ public class Context implements NativeObject, AutoCloseable {
         return protectionDomain;
     }
 
-    @Nullable
-    public CompletionChannel createCompletionChannel() {
+    public CompletionChannel createCompletionChannel() throws IOException {
         var result = Result.localInstance();
 
         Verbs.createCompletionChannel(getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating completion channel failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var completionChannel = result.get(CompletionChannel::new);
@@ -196,17 +176,24 @@ public class Context implements NativeObject, AutoCloseable {
         return completionChannel;
     }
 
-    public CompletionQueue createCompletionQueue(int numElements) {
+    public CompletionQueue createCompletionQueue(int numElements) throws IOException {
         return createCompletionQueue(numElements, null);
     }
 
-    public CompletionQueue createCompletionQueue(int numElements, @Nullable CompletionChannel channel) {
+    public CompletionQueue createCompletionQueue(int numElements, @Nullable CompletionChannel channel) throws IOException {
         var result = Result.localInstance();
 
-        Verbs.createCompletionQueue(getHandle(), numElements, nullptr, channel == null ? nullptr : channel.getHandle(), 0, result.getHandle());
+        Verbs.createCompletionQueue(
+                getHandle(),
+                numElements,
+                NativeObject.NULL,
+                channel == null ? NativeObject.NULL : channel.getHandle(),
+                0,
+                result.getHandle()
+        );
+
         if (result.isError()) {
-            LOGGER.error("Creating completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            throw new NativeError(SystemUtil.getErrorMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var completionQueue = result.get(CompletionQueue::new);
@@ -215,40 +202,30 @@ public class Context implements NativeObject, AutoCloseable {
         return completionQueue;
     }
 
-    @Nullable
-    public AsyncEvent getAsyncEvent() {
+    public AsyncEvent getAsyncEvent() throws IOException {
         var result = Result.localInstance();
         var event = (AsyncEvent) Verbs.getPoolableInstance(AsyncEvent.class);
 
         var then = System.currentTimeMillis();
         Verbs.getAsyncEvent(getHandle(), event.getHandle(), result.getHandle());
         if(result.isError()) {
-            LOGGER.error("Polling async event failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-
-
-            event.releaseInstance();
-
-            return null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         if (System.currentTimeMillis() - then > Duration.ofSeconds(1).toMillis()) {
             LOGGER.warn("Waited {} seconds for async event {}", (System.currentTimeMillis() - then) / 1000, event.getEventType());
         }
 
-
-
         return event;
     }
 
-    @Nullable
-    public ExtendedDeviceAttributes queryExtendedDevice(QueryExtendedDeviceInput queryInput) {
+    public ExtendedDeviceAttributes queryExtendedDevice(QueryExtendedDeviceInput queryInput) throws IOException {
         var result = Result.localInstance();
         var device = new ExtendedDeviceAttributes();
 
         Verbs.queryExtendedDevice(getHandle(), device.getHandle(), queryInput.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Querying extended device failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
-            device = null;
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
 
@@ -256,13 +233,12 @@ public class Context implements NativeObject, AutoCloseable {
         return device;
     }
 
-    @Nullable
-    public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitialAttributes attributes) {
+    public ExtendedConnectionDomain openExtendedConnectionDomain(ExtendedConnectionDomain.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.openExtendedConnectionDomain(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening extended connection domain failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var extendedConnectionDomain = result.get(ExtendedConnectionDomain::new);
@@ -271,13 +247,12 @@ public class Context implements NativeObject, AutoCloseable {
         return extendedConnectionDomain;
     }
 
-    @Nullable
-    public SharedReceiveQueue createExtendedSharedReceiveQueue(SharedReceiveQueue.ExtendedInitialAttributes attributes) {
+    public SharedReceiveQueue createExtendedSharedReceiveQueue(SharedReceiveQueue.ExtendedInitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createExtendedSharedReceiveQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended shared receive queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var sharedReceiveQueue = result.get(SharedReceiveQueue::new);
@@ -286,13 +261,12 @@ public class Context implements NativeObject, AutoCloseable {
         return sharedReceiveQueue;
     }
 
-    @Nullable
-    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes attributes) {
+    public ExtendedCompletionQueue createExtendedCompletionQueue(ExtendedCompletionQueue.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createExtendedCompletionQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended completion queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var extendedCompletionQueue = result.get(ExtendedCompletionQueue::new);
@@ -301,13 +275,12 @@ public class Context implements NativeObject, AutoCloseable {
         return extendedCompletionQueue;
     }
 
-    @Nullable
-    public WorkQueue createWorkQueue(WorkQueue.InitialAttributes attributes) {
+    public WorkQueue createWorkQueue(WorkQueue.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createWorkQueue(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating work queue failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var workQueue = result.get(WorkQueue::new);
@@ -316,13 +289,12 @@ public class Context implements NativeObject, AutoCloseable {
         return workQueue;
     }
 
-    @Nullable
-    public ReceiveWorkQueueIndirectionTable createReceiveWorkQueueIndirectionTable(ReceiveWorkQueueIndirectionTable.InitialAttributes attributes) {
+    public ReceiveWorkQueueIndirectionTable createReceiveWorkQueueIndirectionTable(ReceiveWorkQueueIndirectionTable.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createReceiveWorkQueueIndirectionTable(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating receive work queue indirection table failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var indirectionTable = result.get(ReceiveWorkQueueIndirectionTable::new);
@@ -331,13 +303,12 @@ public class Context implements NativeObject, AutoCloseable {
         return indirectionTable;
     }
 
-    @Nullable
-    public QueuePair createExtendedQueuePair(ExtendedQueuePair.InitialAttributes attributes) {
+    public QueuePair createExtendedQueuePair(ExtendedQueuePair.InitialAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.createExtendedQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Creating extended queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var queuePair = result.get(QueuePair::new);
@@ -346,13 +317,12 @@ public class Context implements NativeObject, AutoCloseable {
         return queuePair;
     }
 
-    @Nullable
-    public QueuePair openQueuePair(QueuePair.OpenAttributes attributes) {
+    public QueuePair openQueuePair(QueuePair.OpenAttributes attributes) throws IOException {
         var result = Result.localInstance();
 
         Verbs.openQueuePair(getHandle(), attributes.getHandle(), result.getHandle());
         if (result.isError()) {
-            LOGGER.error("Opening queue pair failed with error [{}]: {}", result.getStatus(), result.getStatusMessage());
+            throw new IOException(SystemUtil.getErrorMessage());
         }
 
         var queuePair = result.get(QueuePair::new);
