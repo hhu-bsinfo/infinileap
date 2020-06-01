@@ -7,8 +7,8 @@ plugins {
 }
 
 compileJava {
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '15'
+    targetCompatibility = '15'
     options.encoding = 'UTF-8'
 }
 
@@ -65,10 +65,10 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-nop:1.7.28'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    testCompileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 test {
