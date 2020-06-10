@@ -4,6 +4,8 @@ plugins {
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
     id "com.jfrog.artifactory" version "4.13.0"
+
+    id "io.github.krakowski.jextract" version "0.1.0"
 }
 
 compileJava {
@@ -14,6 +16,12 @@ compileJava {
 
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
+
+jextract {
+    library = 'ibverbs'
+    targetPackage = 'org.linux.rdma'
+    header = "${project.projectDir}/src/main/c/ibverbs.h"
+}
 
 compileJava {
     dependsOn(':native:build')
