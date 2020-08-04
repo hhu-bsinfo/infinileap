@@ -9,8 +9,8 @@ plugins {
 }
 
 compileJava {
-    sourceCompatibility = '15'
-    targetCompatibility = '15'
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
     options.encoding = 'UTF-8'
 }
 
@@ -59,6 +59,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+}
+
+jar {
+    from fileTree('build/generated/sources/jextract/main/java') {
+        include '**/*.class'
+    }
 }
 
 dependencies {

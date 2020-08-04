@@ -5,6 +5,7 @@ import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import lombok.extern.slf4j.Slf4j;
 import org.linux.rdma.RuntimeHelper;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 
 import static org.linux.rdma.ibverbs_h.ibv_free_device_list;
 
+@Slf4j
 public class DeviceList extends ArrayList<Device> implements CloseableList<Device> {
 
     private final MemorySegment segment;

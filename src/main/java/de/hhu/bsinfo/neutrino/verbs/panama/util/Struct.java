@@ -3,16 +3,20 @@ package de.hhu.bsinfo.neutrino.verbs.panama.util;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
+import lombok.extern.slf4j.Slf4j;
+import org.linux.rdma.RuntimeHelper;
 
 import java.nio.ByteBuffer;
 
+@Slf4j
 public class Struct implements MemorySegment {
 
     /**
      * The {@link MemorySegment} used to interact with memory
      * obtained through native function calls.
      */
-    private static final MemorySegment BASE = MemorySegment.ofNativeRestricted();
+    private static final MemorySegment BASE = MemorySegment.ofNativeRestricted(MemoryAddress.NULL, Long.MAX_VALUE, null, null, null)
+            .withAccessModes(READ | WRITE | CLOSE);
 
     /**
      * This struct's backing memory segment.
@@ -28,12 +32,16 @@ public class Struct implements MemorySegment {
         // Since accessing memory obtained from native functions is
         // considered dangerous, we need to create a restricted
         // MemorySegment first by using our base segment.
-        this(BASE.asSlice(address.toRawLongValue(), layout.byteSize()));
+        this(MemorySegment.ofNativeRestricted(address, layout.byteSize(), null, null, null));
     }
 
     protected Struct(MemorySegment segment) {
         if (segment.address().equals(MemoryAddress.NULL)) {
             throw new IllegalArgumentException("memory address is pointing at null");
+        }
+
+        if (!segment.isAlive()) {
+            throw new IllegalArgumentException("the provided segment must be alive");
         }
 
         this.segment = segment;

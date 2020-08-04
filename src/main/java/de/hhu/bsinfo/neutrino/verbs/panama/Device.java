@@ -2,10 +2,12 @@ package de.hhu.bsinfo.neutrino.verbs.panama;
 
 import de.hhu.bsinfo.neutrino.verbs.panama.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
+import lombok.extern.slf4j.Slf4j;
 import org.linux.rdma.ibverbs_h.ibv_device;
 
 import static jdk.incubator.foreign.CSupport.toJavaStringRestricted;
 
+@Slf4j
 public class Device extends Struct {
 
     public Device() {
@@ -17,9 +19,7 @@ public class Device extends Struct {
     }
 
     public String name() {
-        try (var name = ibv_device.name$addr(segment())) {
-            return toJavaStringRestricted(name.address());
-        }
+        return toJavaStringRestricted(ibv_device.name$addr(segment()).address());
     }
 
     public NodeType nodeType() {
