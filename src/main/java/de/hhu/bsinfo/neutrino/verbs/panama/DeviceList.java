@@ -1,9 +1,11 @@
 package de.hhu.bsinfo.neutrino.verbs.panama;
 
 import de.hhu.bsinfo.neutrino.verbs.panama.util.CloseableList;
+import jdk.incubator.foreign.CSupport;
+import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.Cpointer;
+import org.linux.rdma.RuntimeHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,11 +16,8 @@ public class DeviceList extends ArrayList<Device> implements CloseableList<Devic
 
     private final MemorySegment segment;
 
-    private final MemoryAddress baseAddress;
-
     public DeviceList(MemoryAddress memoryAddress, int length) {
-        baseAddress = Cpointer.asArrayRestricted(memoryAddress, length);
-        segment = baseAddress.segment();
+        segment = RuntimeHelper.asArrayRestricted(memoryAddress, CSupport.C_POINTER, length);
     }
 
     @Override
@@ -27,14 +26,14 @@ public class DeviceList extends ArrayList<Device> implements CloseableList<Devic
             resource.close();
         }
 
-        ibv_free_device_list(baseAddress);
+        ibv_free_device_list(segment);
         segment.close();
     }
 
     public static DeviceList ofNativeRestricted(MemoryAddress address, int length) {
         var list = new DeviceList(address, length);
         for (int i = 0; i < length; i++) {
-            list.add(new Device(Cpointer.get(list.baseAddress, i)));
+            list.add(new Device(MemoryAccess.getAddressAtIndex(list.segment, i)));
         }
 
         return list;

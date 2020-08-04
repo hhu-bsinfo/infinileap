@@ -5,9 +5,14 @@ import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 
 import java.nio.ByteBuffer;
-import java.util.function.Supplier;
 
 public class Struct implements MemorySegment {
+
+    /**
+     * The {@link MemorySegment} used to interact with memory
+     * obtained through native function calls.
+     */
+    private static final MemorySegment BASE = MemorySegment.ofNativeRestricted();
 
     /**
      * This struct's backing memory segment.
@@ -19,18 +24,20 @@ public class Struct implements MemorySegment {
      */
     private final MemoryAddress baseAddress;
 
-    protected Struct(Supplier<MemorySegment> segmentSupplier) {
-        segment = segmentSupplier.get();
-        baseAddress = segment.baseAddress();
+    protected Struct(MemoryAddress address, MemoryLayout layout) {
+        // Since accessing memory obtained from native functions is
+        // considered dangerous, we need to create a restricted
+        // MemorySegment first by using our base segment.
+        this(BASE.asSlice(address.toRawLongValue(), layout.byteSize()));
     }
 
-    protected Struct(MemoryLayout layout, MemoryAddress address) {
-        if (address.equals(MemoryAddress.NULL)) {
+    protected Struct(MemorySegment segment) {
+        if (segment.address().equals(MemoryAddress.NULL)) {
             throw new IllegalArgumentException("memory address is pointing at null");
         }
 
-        segment = MemorySegment.ofNativeRestricted(address, layout.byteSize(), Thread.currentThread(), null, null);
-        baseAddress = segment.baseAddress();
+        this.segment = segment;
+        baseAddress = segment.address();
     }
 
     @Override
@@ -39,8 +46,8 @@ public class Struct implements MemorySegment {
     }
 
     @Override
-    public MemoryAddress baseAddress() {
-        return segment.baseAddress();
+    public MemoryAddress address() {
+        return segment.address();
     }
 
     @Override
@@ -106,5 +113,44 @@ public class Struct implements MemorySegment {
     @Override
     public byte[] toByteArray() {
         return segment.toByteArray();
+    }
+
+    @Override
+    public MemorySegment asSlice(long offset) {
+        return segment.asSlice(offset);
+    }
+
+    @Override
+    public short[] toShortArray() {
+        return segment.toShortArray();
+    }
+
+    @Override
+    public char[] toCharArray() {
+        return segment.toCharArray();
+    }
+
+    @Override
+    public int[] toIntArray() {
+        return segment.toIntArray();
+    }
+
+    @Override
+    public float[] toFloatArray() {
+        return segment.toFloatArray();
+    }
+
+    @Override
+    public long[] toLongArray() {
+        return segment.toLongArray();
+    }
+
+    @Override
+    public double[] toDoubleArray() {
+        return segment.toDoubleArray();
+    }
+
+    protected final MemorySegment segment() {
+        return segment;
     }
 }

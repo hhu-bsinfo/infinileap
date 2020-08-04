@@ -2,28 +2,31 @@ package de.hhu.bsinfo.neutrino.verbs.panama;
 
 import de.hhu.bsinfo.neutrino.verbs.panama.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
-import org.linux.rdma.Cstring;
-import org.linux.rdma.ibverbs_h.*;
+import org.linux.rdma.ibverbs_h.ibv_device;
+
+import static jdk.incubator.foreign.CSupport.toJavaStringRestricted;
 
 public class Device extends Struct {
 
     public Device() {
-        super(Cibv_device::allocate);
+        super(ibv_device.allocate());
     }
 
     public Device(MemoryAddress address) {
-        super(Cibv_device.$LAYOUT(), address);
+        super(address, ibv_device.$LAYOUT());
     }
 
     public String name() {
-        return Cstring.toJavaStringRestricted(Cibv_device.name$addr(memoryAddress()));
+        try (var name = ibv_device.name$addr(segment())) {
+            return toJavaStringRestricted(name.address());
+        }
     }
 
     public NodeType nodeType() {
-        return NodeType.CONVERTER.toEnum(Cibv_device.node_type$get(memoryAddress()));
+        return NodeType.CONVERTER.toEnum(ibv_device.node_type$get(segment()));
     }
 
     public TransportType transportType() {
-        return TransportType.CONVERTER.toEnum(Cibv_device.transport_type$get(memoryAddress()));
+        return TransportType.CONVERTER.toEnum(ibv_device.transport_type$get(segment()));
     }
 }
