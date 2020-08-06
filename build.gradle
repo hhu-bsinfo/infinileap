@@ -5,7 +5,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4'
     id "com.jfrog.artifactory" version "4.13.0"
 
-    id "io.github.krakowski.jextract" version "0.1.0"
+    id "io.github.krakowski.jextract" version "0.1.2"
 }
 
 compileJava {
@@ -26,6 +26,7 @@ jextract {
 compileJava {
     dependsOn(':native:build')
     options.compilerArgs += ['-h', project(':native').file('src/main/public')]
+    options.compilerArgs << '-XDignore.symbol.file'
 }
 
 compileJava.doLast {
@@ -61,14 +62,7 @@ artifacts {
     archives javadocJar
 }
 
-jar {
-    from fileTree('build/generated/sources/jextract/main/java') {
-        include '**/*.class'
-    }
-}
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     api 'org.agrona:agrona:1.3.0'
     api 'org.slf4j:slf4j-api:1.7.26'
