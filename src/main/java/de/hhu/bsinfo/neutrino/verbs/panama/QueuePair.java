@@ -111,4 +111,67 @@ public final class QueuePair extends Struct {
     public void setEventsCompleted(final int value) {
         ibv_qp.events_completed$set(segment(), value);
     }
+
+    public static final class InitialAttributes extends Struct {
+
+        public InitialAttributes() {
+            super(ibv_qp_init_attr.allocate());
+        }
+
+        public InitialAttributes(MemoryAddress address) {
+            super(address, ibv_qp_init_attr.$LAYOUT());
+        }
+
+        public MemoryAddress getQueuePairContext() {
+            return ibv_qp_init_attr.qp_context$get(segment());
+        }
+
+        public MemoryAddress getSendCompletionQueue() {
+            return ibv_qp_init_attr.send_cq$get(segment());
+        }
+
+        public MemoryAddress getReceiveCompletionQueue() {
+            return ibv_qp_init_attr.recv_cq$get(segment());
+        }
+
+        public MemoryAddress getSharedReceiveQueue() {
+            return ibv_qp_init_attr.srq$get(segment());
+        }
+
+        public MemorySegment getCapabilities() {
+            return ibv_qp_init_attr.cap$addr(segment());
+        }
+
+        public int getQueuePairType() {
+            return ibv_qp_init_attr.qp_type$get(segment());
+        }
+
+        public int getSignalingLevel() {
+            return ibv_qp_init_attr.sq_sig_all$get(segment());
+        }
+
+        public void setQueuePairContext(final MemoryAddress value) {
+            ibv_qp_init_attr.qp_context$set(segment(), value);
+        }
+
+        public void setSendCompletionQueue(final MemoryAddress value) {
+            ibv_qp_init_attr.send_cq$set(segment(), value);
+        }
+
+        public void setReceiveCompletionQueue(final MemoryAddress value) {
+            ibv_qp_init_attr.recv_cq$set(segment(), value);
+        }
+
+        public void setSharedReceiveQueue(final MemoryAddress value) {
+            ibv_qp_init_attr.srq$set(segment(), value);
+        }
+
+        public void setQueuePairType(final int value) {
+            ibv_qp_init_attr.qp_type$set(segment(), value);
+        }
+
+        public void setSignalingLevel(final int value) {
+            ibv_qp_init_attr.sq_sig_all$set(segment(), value);
+        }
+    }
 }
