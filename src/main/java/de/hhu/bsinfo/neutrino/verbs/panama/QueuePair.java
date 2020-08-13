@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.neutrino.verbs.panama;
 
-import static org.linux.rdma.ibverbs_h.*;
-
 import de.hhu.bsinfo.neutrino.verbs.panama.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+
+import static org.linux.rdma.ibverbs_h.*;
 
 public final class QueuePair extends Struct {
 
@@ -172,6 +172,213 @@ public final class QueuePair extends Struct {
 
         public void setSignalingLevel(final int value) {
             ibv_qp_init_attr.sq_sig_all$set(segment(), value);
+        }
+    }
+
+    public static final class Attributes extends Struct {
+
+        public Attributes() {
+            super(ibv_qp_attr.allocate());
+        }
+
+        public Attributes(MemoryAddress address) {
+            super(address, ibv_qp_attr.$LAYOUT());
+        }
+
+        public int getQueuePairState() {
+            return ibv_qp_attr.qp_state$get(segment());
+        }
+
+        public int getCurrentQueuePairState() {
+            return ibv_qp_attr.cur_qp_state$get(segment());
+        }
+
+        public int getPathMtu() {
+            return ibv_qp_attr.path_mtu$get(segment());
+        }
+
+        public int getPathMigrationState() {
+            return ibv_qp_attr.path_mig_state$get(segment());
+        }
+
+        public int getQueueKey() {
+            return ibv_qp_attr.qkey$get(segment());
+        }
+
+        public int getReceiveQueuePacketSerialNumber() {
+            return ibv_qp_attr.rq_psn$get(segment());
+        }
+
+        public int getSendQueuePacketSerialNumber() {
+            return ibv_qp_attr.sq_psn$get(segment());
+        }
+
+        public int getDestinationQueuePairNumber() {
+            return ibv_qp_attr.dest_qp_num$get(segment());
+        }
+
+        public int getQueuePairAccessFlags() {
+            return ibv_qp_attr.qp_access_flags$get(segment());
+        }
+
+        public MemorySegment getCapabilities() {
+            return ibv_qp_attr.cap$addr(segment());
+        }
+
+        public MemorySegment getPrimaryPathAddressVector() {
+            return ibv_qp_attr.ah_attr$addr(segment());
+        }
+
+        public MemorySegment getAlternativePathAddressVector() {
+            return ibv_qp_attr.alt_ah_attr$addr(segment());
+        }
+
+        public short getPrimaryPartitionKeyIndex() {
+            return ibv_qp_attr.pkey_index$get(segment());
+        }
+
+        public short getAlternativePartitionKeyIndex() {
+            return ibv_qp_attr.alt_pkey_index$get(segment());
+        }
+
+        public boolean isSendQueueDrainedNotifyEnabled() {
+            return ibv_qp_attr.en_sqd_async_notify$get(segment()) == Verbs.TRUE;
+        }
+
+        public boolean isSendQueueDraining() {
+            return ibv_qp_attr.sq_draining$get(segment()) == Verbs.TRUE;
+        }
+
+        public byte getOutstandingDestinationAtomicOperations() {
+            return ibv_qp_attr.max_rd_atomic$get(segment());
+        }
+
+        public byte getMaxDestinationAtomicResources() {
+            return ibv_qp_attr.max_dest_rd_atomic$get(segment());
+        }
+
+        public byte getMinReceiverNotReadyTimer() {
+            return ibv_qp_attr.min_rnr_timer$get(segment());
+        }
+
+        public byte getPortNumber() {
+            return ibv_qp_attr.port_num$get(segment());
+        }
+
+        public byte getTimeout() {
+            return ibv_qp_attr.timeout$get(segment());
+        }
+
+        public byte getRetryCount() {
+            return ibv_qp_attr.retry_cnt$get(segment());
+        }
+
+        public byte getReceiverNotReadyRetry() {
+            return ibv_qp_attr.rnr_retry$get(segment());
+        }
+
+        public byte getAlternativePortNumber() {
+            return ibv_qp_attr.alt_port_num$get(segment());
+        }
+
+        public byte getAlternativeTimeout() {
+            return ibv_qp_attr.alt_timeout$get(segment());
+        }
+
+        public int getRateLimit() {
+            return ibv_qp_attr.rate_limit$get(segment());
+        }
+
+        public void setQueuePairState(final int value) {
+            ibv_qp_attr.qp_state$set(segment(), value);
+        }
+
+        public void setCurrentQueuePairState(final int value) {
+            ibv_qp_attr.cur_qp_state$set(segment(), value);
+        }
+
+        public void setPathMtu(final int value) {
+            ibv_qp_attr.path_mtu$set(segment(), value);
+        }
+
+        public void setPathMigrationState(final int value) {
+            ibv_qp_attr.path_mig_state$set(segment(), value);
+        }
+
+        public void setQueueKey(final int value) {
+            ibv_qp_attr.qkey$set(segment(), value);
+        }
+
+        public void setReceiveQueuePacketSerialNumber(final int value) {
+            ibv_qp_attr.rq_psn$set(segment(), value);
+        }
+
+        public void setSendQueuePacketSerialNumber(final int value) {
+            ibv_qp_attr.sq_psn$set(segment(), value);
+        }
+
+        public void setDestinationQueuePairNumber(final int value) {
+            ibv_qp_attr.dest_qp_num$set(segment(), value);
+        }
+
+        public void setQueuePairAccessFlags(final int value) {
+            ibv_qp_attr.qp_access_flags$set(segment(), value);
+        }
+
+        public void setPrimaryPartitionKeyIndex(final short value) {
+            ibv_qp_attr.pkey_index$set(segment(), value);
+        }
+
+        public void setAlternativePartitionKeyIndex(final short value) {
+            ibv_qp_attr.alt_pkey_index$set(segment(), value);
+        }
+
+        public void setSendQueueDrainedNotifyEnabled(final boolean value) {
+            ibv_qp_attr.en_sqd_async_notify$set(segment(), Verbs.toByte(value));
+        }
+
+        public void setSendQueueDraining(final boolean value) {
+            ibv_qp_attr.sq_draining$set(segment(), Verbs.toByte(value));
+        }
+
+        public void setOutstandingDestinationAtomicOperations(final byte value) {
+            ibv_qp_attr.max_rd_atomic$set(segment(), value);
+        }
+
+        public void setMaxDestinationAtomicResources(final byte value) {
+            ibv_qp_attr.max_dest_rd_atomic$set(segment(), value);
+        }
+
+        public void setMinReceiverNotReadyTimer(final byte value) {
+            ibv_qp_attr.min_rnr_timer$set(segment(), value);
+        }
+
+        public void setPortNumber(final byte value) {
+            ibv_qp_attr.port_num$set(segment(), value);
+        }
+
+        public void setTimeout(final byte value) {
+            ibv_qp_attr.timeout$set(segment(), value);
+        }
+
+        public void setRetryCount(final byte value) {
+            ibv_qp_attr.retry_cnt$set(segment(), value);
+        }
+
+        public void setReceiverNotReadyRetry(final byte value) {
+            ibv_qp_attr.rnr_retry$set(segment(), value);
+        }
+
+        public void setAlternativePortNumber(final byte value) {
+            ibv_qp_attr.alt_port_num$set(segment(), value);
+        }
+
+        public void setAlternativeTimeout(final byte value) {
+            ibv_qp_attr.alt_timeout$set(segment(), value);
+        }
+
+        public void setRateLimit(final int value) {
+            ibv_qp_attr.rate_limit$set(segment(), value);
         }
     }
 }

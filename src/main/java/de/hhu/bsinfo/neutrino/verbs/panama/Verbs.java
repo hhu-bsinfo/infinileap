@@ -12,6 +12,9 @@ import static org.linux.rdma.ibverbs_h.ibv_open_device;
 @Slf4j
 public class Verbs {
 
+    public static final byte FALSE = 0;
+    public static final byte TRUE = 1;
+
     public static CloseableList<Device> queryDevices() throws IOException {
         try (var numDevices = MemorySegment.allocateNative(CSupport.C_INT)) {
             var deviceListAddress = ibv_get_device_list(numDevices);
@@ -30,5 +33,13 @@ public class Verbs {
         }
 
         return new Context(contextAddress);
+    }
+
+    public static byte toByte(boolean value) {
+        if (value) {
+            return 1;
+        }
+
+        return 0;
     }
 }
