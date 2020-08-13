@@ -63,4 +63,27 @@ public final class SharedReceiveQueue extends Struct {
     public void setEventsCompleted(final int value) {
         ibv_srq.events_completed$set(segment(), value);
     }
+
+    public static final class InitialAttributes extends Struct {
+
+        public InitialAttributes() {
+            super(ibv_srq_init_attr.allocate());
+        }
+
+        public InitialAttributes(MemoryAddress address) {
+            super(address, ibv_srq_init_attr.$LAYOUT());
+        }
+
+        public MemoryAddress getSharedReceiveQueueContext() {
+            return ibv_srq_init_attr.srq_context$get(segment());
+        }
+
+        public MemorySegment getAttributes() {
+            return ibv_srq_init_attr.attr$addr(segment());
+        }
+
+        public void setSharedReceiveQueueContext(final MemoryAddress value) {
+            ibv_srq_init_attr.srq_context$set(segment(), value);
+        }
+    }
 }
