@@ -86,4 +86,39 @@ public final class SharedReceiveQueue extends Struct {
             ibv_srq_init_attr.srq_context$set(segment(), value);
         }
     }
+
+    public static final class Attributes extends Struct {
+
+        public Attributes() {
+            super(ibv_srq_attr.allocate());
+        }
+
+        public Attributes(MemoryAddress address) {
+            super(address, ibv_srq_attr.$LAYOUT());
+        }
+
+        public int getMaxWorkRequests() {
+            return ibv_srq_attr.max_wr$get(segment());
+        }
+
+        public int getMaxScatterGatherElements() {
+            return ibv_srq_attr.max_sge$get(segment());
+        }
+
+        public int getSharedReceiveQueueLimit() {
+            return ibv_srq_attr.srq_limit$get(segment());
+        }
+
+        public void setMaxWorkRequests(final int value) {
+            ibv_srq_attr.max_wr$set(segment(), value);
+        }
+
+        public void setMaxScatterGatherElements(final int value) {
+            ibv_srq_attr.max_sge$set(segment(), value);
+        }
+
+        public void setSharedReceiveQueueLimit(final int value) {
+            ibv_srq_attr.srq_limit$set(segment(), value);
+        }
+    }
 }
