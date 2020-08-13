@@ -14,4 +14,20 @@ public class ProtectionDomain extends Struct {
     public ProtectionDomain(MemoryAddress address) {
         super(address, ibv_pd.$LAYOUT());
     }
+
+    public MemoryAddress getContext() {
+        return ibv_pd.context$get(segment());
+    }
+
+    public int getHandle() {
+        return ibv_pd.handle$get(segment());
+    }
+
+    public void setContext(final MemoryAddress value) {
+        ibv_pd.context$set(segment(), value);
+    }
+
+    public void setHandle(final int value) {
+        ibv_pd.handle$set(segment(), value);
+    }
 }
