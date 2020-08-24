@@ -57,11 +57,11 @@ public final class QueuePair extends Struct {
     }
 
     public MemorySegment getMutex() {
-        return ibv_qp.mutex$addr(segment());
+        return ibv_qp.mutex$slice(segment());
     }
 
     public MemorySegment getCondition() {
-        return ibv_qp.cond$addr(segment());
+        return ibv_qp.cond$slice(segment());
     }
 
     public int getEventsCompleted() {
@@ -139,7 +139,7 @@ public final class QueuePair extends Struct {
         }
 
         public MemorySegment getCapabilities() {
-            return ibv_qp_init_attr.cap$addr(segment());
+            return ibv_qp_init_attr.cap$slice(segment());
         }
 
         public int getQueuePairType() {
@@ -222,15 +222,15 @@ public final class QueuePair extends Struct {
         }
 
         public MemorySegment getCapabilities() {
-            return ibv_qp_attr.cap$addr(segment());
+            return ibv_qp_attr.cap$slice(segment());
         }
 
         public MemorySegment getPrimaryPathAddressVector() {
-            return ibv_qp_attr.ah_attr$addr(segment());
+            return ibv_qp_attr.ah_attr$slice(segment());
         }
 
         public MemorySegment getAlternativePathAddressVector() {
-            return ibv_qp_attr.alt_ah_attr$addr(segment());
+            return ibv_qp_attr.alt_ah_attr$slice(segment());
         }
 
         public short getPrimaryPartitionKeyIndex() {

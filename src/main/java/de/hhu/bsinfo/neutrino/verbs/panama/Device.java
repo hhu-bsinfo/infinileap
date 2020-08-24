@@ -19,7 +19,7 @@ public class Device extends Struct {
     }
 
     public String name() {
-        return toJavaStringRestricted(ibv_device.name$addr(segment()).address());
+        return toJavaStringRestricted(ibv_device.name$slice(segment()).address());
     }
 
     public NodeType nodeType() {

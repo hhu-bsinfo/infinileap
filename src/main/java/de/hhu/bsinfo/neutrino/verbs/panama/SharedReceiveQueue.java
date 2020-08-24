@@ -33,11 +33,11 @@ public final class SharedReceiveQueue extends Struct {
     }
 
     public MemorySegment getMutex() {
-        return ibv_srq.mutex$addr(segment());
+        return ibv_srq.mutex$slice(segment());
     }
 
     public MemorySegment getCond() {
-        return ibv_srq.cond$addr(segment());
+        return ibv_srq.cond$slice(segment());
     }
 
     public int getEventsCompleted() {
@@ -79,7 +79,7 @@ public final class SharedReceiveQueue extends Struct {
         }
 
         public MemorySegment getAttributes() {
-            return ibv_srq_init_attr.attr$addr(segment());
+            return ibv_srq_init_attr.attr$slice(segment());
         }
 
         public void setSharedReceiveQueueContext(final MemoryAddress value) {

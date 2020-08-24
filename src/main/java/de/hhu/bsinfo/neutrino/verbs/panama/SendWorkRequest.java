@@ -9,9 +9,9 @@ import jdk.incubator.foreign.MemorySegment;
 
 public final class SendWorkRequest extends Struct {
 
-    private final Rdma rdma = new Rdma(ibv_send_wr.wr$addr(segment()));
-    private final Atomic atomic = new Atomic(ibv_send_wr.wr$addr(segment()));
-    private final Unreliable unreliable = new Unreliable(ibv_send_wr.wr$addr(segment()));
+    private final Rdma rdma = new Rdma(ibv_send_wr.wr$slice(segment()));
+    private final Atomic atomic = new Atomic(ibv_send_wr.wr$slice(segment()));
+    private final Unreliable unreliable = new Unreliable(ibv_send_wr.wr$slice(segment()));
 
     public SendWorkRequest() {
         super(ibv_send_wr.allocate());

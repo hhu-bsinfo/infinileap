@@ -6,6 +6,7 @@ import jdk.incubator.foreign.MemorySegment;
 import org.linux.rdma.ibverbs_h;
 
 import static org.linux.rdma.ibverbs_h.ibv_context;
+import static org.linux.rdma.ibverbs_h.ibv_query_device;
 
 public final class Context extends Struct {
 
@@ -22,7 +23,7 @@ public final class Context extends Struct {
     }
 
     public MemorySegment getOps() {
-        return ibv_context.ops$addr(segment());
+        return ibv_context.ops$slice(segment());
     }
 
     public int getCommandFileDescriptor() {
@@ -38,7 +39,7 @@ public final class Context extends Struct {
     }
 
     public MemorySegment getMutex() {
-        return ibv_context.mutex$addr(segment());
+        return ibv_context.mutex$slice(segment());
     }
 
     public MemoryAddress getAbiCompatibility() {
@@ -63,5 +64,12 @@ public final class Context extends Struct {
 
     public void setAbiCompatibility(final MemoryAddress value) {
         ibv_context.abi_compat$set(segment(), value);
+    }
+
+    public DeviceAttributes queryDevice() {
+        var attribtues = new DeviceAttributes();
+        var returnCode = ibv_query_device(this, attribtues);
+
+        return attribtues;
     }
 }

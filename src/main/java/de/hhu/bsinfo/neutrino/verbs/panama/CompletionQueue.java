@@ -37,11 +37,11 @@ public final class CompletionQueue extends Struct {
     }
 
     public MemorySegment getMutex() {
-        return ibv_cq.mutex$addr(segment());
+        return ibv_cq.mutex$slice(segment());
     }
 
     public MemorySegment getCondition() {
-        return ibv_cq.cond$addr(segment());
+        return ibv_cq.cond$slice(segment());
     }
 
     public int getCompletionEventsCompleted() {

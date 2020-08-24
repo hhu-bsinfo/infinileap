@@ -29,7 +29,7 @@ public enum NodeType {
                 }
             }
 
-            throw new IllegalArgumentException(String.format("Unknown node type provided: %d", integer));
+            return UNKNOWN;
         }
     };
 }

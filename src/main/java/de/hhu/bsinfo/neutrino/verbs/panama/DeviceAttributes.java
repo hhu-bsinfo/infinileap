@@ -4,6 +4,7 @@ import static org.linux.rdma.ibverbs_h.*;
 
 import de.hhu.bsinfo.neutrino.util.flag.IntegerFlag;
 import de.hhu.bsinfo.neutrino.verbs.panama.util.Struct;
+import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -17,8 +18,8 @@ public final class DeviceAttributes extends Struct {
         super(address, ibv_device_attr.$LAYOUT());
     }
 
-    public MemorySegment getFirmwareVersion() {
-        return ibv_device_attr.fw_ver$addr(segment());
+    public String getFirmwareVersion() {
+        return CSupport.toJavaString(ibv_device_attr.fw_ver$slice(segment()));
     }
 
     public long getNodeGuid() {
