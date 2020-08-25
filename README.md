@@ -19,7 +19,7 @@ Infinileap is a research project under development. We do not recommend using th
 
 ## :warning: &nbsp; Known issues
 
-  - Gradle (currently at 6.5.1) does not yet support OpenJDK 16 ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
+  - Gradle (currently at 6.6) does not yet support OpenJDK 16 ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
   
     ```
     javaHome=/path/to/your/panama/java/home
