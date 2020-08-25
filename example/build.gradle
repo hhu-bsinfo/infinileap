@@ -1,0 +1,47 @@
+plugins {
+    // Base Plugins
+    id 'application'
+    id 'idea'
+
+    // Jextract Plugin
+    id "io.github.krakowski.jextract" version "0.1.2"
+}
+
+compileJava {
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
+    options.encoding = 'UTF-8'
+}
+
+applicationName = 'infinileap'
+mainClassName = 'de.hhu.bsinfo.infinileap.example.App'
+
+jextract.enabled = false
+
+group = 'de.hhu.bsinfo'
+version = getProperty('projectVersion')
+
+dependencies {
+
+    // Infinileap
+    implementation project(':core')
+
+    // Command Line Application Framework
+    implementation 'info.picocli:picocli:4.5.0'
+
+    // Log4j Logger
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.13.3'
+
+    // AssertJ
+    testImplementation 'org.assertj:assertj-core:3.12.2'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+
+test {
+    useJUnitPlatform()
+}
