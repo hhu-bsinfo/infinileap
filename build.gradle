@@ -15,7 +15,7 @@ compileJava {
 }
 
 group = 'de.hhu.bsinfo'
-version = getProperty('projectVersion')
+version = '0.1.0'
 
 jextract {
     library = 'ibverbs'
@@ -24,16 +24,7 @@ jextract {
 }
 
 compileJava {
-    dependsOn(':native:build')
-    options.compilerArgs += ['-h', project(':native').file('src/main/public')]
     options.compilerArgs << '-XDignore.symbol.file'
-}
-
-compileJava.doLast {
-    project.copy {
-        from file("${project(':native').buildDir}/lib/main/debug/libneutrino.so")
-        into file("${project.projectDir}/src/main/resources/NATIVE/x86_64")
-    }
 }
 
 repositories {
@@ -43,23 +34,6 @@ repositories {
     maven {
         url "https://plugins.gradle.org/m2/"
     }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-javadoc.failOnError = false
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
 }
 
 dependencies {
@@ -83,6 +57,6 @@ test {
     useJUnitPlatform()
 }
 
-apply from: 'publish.gradle'
-apply from: 'bintray.gradle'
-apply from: 'artifactory.gradle'
+apply from: 'gradle/publish.gradle'
+apply from: 'gradle/bintray.gradle'
+apply from: 'gradle/artifactory.gradle'
