@@ -50,7 +50,11 @@ public class Struct implements MemorySegment {
 
     @Override
     public void close() {
-        segment.close();
+        try {
+            segment.close();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Override

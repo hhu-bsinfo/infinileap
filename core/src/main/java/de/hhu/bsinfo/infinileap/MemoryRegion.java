@@ -4,6 +4,7 @@ import static org.linux.rdma.ibverbs_h.*;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
+import org.linux.rdma.ibverbs_h;
 
 public final class MemoryRegion extends Struct {
 
@@ -69,5 +70,11 @@ public final class MemoryRegion extends Struct {
 
     public void setRemoteKey(final int value) {
         ibv_mr.rkey$set(segment(), value);
+    }
+
+    @Override
+    public void close() {
+        ibv_dereg_mr(this);
+        super.close();
     }
 }

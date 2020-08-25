@@ -5,8 +5,7 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import org.linux.rdma.ibverbs_h;
 
-import static org.linux.rdma.ibverbs_h.ibv_context;
-import static org.linux.rdma.ibverbs_h.ibv_query_device;
+import static org.linux.rdma.ibverbs_h.*;
 
 public final class Context extends Struct {
 
@@ -68,8 +67,12 @@ public final class Context extends Struct {
 
     public DeviceAttributes queryDevice() {
         var attribtues = new DeviceAttributes();
-        var returnCode = ibv_query_device(this, attribtues);
+        ibv_query_device(this, attribtues);
 
         return attribtues;
+    }
+
+    public ProtectionDomain allocateProtectionDomain() {
+        return new ProtectionDomain(ibv_alloc_pd(this));
     }
 }
