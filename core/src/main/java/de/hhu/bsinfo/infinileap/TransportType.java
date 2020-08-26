@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.infinileap;
 
 import de.hhu.bsinfo.infinileap.util.EnumConverter;
-import org.linux.rdma.ibverbs_h;
+import org.linux.rdma.infinileap_h;
 
 public enum TransportType {
-    UNKNOWN(ibverbs_h.IBV_TRANSPORT_UNKNOWN()), IB(ibverbs_h.IBV_TRANSPORT_IB()),
-    IWARP(ibverbs_h.IBV_TRANSPORT_IWARP()), USNIC(ibverbs_h.IBV_TRANSPORT_USNIC()),
-    USNIC_UDP(ibverbs_h.IBV_TRANSPORT_USNIC_UDP()), UNSPECIFIED(ibverbs_h.IBV_TRANSPORT_UNSPECIFIED());
+    UNKNOWN(infinileap_h.IBV_TRANSPORT_UNKNOWN()), IB(infinileap_h.IBV_TRANSPORT_IB()),
+    IWARP(infinileap_h.IBV_TRANSPORT_IWARP()), USNIC(infinileap_h.IBV_TRANSPORT_USNIC()),
+    USNIC_UDP(infinileap_h.IBV_TRANSPORT_USNIC_UDP()), UNSPECIFIED(infinileap_h.IBV_TRANSPORT_UNSPECIFIED());
 
     private final int value;
 

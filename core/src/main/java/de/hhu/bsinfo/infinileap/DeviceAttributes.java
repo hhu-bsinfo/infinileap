@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap;
 
-import static org.linux.rdma.ibverbs_h.*;
+import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.Struct;

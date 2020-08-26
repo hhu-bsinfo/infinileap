@@ -4,7 +4,7 @@ import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
-import static org.linux.rdma.ibverbs_h.*;
+import static org.linux.rdma.infinileap_h.*;
 
 public final class QueuePair extends Struct {
 

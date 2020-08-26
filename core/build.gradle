@@ -18,9 +18,9 @@ group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 jextract {
-    library = 'ibverbs'
+    library = 'rdmacm'
     targetPackage = 'org.linux.rdma'
-    header = "${project.projectDir}/src/main/c/ibverbs.h"
+    header = "${project.projectDir}/src/main/resources/infinileap.h"
 }
 
 compileJava {

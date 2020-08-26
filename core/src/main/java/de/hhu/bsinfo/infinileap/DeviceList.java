@@ -11,7 +11,7 @@ import org.linux.rdma.RuntimeHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static org.linux.rdma.ibverbs_h.ibv_free_device_list;
+import static org.linux.rdma.infinileap_h.ibv_free_device_list;
 
 @Slf4j
 public class DeviceList extends ArrayList<Device> implements CloseableList<Device> {

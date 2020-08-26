@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
-import static org.linux.rdma.ibverbs_h.ibv_get_device_list;
-import static org.linux.rdma.ibverbs_h.ibv_open_device;
+import static org.linux.rdma.infinileap_h.ibv_get_device_list;
+import static org.linux.rdma.infinileap_h.ibv_open_device;
 
 @Slf4j
 public class Verbs {

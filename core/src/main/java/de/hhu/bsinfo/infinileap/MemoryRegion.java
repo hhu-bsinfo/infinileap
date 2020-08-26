@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.infinileap;
 
-import static org.linux.rdma.ibverbs_h.*;
+import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
-import org.linux.rdma.ibverbs_h;
+import org.linux.rdma.infinileap_h;
 
 public final class MemoryRegion extends Struct {
 

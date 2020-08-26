@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.infinileap;
 
 import de.hhu.bsinfo.infinileap.util.EnumConverter;
-import org.linux.rdma.ibverbs_h;
+import org.linux.rdma.infinileap_h;
 
 public enum NodeType {
-    UNKNOWN(ibverbs_h.IBV_NODE_UNKNOWN()), CA(ibverbs_h.IBV_NODE_CA()), SWITCH(ibverbs_h.IBV_NODE_SWITCH()),
-    ROUTER(ibverbs_h.IBV_NODE_ROUTER()), RNIC(ibverbs_h.IBV_NODE_RNIC()), USNIC(ibverbs_h.IBV_NODE_USNIC()),
-    USNIC_UDP(ibverbs_h.IBV_NODE_USNIC_UDP()), UNSPECIFIED(ibverbs_h.IBV_NODE_UNSPECIFIED());
+    UNKNOWN(infinileap_h.IBV_NODE_UNKNOWN()), CA(infinileap_h.IBV_NODE_CA()), SWITCH(infinileap_h.IBV_NODE_SWITCH()),
+    ROUTER(infinileap_h.IBV_NODE_ROUTER()), RNIC(infinileap_h.IBV_NODE_RNIC()), USNIC(infinileap_h.IBV_NODE_USNIC()),
+    USNIC_UDP(infinileap_h.IBV_NODE_USNIC_UDP()), UNSPECIFIED(infinileap_h.IBV_NODE_UNSPECIFIED());
 
     private final int value;
 

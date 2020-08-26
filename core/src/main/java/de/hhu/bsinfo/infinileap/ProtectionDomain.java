@@ -7,11 +7,11 @@ import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.ibverbs_h;
-import org.linux.rdma.ibverbs_h.*;
+import org.linux.rdma.infinileap_h;
+import org.linux.rdma.infinileap_h.*;
 
-import static org.linux.rdma.ibverbs_h.ibv_dealloc_pd;
-import static org.linux.rdma.ibverbs_h.ibv_reg_mr;
+import static org.linux.rdma.infinileap_h.ibv_dealloc_pd;
+import static org.linux.rdma.infinileap_h.ibv_reg_mr;
 
 public class ProtectionDomain extends Struct {
 

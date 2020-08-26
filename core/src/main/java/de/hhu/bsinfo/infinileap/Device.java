@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap;
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
-import org.linux.rdma.ibverbs_h.ibv_device;
+import org.linux.rdma.infinileap_h.ibv_device;
 
 import static jdk.incubator.foreign.CSupport.toJavaStringRestricted;
 

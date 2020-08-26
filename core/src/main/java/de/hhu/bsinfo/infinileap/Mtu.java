@@ -1,13 +1,13 @@
 package de.hhu.bsinfo.infinileap;
 
 import de.hhu.bsinfo.infinileap.util.EnumConverter;
-import org.linux.rdma.ibverbs_h;
+import org.linux.rdma.infinileap_h;
 
 import java.util.Arrays;
 
 public enum Mtu {
-    MTU_256(ibverbs_h.IBV_MTU_256()), MTU_512(ibverbs_h.IBV_MTU_512()), MTU_1024(ibverbs_h.IBV_MTU_1024()),
-    MTU_2048(ibverbs_h.IBV_MTU_2048()), MTU_4096(ibverbs_h.IBV_MTU_4096());
+    MTU_256(infinileap_h.IBV_MTU_256()), MTU_512(infinileap_h.IBV_MTU_512()), MTU_1024(infinileap_h.IBV_MTU_1024()),
+    MTU_2048(infinileap_h.IBV_MTU_2048()), MTU_4096(infinileap_h.IBV_MTU_4096());
 
     private static final Mtu[] VALUES;
 

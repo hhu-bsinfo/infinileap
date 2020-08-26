@@ -3,9 +3,9 @@ package de.hhu.bsinfo.infinileap;
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.ibverbs_h;
+import org.linux.rdma.infinileap_h;
 
-import static org.linux.rdma.ibverbs_h.*;
+import static org.linux.rdma.infinileap_h.*;
 
 public final class Context extends Struct {
 
