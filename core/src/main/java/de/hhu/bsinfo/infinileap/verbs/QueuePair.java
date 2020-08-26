@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
@@ -138,8 +138,8 @@ public final class QueuePair extends Struct {
             return ibv_qp_init_attr.srq$get(segment());
         }
 
-        public MemorySegment getCapabilities() {
-            return ibv_qp_init_attr.cap$slice(segment());
+        public QueuePairCapabilities getCapabilities() {
+            return new QueuePairCapabilities(ibv_qp_init_attr.cap$slice(segment()));
         }
 
         public int getQueuePairType() {

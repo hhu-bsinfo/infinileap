@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.example.command;
 
-import de.hhu.bsinfo.infinileap.Device;
-import de.hhu.bsinfo.infinileap.Verbs;
+import de.hhu.bsinfo.infinileap.verbs.Device;
+import de.hhu.bsinfo.infinileap.verbs.Verbs;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 

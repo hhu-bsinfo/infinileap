@@ -1,14 +1,19 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemorySegment;
 
 public final class QueuePairCapabilities extends Struct {
 
     public QueuePairCapabilities() {
         super(ibv_qp_cap.allocate());
+    }
+
+    public QueuePairCapabilities(MemorySegment segment) {
+        super(segment);
     }
 
     public QueuePairCapabilities(MemoryAddress address) {

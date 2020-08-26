@@ -1,7 +1,6 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.buffer;
 
-import jdk.incubator.foreign.CSupport;
-import jdk.incubator.foreign.MemoryAccess;
+import de.hhu.bsinfo.infinileap.verbs.MemoryRegion;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -13,7 +12,7 @@ public class Buffer implements MemorySegment {
 
     private final MemoryRegion region;
 
-    Buffer(MemorySegment base, MemoryRegion region) {
+    public Buffer(MemorySegment base, MemoryRegion region) {
         this.base = base;
         this.region = region;
     }

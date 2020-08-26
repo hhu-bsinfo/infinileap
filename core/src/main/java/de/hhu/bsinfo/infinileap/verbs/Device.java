@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;

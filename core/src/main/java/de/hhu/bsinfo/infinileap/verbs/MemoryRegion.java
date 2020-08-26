@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 

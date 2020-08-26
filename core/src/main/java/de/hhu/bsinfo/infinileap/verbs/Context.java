@@ -1,9 +1,8 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
 import de.hhu.bsinfo.infinileap.util.Struct;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.infinileap_h;
 
 import static org.linux.rdma.infinileap_h.*;
 

@@ -1,13 +1,11 @@
-package de.hhu.bsinfo.infinileap;
+package de.hhu.bsinfo.infinileap.verbs;
 
+import de.hhu.bsinfo.infinileap.buffer.Buffer;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import de.hhu.bsinfo.infinileap.util.Struct;
-import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.infinileap_h;
 import org.linux.rdma.infinileap_h.*;
 
 import static org.linux.rdma.infinileap_h.ibv_dealloc_pd;
