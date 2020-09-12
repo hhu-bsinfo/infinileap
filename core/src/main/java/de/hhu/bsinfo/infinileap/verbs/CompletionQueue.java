@@ -2,11 +2,11 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
-public final class CompletionQueue extends Struct {
+public final class CompletionQueue extends NativeObject {
 
     public CompletionQueue() {
         super(ibv_cq.allocate());

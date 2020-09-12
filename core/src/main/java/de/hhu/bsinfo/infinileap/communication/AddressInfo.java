@@ -3,12 +3,12 @@ package de.hhu.bsinfo.infinileap.communication;
 import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryAddress;
 import org.linux.rdma.infinileap_h;
 
-public final class AddressInfo extends Struct {
+public final class AddressInfo extends NativeObject {
 
     public AddressInfo() {
         super(rdma_addrinfo.allocate());

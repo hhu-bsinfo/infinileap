@@ -3,12 +3,11 @@ package de.hhu.bsinfo.infinileap.verbs;
 import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
 
-public final class DeviceAttributes extends Struct {
+public final class DeviceAttributes extends NativeObject {
 
     public DeviceAttributes() {
         super(ibv_device_attr.allocate());

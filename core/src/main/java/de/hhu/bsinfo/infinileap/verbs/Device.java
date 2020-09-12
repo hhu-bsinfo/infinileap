@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.verbs;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.linux.rdma.infinileap_h.ibv_device;
@@ -8,7 +8,7 @@ import org.linux.rdma.infinileap_h.ibv_device;
 import static jdk.incubator.foreign.CSupport.toJavaStringRestricted;
 
 @Slf4j
-public class Device extends Struct {
+public class Device extends NativeObject {
 
     public Device() {
         super(ibv_device.allocate());

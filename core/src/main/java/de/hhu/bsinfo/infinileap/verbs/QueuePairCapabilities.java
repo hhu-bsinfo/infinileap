@@ -2,11 +2,11 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
-public final class QueuePairCapabilities extends Struct {
+public final class QueuePairCapabilities extends NativeObject {
 
     public QueuePairCapabilities() {
         super(ibv_qp_cap.allocate());

@@ -2,10 +2,10 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 
-public final class ReceiveWorkRequest extends Struct {
+public final class ReceiveWorkRequest extends NativeObject {
 
     public ReceiveWorkRequest() {
         super(ibv_recv_wr.allocate());

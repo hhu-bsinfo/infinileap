@@ -2,12 +2,12 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 
-public final class SendWorkRequest extends Struct {
+public final class SendWorkRequest extends NativeObject {
 
     private final Rdma rdma = new Rdma(ibv_send_wr.wr$slice(segment()));
     private final Atomic atomic = new Atomic(ibv_send_wr.wr$slice(segment()));
@@ -97,7 +97,7 @@ public final class SendWorkRequest extends Struct {
         return unreliable;
     }
 
-    public static final class Rdma extends Struct {
+    public static final class Rdma extends NativeObject {
 
         public Rdma(MemoryAddress address, MemoryLayout layout) {
             super(address, ibv_send_wr.wr.rdma.$LAYOUT());
@@ -116,7 +116,7 @@ public final class SendWorkRequest extends Struct {
         }
     }
 
-    public static final class Atomic extends Struct {
+    public static final class Atomic extends NativeObject {
 
         public Atomic(MemoryAddress address, MemoryLayout layout) {
             super(address, ibv_send_wr.wr.rdma.$LAYOUT());
@@ -143,7 +143,7 @@ public final class SendWorkRequest extends Struct {
         }
     }
 
-    public static final class Unreliable extends Struct {
+    public static final class Unreliable extends NativeObject {
 
         public Unreliable(MemoryAddress address, MemoryLayout layout) {
             super(address, ibv_send_wr.wr.rdma.$LAYOUT());

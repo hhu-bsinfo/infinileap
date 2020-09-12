@@ -2,11 +2,10 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
-import org.linux.rdma.infinileap_h;
 
-public final class MemoryRegion extends Struct {
+public final class MemoryRegion extends NativeObject {
 
     public MemoryRegion() {
         super(ibv_mr.allocate());

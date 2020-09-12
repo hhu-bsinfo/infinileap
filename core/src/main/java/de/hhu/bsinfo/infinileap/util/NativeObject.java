@@ -4,12 +4,11 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
-import org.linux.rdma.RuntimeHelper;
 
 import java.nio.ByteBuffer;
 
 @Slf4j
-public class Struct implements MemorySegment {
+public class NativeObject implements MemorySegment {
 
     /**
      * The {@link MemorySegment} used to interact with memory
@@ -28,14 +27,14 @@ public class Struct implements MemorySegment {
      */
     private final MemoryAddress baseAddress;
 
-    protected Struct(MemoryAddress address, MemoryLayout layout) {
+    protected NativeObject(MemoryAddress address, MemoryLayout layout) {
         // Since accessing memory obtained from native functions is
         // considered dangerous, we need to create a restricted
         // MemorySegment first by using our base segment.
         this(MemorySegment.ofNativeRestricted(address, layout.byteSize(), null, null, null));
     }
 
-    protected Struct(MemorySegment segment) {
+    protected NativeObject(MemorySegment segment) {
         if (segment.address().equals(MemoryAddress.NULL)) {
             throw new IllegalArgumentException("memory address is pointing at null");
         }

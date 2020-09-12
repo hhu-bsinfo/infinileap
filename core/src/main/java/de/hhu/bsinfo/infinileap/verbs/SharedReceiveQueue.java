@@ -2,11 +2,11 @@ package de.hhu.bsinfo.infinileap.verbs;
 
 import static org.linux.rdma.infinileap_h.*;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
-public final class SharedReceiveQueue extends Struct {
+public final class SharedReceiveQueue extends NativeObject {
 
     public SharedReceiveQueue() {
         super(ibv_srq.allocate());
@@ -64,7 +64,7 @@ public final class SharedReceiveQueue extends Struct {
         ibv_srq.events_completed$set(segment(), value);
     }
 
-    public static final class InitialAttributes extends Struct {
+    public static final class InitialAttributes extends NativeObject {
 
         public InitialAttributes() {
             super(ibv_srq_init_attr.allocate());
@@ -87,7 +87,7 @@ public final class SharedReceiveQueue extends Struct {
         }
     }
 
-    public static final class Attributes extends Struct {
+    public static final class Attributes extends NativeObject {
 
         public Attributes() {
             super(ibv_srq_attr.allocate());

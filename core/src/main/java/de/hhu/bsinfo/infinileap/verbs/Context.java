@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.infinileap.verbs;
 
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
 import static org.linux.rdma.infinileap_h.*;
 
-public final class Context extends Struct {
+public final class Context extends NativeObject {
 
     public Context() {
         super(ibv_context.allocate());

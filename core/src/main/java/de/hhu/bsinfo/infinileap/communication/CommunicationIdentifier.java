@@ -3,14 +3,13 @@ package de.hhu.bsinfo.infinileap.communication;
 import static org.linux.rdma.infinileap_h.*;
 
 import de.hhu.bsinfo.infinileap.util.Status;
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.CSupport;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.infinileap_h;
 
-public final class CommunicationIdentifier extends Struct {
+public final class CommunicationIdentifier extends NativeObject {
 
     private static final int DEFAULT_BACKLOG = 100;
 

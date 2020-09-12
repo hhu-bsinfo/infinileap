@@ -4,14 +4,14 @@ import de.hhu.bsinfo.infinileap.buffer.Buffer;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import de.hhu.bsinfo.infinileap.util.Struct;
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 import org.linux.rdma.infinileap_h.*;
 
 import static org.linux.rdma.infinileap_h.ibv_dealloc_pd;
 import static org.linux.rdma.infinileap_h.ibv_reg_mr;
 
-public class ProtectionDomain extends Struct {
+public class ProtectionDomain extends NativeObject {
 
     public ProtectionDomain() {
         super(ibv_pd.allocate());

@@ -16,6 +16,7 @@ public class Status {
     );
 
     public static final int OK = 0;
+    public static final int ERROR = -1;
 
     public static String getErrorMessage() {
         return CSupport.toJavaStringRestricted(strerror(getError()));
