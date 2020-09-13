@@ -42,6 +42,10 @@ public class FileDescriptor implements Closeable {
                 .toArray(OpenMode[]::new);
     }
 
+    public int intValue() {
+        return fd;
+    }
+
     @Override
     public void close() throws IOException {
         infinileap_h.close(this.fd);
