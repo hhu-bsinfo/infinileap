@@ -1,8 +1,11 @@
 package de.hhu.bsinfo.infinileap.verbs;
 
 import de.hhu.bsinfo.infinileap.util.NativeObject;
+import de.hhu.bsinfo.infinileap.util.Status;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+
+import java.io.IOException;
 
 import static org.linux.rdma.infinileap_h.*;
 
@@ -64,14 +67,34 @@ public final class Context extends NativeObject {
         ibv_context.abi_compat$set(segment(), value);
     }
 
-    public DeviceAttributes queryDevice() {
+    public DeviceAttributes queryDevice() throws IOException {
         var attribtues = new DeviceAttributes();
-        ibv_query_device(this, attribtues);
+        if (ibv_query_device(this, attribtues) == Status.ERROR) {
+            throw new IOException(Status.getErrorMessage());
+        }
 
         return attribtues;
     }
 
+    public PortAttributes queryPort(byte index) throws IOException {
+        var attributes = new PortAttributes();
+        if (ibv_query_port(this, index, attributes) == Status.ERROR) {
+            throw new IOException(Status.getErrorMessage());
+        }
+
+        return attributes;
+    }
+
     public ProtectionDomain allocateProtectionDomain() {
         return new ProtectionDomain(ibv_alloc_pd(this));
+    }
+
+    public CompletionQueue createCompletionQueue(int size) throws IOException {
+        var address = ibv_create_cq(this, size, MemoryAddress.NULL, MemoryAddress.NULL, 0);
+        if (address == MemoryAddress.NULL) {
+            throw new IOException(Status.getErrorMessage());
+        }
+
+        return new CompletionQueue(address);
     }
 }

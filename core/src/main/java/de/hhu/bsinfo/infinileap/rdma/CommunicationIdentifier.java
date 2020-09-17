@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.communication;
+package de.hhu.bsinfo.infinileap.rdma;
 
 import static org.linux.rdma.infinileap_h.*;
 
@@ -13,27 +13,31 @@ public final class CommunicationIdentifier extends NativeObject {
 
     private static final int DEFAULT_BACKLOG = 100;
 
+    private final EventChannel channel;
+
     public CommunicationIdentifier() {
         super(rdma_cm_id.allocate());
+        this.channel = new EventChannel(rdma_cm_id.channel$get(segment()));
     }
 
     public CommunicationIdentifier(MemoryAddress address) {
         super(address, rdma_cm_id.$LAYOUT());
+        this.channel = new EventChannel(rdma_cm_id.channel$get(segment()));
     }
 
     public MemoryAddress getVerbs() {
         return rdma_cm_id.verbs$get(segment());
     }
 
-    public MemoryAddress getChannel() {
-        return rdma_cm_id.channel$get(segment());
+    public EventChannel getChannel() {
+        return channel;
     }
 
     public MemoryAddress getContext() {
         return rdma_cm_id.context$get(segment());
     }
 
-    public MemoryAddress getQueuePAir() {
+    public MemoryAddress getQueuePair() {
         return rdma_cm_id.qp$get(segment());
     }
 

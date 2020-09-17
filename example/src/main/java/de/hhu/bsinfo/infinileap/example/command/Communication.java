@@ -1,11 +1,9 @@
 package de.hhu.bsinfo.infinileap.example.command;
 
-import de.hhu.bsinfo.infinileap.communication.AddressInfo;
-import de.hhu.bsinfo.infinileap.communication.CommunicationManager;
-import de.hhu.bsinfo.infinileap.communication.PortSpace;
-import de.hhu.bsinfo.infinileap.verbs.Device;
+import de.hhu.bsinfo.infinileap.rdma.AddressInfo;
+import de.hhu.bsinfo.infinileap.rdma.CommunicationManager;
+import de.hhu.bsinfo.infinileap.rdma.PortSpace;
 import de.hhu.bsinfo.infinileap.verbs.QueuePair;
-import de.hhu.bsinfo.infinileap.verbs.Verbs;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 

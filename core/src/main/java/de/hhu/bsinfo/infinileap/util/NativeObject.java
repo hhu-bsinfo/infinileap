@@ -5,6 +5,7 @@ import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.ref.Cleaner;
 import java.nio.ByteBuffer;
 
 @Slf4j
@@ -59,6 +60,11 @@ public class NativeObject implements MemorySegment {
     @Override
     public MemoryAddress address() {
         return segment.address();
+    }
+
+    @Override
+    public void registerCleaner(Cleaner cleaner) {
+        segment.registerCleaner(cleaner);
     }
 
     @Override

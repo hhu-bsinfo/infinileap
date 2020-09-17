@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.communication;
+package de.hhu.bsinfo.infinileap.rdma;
 
 import de.hhu.bsinfo.infinileap.util.Status;
 import de.hhu.bsinfo.infinileap.verbs.ProtectionDomain;

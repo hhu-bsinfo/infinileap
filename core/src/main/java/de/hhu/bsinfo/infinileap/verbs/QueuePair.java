@@ -1,8 +1,14 @@
 package de.hhu.bsinfo.infinileap.verbs;
 
+import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
+import de.hhu.bsinfo.infinileap.util.Status;
+import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import org.linux.rdma.infinileap_h;
+
+import java.io.IOException;
 
 import static org.linux.rdma.infinileap_h.*;
 
@@ -112,6 +118,12 @@ public final class QueuePair extends NativeObject {
         ibv_qp.events_completed$set(segment(), value);
     }
 
+    public void modify(Attributes attributes, AttributeFlag... flags) throws IOException {
+        if (ibv_modify_qp(this, attributes, BitMask.intOf(flags)) == Status.ERROR) {
+            throw new IOException(Status.getErrorMessage());
+        }
+    }
+
     public static final class InitialAttributes extends NativeObject {
 
         public InitialAttributes() {
@@ -142,8 +154,8 @@ public final class QueuePair extends NativeObject {
             return new QueuePairCapabilities(ibv_qp_init_attr.cap$slice(segment()));
         }
 
-        public int getQueuePairType() {
-            return ibv_qp_init_attr.qp_type$get(segment());
+        public QueuePairType getQueuePairType() {
+            return QueuePairType.CONVERTER.toEnum(ibv_qp_init_attr.qp_type$get(segment()));
         }
 
         public int getSignalingLevel() {
@@ -154,20 +166,20 @@ public final class QueuePair extends NativeObject {
             ibv_qp_init_attr.qp_context$set(segment(), value);
         }
 
-        public void setSendCompletionQueue(final MemoryAddress value) {
-            ibv_qp_init_attr.send_cq$set(segment(), value);
+        public void setSendCompletionQueue(final CompletionQueue value) {
+            ibv_qp_init_attr.send_cq$set(segment(), value.address());
         }
 
-        public void setReceiveCompletionQueue(final MemoryAddress value) {
-            ibv_qp_init_attr.recv_cq$set(segment(), value);
+        public void setReceiveCompletionQueue(final CompletionQueue value) {
+            ibv_qp_init_attr.recv_cq$set(segment(), value.address());
         }
 
         public void setSharedReceiveQueue(final MemoryAddress value) {
             ibv_qp_init_attr.srq$set(segment(), value);
         }
 
-        public void setQueuePairType(final int value) {
-            ibv_qp_init_attr.qp_type$set(segment(), value);
+        public void setQueuePairType(final QueuePairType value) {
+            ibv_qp_init_attr.qp_type$set(segment(), QueuePairType.CONVERTER.toInt(value));
         }
 
         public void setSignalingLevel(final int value) {
@@ -293,8 +305,8 @@ public final class QueuePair extends NativeObject {
             ibv_qp_attr.qp_state$set(segment(), value);
         }
 
-        public void setCurrentQueuePairState(final int value) {
-            ibv_qp_attr.cur_qp_state$set(segment(), value);
+        public void setCurrentQueuePairState(final QueuePairState value) {
+            ibv_qp_attr.cur_qp_state$set(segment(), QueuePairState.CONVERTER.toInt(value));
         }
 
         public void setPathMtu(final int value) {
@@ -321,8 +333,8 @@ public final class QueuePair extends NativeObject {
             ibv_qp_attr.dest_qp_num$set(segment(), value);
         }
 
-        public void setQueuePairAccessFlags(final int value) {
-            ibv_qp_attr.qp_access_flags$set(segment(), value);
+        public void setQueuePairAccessFlags(final AccessFlag... flags) {
+            ibv_qp_attr.qp_access_flags$set(segment(), BitMask.intOf(flags));
         }
 
         public void setPrimaryPartitionKeyIndex(final short value) {
@@ -379,6 +391,42 @@ public final class QueuePair extends NativeObject {
 
         public void setRateLimit(final int value) {
             ibv_qp_attr.rate_limit$set(segment(), value);
+        }
+    }
+
+    public enum AttributeFlag implements IntegerFlag {
+        STATE(IBV_QP_STATE()),
+        CUR_STATE(IBV_QP_CUR_STATE()),
+        EN_SQD_ASYNC_NOTIFY(IBV_QP_EN_SQD_ASYNC_NOTIFY()),
+        ACCESS_FLAGS(IBV_QP_ACCESS_FLAGS()),
+        PKEY_INDEX(IBV_QP_PKEY_INDEX()),
+        PORT(IBV_QP_PORT()),
+        QKEY(IBV_QP_QKEY()),
+        AV(IBV_QP_AV()),
+        PATH_MTU(IBV_QP_PATH_MTU()),
+        TIMEOUT(IBV_QP_TIMEOUT()),
+        RETRY_CNT(IBV_QP_RETRY_CNT()),
+        RNR_RETRY(IBV_QP_RNR_RETRY()),
+        RQ_PSN(IBV_QP_RQ_PSN()),
+        MAX_QP_RD_ATOMIC(IBV_QP_MAX_QP_RD_ATOMIC()),
+        ALT_PATH(IBV_QP_ALT_PATH()),
+        MIN_RNR_TIMER(IBV_QP_MIN_RNR_TIMER()),
+        SQ_PSN(IBV_QP_SQ_PSN()),
+        MAX_DEST_RD_ATOMIC(IBV_QP_MAX_DEST_RD_ATOMIC()),
+        PATH_MIG_STATE(IBV_QP_PATH_MIG_STATE()),
+        CAP(IBV_QP_CAP()),
+        DEST_QPN(IBV_QP_DEST_QPN()),
+        RATE_LIMIT(IBV_QP_RATE_LIMIT());
+
+        private final int value;
+
+        AttributeFlag(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
         }
     }
 }

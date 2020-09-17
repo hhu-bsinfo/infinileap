@@ -8,20 +8,24 @@ import jdk.incubator.foreign.MemorySegment;
 
 public final class CompletionQueue extends NativeObject {
 
+    private final CompletionChannel channel;
+
     public CompletionQueue() {
         super(ibv_cq.allocate());
+        this.channel = new CompletionChannel(ibv_cq.channel$get(segment()));
     }
 
     public CompletionQueue(MemoryAddress address) {
         super(address, ibv_cq.$LAYOUT());
+        this.channel = new CompletionChannel(ibv_cq.channel$get(segment()));
     }
 
     public MemoryAddress getContext() {
         return ibv_cq.context$get(segment());
     }
 
-    public MemoryAddress getChannel() {
-        return ibv_cq.channel$get(segment());
+    public CompletionChannel getChannel() {
+        return channel;
     }
 
     public MemoryAddress getCompletionQueueContext() {

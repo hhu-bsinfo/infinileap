@@ -1,21 +1,29 @@
 package de.hhu.bsinfo.infinileap.nio;
 
-import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.FileDescriptor;
-import de.hhu.bsinfo.infinileap.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.Status;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import jdk.incubator.foreign.*;
+import de.hhu.bsinfo.infinileap.util.EventFileDescriptor;
+import de.hhu.bsinfo.infinileap.util.EventFileDescriptor.OpenMode;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import static org.linux.rdma.infinileap_h.*;
-
 public class EpollSelector<T> {
+
+    /**
+     * The {@link Duration} instance used for blocking epoll wait invocations.
+     */
+    private static final Duration DURATION_INDEFINITE = Duration.ofMillis(-1);
+
+    /**
+     * An {@link EventFileDescriptor} used for waking up the epoll instance manually.
+     */
+    private final EventFileDescriptor notifier;
+
+    /**
+     * The event notifiers selection key.
+     */
+    private final SelectionKey<T> notifierKey;
 
     /**
      * The {@link Epoll} instance used by this {@link EpollSelector}.
@@ -27,25 +35,35 @@ public class EpollSelector<T> {
      */
     private final ConcurrentHashMap<Integer, SelectionKey<T>> keyMap = new ConcurrentHashMap<>();
 
-    private EpollSelector(Epoll epoll) {
+    private EpollSelector(Epoll epoll, EventFileDescriptor notifier) {
         this.epoll = epoll;
+        this.notifier = notifier;
+
+        try {
+            this.notifierKey = register(notifier, EventType.EPOLLIN);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public SelectionKey<T> register(FileDescriptor descriptor, EventType... eventTypes) throws IOException {
-        return register(descriptor, null, eventTypes);
+    public SelectionKey<T> register(Watchable watchable, EventType... eventTypes) throws IOException {
+        return register(watchable, null, eventTypes);
     }
 
-    public SelectionKey<T> register(FileDescriptor descriptor, T attachment, EventType... eventTypes) throws IOException {
+    public SelectionKey<T> register(Watchable watchable, T attachment, EventType... eventTypes) throws IOException {
 
-        // Create selection key and add it to the key map
-        var selectionKey = new SelectionKey<>(attachment, this);
+        // Create selection key and set interes ops
+        var selectionKey = new SelectionKey<>(watchable, attachment, this);
         selectionKey.interestOps(eventTypes);
-        if (keyMap.putIfAbsent(descriptor.intValue(), selectionKey) != null) {
+
+        // Extract descriptor and add it to the key map
+        var descriptor = watchable.descriptor();
+        if (keyMap.putIfAbsent(watchable.descriptor().intValue(), selectionKey) != null) {
             throw new IllegalArgumentException("FileDescriptor is already registered");
         }
 
         // Add the file descriptor to the epoll interest list.
-        // This must happen after the mapping to ensure the SelectionKey
+        // This MUST happen after the mapping to ensure the SelectionKey
         // is present when epoll fires.
         epoll.add(descriptor, eventTypes);
 
@@ -53,13 +71,23 @@ public class EpollSelector<T> {
         return selectionKey;
     }
 
-    public void select(Consumer<SelectionKey<T>> action, int timeout) throws IOException {
-        var count = epoll.wait(timeout);
+    public void select(Consumer<SelectionKey<T>> action) throws IOException {
+        select(action, DURATION_INDEFINITE);
+    }
+
+    public void select(Consumer<SelectionKey<T>> action, Duration duration) throws IOException {
+        var count = epoll.wait(duration);
         for (int i = 0; i < count; i++) {
 
             // Retrieve event data from epoll instance
             var events = epoll.getEvents(i);
             var data = (int) epoll.getData(i);
+
+            // Skip manually triggered events
+            if (data == notifier.intValue()) {
+                notifier.reset();
+                continue;
+            }
 
             // Get associated selection key and update ready ops
             var selectionKey = keyMap.get(data);
@@ -70,7 +98,11 @@ public class EpollSelector<T> {
         }
     }
 
+    public void wake() throws IOException {
+        notifier.fire();
+    }
+
     public static <T> EpollSelector<T> create() throws IOException {
-        return new EpollSelector<>(Epoll.create());
+        return new EpollSelector<>(Epoll.create(), EventFileDescriptor.create(OpenMode.NONBLOCK));
     }
 }

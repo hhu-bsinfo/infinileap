@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
+import de.hhu.bsinfo.infinileap.nio.Watchable;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import org.linux.rdma.infinileap_h;
 
@@ -9,14 +10,14 @@ import java.util.Arrays;
 
 import static org.linux.rdma.infinileap_h.*;
 
-public class FileDescriptor implements Closeable {
+public class FileDescriptor implements Closeable, Watchable {
 
     private static final int GET = F_GETFL();
     private static final int SET = F_SETFL();
 
     private final int fd;
 
-    private FileDescriptor(int fd) {
+    protected FileDescriptor(int fd) {
         this.fd = fd;
     }
 
@@ -49,6 +50,11 @@ public class FileDescriptor implements Closeable {
     @Override
     public void close() throws IOException {
         infinileap_h.close(this.fd);
+    }
+
+    @Override
+    public FileDescriptor descriptor() {
+        return this;
     }
 
     public enum OpenMode implements IntegerFlag {

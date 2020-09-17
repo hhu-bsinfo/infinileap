@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.communication;
+package de.hhu.bsinfo.infinileap.rdma;
 
 import static org.linux.rdma.infinileap_h.*;
 

@@ -9,6 +9,7 @@ import jdk.incubator.foreign.MemorySegment;
 import org.linux.rdma.infinileap_h;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import static org.linux.rdma.infinileap_h.*;
 
@@ -82,8 +83,8 @@ public class Epoll {
         control(fileDescriptor, OPERATION_DELETE);
     }
 
-    int wait(int timeout) throws IOException {
-        var count = epoll_wait(epfd.intValue(), pollSegment, POLL_SIZE, timeout);
+    int wait(Duration duration) throws IOException {
+        var count = epoll_wait(epfd.intValue(), pollSegment, POLL_SIZE, (int) duration.toMillis());
         if (count == Status.ERROR) {
             throw new IOException(Status.getErrorMessage());
         }

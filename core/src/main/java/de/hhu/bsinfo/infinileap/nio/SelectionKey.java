@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.nio;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
+import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 
 import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandles;
@@ -15,6 +16,14 @@ public class SelectionKey<T> {
                     VarHandle.class,
                     SelectionKey.class, int.class);
 
+    /**
+     * The {@link Watchable} used to register this selection key.
+     */
+    private final Watchable watchable;
+
+    /**
+     * A user-provided object attached to this {@link SelectionKey}.
+     */
     private final T attachment;
 
     /**
@@ -32,11 +41,12 @@ public class SelectionKey<T> {
      */
     private final EpollSelector<T> selector;
 
-    public SelectionKey(EpollSelector<T> selector) {
-        this(null, selector);
+    public SelectionKey(Watchable watchable, EpollSelector<T> selector) {
+        this(watchable, null, selector);
     }
 
-    public SelectionKey(T attachment, EpollSelector<T> selector) {
+    public SelectionKey(Watchable watchable, T attachment, EpollSelector<T> selector) {
+        this.watchable = watchable;
         this.attachment = attachment;
         this.selector = selector;
     }

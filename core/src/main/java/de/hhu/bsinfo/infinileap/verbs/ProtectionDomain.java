@@ -1,15 +1,13 @@
 package de.hhu.bsinfo.infinileap.verbs;
 
 import de.hhu.bsinfo.infinileap.buffer.Buffer;
-import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import de.hhu.bsinfo.infinileap.util.NativeObject;
+import de.hhu.bsinfo.infinileap.util.*;
 import jdk.incubator.foreign.MemoryAddress;
 import org.linux.rdma.infinileap_h.*;
 
-import static org.linux.rdma.infinileap_h.ibv_dealloc_pd;
-import static org.linux.rdma.infinileap_h.ibv_reg_mr;
+import java.io.IOException;
+
+import static org.linux.rdma.infinileap_h.*;
 
 public class ProtectionDomain extends NativeObject {
 
@@ -47,5 +45,12 @@ public class ProtectionDomain extends NativeObject {
     public void close() {
         ibv_dealloc_pd(this);
         super.close();
+    }
+
+    public QueuePair createQueuePair(QueuePair.InitialAttributes initialAttributes) throws IOException {
+        var address = ibv_create_qp(this, initialAttributes);
+        if (address == MemoryAddress.NULL) {
+            throw new IOException(Status.getErrorMessage());
+        }
     }
 }
