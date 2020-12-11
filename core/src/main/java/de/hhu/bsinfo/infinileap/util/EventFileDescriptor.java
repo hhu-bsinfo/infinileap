@@ -1,18 +1,16 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import jdk.incubator.foreign.CSupport;
+import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.infinileap_h;
 
 import java.io.IOException;
 
-import static org.linux.rdma.infinileap_h.*;
+import static org.openucx.ucx_h.*;
 
 public class EventFileDescriptor extends FileDescriptor {
-
 
     private EventFileDescriptor(int fd) {
         super(fd);

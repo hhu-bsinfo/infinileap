@@ -1,23 +1,18 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import jdk.incubator.foreign.Addressable;
-import jdk.incubator.foreign.CSupport;
+import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
 public class MemoryUtil {
 
     public static MemorySegment allocateMemory(long capacity) {
-        return MemorySegment.ofNativeRestricted(
-                CSupport.allocateMemoryRestricted(capacity),
-                capacity,
-                null,
-                null,
-                null
-        );
+        return MemorySegment.ofNativeRestricted().asSlice(
+                CLinker.allocateMemoryRestricted(capacity), capacity);
     }
 
     public static void freeMemory(Addressable addressable) {
-        CSupport.freeMemoryRestricted(addressable.address());
+        CLinker.freeMemoryRestricted(addressable.address());
     }
 }

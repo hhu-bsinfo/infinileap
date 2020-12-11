@@ -6,7 +6,7 @@ import picocli.CommandLine;
     name = "infinileap",
     description = "",
     subcommands = {
-        Devices.class, Communication.class
+        Messaging.class
     }
 )
 public class Root implements Runnable {

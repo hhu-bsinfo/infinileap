@@ -11,7 +11,7 @@
   <a href="https://www.ej-technologies.com/products/jprofiler/overview.html"><img src="https://www.ej-technologies.com/images/product_banners/jprofiler_large.png"></a>
 </p>
 
-Developed by the [operating systems group](https://www.cs.hhu.de/en/research-groups/operating-systems.html) of the department of computer science of the [Heinrich Heine University Düsseldorf](https://www.hhu.de), Infinileap aims at providing a simple object-oriented interface between Java and the native [`libibverbs`](https://github.com/linux-rdma/rdma-core/tree/master/libibverbs) library by leveraging Project Panama's [Foreign Function Interface](https://openjdk.java.net/jeps/191) and [Foreign-Memory Access API](https://openjdk.java.net/jeps/370).
+Developed by the [operating systems group](https://www.cs.hhu.de/en/research-groups/operating-systems.html) of the department of computer science of the [Heinrich Heine University Düsseldorf](https://www.hhu.de), Infinileap aims at providing a simple object-oriented interface between Java and the native [`ucx`](https://github.com/openucx/ucx) library by leveraging Project Panama's [Foreign Function Interface](https://openjdk.java.net/jeps/191) and [Foreign-Memory Access API](https://openjdk.java.net/jeps/370).
 
 ## :construction: &nbsp; Notice
 
@@ -28,7 +28,7 @@ Infinileap is a research project under development. We do not recommend using th
 ## :wrench: &nbsp; Requirements
 
   * [OpenJDK 16 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
-  * [rdma-core 28.0](https://github.com/linux-rdma/rdma-core)
+  * [ucx 1.9.0](https://github.com/openucx/ucx/releases/tag/v1.9.0)
   
 ## :scroll: &nbsp; License
 

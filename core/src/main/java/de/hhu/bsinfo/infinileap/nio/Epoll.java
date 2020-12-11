@@ -6,12 +6,12 @@ import de.hhu.bsinfo.infinileap.util.Status;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
-import org.linux.rdma.infinileap_h;
+import org.openucx.ucx_h;
 
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.linux.rdma.infinileap_h.*;
+import static org.openucx.ucx_h.*;
 
 public class Epoll {
 
@@ -43,7 +43,7 @@ public class Epoll {
     /**
      * The offset at which the event's data is located.
      */
-    private static final long DATA_OFFSET = infinileap_h.epoll_event.$LAYOUT()
+    private static final long DATA_OFFSET = epoll_event.$LAYOUT()
             .byteOffset(MemoryLayout.PathElement.groupElement("data"));
 
     /**

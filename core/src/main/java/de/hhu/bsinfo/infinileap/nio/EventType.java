@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.nio;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 
-import static org.linux.rdma.infinileap_h.*;
+import static org.openucx.ucx_h.*;
 
 public enum EventType implements IntegerFlag {
     EPOLLIN(EPOLLIN()),

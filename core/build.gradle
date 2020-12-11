@@ -18,9 +18,10 @@ group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 jextract {
-    library = 'rdmacm'
-    targetPackage = 'org.linux.rdma'
-    header = "${project.projectDir}/src/main/resources/infinileap.h"
+    library = 'ucp'
+    targetPackage = 'org.openucx'
+    header = "${project.projectDir}/src/main/resources/ucx.h"
+    sourceMode = true
 }
 
 compileJava {
@@ -29,9 +30,13 @@ compileJava {
 
 dependencies {
 
+    // Logging
     api 'org.slf4j:slf4j-api:1.7.26'
+
+    // Annotations
     implementation 'org.jetbrains:annotations:17.0.0'
 
+    // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
     testImplementation 'org.assertj:assertj-core:3.11.1'
     testImplementation 'org.slf4j:slf4j-nop:1.7.28'

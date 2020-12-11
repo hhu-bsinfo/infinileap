@@ -1,5 +1,8 @@
-// RDMA Communication Manager
-#include <rdma/rdma_cma.h>
+// OpenUCX Transports
+#include <uct/api/uct.h>
+
+// OpenUCX Protocols
+#include <ucp/api/ucp.h>
 
 // I/O Multiplexing
 #include <sys/epoll.h>
@@ -9,3 +12,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+
+#include <string.h>
+#include <errno.h>
