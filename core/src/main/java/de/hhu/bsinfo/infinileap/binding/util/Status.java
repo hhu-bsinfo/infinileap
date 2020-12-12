@@ -52,4 +52,8 @@ public enum Status {
     public int value() {
         return value;
     }
+
+    public final boolean is(int status) {
+        return value == status;
+    }
 }

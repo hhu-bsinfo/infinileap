@@ -28,13 +28,6 @@ public class NativeObject implements AutoCloseable {
      */
     private final MemoryAddress baseAddress;
 
-    protected NativeObject(MemoryAddress address, MemoryLayout layout) {
-        // Since accessing memory obtained from native functions is
-        // considered dangerous, we need to create a restricted
-        // MemorySegment first by using our base segment.
-        this(BASE.asSlice(address, layout.byteSize()));
-    }
-
     protected NativeObject(MemorySegment segment) {
         if (segment.address().equals(MemoryAddress.NULL)) {
             throw new IllegalArgumentException("memory address is pointing at null");
@@ -46,6 +39,13 @@ public class NativeObject implements AutoCloseable {
 
         this.segment = segment;
         baseAddress = segment.address();
+    }
+
+    protected NativeObject(MemoryAddress address, MemoryLayout layout) {
+        // Since accessing memory obtained from native functions is
+        // considered dangerous, we need to create a restricted
+        // MemorySegment first by using our base segment.
+        this(BASE.asSlice(address, layout.byteSize()));
     }
 
     public MemoryAddress address() {
