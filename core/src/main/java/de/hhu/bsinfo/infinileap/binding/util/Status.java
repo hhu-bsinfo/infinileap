@@ -1,7 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding.util;
 
 import org.openucx.ucx_h;
-import org.openucx.ucx_h.*;
 
 public enum Status {
 
@@ -46,7 +45,7 @@ public enum Status {
 
     private final int value;
 
-    private Status(int value) {
+    Status(int value) {
         this.value = value;
     }
 
