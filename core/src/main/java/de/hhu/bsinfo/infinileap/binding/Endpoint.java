@@ -9,7 +9,7 @@ import org.openucx.ucx_h;
 
 public class Endpoint extends NativeObject {
 
-    private Endpoint(MemoryAddress address) {
+    /* package-private */ Endpoint(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
     }
 

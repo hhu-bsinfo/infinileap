@@ -6,7 +6,7 @@ import jdk.incubator.foreign.MemoryAddress;
 
 public class Worker extends NativeObject {
 
-    private Worker(MemoryAddress address) {
+    /* package-private */ Worker(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
     }
 

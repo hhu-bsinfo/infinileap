@@ -11,6 +11,8 @@ compileJava {
     sourceCompatibility = '16'
     targetCompatibility = '16'
     options.encoding = 'UTF-8'
+    options.compilerArgs += ['-XDignore.symbol.file']
+    options.forkOptions.jvmArgs += ['-J--illegal-access=permit']
 }
 
 applicationName = 'infinileap'
@@ -36,10 +38,10 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.12.2'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    testCompileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
 test {

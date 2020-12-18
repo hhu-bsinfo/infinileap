@@ -52,7 +52,7 @@ public class EpollSelector<T> {
 
     public SelectionKey<T> register(Watchable watchable, T attachment, EventType... eventTypes) throws IOException {
 
-        // Create selection key and set interes ops
+        // Create selection key and set interest ops
         var selectionKey = new SelectionKey<>(watchable, attachment, this);
         selectionKey.interestOps(eventTypes);
 

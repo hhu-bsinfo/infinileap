@@ -9,14 +9,16 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.openucx.ucx_h;
 
+import static org.openucx.ucx_h.ucp_config_print;
 import static org.openucx.ucx_h.ucp_config_read;
 import static org.openucx.ucx_h.ucp_config_release;
 
 @Slf4j
 public class Configuration extends NativeObject {
 
-    protected Configuration(MemoryAddress address) {
+    /* package-private */ Configuration(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
     }
 
@@ -25,17 +27,14 @@ public class Configuration extends NativeObject {
     }
 
     /**
-     * Reads in the configuration form the environment
-     * @param prefix
-     * @param filename
-     * @return
+     * Reads in the configuration form the environment.
      */
     public static Configuration read(@Nullable String prefix, @Nullable String filename) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_config_read(
                     Parameter.ofNullable(prefix),
                     Parameter.ofNullable(filename),
-                    pointer
+                    pointer.address()
             );
 
             if (!Status.OK.is(status)) {
@@ -46,6 +45,10 @@ public class Configuration extends NativeObject {
 
             return new Configuration(MemoryAccess.getAddress(pointer));
         }
+    }
+
+    public void print() {
+        ucp_config_print(address(), ucx_h.stdout$get(), MemoryAddress.NULL, ucx_h.UCS_CONFIG_PRINT_CONFIG());
     }
 
     @Override
