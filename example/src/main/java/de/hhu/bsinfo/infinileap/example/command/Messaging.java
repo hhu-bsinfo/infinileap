@@ -3,6 +3,8 @@ package de.hhu.bsinfo.infinileap.example.command;
 import de.hhu.bsinfo.infinileap.binding.Configuration;
 import de.hhu.bsinfo.infinileap.binding.Context;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters;
+import de.hhu.bsinfo.infinileap.binding.WorkerParameters;
+import de.hhu.bsinfo.infinileap.binding.util.ThreadMode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -18,7 +20,7 @@ public class Messaging implements Runnable {
     @Override
     public void run() {
         // Create context parameters
-        var parameters = new ContextParameters()
+        var contextParameters = new ContextParameters()
                 .setFeatures(ContextParameters.Feature.TAG)
                 .setRequestSize(DEFAULT_REQUEST_SIZE);
 
@@ -26,9 +28,15 @@ public class Messaging implements Runnable {
         var configuration = Configuration.read();
 
         // Initialize UCP context
-        var context = Context.initialize(parameters, configuration);
+        var context = Context.initialize(contextParameters, configuration);
 
-        // Print configuration
-        configuration.print();
+        var workerParameters = new WorkerParameters()
+                .setThreadMode(ThreadMode.SINGLE);
+
+        var worker = context.createWorker(workerParameters);
+
+        var address = worker.getAddress();
+
+        System.out.println(address);
     }
 }

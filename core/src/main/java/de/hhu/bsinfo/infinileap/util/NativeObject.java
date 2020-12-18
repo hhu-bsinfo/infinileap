@@ -42,10 +42,14 @@ public class NativeObject implements AutoCloseable {
     }
 
     protected NativeObject(MemoryAddress address, MemoryLayout layout) {
+        this(address, layout.byteSize());
+    }
+
+    protected NativeObject(MemoryAddress address, long byteSize) {
         // Since accessing memory obtained from native functions is
         // considered dangerous, we need to create a restricted
         // MemorySegment first by using our base segment.
-        this(BASE.asSlice(address, layout.byteSize()));
+        this(BASE.asSlice(address, byteSize));
     }
 
     public MemoryAddress address() {

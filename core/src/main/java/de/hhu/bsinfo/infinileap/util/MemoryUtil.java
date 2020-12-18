@@ -15,4 +15,8 @@ public class MemoryUtil {
     public static void freeMemory(Addressable addressable) {
         CLinker.freeMemoryRestricted(addressable.address());
     }
+
+    public static MemorySegment createSegment(MemoryAddress address, long capacity) {
+        return MemorySegment.ofNativeRestricted().asSlice(address, capacity);
+    }
 }
