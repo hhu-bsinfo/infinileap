@@ -68,4 +68,12 @@ public class NativeObject implements AutoCloseable {
     protected final MemorySegment segment() {
         return segment;
     }
+
+    public final byte[] toByteArray() {
+        return segment.toByteArray();
+    }
+
+    public final void hexDump() {
+        MemoryUtil.dump(segment);
+    }
 }

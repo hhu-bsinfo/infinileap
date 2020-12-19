@@ -6,6 +6,7 @@ import jdk.incubator.foreign.*;
 import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.ucp_worker_get_address;
+import static org.openucx.ucx_h.ucp_ep_create;
 
 public class Worker extends NativeObject {
 
@@ -13,7 +14,7 @@ public class Worker extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
-    public Address getAddress() {
+    public WorkerAddress getAddress() {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var length = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
@@ -29,14 +30,25 @@ public class Worker extends NativeObject {
                 return null;
             }
 
-            return new Address(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(length));
+            return new WorkerAddress(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(length));
         }
     }
 
-    public static final class Address extends NativeObject {
+    public Endpoint createEndpoint(EndpointParameters parameters) {
+        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+            var status = ucp_ep_create(
+                    this.address(),
+                    parameters.address(),
+                    pointer.address()
+            );
 
-        Address(MemoryAddress address, long byteSize) {
-            super(address, byteSize);
+            if (!Status.OK.is(status)) {
+                // TODO(krakowski):
+                //  Error handling using Exception or other appropriate mechanism
+                return null;
+            }
+
+            return new Endpoint(MemoryAccess.getAddress(pointer));
         }
     }
 }
