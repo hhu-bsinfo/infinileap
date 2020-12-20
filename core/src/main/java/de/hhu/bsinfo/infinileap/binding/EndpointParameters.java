@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
+import jdk.incubator.foreign.NativeScope;
 import org.openucx.ucx_h;
 import org.openucx.ucx_h.ucp_ep_params_t;
 import org.openucx.ucx_h.ucp_params_t;

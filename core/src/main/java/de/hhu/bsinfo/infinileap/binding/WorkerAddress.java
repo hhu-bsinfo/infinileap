@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.NativeObject;
+import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -31,6 +32,10 @@ public final class WorkerAddress extends NativeObject {
         var remoteLength = ByteBuffer.wrap(socket.getInputStream().readNBytes(Integer.BYTES)).getInt();
         var remoteBytes = socket.getInputStream().readNBytes(remoteLength);
 
-        return new WorkerAddress(MemorySegment.ofArray(remoteBytes));
+        var source = MemorySegment.ofArray(remoteBytes);
+        var target = MemorySegment.allocateNative(source.byteSize());
+        target.copyFrom(source);
+
+        return new WorkerAddress(target);
     }
 }

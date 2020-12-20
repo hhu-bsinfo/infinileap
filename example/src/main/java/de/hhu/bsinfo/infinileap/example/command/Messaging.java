@@ -79,6 +79,12 @@ public class Messaging implements Runnable {
         remoteAddress = localAddress.exchange(socket);
 
         remoteAddress.hexDump();
+        var endpointParameters = new EndpointParameters()
+                .setRemoteAddress(remoteAddress);
+
+        var endpoint = worker.createEndpoint(endpointParameters);
+
+        endpoint.hexDump();
     }
 
     private void runServer() throws IOException {

@@ -7,6 +7,7 @@ import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.ucp_worker_get_address;
 import static org.openucx.ucx_h.ucp_ep_create;
+import static org.openucx.ucx_h.ucp_worker_progress;
 
 public class Worker extends NativeObject {
 
@@ -32,6 +33,10 @@ public class Worker extends NativeObject {
 
             return new WorkerAddress(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(length));
         }
+    }
+
+    public WorkerProgress progress() {
+        return ucp_worker_progress(this.address()) == 0 ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
     }
 
     public Endpoint createEndpoint(EndpointParameters parameters) {
