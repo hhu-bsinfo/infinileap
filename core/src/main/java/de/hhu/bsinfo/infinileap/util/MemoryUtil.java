@@ -9,7 +9,7 @@ public class MemoryUtil {
     private static final String LINE_SEPARATOR_CHARACTER = "-";
     private static final String COLUMN_SEPARATOR_CHARACTER = "|";
 
-    private static final String HEXDUMP_HEADER = "    OFFSET    | 0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F|   ANSI ASCII   ";
+    private static final String HEXDUMP_HEADER = "  OFFSET  | 0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F|   ANSI ASCII   ";
     private static final String LINE_SEPARATOR = LINE_SEPARATOR_CHARACTER.repeat(HEXDUMP_HEADER.length());
 
     public static MemorySegment allocateMemory(long capacity) {
@@ -27,21 +27,19 @@ public class MemoryUtil {
 
     public static void dump(MemorySegment segment) {
 
-        var address = segment.address().toRawLongValue();
         var bytes = segment.byteSize();
         var offset = 0L;
-
-        int i;
 
         System.out.println(HEXDUMP_HEADER);
         System.out.println(LINE_SEPARATOR);
 
+        int i;
         while (bytes > 0) {
 
             var length = bytes >= LINE_LENGTH ? LINE_LENGTH : bytes;
 
             // Print memory address
-            System.out.printf(" %08X |", address + offset);
+            System.out.printf(" %08X |", offset);
 
             // Print bytes
             for (i = 0; i < LINE_LENGTH; i++) {
@@ -73,12 +71,6 @@ public class MemoryUtil {
 
             offset += length;
             bytes -= length;
-        }
-    }
-
-    private static void addPadding(int count, String padding) {
-        for (int i = 0; i < count; i++) {
-            System.out.print(padding);
         }
     }
 

@@ -57,27 +57,43 @@ public class Messaging implements Runnable {
         worker = context.createWorker(workerParameters);
         localAddress = worker.getAddress();
 
-        localAddress.hexDump();
-
-//        try {
-//            if (serverAddress != null) {
-//                runClient();
-//            } else {
-//                runServer();
-//            }
-//        } catch (IOException exception) {
-//            log.error("caught unexpected exception ", exception);
-//        }
+        try {
+            if (serverAddress != null) {
+                runClient();
+            } else {
+                runServer();
+            }
+        } catch (IOException exception) {
+            log.error("caught unexpected exception ", exception);
+        }
     }
 
     private void runClient() throws IOException {
+
+        // Create client socket for oob connection establishment
+        log.info("Connecting to server at {}", serverAddress);
         var socket = new Socket(serverAddress.getAddress(), serverAddress.getPort());
+
+        // Exchange worker address
+        log.info("Exchanging worker address");
         remoteAddress = localAddress.exchange(socket);
+
+        remoteAddress.hexDump();
     }
 
     private void runServer() throws IOException {
+
+        // Create server socket for oob connection establishment
         var server = new ServerSocket(port);
+
+        // Accept client connection
+        log.info("Listening for client connections on {}", port);
         var socket = server.accept();
+
+        // Exchange worker address
+        log.info("Exchanging worker address");
         remoteAddress = localAddress.exchange(socket);
+
+        remoteAddress.hexDump();
     }
 }
