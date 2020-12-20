@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.binding.util;
+package de.hhu.bsinfo.infinileap.binding;
 
 import org.openucx.ucx_h;
 

@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.example.command;
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.bsinfo.infinileap.binding.util.ThreadMode;
+import de.hhu.bsinfo.infinileap.binding.ThreadMode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 

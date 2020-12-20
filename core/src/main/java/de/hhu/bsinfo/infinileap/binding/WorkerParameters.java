@@ -1,6 +1,5 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.binding.util.ThreadMode;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;

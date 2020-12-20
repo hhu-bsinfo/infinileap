@@ -1,6 +1,8 @@
-package de.hhu.bsinfo.infinileap.binding.util;
+package de.hhu.bsinfo.infinileap.binding;
 
 import org.openucx.ucx_h;
+
+import java.util.NoSuchElementException;
 
 public enum Status {
 
@@ -53,7 +55,17 @@ public enum Status {
         return value;
     }
 
-    public final boolean is(int status) {
+    final boolean is(int status) {
         return value == status;
+    }
+
+    static Status of(int status) {
+        for (var value : values()) {
+            if (value.is(status)) {
+                return value;
+            }
+        }
+
+        throw new NoSuchElementException();
     }
 }

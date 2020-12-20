@@ -22,15 +22,21 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
-    private int getAttributeMask() {
+    public RequestParameters setSendCallback(SendCallback callback) {
+        ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        addAttributeMask(Attribute.CALLBACK);
+        return this;
+    }
+
+    protected int getAttributeMask() {
         return ucp_request_param_t.op_attr_mask$get(segment());
     }
 
-    private void setAttributeMsk(Attribute... fields) {
+    protected void setAttributeMsk(Attribute... fields) {
         ucp_request_param_t.op_attr_mask$set(segment(), BitMask.intOf(fields));
     }
 
-    private void addAttributeMask(Attribute... fields) {
+    protected void addAttributeMask(Attribute... fields) {
         ucp_request_param_t.op_attr_mask$set(segment(), BitMask.intOf(fields) | getAttributeMask());
     }
 

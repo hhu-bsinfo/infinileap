@@ -1,9 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.binding.util.Status;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.*;
-import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.ucp_worker_get_address;
 import static org.openucx.ucx_h.ucp_ep_create;

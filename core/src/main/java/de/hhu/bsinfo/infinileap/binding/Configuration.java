@@ -1,6 +1,5 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.binding.util.Status;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.CLinker;
