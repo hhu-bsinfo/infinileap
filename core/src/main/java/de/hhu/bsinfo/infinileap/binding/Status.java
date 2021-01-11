@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import jdk.incubator.foreign.MemoryAddress;
 import org.openucx.ucx_h;
 
 import java.util.NoSuchElementException;

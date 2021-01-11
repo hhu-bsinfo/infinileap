@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.NativeObject;
+import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.*;
+import org.jetbrains.annotations.Nullable;
 import org.openucx.ucx_h;
 
-import static org.openucx.ucx_h.ucp_worker_get_address;
-import static org.openucx.ucx_h.ucp_ep_create;
-import static org.openucx.ucx_h.ucp_worker_progress;
+import static org.openucx.ucx_h.*;
 
 public class Worker extends NativeObject {
 
@@ -19,9 +19,9 @@ public class Worker extends NativeObject {
              var length = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
             var status = ucp_worker_get_address(
-                    this.address(),
-                    pointer.address(),
-                    length.address()
+                    Parameter.of(this),
+                    pointer,
+                    length
             );
 
             if (!Status.OK.is(status)) {
@@ -41,9 +41,9 @@ public class Worker extends NativeObject {
     public Endpoint createEndpoint(EndpointParameters parameters) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_ep_create(
-                    this.address(),
-                    parameters.address(),
-                    pointer.address()
+                    Parameter.of(this),
+                    Parameter.of(parameters),
+                    pointer
             );
 
             if (!Status.OK.is(status)) {
@@ -58,10 +58,10 @@ public class Worker extends NativeObject {
 
     public Listener createListener(ListenerParameters parameters) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
-            var status = ucx_h.ucp_listener_create(
-                    this.address(),
-                    parameters.address(),
-                    pointer.address()
+            var status = ucp_listener_create(
+                    Parameter.of(this),
+                    Parameter.of(parameters),
+                    pointer
             );
 
             if (!Status.OK.is(status)) {
@@ -72,5 +72,22 @@ public class Worker extends NativeObject {
 
             return new Listener(MemoryAccess.getAddress(pointer));
         }
+    }
+
+    public Request receiveTagged(MemorySegment buffer, Tag tag) {
+        return receiveTagged(buffer, tag, RequestParameters.EMPTY);
+    }
+
+    public Request receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
+        var address = ucx_h.ucp_tag_recv_nbx(
+                Parameter.of(this),
+                buffer,
+                buffer.byteSize(),
+                tag.getValue(),
+                tag.getValue(),
+                Parameter.of(parameters)
+        );
+
+        return Request.of(address);
     }
 }

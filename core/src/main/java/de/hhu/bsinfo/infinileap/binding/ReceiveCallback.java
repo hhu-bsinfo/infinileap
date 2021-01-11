@@ -9,19 +9,21 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 @FunctionalInterface
-public interface ConnectionHandler {
+public interface ReceiveCallback {
 
     /* static final */ FunctionDescriptor DESCRIPTOR = FunctionDescriptor.ofVoid(
+            CLinker.C_POINTER,
+            CLinker.C_INT,
             CLinker.C_POINTER,
             CLinker.C_POINTER
     );
 
-    MethodType METHOD_TYPE = MethodType.methodType(void.class, MemoryAddress.class, MemoryAddress.class);
+    MethodType METHOD_TYPE = MethodType.methodType(void.class, MemoryAddress.class, int.class, MemoryAddress.class, MemoryAddress.class);
 
-    void onConnection(ConnectionRequest request);
+    void onRequestReceived(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data);
 
-    private void callback(MemoryAddress request, MemoryAddress data) {
-        onConnection(ConnectionRequest.of(request, data.toRawLongValue()));
+    private void callback(MemoryAddress request, int status, MemoryAddress tagInfo, MemoryAddress data) {
+        onRequestReceived(Request.of(request), Status.of(status), tagInfo, data);
     }
 
     default MemorySegment upcallStub() {
@@ -29,7 +31,7 @@ public interface ConnectionHandler {
 
         try {
             var methodHandle = MethodHandles.lookup()
-                    .findVirtual(ConnectionHandler.class, "callback", METHOD_TYPE)
+                    .findVirtual(ReceiveCallback.class, "callback", METHOD_TYPE)
                     .bindTo(this);
 
             return linker.upcallStub(methodHandle, DESCRIPTOR);

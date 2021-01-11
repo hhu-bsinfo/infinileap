@@ -38,6 +38,12 @@ public class EndpointParameters extends NativeObject {
         return this;
     }
 
+    public EndpointParameters setConnectionRequest(ConnectionRequest request) {
+        ucp_ep_params_t.conn_request$set(segment(), request.address());
+        addFieldMask(Field.CONN_REQUEST);
+        return this;
+    }
+
     private long getFieldMask() {
         return ucp_ep_params_t.field_mask$get(segment());
     }

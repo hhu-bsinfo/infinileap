@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.CLinker;
+import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryHandles;
 import jdk.incubator.foreign.MemorySegment;
 import org.openucx.C;
@@ -12,18 +13,26 @@ import org.openucx.ucx_h.*;
 
 public class RequestParameters extends NativeObject {
 
+    static final RequestParameters EMPTY = new RequestParameters();
+
     public RequestParameters() {
         super(ucp_request_param_t.allocate());
     }
 
-    public RequestParameters setUserData(MemorySegment data) {
-        ucp_request_param_t.user_data$set(segment(), data.address());
+    public RequestParameters setUserData(long data) {
+        ucp_request_param_t.user_data$set(segment(), MemoryAddress.ofLong(data));
         addAttributeMask(Attribute.USER_DATA);
         return this;
     }
 
     public RequestParameters setSendCallback(SendCallback callback) {
         ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        addAttributeMask(Attribute.CALLBACK);
+        return this;
+    }
+
+    public RequestParameters setReceiveCallback(ReceiveCallback callback) {
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
