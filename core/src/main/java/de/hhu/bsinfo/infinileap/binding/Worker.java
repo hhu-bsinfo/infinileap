@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.*;
+import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.ucp_worker_get_address;
 import static org.openucx.ucx_h.ucp_ep_create;
@@ -52,6 +53,24 @@ public class Worker extends NativeObject {
             }
 
             return new Endpoint(MemoryAccess.getAddress(pointer));
+        }
+    }
+
+    public Listener createListener(ListenerParameters parameters) {
+        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+            var status = ucx_h.ucp_listener_create(
+                    this.address(),
+                    parameters.address(),
+                    pointer.address()
+            );
+
+            if (!Status.OK.is(status)) {
+                // TODO(krakowski):
+                //  Error handling using Exception or other appropriate mechanism
+                return null;
+            }
+
+            return new Listener(MemoryAccess.getAddress(pointer));
         }
     }
 }

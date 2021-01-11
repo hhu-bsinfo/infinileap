@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.example.command;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ThreadMode;
+import jdk.incubator.foreign.MemoryAccess;
+import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -9,6 +11,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
+import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 @CommandLine.Command(
@@ -25,6 +29,11 @@ public class Messaging implements Runnable {
             names = {"-c", "--connect"},
             description = "The server to connect to.")
     private InetSocketAddress serverAddress;
+
+    @CommandLine.Option(
+            names = {"-l", "--listen"},
+            description = "The address the server listens on.")
+    private InetSocketAddress listenAddress;
 
     @CommandLine.Option(
             names = {"-p", "--port"},
@@ -63,7 +72,9 @@ public class Messaging implements Runnable {
             } else {
                 runServer();
             }
-        } catch (IOException exception) {
+
+            Thread.sleep(Duration.ofSeconds(5).toMillis());
+        } catch (IOException | InterruptedException exception) {
             log.error("caught unexpected exception ", exception);
         }
     }
@@ -80,25 +91,27 @@ public class Messaging implements Runnable {
 
         remoteAddress.hexDump();
         var endpointParameters = new EndpointParameters()
-                .setRemoteAddress(remoteAddress);
+                .setRemoteAddress(serverAddress);
 
         var endpoint = worker.createEndpoint(endpointParameters);
 
-        endpoint.hexDump();
+        while (worker.progress() == WorkerProgress.IDLE) {
+            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
+        }
     }
 
     private void runServer() throws IOException {
 
-        // Create server socket for oob connection establishment
-        var server = new ServerSocket(port);
+        var listenerParams = new ListenerParameters()
+                .setListenAddress(listenAddress)
+                .setConnectionHandler(((request, data) -> {
+                    log.info("new request");
+                }));
 
-        // Accept client connection
-        log.info("Listening for client connections on {}", port);
-        var socket = server.accept();
-
-        // Exchange worker address
-        log.info("Exchanging worker address");
-        remoteAddress = localAddress.exchange(socket);
+        var listener = worker.createListener(listenerParams);
+        while (worker.progress() == WorkerProgress.IDLE) {
+            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
+        }
 
         remoteAddress.hexDump();
     }
