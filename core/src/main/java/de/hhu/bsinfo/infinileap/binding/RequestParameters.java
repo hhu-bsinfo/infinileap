@@ -37,6 +37,12 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
+    public RequestParameters setReplyBuffer(MemorySegment replyBuffer) {
+        ucp_request_param_t.reply_buffer$set(segment(), replyBuffer.address());
+        addAttributeMask(Attribute.REPLY_BUFFER);
+        return this;
+    }
+
     protected int getAttributeMask() {
         return ucp_request_param_t.op_attr_mask$get(segment());
     }

@@ -60,6 +60,10 @@ public enum Status {
         return value == status;
     }
 
+    final boolean isNot(int status) {
+        return value != status;
+    }
+
     static Status of(int status) {
         for (var value : values()) {
             if (value.is(status)) {

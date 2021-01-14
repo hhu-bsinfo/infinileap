@@ -3,8 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://openjdk.java.net/projects/jdk/16/"><img src="https://img.shields.io/badge/java-16-blue.svg"></a>
+  <a href="https://openjdk.java.net/projects/jdk/16/"><img src="https://img.shields.io/badge/java-17-blue.svg"></a>
+<a href="https://github.com/openucx/ucx/tree/v1.9.0"><img src="https://img.shields.io/badge/ucx-1.9.0-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
+  
 </p>
 
 <p align="center">
@@ -19,7 +21,7 @@ Infinileap is a research project under development. We do not recommend using th
 
 ## :warning: &nbsp; Known issues
 
-  - Gradle (currently at 6.6) does not yet support OpenJDK 16 ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
+  - Gradle (currently at 6.6) does not yet support OpenJDK 16+ ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
   
     ```
     javaHome=/path/to/your/panama/java/home
@@ -27,7 +29,7 @@ Infinileap is a research project under development. We do not recommend using th
 
 ## :wrench: &nbsp; Requirements
 
-  * [OpenJDK 16 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
+  * [OpenJDK 17 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
   * [ucx 1.9.0](https://github.com/openucx/ucx/releases/tag/v1.9.0)
   
 ## :scroll: &nbsp; License
