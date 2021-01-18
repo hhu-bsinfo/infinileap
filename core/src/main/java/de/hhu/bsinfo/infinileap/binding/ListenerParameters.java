@@ -5,12 +5,11 @@ import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.MemoryAddress;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_listener_conn_handler_t;
-import org.openucx.ucx_h.ucp_listener_params_t;
-import org.openucx.ucx_h.ucs_sock_addr_t;
+import org.openucx.ucx_h.*;
 
 import java.net.InetSocketAddress;
+
+import static org.openucx.ucx_h.*;
 
 public class ListenerParameters extends NativeObject {
 
@@ -56,9 +55,9 @@ public class ListenerParameters extends NativeObject {
     }
 
     public enum Field implements LongFlag {
-        SOCKET_ADDRESS(ucx_h.UCP_LISTENER_PARAM_FIELD_SOCK_ADDR()),
-        CONNECTION_HANDLER(ucx_h.UCP_LISTENER_PARAM_FIELD_CONN_HANDLER()),
-        ACCEPT_HANDLER(ucx_h.UCP_LISTENER_PARAM_FIELD_ACCEPT_HANDLER());
+        SOCKET_ADDRESS(UCP_LISTENER_PARAM_FIELD_SOCK_ADDR()),
+        CONNECTION_HANDLER(UCP_LISTENER_PARAM_FIELD_CONN_HANDLER()),
+        ACCEPT_HANDLER(UCP_LISTENER_PARAM_FIELD_ACCEPT_HANDLER());
 
         private final long value;
 

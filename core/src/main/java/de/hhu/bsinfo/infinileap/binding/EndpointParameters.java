@@ -5,13 +5,11 @@ import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import jdk.incubator.foreign.NativeScope;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_ep_params_t;
-import org.openucx.ucx_h.ucp_params_t;
-import org.openucx.ucx_h.ucs_sock_addr_t;
+import org.openucx.ucx_h.*;
 
 import java.net.InetSocketAddress;
+
+import static org.openucx.ucx_h.*;
 
 public class EndpointParameters extends NativeObject {
 
@@ -62,13 +60,13 @@ public class EndpointParameters extends NativeObject {
     }
 
     public enum Field implements LongFlag {
-        REMOTE_ADDRESS(ucx_h.UCP_EP_PARAM_FIELD_REMOTE_ADDRESS()),
-        CONN_REQUEST(ucx_h.UCP_EP_PARAM_FIELD_CONN_REQUEST()),
-        ERR_HANDLER(ucx_h.UCP_EP_PARAM_FIELD_ERR_HANDLER()),
-        ERR_HANDLING_MODE(ucx_h.UCP_EP_PARAM_FIELD_ERR_HANDLING_MODE()),
-        SOCK_ADDR(ucx_h.UCP_EP_PARAM_FIELD_SOCK_ADDR()),
-        USER_DATA(ucx_h.UCP_EP_PARAM_FIELD_USER_DATA()),
-        FLAGS(ucx_h.UCP_EP_PARAM_FIELD_FLAGS());
+        REMOTE_ADDRESS(UCP_EP_PARAM_FIELD_REMOTE_ADDRESS()),
+        CONN_REQUEST(UCP_EP_PARAM_FIELD_CONN_REQUEST()),
+        ERR_HANDLER(UCP_EP_PARAM_FIELD_ERR_HANDLER()),
+        ERR_HANDLING_MODE(UCP_EP_PARAM_FIELD_ERR_HANDLING_MODE()),
+        SOCK_ADDR(UCP_EP_PARAM_FIELD_SOCK_ADDR()),
+        USER_DATA(UCP_EP_PARAM_FIELD_USER_DATA()),
+        FLAGS(UCP_EP_PARAM_FIELD_FLAGS());
 
         private final long value;
 
@@ -83,8 +81,8 @@ public class EndpointParameters extends NativeObject {
     }
 
     public enum Flag implements IntegerFlag {
-        CLIENT_SERVER(ucx_h.UCP_EP_PARAMS_FLAGS_CLIENT_SERVER()),
-        NO_LOOPBACK(ucx_h.UCP_EP_PARAMS_FLAGS_NO_LOOPBACK());
+        CLIENT_SERVER(UCP_EP_PARAMS_FLAGS_CLIENT_SERVER()),
+        NO_LOOPBACK(UCP_EP_PARAMS_FLAGS_NO_LOOPBACK());
 
         private final int value;
 

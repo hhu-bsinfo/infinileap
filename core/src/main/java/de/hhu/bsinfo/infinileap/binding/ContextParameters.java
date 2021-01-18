@@ -2,16 +2,12 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import jdk.incubator.foreign.CLinker;
-import lombok.Builder;
-import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_params_t;
+import org.openucx.ucx_h.*;
 
-import java.lang.invoke.MethodHandle;
+import static org.openucx.ucx_h.*;
+
 
 @Accessors(chain = true)
 public class ContextParameters extends NativeObject {
@@ -53,14 +49,14 @@ public class ContextParameters extends NativeObject {
     }
 
     public enum Field implements LongFlag {
-        FEATURES(ucx_h.UCP_PARAM_FIELD_FEATURES()),
-        REQUEST_SIZE(ucx_h.UCP_PARAM_FIELD_REQUEST_SIZE()),
-        REQUEST_INIT(ucx_h.UCP_PARAM_FIELD_REQUEST_INIT ()),
-        REQUEST_CLEANUP(ucx_h.UCP_PARAM_FIELD_REQUEST_CLEANUP()),
-        TAG_SENDER_MASK(ucx_h.UCP_PARAM_FIELD_TAG_SENDER_MASK()),
-        SHARED_WORKERS(ucx_h.UCP_PARAM_FIELD_MT_WORKERS_SHARED()),
-        ESTIMATED_NUM_EPS(ucx_h.UCP_PARAM_FIELD_ESTIMATED_NUM_EPS()),
-        ESTIMATED_NUM_PPN(ucx_h.UCP_PARAM_FIELD_ESTIMATED_NUM_PPN());
+        FEATURES(UCP_PARAM_FIELD_FEATURES()),
+        REQUEST_SIZE(UCP_PARAM_FIELD_REQUEST_SIZE()),
+        REQUEST_INIT(UCP_PARAM_FIELD_REQUEST_INIT ()),
+        REQUEST_CLEANUP(UCP_PARAM_FIELD_REQUEST_CLEANUP()),
+        TAG_SENDER_MASK(UCP_PARAM_FIELD_TAG_SENDER_MASK()),
+        SHARED_WORKERS(UCP_PARAM_FIELD_MT_WORKERS_SHARED()),
+        ESTIMATED_NUM_EPS(UCP_PARAM_FIELD_ESTIMATED_NUM_EPS()),
+        ESTIMATED_NUM_PPN(UCP_PARAM_FIELD_ESTIMATED_NUM_PPN());
 
         private final long value;
 
@@ -75,13 +71,13 @@ public class ContextParameters extends NativeObject {
     }
 
     public enum Feature implements LongFlag {
-        TAG(ucx_h.UCP_FEATURE_TAG()),
-        RMA(ucx_h.UCP_FEATURE_RMA()),
-        ATOMIC_32(ucx_h.UCP_FEATURE_AMO32()),
-        ATOMIC_64(ucx_h.UCP_FEATURE_AMO64()),
-        WAKEUP(ucx_h.UCP_FEATURE_WAKEUP()),
-        STREAM(ucx_h.UCP_FEATURE_STREAM()),
-        AM(ucx_h.UCP_FEATURE_AM());
+        TAG(UCP_FEATURE_TAG()),
+        RMA(UCP_FEATURE_RMA()),
+        ATOMIC_32(UCP_FEATURE_AMO32()),
+        ATOMIC_64(UCP_FEATURE_AMO64()),
+        WAKEUP(UCP_FEATURE_WAKEUP()),
+        STREAM(UCP_FEATURE_STREAM()),
+        AM(UCP_FEATURE_AM());
 
         private final long value;
 

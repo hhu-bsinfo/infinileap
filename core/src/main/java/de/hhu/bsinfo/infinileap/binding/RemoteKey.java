@@ -1,20 +1,19 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 
-public class RemoteKey {
+import static org.openucx.ucx_h.ucp_rkey_buffer_release;
 
-    private final MemoryAddress address;
+public class RemoteKey extends NativeObject {
 
-    private RemoteKey(MemoryAddress address) {
-        this.address = address;
+    /* package-private */ RemoteKey(MemoryAddress address, long byteSize) {
+        super(address, byteSize);
     }
 
-    MemoryAddress address() {
-        return address;
-    }
-
-    static RemoteKey of(MemoryAddress address) {
-        return new RemoteKey(address);
+    @Override
+    public void close() {
+        ucp_rkey_buffer_release(segment());
+        super.close();
     }
 }

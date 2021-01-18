@@ -5,9 +5,8 @@ import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
 
-import static org.openucx.ucx_h.ucp_tag_send_nbx;
+import static org.openucx.ucx_h.*;
 
 public class Endpoint extends NativeObject {
 
@@ -36,7 +35,7 @@ public class Endpoint extends NativeObject {
     }
 
     public Request sendStream(MemorySegment message, RequestParameters parameters) {
-        var address = ucx_h.ucp_stream_send_nbx(
+        var address = ucp_stream_send_nbx(
                 Parameter.of(this),
                 message,
                 message.byteSize(),
@@ -51,7 +50,7 @@ public class Endpoint extends NativeObject {
     }
 
     public Request put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        var address = ucx_h.ucp_put_nbx(
+        var address = ucp_put_nbx(
                 Parameter.of(this),
                 source,
                 source.byteSize(),
@@ -68,7 +67,7 @@ public class Endpoint extends NativeObject {
     }
 
     public Request get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        var address = ucx_h.ucp_get_nbx(
+        var address = ucp_get_nbx(
                 Parameter.of(this),
                 target,
                 target.byteSize(),
@@ -81,7 +80,7 @@ public class Endpoint extends NativeObject {
     }
 
     public Request flush(RequestParameters parameters) {
-        var address =ucx_h.ucp_ep_flush_nbx(
+        var address = ucp_ep_flush_nbx(
                 Parameter.of(this),
                 Parameter.of(parameters)
         );

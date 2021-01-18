@@ -8,11 +8,8 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import org.openucx.ucx_h;
 
-import static org.openucx.ucx_h.ucp_config_print;
-import static org.openucx.ucx_h.ucp_config_read;
-import static org.openucx.ucx_h.ucp_config_release;
+import static org.openucx.ucx_h.*;
 
 @Slf4j
 public class Configuration extends NativeObject {
@@ -47,7 +44,7 @@ public class Configuration extends NativeObject {
     }
 
     public void print() {
-        ucp_config_print(address(), ucx_h.stdout$get(), MemoryAddress.NULL, ucx_h.UCS_CONFIG_PRINT_CONFIG());
+        ucp_config_print(address(), stdout$get(), MemoryAddress.NULL, UCS_CONFIG_PRINT_CONFIG());
     }
 
     @Override

@@ -1,12 +1,12 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import org.openucx.ucx_h;
+import static org.openucx.ucx_h.*;
 
 public enum ThreadMode {
-    SINGLE(ucx_h.UCS_THREAD_MODE_SINGLE()),
-    MULTI(ucx_h.UCS_THREAD_MODE_MULTI()),
-    SERIALIZED(ucx_h.UCS_THREAD_MODE_SERIALIZED()),
-    LAST(ucx_h.UCS_THREAD_MODE_LAST());
+    SINGLE(UCS_THREAD_MODE_SINGLE()),
+    MULTI(UCS_THREAD_MODE_MULTI()),
+    SERIALIZED(UCS_THREAD_MODE_SERIALIZED()),
+    LAST(UCS_THREAD_MODE_LAST());
 
     private final int value;
 

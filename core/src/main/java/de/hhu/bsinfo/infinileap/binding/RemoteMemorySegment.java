@@ -12,7 +12,7 @@ public class RemoteMemorySegment {
 
     private final long size;
 
-    RemoteMemorySegment(Endpoint owner, MemoryAddress address, RemoteKey key, long size) {
+    /* package-private */ RemoteMemorySegment(Endpoint owner, MemoryAddress address, RemoteKey key, long size) {
         this.owner = owner;
         this.address = address;
         this.key = key;

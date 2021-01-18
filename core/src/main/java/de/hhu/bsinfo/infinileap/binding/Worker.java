@@ -2,9 +2,10 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.Parameter;
-import jdk.incubator.foreign.*;
-import org.jetbrains.annotations.Nullable;
-import org.openucx.ucx_h;
+import jdk.incubator.foreign.CLinker;
+import jdk.incubator.foreign.MemoryAccess;
+import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemorySegment;
 
 import static org.openucx.ucx_h.*;
 
@@ -17,6 +18,8 @@ public class Worker extends NativeObject {
     public WorkerAddress getAddress() {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var length = MemorySegment.allocateNative(CLinker.C_LONG)) {
+
+
 
             var status = ucp_worker_get_address(
                     Parameter.of(this),
@@ -79,7 +82,7 @@ public class Worker extends NativeObject {
     }
 
     public Request receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
-        var address = ucx_h.ucp_tag_recv_nbx(
+        var address = ucp_tag_recv_nbx(
                 Parameter.of(this),
                 buffer,
                 buffer.byteSize(),
@@ -89,5 +92,11 @@ public class Worker extends NativeObject {
         );
 
         return Request.of(address);
+    }
+
+    @Override
+    public void close() {
+        ucp_worker_destroy(segment());
+        super.close();
     }
 }
