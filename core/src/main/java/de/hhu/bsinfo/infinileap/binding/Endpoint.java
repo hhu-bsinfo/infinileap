@@ -1,8 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.CLinker;
+import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -14,17 +13,25 @@ public class Endpoint extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
+    public Request sendTagged(NativeObject object, Tag tag) {
+        return sendTagged(object.segment(), tag, RequestParameters.EMPTY);
+    }
+
+    public Request sendTagged(NativeObject object, Tag tag, RequestParameters parameters) {
+        return sendTagged(object.segment(), tag, parameters);
+    }
+
     public Request sendTagged(MemorySegment message, Tag tag) {
         return sendTagged(message, tag, RequestParameters.EMPTY);
     }
 
     public Request sendTagged(MemorySegment message, Tag tag, RequestParameters parameters) {
         var address = ucp_tag_send_nbx(
-                this.address(),
+                Parameter.of(this),
                 message,
                 message.byteSize(),
                 tag.getValue(),
-                parameters.address()
+                Parameter.of(parameters)
         );
 
         return Request.of(address);
@@ -62,8 +69,8 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
-    public Request get(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key) {
-        return get(source, remoteAddress, key, RequestParameters.EMPTY);
+    public Request get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key) {
+        return get(target, remoteAddress, key, RequestParameters.EMPTY);
     }
 
     public Request get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
@@ -77,6 +84,26 @@ public class Endpoint extends NativeObject {
         );
 
         return Request.of(address);
+    }
+
+    public RemoteKey unpack(MemoryDescriptor descriptor) {
+        var keySegment = descriptor.keySegment();
+        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+
+            var status = ucp_ep_rkey_unpack(
+                Parameter.of(this),
+                keySegment,
+                pointer.address()
+            );
+
+            if (!Status.OK.is(status)) {
+                // TODO(krakowski):
+                //  Error handling using Exception or other appropriate mechanism
+                return null;
+            }
+
+            return new RemoteKey(MemoryAccess.getAddress(pointer));
+        }
     }
 
     public Request flush(RequestParameters parameters) {

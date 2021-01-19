@@ -8,6 +8,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -118,6 +119,17 @@ public abstract class ClientServerDemo implements Runnable {
 
     protected final Endpoint endpoint() {
         return endpoint;
+    }
+
+    protected void waitForAndReset(AtomicBoolean value) {
+        waitFor(value);
+        value.set(false);
+    }
+
+    protected void waitFor(AtomicBoolean value) {
+        while (!value.get()) {
+            worker.progress();
+        }
     }
 
     protected abstract void onClientReady();

@@ -1,7 +1,5 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -70,9 +68,14 @@ public class Context extends NativeObject {
     }
 
     public MemoryHandle allocateMemory(long size) {
-        var segment = MemorySegment.allocateNative(size);
+        return mapMemory(MemorySegment.allocateNative(size));
+
+    }
+
+    public MemoryHandle mapMemory(MemorySegment segment) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
-             var parameters = new MappingParameters().setSegment(segment)) {
+             var parameters = new MappingParameters().setSegment(segment);
+             var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
             var status = ucp_mem_map(
                     Parameter.of(this),
@@ -86,17 +89,18 @@ public class Context extends NativeObject {
                 return null;
             }
 
-            return new MemoryHandle(segment, MemoryAccess.getAddress(pointer));
+            final var handle = MemoryAccess.getAddress(pointer);
+            return new MemoryHandle(segment, handle, getDescriptor(segment, handle));
         }
     }
 
-    public RemoteKey getRemoteKey(MemoryHandle handle) {
+    private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryAddress handle) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
             var status = ucp_rkey_pack(
                     Parameter.of(this),
-                    handle.handle(),
+                    handle,
                     pointer.address(),
                     size.address()
             );
@@ -107,7 +111,12 @@ public class Context extends NativeObject {
                 return null;
             }
 
-            return new RemoteKey(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(size));
+            var remoteKey = MemoryAccess.getAddress(pointer)
+                    .asSegmentRestricted(MemoryAccess.getLong(size));
+
+            var descriptor = new MemoryDescriptor(segment, remoteKey);
+            ucp_rkey_buffer_release(remoteKey);
+            return descriptor;
         }
     }
 }

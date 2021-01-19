@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
+import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import de.hhu.bsinfo.infinileap.util.factory.ReferenceFactory;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;

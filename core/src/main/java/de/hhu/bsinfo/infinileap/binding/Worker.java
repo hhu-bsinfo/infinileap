@@ -1,7 +1,5 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.Parameter;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -75,6 +73,14 @@ public class Worker extends NativeObject {
 
             return new Listener(MemoryAccess.getAddress(pointer));
         }
+    }
+
+    public Request receiveTagged(NativeObject object, Tag tag) {
+        return receiveTagged(object.segment(), tag, RequestParameters.EMPTY);
+    }
+
+    public Request receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
+        return receiveTagged(object.segment(), tag, parameters);
     }
 
     public Request receiveTagged(MemorySegment buffer, Tag tag) {

@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
+import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 
 import java.util.ArrayList;
@@ -43,13 +44,5 @@ public class NativeLinkedList<T extends NativeObject & Linkable<T>> {
             list.add(element);
         }
         return list;
-    }
-
-    public MemoryAddress address() {
-        if (elements.isEmpty()) {
-            return MemoryAddress.NULL;
-        }
-
-        return elements.get(0).address();
     }
 }

@@ -1,5 +1,6 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
@@ -52,17 +53,8 @@ public class NativeObject implements AutoCloseable {
         this(BASE.asSlice(address, byteSize));
     }
 
-    public MemoryAddress address() {
+    protected MemoryAddress address() {
         return baseAddress;
-    }
-
-    @Override
-    public void close() {
-        try {
-            segment.close();
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     protected final MemorySegment segment() {
@@ -75,5 +67,14 @@ public class NativeObject implements AutoCloseable {
 
     public final void hexDump() {
         MemoryUtil.dump(segment);
+    }
+
+    @Override
+    public void close() {
+        try {
+            segment.close();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 }
