@@ -72,7 +72,7 @@ public class Context extends NativeObject {
     public MemoryHandle allocateMemory(long size) {
         var segment = MemorySegment.allocateNative(size);
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
-             var parameters = new MappingParameters().setAddress(segment.address())) {
+             var parameters = new MappingParameters().setSegment(segment)) {
 
             var status = ucp_mem_map(
                     Parameter.of(this),

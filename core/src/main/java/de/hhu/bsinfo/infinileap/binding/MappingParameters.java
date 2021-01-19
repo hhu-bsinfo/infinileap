@@ -5,6 +5,7 @@ import de.hhu.bsinfo.infinileap.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemorySegment;
 import org.openucx.ucx_h.*;
 
 import static org.openucx.ucx_h.*;
@@ -13,6 +14,10 @@ public class MappingParameters extends NativeObject {
 
     public MappingParameters() {
         super(ucp_mem_map_params_t.allocate());
+    }
+
+    public MappingParameters setSegment(MemorySegment segment) {
+        return setAddress(segment.address()).setLength(segment.byteSize());
     }
 
     public MappingParameters setAddress(MemoryAddress address) {
