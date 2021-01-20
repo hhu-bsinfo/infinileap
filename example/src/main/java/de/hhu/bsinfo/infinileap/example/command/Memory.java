@@ -32,12 +32,12 @@ public class Memory extends ClientServerDemo {
 
         // Create memory segment and fill it with data
         final var source = MemorySegment.ofArray(BUFFER_CONTENT);
-        final var memoryHandle = context.allocateMemory(BUFFER_SIZE);
-        memoryHandle.memory().copyFrom(source);
+        final var memoryRegion = context.allocateMemory(BUFFER_SIZE);
+        memoryRegion.segment().copyFrom(source);
 
         // Send remote key to server
         log.info("Sending remote key");
-        final var descriptor = memoryHandle.descriptor();
+        final var descriptor = memoryRegion.descriptor();
         endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setSendCallback((request, status, data) -> barrier.set(true)));
 

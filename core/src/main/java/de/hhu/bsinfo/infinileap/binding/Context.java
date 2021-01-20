@@ -67,12 +67,12 @@ public class Context extends NativeObject {
         }
     }
 
-    public MemoryHandle allocateMemory(long size) {
+    public MemoryRegion allocateMemory(long size) {
         return mapMemory(MemorySegment.allocateNative(size));
 
     }
 
-    public MemoryHandle mapMemory(MemorySegment segment) {
+    public MemoryRegion mapMemory(MemorySegment segment) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var parameters = new MappingParameters().setSegment(segment);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
@@ -89,18 +89,19 @@ public class Context extends NativeObject {
                 return null;
             }
 
-            final var handle = MemoryAccess.getAddress(pointer);
-            return new MemoryHandle(segment, handle, getDescriptor(segment, handle));
+            final var handle = new MemoryHandle(MemoryAccess.getAddress(pointer));
+            final var descriptor = getDescriptor(segment, handle);
+            return new MemoryRegion(handle, segment, descriptor);
         }
     }
 
-    private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryAddress handle) {
+    private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
             var status = ucp_rkey_pack(
                     Parameter.of(this),
-                    handle,
+                    Parameter.of(handle),
                     pointer.address(),
                     size.address()
             );

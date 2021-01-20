@@ -1,58 +1,76 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
+
+import java.lang.invoke.VarHandle;
+
+import static jdk.incubator.foreign.CLinker.*;
 
 public class MemoryDescriptor extends NativeObject {
 
-    private static final long SIZE = 64L;
+    private static final long KEY_DATA_SIZE = 64;
 
-    private static final long OFFSET_BUFFER_ADDRESS = 0L;
-    private static final long OFFSET_BUFFER_SIZE = OFFSET_BUFFER_ADDRESS + Long.BYTES;
-    private static final long OFFSET_KEY_SIZE = OFFSET_BUFFER_SIZE + Long.BYTES;
-    private static final long OFFSET_KEY_DATA = OFFSET_KEY_SIZE + Long.BYTES;
+    private static final MemoryLayout LAYOUT = MemoryLayout.ofStruct(
+            C_LONG.withName("buf_size"),
+            C_POINTER.withName("buf_addr"),
+            MemoryLayout.ofSequence(KEY_DATA_SIZE, C_CHAR).withName("key_data")
+    );
+
+    private static final VarHandle BUFFER_SIZE =
+            LAYOUT.varHandle(long.class, MemoryLayout.PathElement.groupElement("buf_size"));
+
+    private static final VarHandle BUFFER_ADDRESS = MemoryHandles.asAddressVarHandle(
+            LAYOUT.varHandle(long.class, MemoryLayout.PathElement.groupElement("buf_addr")));
+
+    private static final long KEY_DATA_OFFSET =
+            LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("key_data"));
 
     public MemoryDescriptor() {
-        super(MemorySegment.allocateNative(SIZE));
+        super(MemorySegment.allocateNative(LAYOUT));
     }
 
     MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey) {
-        super(MemorySegment.allocateNative(SIZE));
+        super(MemorySegment.allocateNative(LAYOUT));
 
         setBufferAddress(segment.address());
         setBufferSize(segment.byteSize());
         setRemoteKey(remoteKey);
     }
 
+    private MemoryAddress getBufferAddress() {
+        return (MemoryAddress) BUFFER_ADDRESS.get(segment());
+    }
+
     private void setBufferAddress(MemoryAddress address) {
-        MemoryAccess.setAddressAtOffset(segment(), OFFSET_BUFFER_ADDRESS, address);
+        BUFFER_ADDRESS.set(segment(), address);
+    }
+
+    private long getBufferSize() {
+        return (long) BUFFER_SIZE.get(segment());
     }
 
     private void setBufferSize(long size) {
-        MemoryAccess.setLongAtOffset(segment(), OFFSET_BUFFER_SIZE, size);
+        BUFFER_SIZE.set(segment(), size);
     }
 
     private void setRemoteKey(MemorySegment remoteKey) {
         final var keySize = remoteKey.byteSize();
-        if (keySize > SIZE - OFFSET_KEY_DATA) {
+        if (keySize > KEY_DATA_SIZE) {
             throw new IllegalArgumentException("Remote key does not fit into buffer");
         }
 
-        MemoryAccess.setLongAtOffset(segment(), OFFSET_KEY_SIZE, keySize);
-        segment().asSlice(OFFSET_KEY_DATA).copyFrom(remoteKey);
+        segment().asSlice(KEY_DATA_OFFSET).copyFrom(remoteKey);
     }
 
     public long remoteSize() {
-        return MemoryAccess.getLongAtOffset(segment(), OFFSET_BUFFER_SIZE);
+        return (long) BUFFER_SIZE.get(segment());
     }
 
     public MemoryAddress remoteAddress() {
-        return MemoryAccess.getAddressAtOffset(segment(), OFFSET_BUFFER_ADDRESS);
+        return getBufferAddress();
     }
 
     MemorySegment keySegment() {
-        var keySize = MemoryAccess.getLongAtOffset(segment(), OFFSET_KEY_SIZE);
-        return segment().asSlice(OFFSET_KEY_DATA, keySize);
+        return segment().asSlice(KEY_DATA_OFFSET);
     }
 }
