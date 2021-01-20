@@ -46,9 +46,7 @@ public class Messaging extends ClientServerDemo {
                     .setUserData(0L)
                     .setSendCallback((request, status, data) -> messageSent.set(true)));
 
-        while (!messageSent.get()) {
-            worker.progress();
-        }
+        waitFor(messageSent);
 
         endpoint.close();
     }
@@ -69,9 +67,7 @@ public class Messaging extends ClientServerDemo {
                 .setReceiveCallback((request, status, tagInfo, data) -> messageReceived.set(true));
 
         worker.receiveTagged(buffer, Tag.of(0L), requestParameters);
-        while (!messageReceived.get()) {
-            worker.progress();
-        }
+        waitFor(messageReceived);
 
         log.info("Received \"{}\"", new String(buffer.toByteArray()));
     }

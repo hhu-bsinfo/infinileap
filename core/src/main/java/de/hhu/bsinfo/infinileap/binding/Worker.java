@@ -39,6 +39,10 @@ public class Worker extends NativeObject {
         return ucp_worker_progress(this.address()) == 0 ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
     }
 
+    public void waitForEvents() {
+        ucp_worker_wait(Parameter.of(this));
+    }
+
     public Endpoint createEndpoint(EndpointParameters parameters) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_ep_create(
