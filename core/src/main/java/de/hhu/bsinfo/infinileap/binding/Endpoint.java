@@ -96,7 +96,7 @@ public class Endpoint extends NativeObject {
                 pointer.address()
             );
 
-            if (!Status.OK.is(status)) {
+            if (Status.OK.isNot(status)) {
                 // TODO(krakowski):
                 //  Error handling using Exception or other appropriate mechanism
                 return null;

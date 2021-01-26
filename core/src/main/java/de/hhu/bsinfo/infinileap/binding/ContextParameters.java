@@ -2,13 +2,11 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import lombok.experimental.Accessors;
 import org.openucx.ucx_h.*;
 
 import static org.openucx.ucx_h.*;
 
 
-@Accessors(chain = true)
 public class ContextParameters extends NativeObject {
 
     public ContextParameters() {

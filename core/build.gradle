@@ -14,6 +14,13 @@ compileJava {
     options.encoding = 'UTF-8'
 }
 
+compileTestJava {
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
+    options.encoding = 'UTF-8'
+    options.compilerArgs += [ '--add-modules', 'jdk.incubator.foreign' ]
+}
+
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
@@ -22,11 +29,6 @@ jextract {
     targetPackage = 'org.openucx'
     header = "${project.projectDir}/src/main/resources/ucx.h"
     sourceMode = true
-}
-
-compileJava {
-    options.compilerArgs += ['-XDignore.symbol.file']
-    options.forkOptions.jvmArgs += ['-J--illegal-access=permit']
 }
 
 dependencies {
@@ -41,16 +43,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
     testImplementation 'org.assertj:assertj-core:3.11.1'
     testImplementation 'org.slf4j:slf4j-nop:1.7.28'
-
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    testCompileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
 test {
     useJUnitPlatform()
+    jvmArgs += ['-Dforeign.restricted=permit', '--add-modules', 'jdk.incubator.foreign']
 }
 
 apply from: 'gradle/publish.gradle'

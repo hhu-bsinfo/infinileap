@@ -103,7 +103,6 @@ public class NativeInetSocketAddress extends NativeObject {
         INET4((short) ucx_h.AF_INET()),
         INET6((short) ucx_h.AF_INET6());
 
-
         private final short value;
 
         AddressFamily(short value) {

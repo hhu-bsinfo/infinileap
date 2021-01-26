@@ -4,12 +4,10 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import static org.openucx.ucx_h.*;
 
-@Slf4j
 public class Configuration extends NativeObject {
 
     /* package-private */ Configuration(MemoryAddress address) {
@@ -31,7 +29,7 @@ public class Configuration extends NativeObject {
                     pointer.address()
             );
 
-            if (!Status.OK.is(status)) {
+            if (Status.OK.isNot(status)) {
                 // TODO(krakowski):
                 //  Error handling using Exception or other appropriate mechanism
                 return null;

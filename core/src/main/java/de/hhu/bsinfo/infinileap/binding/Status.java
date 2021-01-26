@@ -1,6 +1,10 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import jdk.incubator.foreign.MemoryAddress;
+
+import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import static org.openucx.ucx_h.*;
 
@@ -43,7 +47,12 @@ public enum Status {
     LAST_LINK_FAILURE(UCS_ERR_LAST_LINK_FAILURE()),
     FIRST_ENDPOINT_FAILURE(UCS_ERR_FIRST_ENDPOINT_FAILURE()),
     ENDPOINT_TIMEOUT(UCS_ERR_ENDPOINT_TIMEOUT()),
-    LAST_ENDPOINT_FAILURE(UCS_ERR_LAST_ENDPOINT_FAILURE());
+    LAST_ENDPOINT_FAILURE(UCS_ERR_LAST_ENDPOINT_FAILURE()),
+
+    LAST(UCS_ERR_LAST());
+
+    private static final int RANGE_MIN = Arrays.stream(Status.values()).mapToInt(Status::value).min().orElseThrow();
+    private static final int RANGE_MAX = Arrays.stream(Status.values()).mapToInt(Status::value).max().orElseThrow();
 
     private final int value;
 
@@ -63,13 +72,76 @@ public enum Status {
         return value != status;
     }
 
+    static boolean is(MemoryAddress address, Status status) {
+        return isStatus(address) && status.is((int) address.toRawLongValue());
+    }
+
+    static boolean isStatus(MemoryAddress status) {
+        return isStatus(status.toRawLongValue());
+    }
+
+    static boolean isStatus(long status) {
+        return status >= RANGE_MIN && status <= RANGE_MAX;
+    }
+
+    static boolean isError(MemoryAddress status) {
+        return isError(status.toRawLongValue());
+    }
+
+    static boolean isError(long status) {
+        return status >= RANGE_MIN && status < 0;
+    }
+
+    static Status of(MemoryAddress status) {
+        return of((int) status.toRawLongValue());
+    }
+
     static Status of(int status) {
-        for (var value : values()) {
-            if (value.is(status)) {
-                return value;
-            }
+        var ret = Lookup.get(status);
+        if (ret != null) {
+            return ret;
         }
 
         throw new NoSuchElementException();
+    }
+
+    private static final class Lookup {
+
+        private static final Status[] POSITIVE = populate(Range.POSITIVE);
+        private static final Status[] NEGATIVE = populate(Range.NEGATIVE);
+
+        static Status get(int status) {
+            if (status >= 0) {
+                return POSITIVE[status];
+            }
+
+            return NEGATIVE[-status];
+        }
+
+        private static Status[] populate(Range range) {
+            var filtered = range.filter(Status.values());
+            var size = Arrays.stream(filtered).mapToInt(Status::value).map(Math::abs).max().orElseThrow() + 1;
+            var array = new Status[size];
+            for (var status : filtered) {
+                array[Math.abs(status.value())] = status;
+            }
+
+            return array;
+        }
+    }
+
+    private enum Range {
+        POSITIVE(statuses -> Arrays.stream(statuses).filter(status -> status.value() >= 0).toArray(Status[]::new)),
+        NEGATIVE(statuses -> Arrays.stream(statuses).filter(status -> status.value() <  0).toArray(Status[]::new));
+
+        private final Function<Status[], Status[]> filter;
+
+        Range(Function<Status[], Status[]> filter) {
+            this.filter = filter;
+        }
+
+        Status[] filter(Status[] statuses) {
+            return filter.apply(statuses);
+        }
     }
 }

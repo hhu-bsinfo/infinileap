@@ -25,7 +25,7 @@ public class Worker extends NativeObject {
                     length
             );
 
-            if (!Status.OK.is(status)) {
+            if (Status.OK.isNot(status)) {
                 // TODO(krakowski):
                 //  Error handling using Exception or other appropriate mechanism
                 return null;
@@ -51,7 +51,7 @@ public class Worker extends NativeObject {
                     pointer
             );
 
-            if (!Status.OK.is(status)) {
+            if (Status.OK.isNot(status)) {
                 // TODO(krakowski):
                 //  Error handling using Exception or other appropriate mechanism
                 return null;
@@ -69,7 +69,7 @@ public class Worker extends NativeObject {
                     pointer
             );
 
-            if (!Status.OK.is(status)) {
+            if (Status.OK.isNot(status)) {
                 // TODO(krakowski):
                 //  Error handling using Exception or other appropriate mechanism
                 return null;

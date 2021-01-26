@@ -4,13 +4,7 @@ import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
-import lombok.extern.slf4j.Slf4j;
 
-import java.io.Closeable;
-import java.lang.ref.Cleaner;
-import java.nio.ByteBuffer;
-
-@Slf4j
 public class NativeObject implements AutoCloseable {
 
     /**
