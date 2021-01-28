@@ -4,37 +4,23 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import org.openucx.ucx_h;
+import org.openucx.ucx_h.ucp_listener_conn_handler_t;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 @FunctionalInterface
-public interface ConnectionHandler {
-
-    /* static final */ FunctionDescriptor DESCRIPTOR = FunctionDescriptor.ofVoid(
-            CLinker.C_POINTER,
-            CLinker.C_POINTER
-    );
-
-    MethodType METHOD_TYPE = MethodType.methodType(void.class, MemoryAddress.class, MemoryAddress.class);
+public interface ConnectionHandler extends ucp_listener_conn_handler_t.cb$5 {
 
     void onConnection(ConnectionRequest request);
 
-    private void callback(MemoryAddress request, MemoryAddress data) {
+    @Override
+    default void apply(MemoryAddress request, MemoryAddress data) {
         onConnection(ConnectionRequest.of(request, data.toRawLongValue()));
     }
 
     default MemorySegment upcallStub() {
-        var linker = CLinker.getInstance();
-
-        try {
-            var methodHandle = MethodHandles.lookup()
-                    .findVirtual(ConnectionHandler.class, "callback", METHOD_TYPE)
-                    .bindTo(this);
-
-            return linker.upcallStub(methodHandle, DESCRIPTOR);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-            return null;
-        }
+        return ucp_listener_conn_handler_t.allocate();
     }
 }
