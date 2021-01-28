@@ -21,7 +21,7 @@ public class FileDescriptor implements Closeable, Watchable {
         this.fd = fd;
     }
 
-    public static FileDescriptor from(int fd) {
+    public static FileDescriptor of(int fd) {
         return new FileDescriptor(fd);
     }
 

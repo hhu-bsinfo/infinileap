@@ -120,7 +120,11 @@ public enum Status {
 
         private static Status[] populate(Range range) {
             var filtered = range.filter(Status.values());
-            var size = Arrays.stream(filtered).mapToInt(Status::value).map(Math::abs).max().orElseThrow() + 1;
+            var size = Arrays.stream(filtered)
+                    .mapToInt(Status::value)
+                    .map(Math::abs)
+                    .max().orElseThrow() + 1;
+
             var array = new Status[size];
             for (var status : filtered) {
                 array[Math.abs(status.value())] = status;

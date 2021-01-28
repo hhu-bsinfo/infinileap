@@ -6,7 +6,6 @@ import de.hhu.bsinfo.infinileap.util.Status;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -120,7 +119,7 @@ public class Epoll {
             throw new IOException(Status.getErrorMessage());
         }
 
-        var fd = FileDescriptor.from(epfd);
+        var fd = FileDescriptor.of(epfd);
         return new Epoll(fd, POLL_SIZE);
     }
 

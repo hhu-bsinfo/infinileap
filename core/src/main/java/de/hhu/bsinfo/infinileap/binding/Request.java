@@ -2,12 +2,12 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
 
+import java.io.Closeable;
+
 import static org.openucx.ucx_h.ucp_request_check_status;
+import static org.openucx.ucx_h.ucp_request_free;
 
-public class Request {
-
-    // TODO(krakowski):
-    //  ucp_request_free must be called to release a request handle
+public class Request implements Closeable {
 
     private final MemoryAddress address;
 
@@ -23,7 +23,20 @@ public class Request {
         return address;
     }
 
+    boolean hasError() {
+        return Status.isError(address);
+    }
+
+    boolean hasStatus(Status status) {
+        return Status.is(address, status);
+    }
+
     static Request of(MemoryAddress address) {
         return new Request(address);
+    }
+
+    @Override
+    public void close() {
+        ucp_request_free(address);
     }
 }

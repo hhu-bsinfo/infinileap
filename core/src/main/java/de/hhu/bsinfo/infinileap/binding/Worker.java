@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -39,8 +40,16 @@ public class Worker extends NativeObject {
         return ucp_worker_progress(this.address()) == 0 ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
     }
 
-    public void waitForEvents() {
-        ucp_worker_wait(Parameter.of(this));
+    public Status arm() {
+        return Status.of(ucp_worker_arm(Parameter.of(this)));
+    }
+
+    public Status await() {
+        return Status.of(ucp_worker_wait(Parameter.of(this)));
+    }
+
+    public Status wake() {
+        return Status.of(ucp_worker_signal(Parameter.of(this)));
     }
 
     public Endpoint createEndpoint(EndpointParameters parameters) {
@@ -102,6 +111,24 @@ public class Worker extends NativeObject {
         );
 
         return Request.of(address);
+    }
+
+    public FileDescriptor fileDescriptor() {
+        try (var descriptor = MemorySegment.allocateNative(CLinker.C_INT)) {
+            var status = ucp_worker_get_efd(
+                Parameter.of(this),
+                descriptor
+            );
+
+
+            if (Status.OK.isNot(status)) {
+                // TODO(krakowski):
+                //  Error handling using Exception or other appropriate mechanism
+                return null;
+            }
+
+            return FileDescriptor.of(MemoryAccess.getInt(descriptor));
+        }
     }
 
     @Override
