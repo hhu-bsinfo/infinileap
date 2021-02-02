@@ -40,6 +40,12 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
+    public RequestParameters setDataType(DataType dataType) {
+        ucp_request_param_t.datatype$set(segment(), dataType.identifier());
+        addAttributeMask(Attribute.DATATYPE);
+        return this;
+    }
+
     protected int getAttributeMask() {
         return ucp_request_param_t.op_attr_mask$get(segment());
     }

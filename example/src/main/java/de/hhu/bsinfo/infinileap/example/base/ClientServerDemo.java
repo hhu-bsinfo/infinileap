@@ -18,7 +18,9 @@ public abstract class ClientServerDemo implements Runnable {
 
     private static final long DEFAULT_REQUEST_SIZE = 1024;
 
-    private static final Feature[] FEATURE_SET = { Feature.TAG, Feature.RMA, Feature.WAKEUP };
+    private static final Feature[] FEATURE_SET = {
+            Feature.TAG, Feature.RMA, Feature.WAKEUP, Feature.ATOMIC_32, Feature.ATOMIC_64
+    };
 
     @CommandLine.Option(
             names = {"-c", "--connect"},
@@ -129,8 +131,14 @@ public abstract class ClientServerDemo implements Runnable {
     protected void waitFor(AtomicBoolean value) {
         while (!value.get()) {
             if (worker.progress() == WorkerProgress.IDLE) {
-                worker.waitForEvents();
+                worker.await();
             };
+        }
+    }
+
+    protected  void waitFor(Request request) {
+        while (!request.isCompleted()) {
+            worker.progress();
         }
     }
 

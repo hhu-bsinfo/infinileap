@@ -1,16 +1,11 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import org.openucx.ucx_h.ucp_send_nbx_callback_t;
 
 @FunctionalInterface
-public interface SendCallback extends ucx_h.ucp_request_param_t.cb.send {
+public interface SendCallback extends ucp_send_nbx_callback_t {
 
     void onRequestSent(Request request, Status status, MemoryAddress data);
 
@@ -20,6 +15,6 @@ public interface SendCallback extends ucx_h.ucp_request_param_t.cb.send {
     }
 
     default MemorySegment upcallStub() {
-        return ucx_h.ucp_request_param_t.cb.send.allocate(this);
+        return ucp_send_nbx_callback_t.allocate(this);
     }
 }

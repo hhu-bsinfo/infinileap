@@ -86,6 +86,24 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
+    public Request atomic(AtomicOperation operation, NativePrimitive primitive, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return atomic(operation, primitive.segment(), 1, remoteAddress, key, parameters);
+    }
+
+    public Request atomic(AtomicOperation operation, MemorySegment buffer, int count, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        var address = ucp_atomic_op_nbx(
+                Parameter.of(this),
+                operation.getValue(),
+                buffer,
+                count,
+                remoteAddress.toRawLongValue(),
+                key.address(),
+                Parameter.of(parameters)
+        );
+
+        return Request.of(address);
+    }
+
     public RemoteKey unpack(MemoryDescriptor descriptor) {
         var keySegment = descriptor.keySegment();
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {

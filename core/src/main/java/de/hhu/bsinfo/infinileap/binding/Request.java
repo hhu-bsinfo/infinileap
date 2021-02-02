@@ -23,11 +23,11 @@ public class Request implements Closeable {
         return address;
     }
 
-    boolean hasError() {
+    public boolean hasError() {
         return Status.isError(address);
     }
 
-    boolean hasStatus(Status status) {
+    public boolean hasStatus(Status status) {
         return Status.is(address, status);
     }
 

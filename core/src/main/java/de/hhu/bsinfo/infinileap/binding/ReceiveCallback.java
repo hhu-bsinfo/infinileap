@@ -1,17 +1,14 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_request_param_t;
+import org.openucx.ucx_h.ucp_tag_recv_nbx_callback_t;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+// TODO(krakowski)
+//  Fix parent interface name
 
 @FunctionalInterface
-public interface ReceiveCallback extends ucp_request_param_t.cb.recv {
+public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
 
     void onRequestReceived(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data);
 
@@ -21,6 +18,6 @@ public interface ReceiveCallback extends ucp_request_param_t.cb.recv {
     }
 
     default MemorySegment upcallStub() {
-        return ucp_request_param_t.cb.recv.allocate(this);
+        return ucp_tag_recv_nbx_callback_t.allocate(this);
     }
 }

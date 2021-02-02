@@ -2,10 +2,9 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_err_handler_t;
+import org.openucx.ucx_h.ucp_err_handler_cb_t;
 
-public interface ErrorHandler extends ucp_err_handler_t.cb$4 {
+public interface ErrorHandler extends ucp_err_handler_cb_t {
 
     void onError(MemoryAddress userData, MemoryAddress endpoint, Status status);
 
@@ -15,6 +14,6 @@ public interface ErrorHandler extends ucp_err_handler_t.cb$4 {
     }
 
     default MemorySegment upcallStub() {
-        return ucp_err_handler_t.cb$4.allocate(this);
+        return ucp_err_handler_cb_t.allocate(this);
     }
 }

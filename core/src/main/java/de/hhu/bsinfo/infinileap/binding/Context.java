@@ -72,6 +72,10 @@ public class Context extends NativeObject {
 
     }
 
+    public MemoryRegion mapMemory(NativeObject object) {
+        return mapMemory(object.segment());
+    }
+
     public MemoryRegion mapMemory(MemorySegment segment) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var parameters = new MappingParameters().setSegment(segment);

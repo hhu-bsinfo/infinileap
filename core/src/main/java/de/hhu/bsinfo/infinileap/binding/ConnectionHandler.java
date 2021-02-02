@@ -1,17 +1,11 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucp_listener_conn_handler_t;
-
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import org.openucx.ucx_h.ucp_listener_conn_callback_t;
 
 @FunctionalInterface
-public interface ConnectionHandler extends ucp_listener_conn_handler_t.cb$5 {
+public interface ConnectionHandler extends ucp_listener_conn_callback_t {
 
     void onConnection(ConnectionRequest request);
 
@@ -21,6 +15,6 @@ public interface ConnectionHandler extends ucp_listener_conn_handler_t.cb$5 {
     }
 
     default MemorySegment upcallStub() {
-        return ucp_listener_conn_handler_t.allocate();
+        return ucp_listener_conn_callback_t.allocate(this);
     }
 }
