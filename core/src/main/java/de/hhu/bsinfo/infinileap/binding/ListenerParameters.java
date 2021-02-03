@@ -32,6 +32,7 @@ public class ListenerParameters extends NativeObject {
     public ListenerParameters setConnectionHandler(ConnectionHandler handler) {
         return setConnectionHandler(handler, 0L);
     }
+
     public ListenerParameters setConnectionHandler(ConnectionHandler handler, long data) {
         var slice = ucp_listener_params_t.conn_handler$slice(segment());
 

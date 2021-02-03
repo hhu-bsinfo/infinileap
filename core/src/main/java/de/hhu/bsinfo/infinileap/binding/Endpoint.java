@@ -1,5 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
+import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -86,8 +88,12 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
-    public Request atomic(AtomicOperation operation, NativePrimitive primitive, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        return atomic(operation, primitive.segment(), 1, remoteAddress, key, parameters);
+    public Request atomic(AtomicOperation operation, NativeLong value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
+    }
+
+    public Request atomic(AtomicOperation operation, NativeInteger value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
     }
 
     public Request atomic(AtomicOperation operation, MemorySegment buffer, int count, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {

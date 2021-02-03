@@ -10,8 +10,10 @@ public class DataType {
 
     private static final DataType DATATYPE_IOV = new DataType(Type.IOV.value);
 
-    static final DataType CONTIGUOUS_32_BIT = contiguous(4);
-    static final DataType CONTIGUOUS_64_BIT = contiguous(8);
+    public static final DataType CONTIGUOUS_8_BIT  = contiguous(1);
+    public static final DataType CONTIGUOUS_16_BIT = contiguous(2);
+    public static final DataType CONTIGUOUS_32_BIT = contiguous(4);
+    public static final DataType CONTIGUOUS_64_BIT = contiguous(8);
 
     private final long identifier;
 

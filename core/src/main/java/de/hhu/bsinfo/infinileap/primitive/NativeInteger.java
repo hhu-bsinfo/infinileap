@@ -1,17 +1,19 @@
-package de.hhu.bsinfo.infinileap.binding;
+package de.hhu.bsinfo.infinileap.primitive;
 
-import jdk.incubator.foreign.CLinker;
+import de.hhu.bsinfo.infinileap.binding.DataType;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 
 public final class NativeInteger extends NativePrimitive {
+
+    private static final int SIZE = Integer.BYTES;
 
     public NativeInteger() {
         this(0);
     }
 
     public NativeInteger(int initialValue) {
-        super(MemorySegment.allocateNative(CLinker.C_INT), DataType.CONTIGUOUS_32_BIT);
+        super(MemorySegment.allocateNative(SIZE), DataType.CONTIGUOUS_32_BIT);
         set(initialValue);
     }
 
@@ -32,6 +34,6 @@ public final class NativeInteger extends NativePrimitive {
     }
 
     public static NativeInteger map(MemorySegment segment, long offset) {
-        return new NativeInteger(segment.asSlice(offset, CLinker.C_INT.byteSize()));
+        return new NativeInteger(segment.asSlice(offset, SIZE));
     }
 }

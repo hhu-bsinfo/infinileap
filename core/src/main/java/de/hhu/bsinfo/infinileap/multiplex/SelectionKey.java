@@ -1,7 +1,6 @@
-package de.hhu.bsinfo.infinileap.nio;
+package de.hhu.bsinfo.infinileap.multiplex;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 
 import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandles;

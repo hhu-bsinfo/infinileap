@@ -1,7 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
@@ -23,8 +22,8 @@ public class EventFileDescriptor extends FileDescriptor {
     public long read() throws IOException {
         try (var counter = MemorySegment.allocateNative(MemoryLayouts.JAVA_LONG)) {
             var bytesRead = eventfd_read(intValue(), counter);
-            if (bytesRead == Status.ERROR) {
-                throw new IOException(Status.getErrorMessage());
+            if (bytesRead == NativeError.ERROR) {
+                throw new IOException(NativeError.getMessage());
             }
 
             return MemoryAccess.getLong(counter);
@@ -32,8 +31,8 @@ public class EventFileDescriptor extends FileDescriptor {
     }
 
     public void increment(long addend) throws IOException {
-        if (eventfd_write(intValue(), addend) == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (eventfd_write(intValue(), addend) == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
     }
 
@@ -48,8 +47,8 @@ public class EventFileDescriptor extends FileDescriptor {
     public static EventFileDescriptor create(int counter, OpenMode... modes) throws IOException {
         var openMode = BitMask.intOf(modes);
         var descriptor = eventfd(counter, openMode);
-        if (descriptor == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (descriptor == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
 
         return new EventFileDescriptor(descriptor);

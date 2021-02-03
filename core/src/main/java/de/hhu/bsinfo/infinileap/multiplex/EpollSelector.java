@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.nio;
+package de.hhu.bsinfo.infinileap.multiplex;
 
 import de.hhu.bsinfo.infinileap.util.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.util.EventFileDescriptor.OpenMode;

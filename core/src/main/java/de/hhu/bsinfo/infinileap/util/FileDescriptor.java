@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
-import de.hhu.bsinfo.infinileap.nio.Watchable;
+import de.hhu.bsinfo.infinileap.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import org.openucx.ucx_h;
 
@@ -27,15 +27,15 @@ public class FileDescriptor implements Closeable, Watchable {
 
     public final void setFlags(OpenMode... modes) throws IOException {
         var oldFlags = fcntl(this.fd, GET);
-        if (fcntl(this.fd, SET, oldFlags | BitMask.intOf(modes)) == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (fcntl(this.fd, SET, oldFlags | BitMask.intOf(modes)) == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
     }
 
     public final OpenMode[] getFlags() throws IOException {
         var flags = fcntl(this.fd, GET);
-        if (flags == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (flags == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
 
         return Arrays.stream(OpenMode.values())

@@ -1,8 +1,8 @@
-package de.hhu.bsinfo.infinileap.nio;
+package de.hhu.bsinfo.infinileap.multiplex;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
-import de.hhu.bsinfo.infinileap.util.Status;
+import de.hhu.bsinfo.infinileap.util.NativeError;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
@@ -84,8 +84,8 @@ public class Epoll {
 
     int wait(Duration duration) throws IOException {
         var count = epoll_wait(epfd.intValue(), pollSegment, POLL_SIZE, (int) duration.toMillis());
-        if (count == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (count == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
 
         return count;
@@ -107,16 +107,16 @@ public class Epoll {
             setData(event, fileDescriptor.intValue());
 
             // Execute operation
-            if (epoll_ctl(epfd.intValue(), operation, fileDescriptor.intValue(), event) != Status.OK) {
-                throw new IOException(Status.getErrorMessage());
+            if (epoll_ctl(epfd.intValue(), operation, fileDescriptor.intValue(), event) != NativeError.OK) {
+                throw new IOException(NativeError.getMessage());
             }
         }
     }
 
     static Epoll create() throws IOException {
         var epfd = epoll_create(DEFAULT_SIZE);
-        if (epfd == Status.ERROR) {
-            throw new IOException(Status.getErrorMessage());
+        if (epfd == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
 
         var fd = FileDescriptor.of(epfd);
