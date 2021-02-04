@@ -52,6 +52,12 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
+    public RequestParameters setFlags(Flag... flags) {
+        ucp_request_param_t.flags$set(segment(), BitMask.intOf(flags));
+        addAttributeMask(Attribute.FLAGS);
+        return this;
+    }
+
     protected int getAttributeMask() {
         return ucp_request_param_t.op_attr_mask$get(segment());
     }
@@ -76,6 +82,21 @@ public class RequestParameters extends NativeObject {
         private final int value;
 
         Attribute(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public enum Flag implements IntegerFlag {
+        STREAM_WAIT(UCP_STREAM_RECV_FLAG_WAITALL());
+
+        private final int value;
+
+        Flag(int value) {
             this.value = value;
         }
 

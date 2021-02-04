@@ -54,6 +54,18 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
+    public Request receiveStream(MemorySegment buffer, long count, NativeLong length, RequestParameters parameters) {
+        var address = ucp_stream_recv_nbx(
+                Parameter.of(this),
+                buffer,
+                count,
+                Parameter.of(length),
+                Parameter.of(parameters)
+        );
+
+        return Request.of(address);
+    }
+
     public Request put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key) {
         return put(source, remoteAddress, key, RequestParameters.EMPTY);
     }
