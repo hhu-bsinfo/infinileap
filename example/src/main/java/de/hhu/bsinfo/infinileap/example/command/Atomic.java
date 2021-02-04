@@ -80,14 +80,11 @@ public class Atomic extends ClientServerDemo {
 
         // Atomically add value at remote address
         log.info("Adding {} to remote address", integer.get());
-        var req = endpoint.atomic(AtomicOperation.ADD, integer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
-                .setDataType(integer.dataType())
-                .setSendCallback((request, status, tagInfo) -> barrier.set(true)));
+        var request = endpoint.atomic(AtomicOperation.ADD, integer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
+                .setDataType(integer.dataType()));
 
-        // Wait for callback if request hasn't finished immediately
-        if (!req.hasStatus(Status.OK)) {
-            waitFor(barrier);
-        }
+        // Wait for request to complete
+        waitFor(request);
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);

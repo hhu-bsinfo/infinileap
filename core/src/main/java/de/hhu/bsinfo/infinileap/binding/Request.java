@@ -9,14 +9,30 @@ import static org.openucx.ucx_h.ucp_request_free;
 
 public class Request implements Closeable {
 
+    public enum State {
+        ERROR, PENDING, COMPLETE
+    }
+
     private final MemoryAddress address;
 
     private Request(MemoryAddress address) {
         this.address = address;
     }
 
-    public boolean isCompleted() {
-        return Status.IN_PROGRESS.isNot(ucp_request_check_status(address));
+    public State state() {
+        if (hasError()) {
+            return State.ERROR;
+        }
+
+        if (hasStatus(Status.OK)) {
+            return State.COMPLETE;
+        }
+
+        if (Status.IN_PROGRESS.is(ucp_request_check_status(address))) {
+            return State.PENDING;
+        }
+
+        return State.COMPLETE;
     }
 
     MemoryAddress address() {

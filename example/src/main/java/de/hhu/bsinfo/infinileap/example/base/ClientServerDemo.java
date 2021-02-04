@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.example.base;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
+import de.hhu.bsinfo.infinileap.binding.Request.State;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -137,7 +138,7 @@ public abstract class ClientServerDemo implements Runnable {
     }
 
     protected  void waitFor(Request request) {
-        while (!request.isCompleted()) {
+        while (request.state() != State.COMPLETE) {
             worker.progress();
         }
     }

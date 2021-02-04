@@ -34,6 +34,12 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
+    public RequestParameters setStreamCallback(StreamCallback callback) {
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        addAttributeMask(Attribute.CALLBACK);
+        return this;
+    }
+
     public RequestParameters setReplyBuffer(MemorySegment replyBuffer) {
         ucp_request_param_t.reply_buffer$set(segment(), replyBuffer.address());
         addAttributeMask(Attribute.REPLY_BUFFER);

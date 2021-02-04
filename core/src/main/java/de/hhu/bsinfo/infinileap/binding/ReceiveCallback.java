@@ -4,9 +4,6 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import org.openucx.ucx_h.ucp_tag_recv_nbx_callback_t;
 
-// TODO(krakowski)
-//  Fix parent interface name
-
 @FunctionalInterface
 public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
 
