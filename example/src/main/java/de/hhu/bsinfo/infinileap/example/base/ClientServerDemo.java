@@ -20,7 +20,8 @@ public abstract class ClientServerDemo implements Runnable {
     private static final long DEFAULT_REQUEST_SIZE = 1024;
 
     private static final Feature[] FEATURE_SET = {
-            Feature.TAG, Feature.RMA, Feature.WAKEUP, Feature.ATOMIC_32, Feature.ATOMIC_64
+            Feature.TAG, Feature.RMA, Feature.WAKEUP,
+            Feature.ATOMIC_32, Feature.ATOMIC_64, Feature.STREAM
     };
 
     @CommandLine.Option(

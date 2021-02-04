@@ -17,7 +17,7 @@ import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 @CommandLine.Command(
-        name = "messaging",
+        name = "message",
         description = "Exchanges a message between two nodes."
 )
 public class Messaging extends ClientServerDemo {

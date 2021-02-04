@@ -11,6 +11,8 @@ import static org.openucx.ucx_h.*;
 
 public class Endpoint extends NativeObject {
 
+    private static final long SINGLE_ELEMENT = 1L;
+
     /* package-private */ Endpoint(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
     }
@@ -39,19 +41,23 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
-    public Request sendStream(MemorySegment message) {
-        return sendStream(message, RequestParameters.EMPTY);
+    public Request sendStream(NativeObject object, RequestParameters parameters) {
+        return sendStream(object.segment(), SINGLE_ELEMENT, parameters);
     }
 
-    public Request sendStream(MemorySegment message, RequestParameters parameters) {
+    public Request sendStream(MemorySegment buffer, long count, RequestParameters parameters) {
         var address = ucp_stream_send_nbx(
                 Parameter.of(this),
-                message,
-                message.byteSize(),
+                buffer,
+                count,
                 Parameter.of(parameters)
         );
 
         return Request.of(address);
+    }
+
+    public Request receiveStream(MemorySegment buffer, long count, NativeLong length) {
+        return receiveStream(buffer, count, length, RequestParameters.EMPTY);
     }
 
     public Request receiveStream(MemorySegment buffer, long count, NativeLong length, RequestParameters parameters) {
