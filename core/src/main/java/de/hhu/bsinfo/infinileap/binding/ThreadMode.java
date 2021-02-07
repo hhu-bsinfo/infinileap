@@ -1,5 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import java.util.Arrays;
+
 import static org.openucx.ucx_h.*;
 
 public enum ThreadMode {
@@ -16,5 +18,12 @@ public enum ThreadMode {
 
     public int value() {
         return value;
+    }
+
+    static ThreadMode from(int value) {
+        return Arrays.stream(values())
+                .filter(it -> it.value() == value)
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 }

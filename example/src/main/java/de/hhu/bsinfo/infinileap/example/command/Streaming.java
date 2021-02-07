@@ -7,6 +7,7 @@ import de.hhu.bsinfo.infinileap.binding.Tag;
 import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
+import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;

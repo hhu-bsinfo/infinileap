@@ -62,6 +62,8 @@ public abstract class ClientServerDemo implements Runnable {
     @Override
     public void run() {
 
+        log.info("Using UCX version {}", Context.getVersion());
+
         // Create context parameters
         var contextParameters = new ContextParameters()
                 .setFeatures(FEATURE_SET)

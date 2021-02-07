@@ -4,6 +4,7 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.*;
 
@@ -99,6 +100,35 @@ public class Context extends NativeObject {
         }
     }
 
+    public ContextAttributes query() {
+        var attributes = new ContextAttributes();
+        var status = ucp_context_query(
+                Parameter.of(this),
+                Parameter.of(attributes)
+        );
+
+        if (Status.OK.isNot(status)) {
+            // TODO(krakowski):
+            //  Error handling using Exception or other appropriate mechanism
+            return null;
+        }
+
+        return attributes;
+    }
+
+    public void printInfo() {
+        ucp_context_print_info(
+                Parameter.of(this),
+                stdout$get()
+        );
+    }
+
+    @Override
+    public void close() {
+        ucp_cleanup(Parameter.of(this));
+        super.close();
+    }
+
     private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
@@ -123,5 +153,9 @@ public class Context extends NativeObject {
             ucp_rkey_buffer_release(remoteKey);
             return descriptor;
         }
+    }
+
+    public static String getVersion() {
+        return CLinker.toJavaStringRestricted(ucp_get_version_string());
     }
 }
