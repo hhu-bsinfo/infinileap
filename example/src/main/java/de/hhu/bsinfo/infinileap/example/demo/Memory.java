@@ -1,9 +1,7 @@
-package de.hhu.bsinfo.infinileap.example.command;
+package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;

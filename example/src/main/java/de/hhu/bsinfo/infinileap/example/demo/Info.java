@@ -1,14 +1,9 @@
-package de.hhu.bsinfo.infinileap.example.command;
+package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
-import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;
-import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
-import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @CommandLine.Command(

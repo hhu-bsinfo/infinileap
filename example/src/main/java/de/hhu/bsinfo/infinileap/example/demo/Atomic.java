@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.example.command;
+package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;

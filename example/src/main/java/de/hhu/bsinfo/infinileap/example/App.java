@@ -1,6 +1,5 @@
 package de.hhu.bsinfo.infinileap.example;
 
-import de.hhu.bsinfo.infinileap.example.command.Root;
 import de.hhu.bsinfo.infinileap.example.util.InetSocketAddressConverter;
 import picocli.CommandLine;
 
