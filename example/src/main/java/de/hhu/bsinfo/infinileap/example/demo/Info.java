@@ -27,11 +27,12 @@ public class Info implements Runnable {
                 .setFeatures(FEATURE_SET)
                 .setRequestSize(DEFAULT_REQUEST_SIZE);
 
-        // Read configuration (Environment Variables)
-        var configuration = Configuration.read();
+        try (var configuration = Configuration.read();
+             var context = Context.initialize(contextParameters, configuration)) {
 
-        // Initialize UCP context
-        var context = Context.initialize(contextParameters, configuration);
-        context.printInfo();
+            context.printInfo();
+        } catch (ControlException e) {
+            log.info("Native operation failed", e);
+        }
     }
 }

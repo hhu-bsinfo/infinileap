@@ -4,7 +4,6 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
 
 import static org.openucx.ucx_h.*;
 
@@ -17,13 +16,13 @@ public class Context extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
-    public static Context initialize(ContextParameters parameters) {
+    public static Context initialize(ContextParameters parameters) throws ControlException {
         try (var configuration = Configuration.read()) {
             return initialize(parameters, configuration);
         }
     }
 
-    public static Context initialize(ContextParameters parameters, Configuration configuration) {
+    public static Context initialize(ContextParameters parameters, Configuration configuration) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
 
             /*
@@ -40,17 +39,15 @@ public class Context extends NativeObject {
                     pointer.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new Context(MemoryAccess.getAddress(pointer));
         }
     }
 
-    public Worker createWorker(WorkerParameters parameters) {
+    public Worker createWorker(WorkerParameters parameters) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_worker_create(
                     this.address(),
@@ -58,26 +55,24 @@ public class Context extends NativeObject {
                     pointer.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new Worker(MemoryAccess.getAddress(pointer));
         }
     }
 
-    public MemoryRegion allocateMemory(long size) {
+    public MemoryRegion allocateMemory(long size) throws ControlException {
         return mapMemory(MemorySegment.allocateNative(size));
 
     }
 
-    public MemoryRegion mapMemory(NativeObject object) {
+    public MemoryRegion mapMemory(NativeObject object) throws ControlException {
         return mapMemory(object.segment());
     }
 
-    public MemoryRegion mapMemory(MemorySegment segment) {
+    public MemoryRegion mapMemory(MemorySegment segment) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var parameters = new MappingParameters().setSegment(segment);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
@@ -88,10 +83,8 @@ public class Context extends NativeObject {
                     pointer.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             final var handle = new MemoryHandle(MemoryAccess.getAddress(pointer));
@@ -100,17 +93,15 @@ public class Context extends NativeObject {
         }
     }
 
-    public ContextAttributes query() {
+    public ContextAttributes query() throws ControlException {
         var attributes = new ContextAttributes();
         var status = ucp_context_query(
                 Parameter.of(this),
                 Parameter.of(attributes)
         );
 
-        if (Status.OK.isNot(status)) {
-            // TODO(krakowski):
-            //  Error handling using Exception or other appropriate mechanism
-            return null;
+        if (Status.isNot(status, Status.OK)) {
+            throw new ControlException(status);
         }
 
         return attributes;
@@ -129,7 +120,7 @@ public class Context extends NativeObject {
         super.close();
     }
 
-    private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) {
+    private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
@@ -140,10 +131,8 @@ public class Context extends NativeObject {
                     size.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             var remoteKey = MemoryAccess.getAddress(pointer)

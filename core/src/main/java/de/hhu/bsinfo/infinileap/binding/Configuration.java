@@ -14,14 +14,14 @@ public class Configuration extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
-    public static Configuration read() {
+    public static Configuration read() throws ControlException {
         return read(null, null);
     }
 
     /**
      * Reads in the configuration form the environment.
      */
-    public static Configuration read(@Nullable String prefix, @Nullable String filename) {
+    public static Configuration read(@Nullable String prefix, @Nullable String filename) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_config_read(
                     Parameter.ofNullable(prefix),
@@ -29,10 +29,8 @@ public class Configuration extends NativeObject {
                     pointer.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new Configuration(MemoryAccess.getAddress(pointer));

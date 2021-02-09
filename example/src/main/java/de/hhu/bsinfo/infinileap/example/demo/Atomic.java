@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;
+import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
@@ -14,17 +14,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
         name = "atomic",
         description = "Atomically adds a value at a remote address."
 )
-public class Atomic extends ClientServerDemo {
-
-    private final AtomicBoolean barrier = new AtomicBoolean();
+public class Atomic extends CommunicationDemo {
 
     @Override
-    protected void onClientReady() {
-
-        // Get initialized components
-        final var context = context();
-        final var endpoint = endpoint();
-        final var worker = worker();
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
         // Create memory segment
         final var memoryRegion = context.allocateMemory(Integer.BYTES);
@@ -36,29 +29,24 @@ public class Atomic extends ClientServerDemo {
 
         final var descriptor = memoryRegion.descriptor();
         endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setSendCallback((request, status, data) -> barrier.set(true)));
+                .setSendCallback(this::releaseBarrier));
 
-        waitForAndReset(barrier);
+        barrier();
 
         log.info("Waiting for remote access");
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
         worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback((request, status, tagInfo, data) -> barrier.set(true)));
+                .setReceiveCallback(this::releaseBarrier));
 
-        waitForAndReset(barrier);
+        barrier();
 
         log.info("Value after remote access is {}", integer.get());
     }
 
     @Override
-    protected void onServerReady() {
-
-        // Get initialized components
-        final var context = context();
-        final var endpoint = endpoint();
-        final var worker = worker();
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
         // Allocate a memory descriptor
         var descriptor = new MemoryDescriptor();
@@ -66,9 +54,9 @@ public class Atomic extends ClientServerDemo {
         // Receive the message
         log.info("Receiving Remote Key");
         worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback((request, status, tagInfo, data) -> barrier.set(true)));
+                .setReceiveCallback(this::releaseBarrier));
 
-        waitForAndReset(barrier);
+        barrier();
 
         // Create a memory segment for atomic operations
         var memorySegment = context.allocateMemory(Integer.BYTES);

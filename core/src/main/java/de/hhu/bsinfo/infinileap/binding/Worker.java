@@ -14,7 +14,7 @@ public class Worker extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
-    public WorkerAddress getAddress() {
+    public WorkerAddress getAddress() throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
              var length = MemorySegment.allocateNative(CLinker.C_LONG)) {
 
@@ -26,10 +26,8 @@ public class Worker extends NativeObject {
                     length
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new WorkerAddress(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(length));
@@ -52,7 +50,7 @@ public class Worker extends NativeObject {
         return Status.of(ucp_worker_signal(Parameter.of(this)));
     }
 
-    public Endpoint createEndpoint(EndpointParameters parameters) {
+    public Endpoint createEndpoint(EndpointParameters parameters) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_ep_create(
                     Parameter.of(this),
@@ -60,17 +58,15 @@ public class Worker extends NativeObject {
                     pointer
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new Endpoint(MemoryAccess.getAddress(pointer));
         }
     }
 
-    public Listener createListener(ListenerParameters parameters) {
+    public Listener createListener(ListenerParameters parameters) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
             var status = ucp_listener_create(
                     Parameter.of(this),
@@ -78,10 +74,8 @@ public class Worker extends NativeObject {
                     pointer
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new Listener(MemoryAccess.getAddress(pointer));
@@ -113,7 +107,7 @@ public class Worker extends NativeObject {
         return Request.of(address);
     }
 
-    public FileDescriptor fileDescriptor() {
+    public FileDescriptor fileDescriptor() throws ControlException {
         try (var descriptor = MemorySegment.allocateNative(CLinker.C_INT)) {
             var status = ucp_worker_get_efd(
                 Parameter.of(this),
@@ -121,10 +115,8 @@ public class Worker extends NativeObject {
             );
 
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return FileDescriptor.of(MemoryAccess.getInt(descriptor));

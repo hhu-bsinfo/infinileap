@@ -28,7 +28,7 @@ public class Request implements Closeable {
             return State.COMPLETE;
         }
 
-        if (Status.IN_PROGRESS.is(ucp_request_check_status(address))) {
+        if (Status.is(ucp_request_check_status(address), Status.IN_PROGRESS)) {
             return State.PENDING;
         }
 
@@ -53,6 +53,8 @@ public class Request implements Closeable {
 
     @Override
     public void close() {
-        ucp_request_free(address);
+        if (!Status.isStatus(address)) {
+            ucp_request_free(address);
+        }
     }
 }

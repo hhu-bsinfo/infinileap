@@ -128,7 +128,7 @@ public class Endpoint extends NativeObject {
         return Request.of(address);
     }
 
-    public RemoteKey unpack(MemoryDescriptor descriptor) {
+    public RemoteKey unpack(MemoryDescriptor descriptor) throws ControlException {
         var keySegment = descriptor.keySegment();
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
 
@@ -138,10 +138,8 @@ public class Endpoint extends NativeObject {
                 pointer.address()
             );
 
-            if (Status.OK.isNot(status)) {
-                // TODO(krakowski):
-                //  Error handling using Exception or other appropriate mechanism
-                return null;
+            if (Status.isNot(status, Status.OK)) {
+                throw new ControlException(status);
             }
 
             return new RemoteKey(MemoryAccess.getAddress(pointer));

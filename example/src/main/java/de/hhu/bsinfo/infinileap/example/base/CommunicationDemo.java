@@ -3,17 +3,20 @@ package de.hhu.bsinfo.infinileap.example.base;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
 import de.hhu.bsinfo.infinileap.binding.Request.State;
+import de.hhu.bsinfo.infinileap.util.CloseException;
+import de.hhu.bsinfo.infinileap.util.ResourcePool;
+import jdk.incubator.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-public abstract class ClientServerDemo implements Runnable {
+public abstract class CommunicationDemo implements Runnable {
 
     private static final int DEFAULT_SERVER_PORT = 2998;
 
@@ -59,10 +62,28 @@ public abstract class ClientServerDemo implements Runnable {
      */
     private Listener listener;
 
+    /**
+     * Handles cleanup of resources created during the demo.
+     */
+    private final ResourcePool resources = new ResourcePool();
+
+    private final AtomicBoolean barrier = new AtomicBoolean();
+
     @Override
     public void run() {
 
         log.info("Using UCX version {}", Context.getVersion());
+
+        try (resources) {
+            initialize();
+        } catch (ControlException e) {
+            log.error("Native operation failed", e);
+        } catch (CloseException e) {
+            log.error("Closing resource failed", e);
+        }
+    }
+
+    private void initialize() throws ControlException {
 
         // Create context parameters
         var contextParameters = new ContextParameters()
@@ -70,15 +91,22 @@ public abstract class ClientServerDemo implements Runnable {
                 .setRequestSize(DEFAULT_REQUEST_SIZE);
 
         // Read configuration (Environment Variables)
-        var configuration = Configuration.read();
+        var configuration = pushResource(
+                Configuration.read()
+        );
 
         // Initialize UCP context
-        context = Context.initialize(contextParameters, configuration);
+        context = pushResource(
+                Context.initialize(contextParameters, configuration)
+        );
 
         var workerParameters = new WorkerParameters()
                 .setThreadMode(ThreadMode.SINGLE);
 
-        worker = context.createWorker(workerParameters);
+        // Create a worker
+        worker = pushResource(
+                context.createWorker(workerParameters)
+        );
 
         if (serverAddress != null) {
             initializeClient();
@@ -87,23 +115,26 @@ public abstract class ClientServerDemo implements Runnable {
         }
     }
 
-    private void initializeClient() {
+    private void initializeClient() throws ControlException {
         var endpointParameters = new EndpointParameters()
                 .setRemoteAddress(serverAddress);
 
         log.info("Connecting to {}", serverAddress);
-        endpoint = worker.createEndpoint(endpointParameters);
-        onClientReady();
+        endpoint = pushResource(
+                worker.createEndpoint(endpointParameters)
+        );
+
+        onClientReady(context, worker, endpoint);
     }
 
-    private void initializeServer() {
+    private void initializeServer() throws ControlException {
         var connectionRequest = new AtomicReference<ConnectionRequest>();
         var listenerParams = new ListenerParameters()
                 .setListenAddress(listenAddress)
                 .setConnectionHandler(connectionRequest::set);
 
         log.info("Listening for new connection requests on {}", listenAddress);
-        listener = worker.createListener(listenerParams);
+        listener = pushResource(worker.createListener(listenerParams));
         while (connectionRequest.get() == null) {
             worker.progress();
         }
@@ -111,28 +142,21 @@ public abstract class ClientServerDemo implements Runnable {
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest.get());
 
-        endpoint = worker.createEndpoint(endpointParameters);
-        onServerReady();
+        endpoint = pushResource(worker.createEndpoint(endpointParameters));
+        onServerReady(context, worker, endpoint);
     }
 
-    protected final Context context() {
-        return context;
+    protected <T extends AutoCloseable> T pushResource(T resource) {
+        resources.push(resource);
+        return resource;
     }
 
-    protected final Worker worker() {
-        return worker;
+    protected void barrier() {
+        waitFor(barrier);
+        barrier.set(false);
     }
 
-    protected final Endpoint endpoint() {
-        return endpoint;
-    }
-
-    protected void waitForAndReset(AtomicBoolean value) {
-        waitFor(value);
-        value.set(false);
-    }
-
-    protected void waitFor(AtomicBoolean value) {
+    private void waitFor(AtomicBoolean value) {
         while (!value.get()) {
             if (worker.progress() == WorkerProgress.IDLE) {
                 worker.await();
@@ -146,7 +170,15 @@ public abstract class ClientServerDemo implements Runnable {
         }
     }
 
-    protected abstract void onClientReady();
+    protected final void releaseBarrier(Request request, Status status, MemoryAddress data) {
+        barrier.set(true);
+    }
 
-    protected abstract void onServerReady();
+    protected final void releaseBarrier(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data) {
+        barrier.set(true);
+    }
+
+    protected abstract void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException;
+
+    protected abstract void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException;
 }

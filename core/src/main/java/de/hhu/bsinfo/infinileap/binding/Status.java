@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAddress;
 
 import java.util.Arrays;
@@ -55,21 +56,27 @@ public enum Status {
     private static final int RANGE_MAX = Arrays.stream(Status.values()).mapToInt(Status::value).max().orElseThrow();
 
     private final int value;
+    private final String message;
 
     Status(int value) {
         this.value = value;
+        this.message = CLinker.toJavaStringRestricted(ucs_status_string((byte) value));
     }
 
-    public int value() {
+    public final int value() {
         return value;
     }
 
-    final boolean is(int status) {
-        return value == status;
+    final String message() {
+        return message;
     }
 
-    final boolean isNot(int status) {
-        return value != status;
+    static boolean isNot(int value, Status status) {
+        return status.isNot(value);
+    }
+
+    static boolean is(int value, Status status) {
+        return status.is(value);
     }
 
     static boolean is(MemoryAddress address, Status status) {
@@ -103,6 +110,14 @@ public enum Status {
         }
 
         throw new NoSuchElementException();
+    }
+
+    private boolean is(int status) {
+        return value == status;
+    }
+
+    private boolean isNot(int status) {
+        return value != status;
     }
 
     private static final class Lookup {

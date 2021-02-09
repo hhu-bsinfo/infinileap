@@ -1,9 +1,8 @@
 package de.hhu.bsinfo.infinileap.example.demo;
 
-import de.hhu.bsinfo.infinileap.binding.DataType;
-import de.hhu.bsinfo.infinileap.binding.RequestParameters;
+import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.RequestParameters.Flag;
-import de.hhu.bsinfo.infinileap.example.base.ClientServerDemo;
+import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import jdk.incubator.foreign.MemorySegment;
@@ -15,16 +14,12 @@ import picocli.CommandLine;
         name = "streaming",
         description = "Exchanges a stream of data between two nodes."
 )
-public class Streaming extends ClientServerDemo {
+public class Streaming extends CommunicationDemo {
 
     private static final long BUFFER_SIZE = Integer.BYTES * 2;
 
     @Override
-    protected void onClientReady() {
-
-        // Get initialized endpoint and the corresponding worker
-        final var endpoint = endpoint();
-        final var worker = worker();
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
         // Allocate a buffer and write numbers into it
         final var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
@@ -45,10 +40,7 @@ public class Streaming extends ClientServerDemo {
     }
 
     @Override
-    protected void onServerReady() {
-
-        // Get initialized worker instance
-        final var endpoint = endpoint();
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
         // Allocate a buffer for receiving the remote's message
         var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
