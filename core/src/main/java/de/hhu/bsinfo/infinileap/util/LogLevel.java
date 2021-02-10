@@ -1,0 +1,28 @@
+package de.hhu.bsinfo.infinileap.util;
+
+import static org.openucx.ucx_h.*;
+
+public enum LogLevel {
+    TRACE(UCS_LOG_LEVEL_FATAL()),
+    DEBUG(UCS_LOG_LEVEL_DEBUG()),
+    INFO(UCS_LOG_LEVEL_INFO()),
+    WARN(UCS_LOG_LEVEL_WARN()),
+    ERROR(UCS_LOG_LEVEL_ERROR()),
+    FATAL(UCS_LOG_LEVEL_FATAL());
+
+    private final int level;
+
+    LogLevel(int level) {
+        this.level = level;
+    }
+
+    public static LogLevel from(int level) {
+        for (var value : values()) {
+            if (value.level == level) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException("Level not defined");
+    }
+}

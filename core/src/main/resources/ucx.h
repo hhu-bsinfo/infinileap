@@ -4,6 +4,9 @@
 // OpenUCX Protocols
 #include <ucp/api/ucp.h>
 
+// OpenUCX Services
+#include <ucs/debug/log_def.h>
+
 // I/O Multiplexing
 #include <sys/epoll.h>
 #include <sys/eventfd.h>

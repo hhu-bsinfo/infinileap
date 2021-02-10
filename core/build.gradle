@@ -5,7 +5,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4'
     id "com.jfrog.artifactory" version "4.13.0"
 
-    id "io.github.krakowski.jextract" version "0.1.4"
+    id "io.github.krakowski.jextract" version "0.1.5"
 }
 
 compileJava {
@@ -18,16 +18,28 @@ compileTestJava {
     sourceCompatibility = '16'
     targetCompatibility = '16'
     options.encoding = 'UTF-8'
-    options.compilerArgs += [ '--add-modules', 'jdk.incubator.foreign' ]
 }
 
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 jextract {
-    library = 'ucp'
+    libraries = [ 'ucp' ]
+
+    filters = [
+        // OpenUCX
+        'ucp/api', 'uct/api', 'ucs/debug/log', 'ucs/memory/memory',
+        'ucs/type/status', 'ucs/type/thread', 'ucs/config/types',
+
+        //
+        'epoll', 'eventfd', 'fcntl', 'socket',
+        'unistd', 'string', 'errno', 'inet', 'stdio'
+    ]
+
     targetPackage = 'org.openucx'
+
     header = "${project.projectDir}/src/main/resources/ucx.h"
+
     sourceMode = true
 }
 

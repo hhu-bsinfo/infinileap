@@ -72,6 +72,8 @@ public abstract class CommunicationDemo implements Runnable {
     @Override
     public void run() {
 
+        NativeLogger.enable();
+
         log.info("Using UCX version {}", Context.getVersion());
 
         try (resources) {
