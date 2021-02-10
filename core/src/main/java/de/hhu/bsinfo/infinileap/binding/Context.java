@@ -89,7 +89,7 @@ public class Context extends NativeObject {
 
             final var handle = new MemoryHandle(MemoryAccess.getAddress(pointer));
             final var descriptor = getDescriptor(segment, handle);
-            return new MemoryRegion(handle, segment, descriptor);
+            return new MemoryRegion(this, handle, segment, descriptor);
         }
     }
 

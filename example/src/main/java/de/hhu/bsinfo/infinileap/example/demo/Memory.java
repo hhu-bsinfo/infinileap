@@ -29,15 +29,21 @@ public class Memory extends CommunicationDemo {
         // Send remote key to server
         log.info("Sending remote key");
         final var descriptor = memoryRegion.descriptor();
-        endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setSendCallback(this::releaseBarrier));
+
+        pushResource(
+            endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
+                    .setSendCallback(this::releaseBarrier))
+        );
 
         barrier();
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+
+        pushResource(
+            worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
+                    .setReceiveCallback(this::releaseBarrier))
+        );
 
         barrier();
     }
@@ -50,22 +56,29 @@ public class Memory extends CommunicationDemo {
 
         // Receive the message
         log.info("Receiving Remote Key");
-        worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+
+        pushResource(
+            worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
+                .setReceiveCallback(this::releaseBarrier))
+        );
 
         barrier();
 
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
         var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
-        endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+
+        pushResource(
+            endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
+                .setReceiveCallback(this::releaseBarrier))
+        );
 
         barrier();
+
         log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toByteArray()));
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        endpoint.sendTagged(completion, Tag.of(0L));
+        pushResource(endpoint.sendTagged(completion, Tag.of(0L)));
     }
 }

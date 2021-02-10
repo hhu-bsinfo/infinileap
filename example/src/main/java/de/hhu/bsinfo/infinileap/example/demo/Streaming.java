@@ -31,12 +31,18 @@ public class Streaming extends CommunicationDemo {
 
         // Send the buffer to the server
         log.info("Sending first chunk of stream");
-        waitFor(endpoint.sendStream(first, new RequestParameters()
-            .setDataType(first.dataType())));
+        var request = endpoint.sendStream(first, new RequestParameters()
+                .setDataType(first.dataType()));
+
+        pushResource(request);
+        waitFor(request);
 
         log.info("Sending second chunk of stream");
-        waitFor(endpoint.sendStream(second, new RequestParameters()
-            .setDataType(second.dataType())));
+        request = endpoint.sendStream(second, new RequestParameters()
+            .setDataType(second.dataType()));
+
+        pushResource(request);
+        waitFor(request);
     }
 
     @Override
@@ -47,9 +53,12 @@ public class Streaming extends CommunicationDemo {
         var length = new NativeLong();
 
         log.info("Receiving stream");
-        waitFor(endpoint.receiveStream(buffer, 2, length, new RequestParameters()
+        var request = endpoint.receiveStream(buffer, 2, length, new RequestParameters()
             .setDataType(DataType.CONTIGUOUS_32_BIT)
-            .setFlags(Flag.STREAM_WAIT)));
+            .setFlags(Flag.STREAM_WAIT));
+
+        pushResource(request);
+        waitFor(request);
 
         final var first = NativeInteger.map(buffer, 0L);
         final var second = NativeInteger.map(buffer, 4L);

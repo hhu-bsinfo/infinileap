@@ -31,7 +31,7 @@ jextract {
         'ucp/api', 'uct/api', 'ucs/debug/log', 'ucs/memory/memory',
         'ucs/type/status', 'ucs/type/thread', 'ucs/config/types',
 
-        //
+        // System
         'epoll', 'eventfd', 'fcntl', 'socket',
         'unistd', 'string', 'errno', 'inet', 'stdio'
     ]

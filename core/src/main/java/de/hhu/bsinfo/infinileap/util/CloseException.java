@@ -2,11 +2,11 @@ package de.hhu.bsinfo.infinileap.util;
 
 public class CloseException extends Exception {
 
-    CloseException() {
+    public CloseException() {
         super();
     }
 
-    CloseException(Throwable cause) {
+    public CloseException(Throwable cause) {
         super(cause);
     }
 }

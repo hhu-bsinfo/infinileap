@@ -1,8 +1,17 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.util.CloseException;
 import jdk.incubator.foreign.MemorySegment;
+import org.openucx.ucx_h;
 
-public class MemoryRegion {
+import static org.openucx.ucx_h.*;
+
+public class MemoryRegion implements AutoCloseable {
+
+    /**
+     * The context this region is associated with.
+     */
+    private final Context context;
 
     /**
      * The ucp handle for this memory region.
@@ -19,7 +28,8 @@ public class MemoryRegion {
      */
     private final MemoryDescriptor descriptor;
 
-    MemoryRegion(MemoryHandle handle, MemorySegment segment, MemoryDescriptor descriptor) {
+    MemoryRegion(Context context, MemoryHandle handle, MemorySegment segment, MemoryDescriptor descriptor) {
+        this.context = context;
         this.handle = handle;
         this.segment = segment;
         this.descriptor = descriptor;
@@ -35,5 +45,13 @@ public class MemoryRegion {
 
     MemoryHandle handle() {
         return handle;
+    }
+
+    @Override
+    public void close() throws Exception {
+        var status = ucp_mem_unmap(context.address(), handle.address());
+        if (Status.isNot(status, Status.OK)) {
+            throw new CloseException(new ControlException(status));
+        }
     }
 }
