@@ -67,7 +67,7 @@ public class Atomic extends CommunicationDemo {
         integer.set(32);
 
         // Unpack remote key
-        var remoteKey = endpoint.unpack(descriptor);
+        var remoteKey = pushResource(endpoint.unpack(descriptor));
 
         // Atomically add value at remote address
         log.info("Adding {} to remote address", integer.get());
