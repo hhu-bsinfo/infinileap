@@ -51,6 +51,10 @@ public class Request implements Closeable {
         return new Request(address);
     }
 
+    public void release() {
+        close();
+    }
+
     @Override
     public void close() {
         if (!Status.isStatus(address)) {

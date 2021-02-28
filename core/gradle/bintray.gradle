@@ -6,13 +6,13 @@ bintray {
     override = true
 
     pkg {
-        repo = 'neutrino'
+        repo = 'infinileap'
         name = 'core'
         userOrg = 'hhu-bsinfo'
         licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/hhu-bsinfo/neutrino.git'
-        labels = ['infiniband', 'verbs', 'java', 'jni', 'networking', 'high-performance']
-        githubRepo = 'hhu-bsinfo/neutrino'
+        vcsUrl = 'https://github.com/hhu-bsinfo/infinileap.git'
+        labels = ['infiniband', 'ucx', 'java', 'panama', 'networking', 'high-performance']
+        githubRepo = 'hhu-bsinfo/infinileap'
         githubReleaseNotesFile = 'README.md'
 
         version {

@@ -21,11 +21,26 @@ Infinileap is a research project under development. We do not recommend using th
 
 ## :warning: &nbsp; Known issues
 
-  - Gradle (currently at 6.6) does not yet support OpenJDK 16+ ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
+  - Gradle (currently at 6.8.3) does not yet support OpenJDK 16+ ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
   
     ```
     javaHome=/path/to/your/panama/java/home
     ```
+    
+  - The HotSpot VM uses the SIGSEGV signal for its own purposes, which may interfere with signal handlers installed by the ucx library. Fortunately, ucx's signal handlers can be disabled by using an undocumented environment variable (see [MPI.jl issue #337](https://github.com/JuliaParallel/MPI.jl/issues/337#issuecomment-578377458)).
+
+    ```
+    UCX_ERROR_SIGNALS=""
+    ```
+    
+  - The ucx library may fail at parsing some locale-dependent configuration values (e.g. numbers with decimal separators).
+
+    ```
+    parser.c:928  UCX  ERROR Invalid value for MEM_REG_GROWTH: '0.06ns'. Expected: time value: <number>[s|us|ms|ns]
+    uct_md.c:270  UCX  ERROR Failed to read MD config
+    ```
+
+    Setting the locale to English might fix this.
 
 ## :wrench: &nbsp; Requirements
 

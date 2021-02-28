@@ -9,20 +9,20 @@ def pomConfig = {
 
     developers {
         developer {
-            id 'faruh100'
-            name 'Fabian Ruhland'
-            email 'fabian.ruhland@uni-duesseldorf.de'
-        }
-
-        developer {
             id 'krakowski'
             name 'Filip Krakowski'
             email 'krakowski@hhu.de'
         }
+
+        developer {
+            id 'faruh100'
+            name 'Fabian Ruhland'
+            email 'fabian.ruhland@uni-duesseldorf.de'
+        }
     }
 
     scm {
-        url 'https://github.com/hhu-bsinfo/neutrino'
+        url 'https://github.com/hhu-bsinfo/infinileap'
     }
 }
 
@@ -63,9 +63,9 @@ publishing {
 
             pom.withXml {
                 def root = asNode()
-                root.appendNode('description', 'Simple InfiniBand verbs programming in Java')
-                root.appendNode('name', 'neutrino')
-                root.appendNode('url', 'https://github.com/hhu-bsinfo/neutrino')
+                root.appendNode('description', 'A modern networking framework based on ucx for Java 16+')
+                root.appendNode('name', 'infinileap')
+                root.appendNode('url', 'https://github.com/hhu-bsinfo/infinileap')
                 root.children().last() + pomConfig
             }
         }

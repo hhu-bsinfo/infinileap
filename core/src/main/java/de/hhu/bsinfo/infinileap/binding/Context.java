@@ -4,6 +4,7 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import org.jetbrains.annotations.Nullable;
 
 import static org.openucx.ucx_h.*;
 
@@ -17,12 +18,10 @@ public class Context extends NativeObject {
     }
 
     public static Context initialize(ContextParameters parameters) throws ControlException {
-        try (var configuration = Configuration.read()) {
-            return initialize(parameters, configuration);
-        }
+        return initialize(parameters, null);
     }
 
-    public static Context initialize(ContextParameters parameters, Configuration configuration) throws ControlException {
+    public static Context initialize(ContextParameters parameters, @Nullable Configuration configuration) throws ControlException {
         try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
 
             /*
@@ -35,7 +34,7 @@ public class Context extends NativeObject {
                     UCP_MAJOR_VERSION,
                     UCP_MINOR_VERSION,
                     parameters.address(),
-                    configuration.address(),
+                    Parameter.ofNullable(configuration),
                     pointer.address()
             );
 

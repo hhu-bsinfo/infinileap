@@ -39,6 +39,51 @@ public class MemoryBenchmark extends CommunicationDemo {
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
+        // Allocate a memory descriptor
+        var descriptor = new MemoryDescriptor();
+
+        // Receive the message
+        log.info("Receiving Remote Key");
+        worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
+                .setReceiveCallback(this::releaseBarrier));
+
+        barrier();
+
+        // Unpack remote key and extract remote address
+        var remoteKey = endpoint.unpack(descriptor);
+        var remoteAddress = descriptor.remoteAddress();
+
+        // Create buffer and request parameters for subsequent get operations
+        var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
+        var requestParameters = new RequestParameters()
+                .setReceiveCallback(this::releaseBarrier);
+
+        log.info("Using a buffer size of {} bytes", bufferSize);
+        log.info("Running for {} iterations with {} operations each", iterations, operations);
+
+        long timer = 0L;
+        for (int iteration = 0; iteration < iterations; iteration++) {
+            timer = System.nanoTime();
+            for (int operation = 0; operation < operations; operation++) {
+
+                // Retrieve memory from remote
+                endpoint.get(targetBuffer, remoteAddress, remoteKey, requestParameters);
+
+                // Wait until request completes
+                barrier();
+            }
+
+            log.info("[{}/{}] {}ms", iteration + 1, iterations, Duration.ofNanos(System.nanoTime() - timer).toMillis());
+        }
+
+        // Signal completion
+        final var completion = MemorySegment.allocateNative(Byte.BYTES);
+        endpoint.sendTagged(completion, Tag.of(0L));
+    }
+
+    @Override
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+
         // Create initial data buffer
         var content = new byte[bufferSize];
         ThreadLocalRandom.current().nextBytes(content);
@@ -62,47 +107,5 @@ public class MemoryBenchmark extends CommunicationDemo {
                 .setReceiveCallback(this::releaseBarrier));
 
         barrier();
-    }
-
-    @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
-
-        // Allocate a memory descriptor
-        var descriptor = new MemoryDescriptor();
-
-        // Receive the message
-        log.info("Receiving Remote Key");
-        worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
-
-        barrier();
-
-        // Unpack remote key and extract remote address
-        var remoteKey = endpoint.unpack(descriptor);
-        var remoteAddress = descriptor.remoteAddress();
-
-        // Create buffer and request parameters for subsequent get operations
-        var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
-        var requestParameters = new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier);
-
-        long timer = 0L;
-        for (int iteration = 0; iteration < iterations; iteration++) {
-            timer = System.nanoTime();
-            for (int operation = 0; operation < operations; operation++) {
-
-                // Retrieve memory from remote
-                endpoint.get(targetBuffer, remoteAddress, remoteKey, requestParameters);
-
-                // Wait until request completes
-                barrier();
-            }
-
-            log.info("[{}/{}] {}ms", iteration + 1, iterations, Duration.ofNanos(System.nanoTime() - timer).toMillis());
-        }
-
-        // Signal completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        endpoint.sendTagged(completion, Tag.of(0L));
     }
 }

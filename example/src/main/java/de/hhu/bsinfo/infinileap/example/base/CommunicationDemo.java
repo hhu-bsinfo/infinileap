@@ -97,6 +97,8 @@ public abstract class CommunicationDemo implements Runnable {
                 Configuration.read()
         );
 
+        log.info("Initializing context");
+
         // Initialize UCP context
         context = pushResource(
                 Context.initialize(contextParameters, configuration)
@@ -104,6 +106,8 @@ public abstract class CommunicationDemo implements Runnable {
 
         var workerParameters = new WorkerParameters()
                 .setThreadMode(ThreadMode.SINGLE);
+
+        log.info("Creating worker");
 
         // Create a worker
         worker = pushResource(
@@ -137,9 +141,8 @@ public abstract class CommunicationDemo implements Runnable {
 
         log.info("Listening for new connection requests on {}", listenAddress);
         listener = pushResource(worker.createListener(listenerParams));
-        while (connectionRequest.get() == null) {
-            worker.progress();
-        }
+
+        waitFor(connectionRequest);
 
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest.get());
@@ -160,6 +163,14 @@ public abstract class CommunicationDemo implements Runnable {
 
     private void waitFor(AtomicBoolean value) {
         while (!value.get()) {
+            if (worker.progress() == WorkerProgress.IDLE) {
+                worker.await();
+            };
+        }
+    }
+
+    private void waitFor(AtomicReference<?> value) {
+        while (value.get() == null) {
             if (worker.progress() == WorkerProgress.IDLE) {
                 worker.await();
             };

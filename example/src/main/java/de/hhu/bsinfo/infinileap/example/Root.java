@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.example;
 
 import de.hhu.bsinfo.infinileap.example.bench.MemoryBenchmark;
+import de.hhu.bsinfo.infinileap.example.bench.MessageBenchmark;
 import de.hhu.bsinfo.infinileap.example.demo.*;
 import picocli.CommandLine;
 
@@ -12,7 +13,7 @@ import picocli.CommandLine;
         Messaging.class, Memory.class, Atomic.class, Streaming.class, Info.class,
 
         // Benchmarks
-        MemoryBenchmark.class
+        MemoryBenchmark.class, MessageBenchmark.class
     }
 )
 public class Root implements Runnable {
