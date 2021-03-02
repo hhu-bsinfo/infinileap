@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
+import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 )
 public class Atomic extends CommunicationDemo {
 
+    private final CommunicationBarrier barrier = new CommunicationBarrier();
+
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
@@ -29,20 +33,20 @@ public class Atomic extends CommunicationDemo {
 
         final var descriptor = memoryRegion.descriptor();
         var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setSendCallback(this::releaseBarrier));
+                .setSendCallback(barrier::release));
 
-        pushResource(request);
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         log.info("Waiting for remote access");
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+                .setReceiveCallback(barrier::release));
 
-        pushResource(request);
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         log.info("Value after remote access is {}", integer.get());
     }
@@ -56,10 +60,10 @@ public class Atomic extends CommunicationDemo {
         // Receive the message
         log.info("Receiving Remote Key");
         var request = worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+                .setReceiveCallback(barrier::release));
 
-        pushResource(request);
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         // Create a memory segment for atomic operations
         var memorySegment = context.allocateMemory(Integer.BYTES);
@@ -74,9 +78,7 @@ public class Atomic extends CommunicationDemo {
         request = endpoint.atomic(AtomicOperation.ADD, integer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
                 .setDataType(integer.dataType()));
 
-        // Wait for request to complete
-        pushResource(request);
-        waitFor(request);
+        RequestHelpher.await(worker, request);
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);

@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.RequestParameters.Flag;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import jdk.incubator.foreign.MemorySegment;
@@ -34,15 +35,13 @@ public class Streaming extends CommunicationDemo {
         var request = endpoint.sendStream(first, new RequestParameters()
                 .setDataType(first.dataType()));
 
-        pushResource(request);
-        waitFor(request);
+        RequestHelpher.await(worker, request);
 
         log.info("Sending second chunk of stream");
         request = endpoint.sendStream(second, new RequestParameters()
             .setDataType(second.dataType()));
 
-        pushResource(request);
-        waitFor(request);
+        RequestHelpher.await(worker, request);
     }
 
     @Override
@@ -57,8 +56,7 @@ public class Streaming extends CommunicationDemo {
             .setDataType(DataType.CONTIGUOUS_32_BIT)
             .setFlags(Flag.STREAM_WAIT));
 
-        pushResource(request);
-        waitFor(request);
+        RequestHelpher.await(worker, request);
 
         final var first = NativeInteger.map(buffer, 0L);
         final var second = NativeInteger.map(buffer, 4L);

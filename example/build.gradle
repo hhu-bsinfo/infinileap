@@ -18,6 +18,15 @@ compileJava {
 applicationName = 'infinileap'
 mainClassName = 'de.hhu.bsinfo.infinileap.example.App'
 
+project.startScripts.with {
+    doLast {
+        // The HotSpot VM uses the SIGSEGV signal for its own purposes,
+        // which may interfere with signal handlers installed by the ucx library.
+        // Therefore, we turn off signal handlers with this (ugly) hack.
+        unixScript.text = unixScript.text.replaceFirst('exec ', 'UCX_ERROR_SIGNALS="" exec ')
+    }
+}
+
 jextract.enabled = false
 
 group = 'de.hhu.bsinfo'
@@ -33,6 +42,10 @@ dependencies {
 
     // Log4j Logger
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.13.3'
+
+    // JMH Benchmarking Framework
+    implementation 'org.openjdk.jmh:jmh-core:1.27'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
 
     // AssertJ
     testImplementation 'org.assertj:assertj-core:3.12.2'

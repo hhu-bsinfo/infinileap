@@ -1,21 +1,22 @@
-package de.hhu.bsinfo.infinileap.example.bench;
+package de.hhu.bsinfo.infinileap.example.benchmark.command;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
+import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
-import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.LongStream;
 
 @Slf4j
 @CommandLine.Command(
         name = "memory-bench",
         description = "Benchmarks reading memory from a remote machine."
 )
-public class MemoryBenchmark extends CommunicationDemo {
+public class MemoryBenchmarkRunner extends CommunicationDemo {
 
     private static final int DEFAULT_BUFFER_SIZE = 4096;
     private static final int DEFAULT_ITERATION_COUNT = 1024;
@@ -36,6 +37,8 @@ public class MemoryBenchmark extends CommunicationDemo {
             description = "The number of operations per iteration.")
     private int operations = DEFAULT_OPERATION_COUNT;
 
+    private final CommunicationBarrier barrier = new CommunicationBarrier();
+
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
@@ -44,41 +47,45 @@ public class MemoryBenchmark extends CommunicationDemo {
 
         // Receive the message
         log.info("Receiving Remote Key");
-        worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+        var request = worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
+                .setReceiveCallback(barrier::release));
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         // Unpack remote key and extract remote address
         var remoteKey = endpoint.unpack(descriptor);
         var remoteAddress = descriptor.remoteAddress();
+        pushResource(remoteKey);
 
         // Create buffer and request parameters for subsequent get operations
         var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
-        var requestParameters = new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier);
 
         log.info("Using a buffer size of {} bytes", bufferSize);
         log.info("Running for {} iterations with {} operations each", iterations, operations);
 
-        long timer = 0L;
+        var timer = 0L;
+        final var measurements = new long[operations];
         for (int iteration = 0; iteration < iterations; iteration++) {
-            timer = System.nanoTime();
+
             for (int operation = 0; operation < operations; operation++) {
 
-                // Retrieve memory from remote
-                endpoint.get(targetBuffer, remoteAddress, remoteKey, requestParameters);
+                // Measure start time
+                timer = System.nanoTime();
 
-                // Wait until request completes
-                barrier();
+                // Read from remote
+                RequestHelpher.poll(worker, endpoint.put(targetBuffer, remoteAddress, remoteKey));
+
+                // Save measured time
+                measurements[operation] = System.nanoTime() - timer;
             }
 
-            log.info("[{}/{}] {}ms", iteration + 1, iterations, Duration.ofNanos(System.nanoTime() - timer).toMillis());
+            log.info("[{}/{}] {}us", iteration + 1, iterations, LongStream.of(measurements).average().getAsDouble() / 1000.0);
         }
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        endpoint.sendTagged(completion, Tag.of(0L));
+        RequestHelpher.await(worker, endpoint.sendTagged(completion, Tag.of(0L)));
     }
 
     @Override
@@ -92,20 +99,23 @@ public class MemoryBenchmark extends CommunicationDemo {
         final var source = MemorySegment.ofArray(content);
         final var memoryRegion = context.allocateMemory(bufferSize);
         memoryRegion.segment().copyFrom(source);
+        pushResource(memoryRegion);
 
         // Send remote key to server
         log.info("Sending remote key");
         final var descriptor = memoryRegion.descriptor();
-        endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setSendCallback(this::releaseBarrier));
+        var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
+                .setSendCallback(barrier::release));
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+        request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
+                .setReceiveCallback(barrier::release));
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
     }
 }

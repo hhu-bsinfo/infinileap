@@ -1,9 +1,9 @@
-package de.hhu.bsinfo.infinileap.example.bench;
+package de.hhu.bsinfo.infinileap.example.benchmark.command;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
+import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -11,13 +11,14 @@ import picocli.CommandLine;
 import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.LongStream;
 
 @Slf4j
 @CommandLine.Command(
         name = "message-bench",
         description = "Benchmarks sending messages to a remote machine."
 )
-public class MessageBenchmark extends CommunicationDemo {
+public class MessageBenchmarkRunner extends CommunicationDemo {
 
     private static final int DEFAULT_MESSAGE_SIZE = 4096;
     private static final int DEFAULT_ITERATION_COUNT = 1024;
@@ -43,6 +44,8 @@ public class MessageBenchmark extends CommunicationDemo {
             description = "The number of operations per iteration.")
     private int operations = DEFAULT_OPERATION_COUNT;
 
+    private final CommunicationBarrier barrier = new CommunicationBarrier();
+
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
@@ -54,28 +57,28 @@ public class MessageBenchmark extends CommunicationDemo {
         final var source = MemorySegment.ofArray(content);
         final var memoryRegion = context.allocateMemory(messageSize);
         memoryRegion.segment().copyFrom(source);
+        pushResource(memoryRegion);
 
         log.info("Using a message size of {} bytes", messageSize);
         log.info("Running for {} iterations with {} operations each", iterations, operations);
 
-        final var requestParameters = new RequestParameters()
-                .setSendCallback(this::releaseBarrier);
-
-        Request request = null;
-        long timer = 0L;
+        var timer = 0L;
         final var segment = memoryRegion.segment();
+        final var measurements = new long[operations];
         for (int iteration = 0; iteration < iterations; iteration++) {
-            timer = System.nanoTime();
             for (int operation = 0; operation < operations; operation++) {
 
-                request = endpoint.sendTagged(segment, MESSAGE_TAG, requestParameters);
+                // Measure start time
+                timer = System.nanoTime();
 
-                // Wait until request completes
-                barrier();
-                request.release();
+                // Send message
+                RequestHelpher.poll(worker, endpoint.sendTagged(segment, MESSAGE_TAG));
+
+                // Save measured time
+                measurements[operation] = System.nanoTime() - timer;
             }
 
-            log.info("[{}/{}] {}ms", iteration + 1, iterations, Duration.ofNanos(System.nanoTime() - timer).toMillis());
+            log.info("[{}/{}] {}us", iteration + 1, iterations, LongStream.of(measurements).average().getAsDouble() / 1000.0);
         }
 
         // Signal completion
@@ -89,26 +92,21 @@ public class MessageBenchmark extends CommunicationDemo {
         // Allocate a buffer for receiving the remote's message
         var buffer = pushResource(MemorySegment.allocateNative(messageSize));
 
-        var requestParameters = new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier);
-
         Request request = null;
         var expectedMessages = (long) iterations * operations;
         log.info("Receiving {} messages", expectedMessages);
         for (long counter = 0; counter < expectedMessages; counter++) {
-            // Receive the message
-            request = worker.receiveTagged(buffer, MESSAGE_TAG, requestParameters);
-
-            barrier();
-            request.release();
+            RequestHelpher.await(worker, worker.receiveTagged(buffer, MESSAGE_TAG));
         }
 
         // Wait until remote signals completion
         log.info("Waiting for completion signal");
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        worker.receiveTagged(completion, COMPLETION_TAG, new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+        pushResource(
+            worker.receiveTagged(completion, COMPLETION_TAG, new RequestParameters()
+                .setReceiveCallback(barrier::release))
+        );
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
     }
 }

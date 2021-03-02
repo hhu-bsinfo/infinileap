@@ -3,6 +3,8 @@ package de.hhu.bsinfo.infinileap.example.base;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
 import de.hhu.bsinfo.infinileap.binding.Request.State;
+import de.hhu.bsinfo.infinileap.example.util.Constants;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import jdk.incubator.foreign.MemoryAddress;
@@ -17,8 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public abstract class CommunicationDemo implements Runnable {
-
-    private static final int DEFAULT_SERVER_PORT = 2998;
 
     private static final long DEFAULT_REQUEST_SIZE = 1024;
 
@@ -40,7 +40,7 @@ public abstract class CommunicationDemo implements Runnable {
     @CommandLine.Option(
             names = {"-p", "--port"},
             description = "The port the server will listen on.")
-    private int port = DEFAULT_SERVER_PORT;
+    private int port = Constants.DEFAULT_PORT;
 
     /**
      * This node's context.
@@ -142,7 +142,7 @@ public abstract class CommunicationDemo implements Runnable {
         log.info("Listening for new connection requests on {}", listenAddress);
         listener = pushResource(worker.createListener(listenerParams));
 
-        waitFor(connectionRequest);
+        RequestHelpher.await(worker, connectionRequest);
 
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest.get());
@@ -154,41 +154,6 @@ public abstract class CommunicationDemo implements Runnable {
     protected <T extends AutoCloseable> T pushResource(T resource) {
         resources.push(resource);
         return resource;
-    }
-
-    protected void barrier() {
-        waitFor(barrier);
-        barrier.set(false);
-    }
-
-    private void waitFor(AtomicBoolean value) {
-        while (!value.get()) {
-            if (worker.progress() == WorkerProgress.IDLE) {
-                worker.await();
-            };
-        }
-    }
-
-    private void waitFor(AtomicReference<?> value) {
-        while (value.get() == null) {
-            if (worker.progress() == WorkerProgress.IDLE) {
-                worker.await();
-            };
-        }
-    }
-
-    protected  void waitFor(Request request) {
-        while (request.state() != State.COMPLETE) {
-            worker.progress();
-        }
-    }
-
-    protected final void releaseBarrier(Request request, Status status, MemoryAddress data) {
-        barrier.set(true);
-    }
-
-    protected final void releaseBarrier(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data) {
-        barrier.set(true);
     }
 
     protected abstract void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException;

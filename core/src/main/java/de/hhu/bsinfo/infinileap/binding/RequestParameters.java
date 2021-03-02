@@ -12,6 +12,10 @@ public class RequestParameters extends NativeObject {
 
     static final RequestParameters EMPTY = new RequestParameters();
 
+    // Prevent Garbage Collection
+    private SendCallback sendCallback;
+    private ReceiveCallback receiveCallback;
+
     public RequestParameters() {
         super(ucp_request_param_t.allocate());
     }
@@ -23,12 +27,14 @@ public class RequestParameters extends NativeObject {
     }
 
     public RequestParameters setSendCallback(SendCallback callback) {
+        this.sendCallback = callback;
         ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setReceiveCallback(ReceiveCallback callback) {
+        this.receiveCallback = callback;
         ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
@@ -49,6 +55,12 @@ public class RequestParameters extends NativeObject {
     public RequestParameters setDataType(DataType dataType) {
         ucp_request_param_t.datatype$set(segment(), dataType.identifier());
         addAttributeMask(Attribute.DATATYPE);
+        return this;
+    }
+
+    public RequestParameters setRequest(Request request) {
+        ucp_request_param_t.request$set(segment(), request.address());
+        addAttributeMask(Attribute.REQUEST);
         return this;
     }
 

@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
+import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -18,6 +20,8 @@ public class Memory extends CommunicationDemo {
     private static final byte[] BUFFER_CONTENT = "Hello Infinileap!".getBytes();
     private static final int BUFFER_SIZE = BUFFER_CONTENT.length;
 
+    private final CommunicationBarrier barrier = new CommunicationBarrier();
+
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
@@ -32,20 +36,20 @@ public class Memory extends CommunicationDemo {
 
         pushResource(
             endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                    .setSendCallback(this::releaseBarrier))
+                    .setSendCallback(barrier::release))
         );
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
 
         pushResource(
             worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                    .setReceiveCallback(this::releaseBarrier))
+                    .setReceiveCallback(barrier::release))
         );
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
     }
 
     @Override
@@ -59,10 +63,10 @@ public class Memory extends CommunicationDemo {
 
         pushResource(
             worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier))
+                .setReceiveCallback(barrier::release))
         );
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
 
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
@@ -70,10 +74,10 @@ public class Memory extends CommunicationDemo {
 
         pushResource(
             endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier))
+                .setReceiveCallback(barrier::release))
         );
 
-        barrier();
+        RequestHelpher.await(worker, barrier);
 
         log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toByteArray()));
 

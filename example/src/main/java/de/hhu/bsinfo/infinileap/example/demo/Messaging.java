@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
+import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -20,6 +22,8 @@ public class Messaging extends CommunicationDemo {
     private static final byte[] MESSAGE_BYTES = MESSAGE.getBytes();
     private static final int MESSAGE_SIZE = MESSAGE_BYTES.length;
 
+    private final CommunicationBarrier barrier = new CommunicationBarrier();
+
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) {
 
@@ -32,10 +36,10 @@ public class Messaging extends CommunicationDemo {
         log.info("Sending buffer");
 
         var request = endpoint.sendTagged(buffer, Tag.of(0L), new RequestParameters()
-                    .setSendCallback(this::releaseBarrier));
+                    .setSendCallback(barrier::release));
 
-        pushResource(request);
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
     }
 
     @Override
@@ -48,10 +52,10 @@ public class Messaging extends CommunicationDemo {
         log.info("Receiving message");
 
         var request = worker.receiveTagged(buffer, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(this::releaseBarrier));
+                .setReceiveCallback(barrier::release));
 
-        pushResource(request);
-        barrier();
+        RequestHelpher.await(worker, barrier);
+        request.release();
 
         log.info("Received \"{}\"", new String(buffer.toByteArray()));
     }
