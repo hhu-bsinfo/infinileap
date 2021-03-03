@@ -27,6 +27,12 @@ project.startScripts.with {
     }
 }
 
+if (project.hasProperty('installPath')) {
+    installDist {
+        destinationDir = project.file(project.property('installPath'))
+    }
+}
+
 jextract.enabled = false
 
 group = 'de.hhu.bsinfo'

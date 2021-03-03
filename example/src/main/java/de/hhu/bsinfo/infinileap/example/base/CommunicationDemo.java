@@ -37,11 +37,6 @@ public abstract class CommunicationDemo implements Runnable {
             description = "The address the server listens on.")
     private InetSocketAddress listenAddress;
 
-    @CommandLine.Option(
-            names = {"-p", "--port"},
-            description = "The port the server will listen on.")
-    private int port = Constants.DEFAULT_PORT;
-
     /**
      * This node's context.
      */

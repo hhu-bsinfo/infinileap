@@ -71,6 +71,7 @@ public class Memory extends CommunicationDemo {
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
         var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
+        pushResource(remoteKey);
 
         pushResource(
             endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()

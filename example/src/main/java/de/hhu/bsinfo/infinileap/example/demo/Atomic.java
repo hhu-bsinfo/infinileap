@@ -23,14 +23,13 @@ public class Atomic extends CommunicationDemo {
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
 
-        // Create memory segment
+        // Create memory segment and write a number into it
         final var memoryRegion = context.allocateMemory(Integer.BYTES);
         final var integer = NativeInteger.map(memoryRegion.segment());
         integer.set(10);
 
         // Send remote key to server
         log.info("Value before remote access is {}", integer.get());
-
         final var descriptor = memoryRegion.descriptor();
         var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setSendCallback(barrier::release));

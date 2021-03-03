@@ -19,6 +19,97 @@ Developed by the [operating systems group](https://www.cs.hhu.de/en/research-gro
 
 Infinileap is a research project under development. We do not recommend using the system in a production environment. Expect to encounter bugs. However, we are looking forward to bug reports and code contributions.
 
+## :rocket: &nbsp; Demos
+
+The project includes several sample applications that can be run from the command line.
+In order to run them, a distribution of the [`example`](./example) module must first be created using Gradle.
+By default, Gradle installs the distribution inside the module's `build` folder. This behavior can be customized
+with the `installPath` property
+
+``` 
+# Install the distribution inside ${HOME}/infinileap
+./gradlew example:installDist -PinstallPath="${HOME}/infinileap"
+
+# Switch into ${HOME}/infinileap
+cd "${HOME}/infinileap"
+```
+
+After Gradle has completed the build, the examples can be run from within the specified location.
+
+All demos require a server as well as a client and should therefore be executed in two separate console windows.
+The addresses to be used for establishing the connection can be specified via the following program arguments.
+
+| Name               | Type                         | Side     | Description                             | Example          |
+|--------------------|------------------------------|----------|-----------------------------------------|------------------|
+| `-c` / `--connect` | `java.net.InetSocketAddress` | `CLIENT` | The server's address and port           | `127.0.0.1:2998` |
+| `-l` / `--listen`  | `java.net.InetSocketAddress` | `SERVER` | The address the server should listen on | `127.0.0.1:2998` |
+
+It is also possible to omit the port. In this case the default value `2998` is used.
+
+### Messaging Demo ([Source](./example/src/main/java/de/hhu/bsinfo/infinileap/example/demo/Messaging.java))
+
+This demo exchanges a message between the server and the client, which is then output to the console.
+
+* **Server Side**
+
+  ```console
+  ./bin/infinileap messaging --listen 127.0.0.1
+  ```
+
+* **Client Side**
+
+  ```console
+  ./bin/infinileap messaging --connect 127.0.0.1
+  ```
+
+### Streaming Demo ([Source](./example/src/main/java/de/hhu/bsinfo/infinileap/example/demo/Streaming.java))
+
+This demo exchanges a stream of data between the server and the client, which is then output to the console.
+
+* **Server Side**
+
+  ```console
+  ./bin/infinileap streaming --listen 127.0.0.1
+  ```
+
+* **Client Side**
+
+  ```console
+  ./bin/infinileap streaming --connect 127.0.0.1
+  ```
+
+### Memory Access Demo ([Source](./example/src/main/java/de/hhu/bsinfo/infinileap/example/demo/Memory.java))
+
+This demo directly reads the contents of a buffer residing inside the remote server's memory and prints it out to the console.
+
+* **Server Side**
+
+  ```console
+  ./bin/infinileap memory --listen 127.0.0.1
+  ```
+
+* **Client Side**
+
+  ```console
+  ./bin/infinileap memory --connect 127.0.0.1
+  ```
+
+### Atomic Operation Demo ([Source](./example/src/main/java/de/hhu/bsinfo/infinileap/example/demo/Atomic.java))
+
+This demo atomically increments a value residing inside the remote server's memory and prints out the result to the console.
+
+* **Server Side**
+
+  ```console
+  ./bin/infinileap atomic --listen 127.0.0.1
+  ```
+
+* **Client Side**
+
+  ```console
+  ./bin/infinileap atomic --connect 127.0.0.1
+  ```
+
 ## :warning: &nbsp; Known issues
 
   - Gradle (currently at 6.8.3) does not yet support OpenJDK 16+ ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
