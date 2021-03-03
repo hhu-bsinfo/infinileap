@@ -19,6 +19,7 @@ import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class BenchmarkConnection implements AutoCloseable {
@@ -275,10 +276,19 @@ public class BenchmarkConnection implements AutoCloseable {
         );
     }
 
+    private static final AtomicInteger ATOMIC_COUNTER = new AtomicInteger(0);
+
     public final void blockingAtomicAdd32() {
         RequestHelpher.poll(
                 worker, endpoint.atomic(AtomicOperation.ADD, nativeInteger, remoteAddress, remoteKey, REQUEST_PARAMETERS_ATOMIC_32)
         );
+
+        if (ATOMIC_COUNTER.get() == 1000) {
+            RequestHelpher.poll(worker, endpoint.flush());
+            ATOMIC_COUNTER.set(0);
+        }
+
+        ATOMIC_COUNTER.incrementAndGet();
     }
 
     public final void blockingAtomicAdd64() {

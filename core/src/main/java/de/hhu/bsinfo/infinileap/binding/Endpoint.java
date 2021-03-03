@@ -146,6 +146,10 @@ public class Endpoint extends NativeObject {
         }
     }
 
+    public Request flush() {
+        return flush(RequestParameters.EMPTY);
+    }
+
     public Request flush(RequestParameters parameters) {
         var address = ucp_ep_flush_nbx(
                 Parameter.of(this),
