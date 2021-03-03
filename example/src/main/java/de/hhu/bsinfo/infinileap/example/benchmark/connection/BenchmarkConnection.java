@@ -7,9 +7,13 @@ import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction.OpCode;
 import de.hhu.bsinfo.infinileap.example.util.BenchmarkType;
 import de.hhu.bsinfo.infinileap.example.util.Constants;
+import de.hhu.bsinfo.infinileap.example.util.RandomBytes;
 import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
+import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
+import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +29,12 @@ public class BenchmarkConnection implements AutoCloseable {
             Feature.TAG, Feature.RMA, Feature.WAKEUP,
             Feature.ATOMIC_32, Feature.ATOMIC_64, Feature.STREAM
     };
+
+    private static final RequestParameters REQUEST_PARAMETERS_ATOMIC_32 = new RequestParameters()
+            .setDataType(DataType.CONTIGUOUS_32_BIT);
+
+    private static final RequestParameters REQUEST_PARAMETERS_ATOMIC_64 = new RequestParameters()
+            .setDataType(DataType.CONTIGUOUS_64_BIT);
 
     /**
      * This node's context.
@@ -55,6 +65,21 @@ public class BenchmarkConnection implements AutoCloseable {
      * The local buffer used for remote memory access operations.
      */
     private MemorySegment localBuffer;
+
+    /**
+     * The type of benchmark this connection is used for.
+     */
+    private BenchmarkType type;
+
+    /**
+     * 32 bit integer used for atomic operations.
+     */
+    private NativeInteger nativeInteger;
+
+    /**
+     * 64 bit long used for atomic operations.
+     */
+    private NativeLong nativeLong;
 
     private final ResourcePool resources = new ResourcePool();
 
@@ -93,17 +118,17 @@ public class BenchmarkConnection implements AutoCloseable {
     }
 
     public void prepare(BenchmarkType type, BenchmarkDetails details) throws ControlException {
+        this.type = type;
         switch (type) {
-            case RDMA_LATENCY, RDMA_THROUGHPUT -> prepareMemory(details);
-            case MESSAGING_LATENCY -> prepareMessagingLatency(details);
-            case MESSAGING_THROUGHPUT -> prepareMessagingThroughput(details);
+            case MEMORY_ACCESS -> prepareMemory(details);
+            case MESSAGING -> prepareMessaging(details);
+            case PINGPONG -> preparePingPong(details);
+            case ATOMIC -> prepareAtomic(details);
         }
     }
 
     private void prepareMemory(BenchmarkDetails details) throws ControlException {
-
-        // Prepare remote for benchmark
-        sendOpCode(OpCode.RDMA_THROUGHPUT);
+        sendOpCode(OpCode.MEMORY_ACCESS);
         sendDetails(details);
 
         // Receive memory region for access operations
@@ -118,14 +143,61 @@ public class BenchmarkConnection implements AutoCloseable {
         }
     }
 
-    private void prepareMessagingLatency(BenchmarkDetails details) {
-        sendOpCode(OpCode.MESSAGING_LATENCY);
+    private void prepareMessaging(BenchmarkDetails details) throws ControlException {
+        sendOpCode(OpCode.MESSAGING);
         sendDetails(details);
+
+        localBuffer = MemorySegment.allocateNative(details.getBufferSize());
+        resources.push(localBuffer);
+
+        RandomBytes.fill(localBuffer);
+
+        // Clear first byte because it is used as
+        // an exit signal at the end of the benchmark
+        MemoryAccess.setByte(localBuffer, (byte) 0x00);
     }
 
-    private void prepareMessagingThroughput(BenchmarkDetails details) {
-        sendOpCode(OpCode.MESSAGING_THROUGHPUT);
+    private void preparePingPong(BenchmarkDetails details) throws ControlException {
+        sendOpCode(OpCode.PINGPONG);
         sendDetails(details);
+
+        localBuffer = MemorySegment.allocateNative(details.getBufferSize());
+        resources.push(localBuffer);
+
+        RandomBytes.fill(localBuffer);
+
+        // Clear first byte because it is used as
+        // an exit signal at the end of the benchmark
+        MemoryAccess.setByte(localBuffer, (byte) 0x00);
+    }
+
+    private void prepareAtomic(BenchmarkDetails details) throws ControlException {
+        sendOpCode(OpCode.ATOMIC);
+        sendDetails(details);
+
+        // Receive memory region for access operations
+        try (var descriptor = receiveDescriptor()) {
+            remoteKey = endpoint.unpack(descriptor);
+            resources.push(remoteKey);
+
+            var region = context.allocateMemory(descriptor.remoteSize());
+            localBuffer = region.segment();
+
+            resources.push(localBuffer);
+            resources.push(region);
+
+            if (localBuffer.byteSize() == Constants.ATOMIC_32_BIT) {
+                nativeInteger = NativeInteger.map(localBuffer);
+                nativeInteger.set(1);
+            }
+
+            if (localBuffer.byteSize() == Constants.ATOMIC_64_BIT) {
+                nativeLong = NativeLong.map(localBuffer);
+                nativeLong.set(1);
+            }
+
+            remoteAddress = descriptor.remoteAddress();
+        }
     }
 
     private void sendOpCode(OpCode opCode) {
@@ -155,6 +227,21 @@ public class BenchmarkConnection implements AutoCloseable {
     /*--- BENCHMARK COMMANDS ---*/
 
     public final void synchronize() {
+
+        // Signal that the last message has been sent.
+        // This is necessary because JMH performs as many
+        // operations as it can within the specified time frame
+        // and the total number of operations cannot be known up front.
+        if (type == BenchmarkType.MESSAGING) {
+            MemoryAccess.setByte(localBuffer, Constants.LAST_MESSAGE);
+            blockingSendTagged();
+        }
+
+        if (type == BenchmarkType.PINGPONG) {
+            MemoryAccess.setByte(localBuffer, Constants.LAST_MESSAGE);
+            blockingPingPongTagged();
+        }
+
         sendOpCode(OpCode.SYNCHRONIZE);
     }
 
@@ -169,6 +256,34 @@ public class BenchmarkConnection implements AutoCloseable {
     public final void blockingPut() {
         RequestHelpher.poll(
             worker, endpoint.put(localBuffer, remoteAddress, remoteKey)
+        );
+    }
+
+    public final void blockingSendTagged() {
+        RequestHelpher.poll(
+            worker, endpoint.sendTagged(localBuffer, Constants.TAG_BENCHMARK_MESSAGE)
+        );
+    }
+
+    public final void blockingPingPongTagged() {
+        RequestHelpher.poll(
+                worker, endpoint.sendTagged(localBuffer, Constants.TAG_BENCHMARK_MESSAGE)
+        );
+
+        RequestHelpher.poll(
+                worker, worker.receiveTagged(localBuffer, Constants.TAG_BENCHMARK_MESSAGE)
+        );
+    }
+
+    public final void blockingAtomicAdd32() {
+        RequestHelpher.poll(
+                worker, endpoint.atomic(AtomicOperation.ADD, nativeInteger, remoteAddress, remoteKey, REQUEST_PARAMETERS_ATOMIC_32)
+        );
+    }
+
+    public final void blockingAtomicAdd64() {
+        RequestHelpher.poll(
+                worker, endpoint.atomic(AtomicOperation.ADD, nativeLong, remoteAddress, remoteKey, REQUEST_PARAMETERS_ATOMIC_64)
         );
     }
 

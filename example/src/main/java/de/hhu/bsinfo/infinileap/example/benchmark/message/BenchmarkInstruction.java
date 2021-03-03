@@ -13,10 +13,10 @@ public class BenchmarkInstruction extends NativeObject {
 
     public enum OpCode {
         // Benchmarks
-        RDMA_THROUGHPUT(0x01),
-        RDMA_LATENCY(0x02),
-        MESSAGING_THROUGHPUT(0x03),
-        MESSAGING_LATENCY(0x04),
+        MEMORY_ACCESS(0x01),
+        MESSAGING(0x02),
+        PINGPONG(0x03),
+        ATOMIC(0x04),
 
         // Commands
         SYNCHRONIZE(0x20),

@@ -9,6 +9,8 @@ import de.hhu.bsinfo.infinileap.example.util.Constants;
 import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
+import jdk.incubator.foreign.MemoryAccess;
+import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -71,10 +73,11 @@ public class BenchmarkServer implements Runnable {
 
     @Override
     public void run() {
+        log.info("Waiting on client connection");
         while (SHOULD_RERUN.get()) {
-            log.info("Running Loop {}", LOOP_COUNTER.get());
             try (resources) {
                 initialize();
+                log.info("Running loop {}", LOOP_COUNTER.get());
                 serve();
 
                 switch (receiveOpCode()) {
@@ -143,36 +146,49 @@ public class BenchmarkServer implements Runnable {
         var opCode = receiveOpCode();
         try (var details = receiveDetails()) {
             switch (opCode) {
-                case RDMA_LATENCY -> executeMemoryLatency(details);
-                case RDMA_THROUGHPUT -> executeMemoryThroughput(details);
-                case MESSAGING_LATENCY -> executeMessagingLatency(details);
-                case MESSAGING_THROUGHPUT -> executeMessagingThroughput(details);
+                case MEMORY_ACCESS -> executeMemory(details);
+                case MESSAGING -> executeMessaging(details);
+                case PINGPONG -> executePingPong(details);
+                case ATOMIC -> executeAtomic(details);
             }
         }
     }
 
-    private void executeMemoryLatency(BenchmarkDetails details) {
-
-    }
-
-    private void executeMemoryThroughput(BenchmarkDetails details) throws ControlException, CloseException {
+    private void executeMemory(BenchmarkDetails details) throws ControlException {
         var region = context.allocateMemory(details.getBufferSize());
         resources.push(region);
 
         log.trace("Allocated {} bytes of memory", region.segment().byteSize());
         sendDescriptor(region.descriptor());
-
-        log.trace("Waiting on synchronization");
-
-
-        throw new IllegalStateException("Shouldn't reach here");
     }
 
-    private void executeMessagingLatency(BenchmarkDetails details) {
+    private void executeMessaging(BenchmarkDetails details) throws ControlException {
+        var region = context.allocateMemory(details.getBufferSize());
+        var segment = region.segment();
+        resources.push(region);
 
+        while (!isLastMessage(segment)) {
+            RequestHelpher.poll(worker, worker.receiveTagged(segment, Constants.TAG_BENCHMARK_MESSAGE));
+        }
     }
 
-    private void executeMessagingThroughput(BenchmarkDetails details) {
+    private void executePingPong(BenchmarkDetails details) throws ControlException {
+        var region = context.allocateMemory(details.getBufferSize());
+        var segment = region.segment();
+        resources.push(region);
+
+        while (!isLastMessage(segment)) {
+            RequestHelpher.poll(worker, worker.receiveTagged(segment, Constants.TAG_BENCHMARK_MESSAGE));
+            RequestHelpher.poll(worker, endpoint.sendTagged(segment, Constants.TAG_BENCHMARK_MESSAGE));
+        }
+    }
+
+    private void executeAtomic(BenchmarkDetails details) throws ControlException {
+        var region = context.allocateMemory(details.getBufferSize());
+        resources.push(region);
+
+        log.trace("Allocated {} bytes of memory", region.segment().byteSize());
+        sendDescriptor(region.descriptor());
     }
 
     private OpCode receiveOpCode() throws ControlException, CloseException {
@@ -198,5 +214,9 @@ public class BenchmarkServer implements Runnable {
         RequestHelpher.await(
             worker, endpoint.sendTagged(descriptor, Constants.TAG_BENCHMARK_DESCRIPTOR)
         );
+    }
+
+    private static boolean isLastMessage(MemorySegment segment) {
+        return MemoryAccess.getByte(segment) == Constants.LAST_MESSAGE;
     }
 }

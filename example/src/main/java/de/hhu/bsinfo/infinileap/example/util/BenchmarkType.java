@@ -1,12 +1,10 @@
 package de.hhu.bsinfo.infinileap.example.util;
 
-import java.util.Arrays;
-
 public enum BenchmarkType {
-    RDMA_THROUGHPUT             (0x01),
-    RDMA_LATENCY                (0x02),
-    MESSAGING_THROUGHPUT        (0x03),
-    MESSAGING_LATENCY           (0x04);
+    MEMORY_ACCESS               (0x01),
+    MESSAGING                   (0x02),
+    PINGPONG                    (0x03),
+    ATOMIC                      (0x04);
 
     private final int value;
 
@@ -16,12 +14,5 @@ public enum BenchmarkType {
 
     public int value() {
         return value;
-    }
-
-    public static BenchmarkType from(int value) {
-        return Arrays.stream(values())
-                .filter(it -> it.value() == value)
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
     }
 }
