@@ -13,13 +13,16 @@ public class BenchmarkInstruction extends NativeObject {
 
     public enum OpCode {
         // Benchmarks
-        MEMORY_ACCESS(0x01),
-        MESSAGING(0x02),
-        PINGPONG(0x03),
-        ATOMIC(0x04),
+        RUN_READ_LATENCY(0x01),
+        RUN_WRITE_LATENCY(0x02),
+
+        RUN_SEND_LATENCY(0x03),
+        RUN_PINGPONG_LATENCY(0x04),
+
+        RUN_ATOMIC_LATENCY(0x05),
 
         // Commands
-        SYNCHRONIZE(0x20),
+        RELEASE_BARRIER(0x20),
         FINISH(0x21);
 
         private final int value;

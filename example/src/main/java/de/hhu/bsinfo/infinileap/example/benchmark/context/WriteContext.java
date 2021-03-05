@@ -2,11 +2,13 @@ package de.hhu.bsinfo.infinileap.example.benchmark.context;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkDetails;
+import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction;
+import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction.OpCode;
 import de.hhu.bsinfo.infinileap.example.util.BenchmarkType;
 import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
-public class MemoryContext extends BaseContext {
+public class WriteContext extends BaseContext {
 
     @Param({ "16", "32", "64", "128", "256", "512", "1024", "2048", "4096" })
     public int bufferSize;
@@ -22,17 +24,13 @@ public class MemoryContext extends BaseContext {
     }
 
     @Override
-    protected BenchmarkType getBenchmarkType() {
-        return BenchmarkType.MEMORY_ACCESS;
+    protected OpCode getInitialInstruction() {
+        return OpCode.RUN_WRITE_LATENCY;
     }
 
     @Override
     protected void fillDetails(BenchmarkDetails details) {
         details.setBufferSize(bufferSize);
-    }
-
-    public final void blockingGet() {
-        connection.blockingGet();
     }
 
     public final void blockingPut() {

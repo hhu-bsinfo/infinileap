@@ -3,12 +3,10 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @CommandLine.Command(
@@ -39,7 +37,7 @@ public class Memory extends CommunicationDemo {
                     .setSendCallback(barrier::release))
         );
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
@@ -49,7 +47,7 @@ public class Memory extends CommunicationDemo {
                     .setReceiveCallback(barrier::release))
         );
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class Memory extends CommunicationDemo {
                 .setReceiveCallback(barrier::release))
         );
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
 
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
@@ -78,7 +76,7 @@ public class Memory extends CommunicationDemo {
                 .setReceiveCallback(barrier::release))
         );
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
 
         log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toByteArray()));
 

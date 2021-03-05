@@ -3,13 +3,11 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @CommandLine.Command(
@@ -34,7 +32,7 @@ public class Atomic extends CommunicationDemo {
         var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setSendCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         log.info("Waiting for remote access");
@@ -44,7 +42,7 @@ public class Atomic extends CommunicationDemo {
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         log.info("Value after remote access is {}", integer.get());
@@ -61,7 +59,7 @@ public class Atomic extends CommunicationDemo {
         var request = worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         // Create a memory segment for atomic operations
@@ -77,7 +75,7 @@ public class Atomic extends CommunicationDemo {
         request = endpoint.atomic(AtomicOperation.ADD, integer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
                 .setDataType(integer.dataType()));
 
-        RequestHelpher.await(worker, request);
+        Requests.await(worker, request);
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);

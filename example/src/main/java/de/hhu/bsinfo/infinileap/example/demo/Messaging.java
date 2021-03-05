@@ -3,12 +3,10 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @CommandLine.Command(
@@ -38,7 +36,7 @@ public class Messaging extends CommunicationDemo {
         var request = endpoint.sendTagged(buffer, Tag.of(0L), new RequestParameters()
                     .setSendCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
     }
 
@@ -54,7 +52,7 @@ public class Messaging extends CommunicationDemo {
         var request = worker.receiveTagged(buffer, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         log.info("Received \"{}\"", new String(buffer.toByteArray()));

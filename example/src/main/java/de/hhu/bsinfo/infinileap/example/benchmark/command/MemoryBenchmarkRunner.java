@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.example.benchmark.command;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -50,7 +50,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
         var request = worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         // Unpack remote key and extract remote address
@@ -74,7 +74,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
                 timer = System.nanoTime();
 
                 // Read from remote
-                RequestHelpher.poll(worker, endpoint.put(targetBuffer, remoteAddress, remoteKey));
+                Requests.poll(worker, endpoint.put(targetBuffer, remoteAddress, remoteKey));
 
                 // Save measured time
                 measurements[operation] = System.nanoTime() - timer;
@@ -85,7 +85,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        RequestHelpher.await(worker, endpoint.sendTagged(completion, Tag.of(0L)));
+        Requests.await(worker, endpoint.sendTagged(completion, Tag.of(0L)));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
         var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
                 .setSendCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
 
         // Wait until remote signals completion
@@ -115,7 +115,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
         request.release();
     }
 }

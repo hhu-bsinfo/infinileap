@@ -2,17 +2,12 @@ package de.hhu.bsinfo.infinileap.example.base;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
-import de.hhu.bsinfo.infinileap.binding.Request.State;
-import de.hhu.bsinfo.infinileap.example.util.Constants;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
-import jdk.incubator.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -137,7 +132,7 @@ public abstract class CommunicationDemo implements Runnable {
         log.info("Listening for new connection requests on {}", listenAddress);
         listener = pushResource(worker.createListener(listenerParams));
 
-        RequestHelpher.await(worker, connectionRequest);
+        Requests.await(worker, connectionRequest);
 
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest.get());

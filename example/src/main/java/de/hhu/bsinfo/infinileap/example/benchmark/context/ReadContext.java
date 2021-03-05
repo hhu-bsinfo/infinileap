@@ -8,9 +8,9 @@ import de.hhu.bsinfo.infinileap.example.util.BenchmarkType;
 import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
-public class AtomicIntegerContext extends BaseContext {
+public class ReadContext extends BaseContext {
 
-    @Param({ "4" })
+    @Param({ "16", "32", "64", "128", "256", "512", "1024", "2048", "4096" })
     public int bufferSize;
 
     @Setup(Level.Trial)
@@ -25,7 +25,7 @@ public class AtomicIntegerContext extends BaseContext {
 
     @Override
     protected OpCode getInitialInstruction() {
-        return OpCode.RUN_ATOMIC_LATENCY;
+        return OpCode.RUN_READ_LATENCY;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AtomicIntegerContext extends BaseContext {
         details.setBufferSize(bufferSize);
     }
 
-    public final void blockingAtomicAdd() {
-        connection.blockingAtomicAdd32();
+    public final void blockingGet() {
+        connection.blockingGet();
     }
 }

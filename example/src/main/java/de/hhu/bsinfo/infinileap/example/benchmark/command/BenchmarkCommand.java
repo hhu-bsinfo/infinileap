@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.example.benchmark.command;
 
+import de.hhu.bsinfo.infinileap.example.benchmark.connection.BenchmarkServer;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 

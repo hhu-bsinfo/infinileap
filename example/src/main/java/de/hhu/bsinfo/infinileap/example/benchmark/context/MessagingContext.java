@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.example.benchmark.context;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkDetails;
-import de.hhu.bsinfo.infinileap.example.util.BenchmarkType;
+import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction.OpCode;
 import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
@@ -22,8 +22,8 @@ public class MessagingContext extends BaseContext {
     }
 
     @Override
-    protected BenchmarkType getBenchmarkType() {
-        return BenchmarkType.MESSAGING;
+    protected OpCode getInitialInstruction() {
+        return OpCode.RUN_SEND_LATENCY;
     }
 
     @Override

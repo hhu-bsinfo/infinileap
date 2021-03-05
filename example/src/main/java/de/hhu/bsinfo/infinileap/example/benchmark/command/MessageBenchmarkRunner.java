@@ -3,12 +3,11 @@ package de.hhu.bsinfo.infinileap.example.benchmark.command;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.RequestHelpher;
+import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
-import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.LongStream;
@@ -72,7 +71,7 @@ public class MessageBenchmarkRunner extends CommunicationDemo {
                 timer = System.nanoTime();
 
                 // Send message
-                RequestHelpher.poll(worker, endpoint.sendTagged(segment, MESSAGE_TAG));
+                Requests.poll(worker, endpoint.sendTagged(segment, MESSAGE_TAG));
 
                 // Save measured time
                 measurements[operation] = System.nanoTime() - timer;
@@ -96,7 +95,7 @@ public class MessageBenchmarkRunner extends CommunicationDemo {
         var expectedMessages = (long) iterations * operations;
         log.info("Receiving {} messages", expectedMessages);
         for (long counter = 0; counter < expectedMessages; counter++) {
-            RequestHelpher.await(worker, worker.receiveTagged(buffer, MESSAGE_TAG));
+            Requests.await(worker, worker.receiveTagged(buffer, MESSAGE_TAG));
         }
 
         // Wait until remote signals completion
@@ -107,6 +106,6 @@ public class MessageBenchmarkRunner extends CommunicationDemo {
                 .setReceiveCallback(barrier::release))
         );
 
-        RequestHelpher.await(worker, barrier);
+        Requests.await(worker, barrier);
     }
 }
