@@ -11,29 +11,18 @@ import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-@CommandLine.Command(
-        name = "server",
-        description = "Runs the server part of the benchmark."
-)
-public class BenchmarkServer implements Runnable {
+public class BenchmarkServer {
 
-    @CommandLine.Option(
-            names = {"-l", "--listen"},
-            description = "The address the server listens on.")
-    private InetSocketAddress listenAddress;
 
-    @CommandLine.Option(
-            names = {"-p", "--port"},
-            description = "The port the server will listen on.")
-    private int port = Constants.DEFAULT_PORT;
+    /**
+     * The network address this server listens on.
+     */
+    private final InetSocketAddress listenAddress;
 
     /**
      * This node's context.
@@ -51,7 +40,7 @@ public class BenchmarkServer implements Runnable {
     private Endpoint endpoint;
 
     /**
-     * The listener used for accepting new connections on the server side.
+     * The listener used for accepting new connections.
      */
     private Listener listener;
 
@@ -90,20 +79,20 @@ public class BenchmarkServer implements Runnable {
      */
     private final ResourcePool resources = new ResourcePool();
 
-    private static final AtomicBoolean SHOULD_RERUN = new AtomicBoolean(true);
-    private static final AtomicInteger LOOP_COUNTER = new AtomicInteger(1);
+    private BenchmarkServer(InetSocketAddress listenAddress) {
+        this.listenAddress = listenAddress;
+    }
 
-    @Override
-    public void run() {
-        log.info("Waiting on client connection");
-        while (SHOULD_RERUN.get()) {
+    public void start() {
+        var isRunning = true;
+        var counter = 1;
+        while (isRunning) {
+            log.info("Running loop {}", counter);
             try (resources) {
                 initialize();
-                log.info("Running loop {}", LOOP_COUNTER.get());
-                serve();
-
+                executeBenchmark();
                 BenchmarkBarrier.await(worker);
-                LOOP_COUNTER.incrementAndGet();
+                counter++;
             } catch (ControlException e) {
                 log.error("Native operation failed", e);
             } catch (CloseException e) {
@@ -142,12 +131,13 @@ public class BenchmarkServer implements Runnable {
         }
     }
 
-    private void serve() throws ControlException, CloseException {
+    private void executeBenchmark() throws ControlException, CloseException {
         var opCode = Requests.receiveOpCode(worker);
         try (var details = Requests.receiveDetails(worker)) {
 
             // Initialize send and receive buffers
             initBuffers(details.getBufferSize());
+            BenchmarkBarrier.await(worker);
 
             // Execute operation
             switch (opCode) {
@@ -231,5 +221,9 @@ public class BenchmarkServer implements Runnable {
         }
 
         return false;
+    }
+
+    public static BenchmarkServer create(InetSocketAddress listenAddress) throws ControlException {
+        return new BenchmarkServer(listenAddress);
     }
 }

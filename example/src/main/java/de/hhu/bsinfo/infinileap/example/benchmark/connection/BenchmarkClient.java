@@ -113,6 +113,7 @@ public class BenchmarkClient implements AutoCloseable {
 
         // Initialize local buffers
         initBuffers(details.getBufferSize());
+        BenchmarkBarrier.signal(worker, endpoint);
 
         switch (this.initialInstruction) {
             case RUN_READ_LATENCY,
@@ -226,30 +227,30 @@ public class BenchmarkClient implements AutoCloseable {
         blockingReceiveTagged();
     }
 
-    private static final AtomicInteger ATOMIC_COUNTER = new AtomicInteger(0);
+    private int atomicCounter = 0;
 
     public final void blockingAtomicAdd32() {
         Requests.blockingAtomicAdd(worker, endpoint, nativeInteger, remoteAddress, remoteKey);
 
-        if (ATOMIC_COUNTER.get() == 1000) {
+        if (atomicCounter == 1000) {
             Requests.poll(worker, endpoint.flush());
-            ATOMIC_COUNTER.set(0);
+            atomicCounter = 0;
             return;
         }
 
-        ATOMIC_COUNTER.incrementAndGet();
+        atomicCounter++;
     }
 
     public final void blockingAtomicAdd64() {
         Requests.blockingAtomicAdd(worker, endpoint, nativeLong, remoteAddress, remoteKey);
 
-        if (ATOMIC_COUNTER.get() == 1000) {
+        if (atomicCounter == 1000) {
             Requests.poll(worker, endpoint.flush());
-            ATOMIC_COUNTER.set(0);
+            atomicCounter = 0;
             return;
         }
 
-        ATOMIC_COUNTER.incrementAndGet();
+        atomicCounter++;
     }
 
     @Override

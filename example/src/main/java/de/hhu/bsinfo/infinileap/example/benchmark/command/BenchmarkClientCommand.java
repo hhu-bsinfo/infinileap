@@ -13,10 +13,12 @@ import java.util.List;
 
 @Slf4j
 @CommandLine.Command(
-        name = "run",
-        description = "Runs a set of benchmarks."
+        name = "client",
+        description = "Runs the client part of the benchmark."
 )
-public class BenchmarkRunner implements Runnable {
+public class BenchmarkClientCommand implements Runnable {
+
+    private static final int DEFAULT_THREAD_COUNT = 1;
 
     @CommandLine.Option(
             names = {"-c", "--connect"},
@@ -28,6 +30,11 @@ public class BenchmarkRunner implements Runnable {
             description = "The names of benchmarks to execute.")
     private List<String> includes = Collections.emptyList();
 
+    @CommandLine.Option(
+            names = {"-t", "--threads"},
+            description = "The server to connect to.")
+    private int threads = DEFAULT_THREAD_COUNT;
+
     @Override
     public void run() {
 
@@ -36,6 +43,7 @@ public class BenchmarkRunner implements Runnable {
                 .resultFormat(ResultFormatType.CSV)
                 .param("serverAddress", serverAddress.getHostString())
                 .param("serverPort", String.valueOf(serverAddress.getPort()))
+                .threads(threads)
                 .detectJvmArgs();
 
         // Include the specified benchmarks

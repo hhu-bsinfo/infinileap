@@ -7,10 +7,11 @@ import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.infra.ThreadParams;
 
 import java.net.InetSocketAddress;
 
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 public abstract class BaseContext {
 
     protected BenchmarkClient connection;
@@ -21,8 +22,8 @@ public abstract class BaseContext {
     @Param({ "2998" })
     public int serverPort;
 
-    protected void setupBenchmark() throws ControlException {
-        var address = new InetSocketAddress(serverAddress, serverPort);
+    protected void setupBenchmark(ThreadParams threadParams) throws ControlException {
+        var address = new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex());
 
         connection = BenchmarkClient.connect(address);
         try (var details = new BenchmarkDetails()) {
