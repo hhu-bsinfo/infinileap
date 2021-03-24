@@ -6,8 +6,11 @@ import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import org.openucx.Communication;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.Communication.*;
+import static org.openucx.ucx_h.ucp_ep_rkey_unpack;
+
 
 public class Endpoint extends NativeObject {
 
@@ -17,67 +20,61 @@ public class Endpoint extends NativeObject {
         super(address, CLinker.C_POINTER);
     }
 
-    public Request sendTagged(NativeObject object, Tag tag) {
+    public long sendTagged(NativeObject object, Tag tag) {
         return sendTagged(object.segment(), tag, RequestParameters.EMPTY);
     }
 
-    public Request sendTagged(NativeObject object, Tag tag, RequestParameters parameters) {
+    public long sendTagged(NativeObject object, Tag tag, RequestParameters parameters) {
         return sendTagged(object.segment(), tag, parameters);
     }
 
-    public Request sendTagged(MemorySegment message, Tag tag) {
+    public long sendTagged(MemorySegment message, Tag tag) {
         return sendTagged(message, tag, RequestParameters.EMPTY);
     }
 
-    public Request sendTagged(MemorySegment message, Tag tag, RequestParameters parameters) {
-        var address = ucp_tag_send_nbx(
+    public long sendTagged(MemorySegment message, Tag tag, RequestParameters parameters) {
+        return ucp_tag_send_nbx(
                 Parameter.of(this),
                 message,
                 message.byteSize(),
                 tag.getValue(),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
-    public Request sendStream(NativeObject object, RequestParameters parameters) {
+    public long sendStream(NativeObject object, RequestParameters parameters) {
         return sendStream(object.segment(), SINGLE_ELEMENT, parameters);
     }
 
-    public Request sendStream(MemorySegment buffer, long count, RequestParameters parameters) {
-        var address = ucp_stream_send_nbx(
+    public long sendStream(MemorySegment buffer, long count, RequestParameters parameters) {
+        return ucp_stream_send_nbx(
                 Parameter.of(this),
                 buffer,
                 count,
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
-    public Request receiveStream(MemorySegment buffer, long count, NativeLong length) {
+    public long receiveStream(MemorySegment buffer, long count, NativeLong length) {
         return receiveStream(buffer, count, length, RequestParameters.EMPTY);
     }
 
-    public Request receiveStream(MemorySegment buffer, long count, NativeLong length, RequestParameters parameters) {
-        var address = ucp_stream_recv_nbx(
+    public long receiveStream(MemorySegment buffer, long count, NativeLong length, RequestParameters parameters) {
+        return ucp_stream_recv_nbx(
                 Parameter.of(this),
                 buffer,
                 count,
                 Parameter.of(length),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
-    public Request put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key) {
+    public long put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key) {
         return put(source, remoteAddress, key, RequestParameters.EMPTY);
     }
 
-    public Request put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        var address = ucp_put_nbx(
+    public long put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return ucp_put_nbx(
                 Parameter.of(this),
                 source,
                 source.byteSize(),
@@ -85,16 +82,14 @@ public class Endpoint extends NativeObject {
                 key.address(),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
-    public Request get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key) {
+    public long get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key) {
         return get(target, remoteAddress, key, RequestParameters.EMPTY);
     }
 
-    public Request get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        var address = ucp_get_nbx(
+    public long get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return ucp_get_nbx(
                 Parameter.of(this),
                 target,
                 target.byteSize(),
@@ -102,20 +97,18 @@ public class Endpoint extends NativeObject {
                 key.address(),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
-    public Request atomic(AtomicOperation operation, NativeLong value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long atomic(AtomicOperation operation, NativeLong value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
         return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
     }
 
-    public Request atomic(AtomicOperation operation, NativeInteger value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long atomic(AtomicOperation operation, NativeInteger value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
         return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
     }
 
-    public Request atomic(AtomicOperation operation, MemorySegment buffer, int count, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
-        var address = ucp_atomic_op_nbx(
+    public long atomic(AtomicOperation operation, MemorySegment buffer, int count, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+        return ucp_atomic_op_nbx(
                 Parameter.of(this),
                 operation.getValue(),
                 buffer,
@@ -124,8 +117,6 @@ public class Endpoint extends NativeObject {
                 key.address(),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
     public RemoteKey unpack(MemoryDescriptor descriptor) throws ControlException {
@@ -146,16 +137,14 @@ public class Endpoint extends NativeObject {
         }
     }
 
-    public Request flush() {
+    public long flush() {
         return flush(RequestParameters.EMPTY);
     }
 
-    public Request flush(RequestParameters parameters) {
-        var address = ucp_ep_flush_nbx(
+    public long flush(RequestParameters parameters) {
+        return ucp_ep_flush_nbx(
                 Parameter.of(this),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 }

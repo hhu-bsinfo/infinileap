@@ -7,11 +7,11 @@ import org.openucx.ucx_h.ucp_tag_recv_nbx_callback_t;
 @FunctionalInterface
 public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
 
-    void onRequestReceived(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data);
+    void onRequestReceived(long request, Status status, MemoryAddress tagInfo, MemoryAddress data);
 
     @Override
     default void apply(MemoryAddress request, byte status, MemoryAddress tagInfo, MemoryAddress data) {
-        onRequestReceived(Request.of(request), Status.of(status), tagInfo, data);
+        onRequestReceived(request.toRawLongValue(), Status.of(status), tagInfo, data);
     }
 
     default MemorySegment upcallStub() {

@@ -19,7 +19,7 @@ public class Atomic extends CommunicationDemo {
     private final CommunicationBarrier barrier = new CommunicationBarrier();
 
     @Override
-    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Create memory segment and write a number into it
         final var memoryRegion = context.allocateMemory(Integer.BYTES);
@@ -33,7 +33,7 @@ public class Atomic extends CommunicationDemo {
                 .setSendCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         log.info("Waiting for remote access");
 
@@ -43,13 +43,13 @@ public class Atomic extends CommunicationDemo {
                 .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         log.info("Value after remote access is {}", integer.get());
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Allocate a memory descriptor
         var descriptor = new MemoryDescriptor();
@@ -60,7 +60,7 @@ public class Atomic extends CommunicationDemo {
                 .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         // Create a memory segment for atomic operations
         var memorySegment = context.allocateMemory(Integer.BYTES);

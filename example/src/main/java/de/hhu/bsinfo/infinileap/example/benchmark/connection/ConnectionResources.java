@@ -43,7 +43,7 @@ public class ConnectionResources {
             // Create context parameters
             var contextParameters = pool.push(() -> new ContextParameters()
                     .setFeatures(FEATURE_SET)
-                    .setRequestSize(DEFAULT_REQUEST_SIZE));
+                    .setRequestSize(0L));
 
             // Initialize UCP context
             var context = Context.initialize(contextParameters);

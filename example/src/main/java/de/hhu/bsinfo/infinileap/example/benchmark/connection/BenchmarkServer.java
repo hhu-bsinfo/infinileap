@@ -2,10 +2,9 @@ package de.hhu.bsinfo.infinileap.example.benchmark.connection;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkDetails;
-import de.hhu.bsinfo.infinileap.example.util.BenchmarkBarrier;
-import de.hhu.bsinfo.infinileap.example.util.Constants;
-import de.hhu.bsinfo.infinileap.example.util.Requests;
+import de.hhu.bsinfo.infinileap.example.util.*;
 import de.hhu.bsinfo.infinileap.util.CloseException;
+import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -13,6 +12,7 @@ import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -75,33 +75,71 @@ public class BenchmarkServer {
     private RemoteKey remoteKey;
 
     /**
+     * A pool of requests for performing multiple operations at once.
+     */
+    private RequestPool requestPool;
+
+    /**
+     * Used to signal the end of a benchmark run.
+     */
+    private BenchmarkSignal signal;
+
+    /**
+     * Used for ping-pong based write operations.
+     */
+    private long writeCounter = 1;
+
+    /**
      * Handles cleanup of resources created during the demo.
      */
     private final ResourcePool resources = new ResourcePool();
+
+    private final AtomicBoolean controlledShutdown = new AtomicBoolean(false);
+
+    private final AtomicBoolean isRunning = new AtomicBoolean(false);
+
+    private final AtomicReference<Thread> workerThread = new AtomicReference<>(null);
 
     private BenchmarkServer(InetSocketAddress listenAddress) {
         this.listenAddress = listenAddress;
     }
 
     public void start() {
-        var isRunning = true;
-        var counter = 1;
-        while (isRunning) {
-            log.info("Running loop {}", counter);
+
+        // Remember current thread for interruption
+        workerThread.set(Thread.currentThread());
+        isRunning.set(true);
+
+        while (true) {
             try (resources) {
+
+                // Initialize and execute benchmark
                 initialize();
                 executeBenchmark();
+
+                // Barrier
                 BenchmarkBarrier.await(worker);
-                counter++;
+                BenchmarkBarrier.signal(worker, endpoint);
             } catch (ControlException e) {
                 log.error("Native operation failed", e);
+                return;
             } catch (CloseException e) {
                 log.error("Closing resource failed", e);
+                return;
+            } catch (InterruptedException e) {
+                if (controlledShutdown.get()) {
+                    return;
+                }
+
+                log.error("Unexpected interrupt", e);
+                return;
+            } finally {
+                isRunning.set(false);
             }
         }
     }
 
-    private void initialize() throws ControlException, CloseException {
+    private void initialize() throws ControlException, CloseException, InterruptedException {
         var connectionResources = ConnectionResources.create();
         context = resources.push(connectionResources::context);
         worker = resources.push(connectionResources::worker);
@@ -115,7 +153,7 @@ public class BenchmarkServer {
         resources.push(endpoint);
     }
 
-    private ConnectionRequest accept() throws ControlException, CloseException {
+    private ConnectionRequest accept() throws ControlException, CloseException, InterruptedException {
         try (var pool = new ResourcePool()) {
             var connectionRequest = new AtomicReference<ConnectionRequest>();
             var listenerParams = pool.push(() -> new ListenerParameters()
@@ -131,66 +169,141 @@ public class BenchmarkServer {
         }
     }
 
-    private void executeBenchmark() throws ControlException, CloseException {
+    private void executeBenchmark() throws ControlException, CloseException, InterruptedException {
         var opCode = Requests.receiveOpCode(worker);
         try (var details = Requests.receiveDetails(worker)) {
 
             // Initialize send and receive buffers
-            initBuffers(details.getBufferSize());
-            BenchmarkBarrier.await(worker);
+            initBuffers(details);
+
+            // Initialize request pool
+            requestPool = new RequestPool(details.getOperationCount() * 2);
+
+            // Initialize benchmark signal
+            signal = BenchmarkSignal.listen(worker);
+            resources.push(signal);
 
             // Execute operation
-            switch (opCode) {
-                case RUN_READ_LATENCY -> readLatency(details);
-                case RUN_WRITE_LATENCY -> writeLatency(details);
-                case RUN_SEND_LATENCY -> sendLatency(details);
-                case RUN_PINGPONG_LATENCY -> pingPongLatency(details);
-                case RUN_ATOMIC_LATENCY -> atomicLatency(details);
-                default -> throw new IllegalStateException("Received unexpected op code " + opCode.name());
+            BenchmarkBarrier.await(worker);
+            switch (details.getBenchmarkMode()) {
+
+                case LATENCY:
+                    switch (opCode) {
+                        case RUN_READ -> readLatency(details);
+                        case RUN_WRITE -> writeLatency(details);
+                        case RUN_SEND -> sendLatency(details);
+                        case RUN_PINGPONG -> pingPongLatency(details);
+                        case RUN_ATOMIC -> atomicLatency(details);
+                    }
+                    break;
+
+                case THROUGHPUT:
+                    switch (opCode) {
+                        case RUN_READ -> readThroughput(details);
+                        case RUN_WRITE -> writeThroughput(details);
+                        case RUN_SEND -> sendThroughput(details);
+                        case RUN_PINGPONG -> pingPongThroughput(details);
+                        case RUN_ATOMIC -> atomicThroughput(details);
+                    }
+                    break;
             }
         }
     }
 
     private void readLatency(BenchmarkDetails details) throws ControlException {
-
+        // Nothing to do
     }
 
-    private byte writeCounter = 1;
+    private void readThroughput(BenchmarkDetails details) throws ControlException {
+        // Nothing to do
+    }
 
     private void writeLatency(BenchmarkDetails details) throws ControlException {
-        var isReceiving = true;
-        while (isReceiving) {
-            if (waitForValue(worker, receiveBuffer, writeCounter)) {
-                isReceiving = false;
+        while (signal.isCleared()) {
+            while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+                worker.progress();
             }
 
-            MemoryAccess.setByte(sendBuffer, writeCounter++);
+            MemoryAccess.setLong(sendBuffer, writeCounter++);
             Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
         }
 
         writeCounter = 1;
     }
 
+    private void writeThroughput(BenchmarkDetails details) throws ControlException {
+        while (signal.isCleared()) {
+
+            // Wait until last write was performed
+            writeCounter += details.getOperationCount() - 1;
+            while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+                worker.progress();
+            }
+
+            // Send back the current counter value
+            MemoryAccess.setLong(sendBuffer, writeCounter);
+            Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
+        }
+
+        writeCounter = 1;
+    }
+
+    private void sendThroughput(BenchmarkDetails details) throws ControlException {
+        while (signal.isCleared()) {
+            for (int i = 0; i < details.getOperationCount(); i++) {
+                requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+            }
+
+            requestPool.pollRemaining(worker);
+            Requests.blockingSendTagged(worker, endpoint, sendBuffer);
+        }
+
+        // TODO(krakowski)
+        // Find out why there are still ${details.getOperationCount}
+        // messages pending inside the queue.
+        for (int i = 0; i < details.getOperationCount(); i++) {
+            requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+        }
+
+        requestPool.pollRemaining(worker);
+    }
+
     private void sendLatency(BenchmarkDetails details) throws ControlException {
-        while (hasNextMessage(receiveBuffer)) {
-            Requests.poll(worker, worker.receiveTagged(receiveBuffer, Constants.TAG_BENCHMARK_MESSAGE));
+        while (signal.isCleared()) {
+            Requests.blockingReceiveTagged(worker, endpoint, receiveBuffer);
+            Requests.blockingSendTagged(worker, endpoint, sendBuffer);
         }
     }
 
     private void pingPongLatency(BenchmarkDetails details) throws ControlException {
-        while (hasNextMessage(receiveBuffer)) {
-            Requests.poll(worker, worker.receiveTagged(receiveBuffer, Constants.TAG_BENCHMARK_MESSAGE));
-            Requests.poll(worker, endpoint.sendTagged(sendBuffer, Constants.TAG_BENCHMARK_MESSAGE));
+        while (signal.isCleared()) {
+            for (int i = 0; i < details.getOperationCount(); i++) {
+                Requests.blockingReceiveTagged(worker, endpoint, receiveBuffer);
+                Requests.blockingSendTagged(worker, endpoint, sendBuffer);
+            }
         }
+    }
+
+    private void pingPongThroughput(BenchmarkDetails details) throws ControlException {
+        while (signal.isCleared()) {
+            for (int i = 0; i < details.getOperationCount(); i++) {
+                Requests.blockingReceiveTagged(worker, endpoint, receiveBuffer);
+                Requests.blockingSendTagged(worker, endpoint, sendBuffer);
+            }
+        }
+    }
+
+    private void atomicThroughput(BenchmarkDetails details) throws ControlException {
+
     }
 
     private void atomicLatency(BenchmarkDetails details) throws ControlException {
 
     }
 
-    private void initBuffers(long size) throws ControlException {
-        sendRegion = context.allocateMemory(size);
-        receiveRegion = context.allocateMemory(size);
+    private void initBuffers(BenchmarkDetails details) throws ControlException, InterruptedException {
+        sendRegion = context.allocateMemory(details.getBufferSize(), MemoryAlignment.PAGE);
+        receiveRegion = context.allocateMemory(details.getBufferSize(), MemoryAlignment.PAGE);
         resources.push(sendRegion);
         resources.push(receiveRegion);
 
@@ -208,22 +321,21 @@ public class BenchmarkServer {
         }
     }
 
-    private static boolean hasNextMessage(MemorySegment segment) {
-        return MemoryAccess.getByte(segment) != Constants.LAST_MESSAGE;
-    }
-
-    private static boolean waitForValue(Worker worker, MemorySegment segment, byte value) {
-        while (MemoryAccess.getByte(segment) != value) {
-            worker.progress();
-            if (MemoryAccess.getByteAtOffset(segment, 1) == Constants.LAST_MESSAGE) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public static BenchmarkServer create(InetSocketAddress listenAddress) throws ControlException {
         return new BenchmarkServer(listenAddress);
+    }
+
+    public void shutdown() {
+        controlledShutdown.set(true);
+        workerThread.get().interrupt();
+        worker.signal();
+    }
+
+    public boolean isRunning() {
+        return isRunning.get();
+    }
+
+    public Thread getWorkerThread() {
+        return workerThread.get();
     }
 }

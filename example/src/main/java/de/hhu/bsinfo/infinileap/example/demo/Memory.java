@@ -21,7 +21,7 @@ public class Memory extends CommunicationDemo {
     private final CommunicationBarrier barrier = new CommunicationBarrier();
 
     @Override
-    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Create memory segment and fill it with data
         final var source = MemorySegment.ofArray(BUFFER_CONTENT);
@@ -32,26 +32,25 @@ public class Memory extends CommunicationDemo {
         log.info("Sending remote key");
         final var descriptor = memoryRegion.descriptor();
 
-        pushResource(
-            endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
-                    .setSendCallback(barrier::release))
-        );
+        var request = endpoint.sendTagged(descriptor, Tag.of(0L), new RequestParameters()
+                    .setSendCallback(barrier::release));
 
         Requests.await(worker, barrier);
+        Requests.release(request);
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
 
-        pushResource(
-            worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
-                    .setReceiveCallback(barrier::release))
-        );
+
+        request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
+                    .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
+        Requests.release(request);
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Allocate a memory descriptor
         var descriptor = new MemoryDescriptor();
@@ -59,29 +58,29 @@ public class Memory extends CommunicationDemo {
         // Receive the message
         log.info("Receiving Remote Key");
 
-        pushResource(
-            worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
-                .setReceiveCallback(barrier::release))
-        );
+        var request = worker.receiveTagged(descriptor, Tag.of(0L), new RequestParameters()
+                .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
+        Requests.release(request);
 
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
         var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
         pushResource(remoteKey);
 
-        pushResource(
-            endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
-                .setReceiveCallback(barrier::release))
-        );
+        request = endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
+                .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
+        Requests.release(request);
 
         log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toByteArray()));
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        pushResource(endpoint.sendTagged(completion, Tag.of(0L)));
+        request = endpoint.sendTagged(completion, Tag.of(0L));
+
+        Requests.await(worker, request);
     }
 }

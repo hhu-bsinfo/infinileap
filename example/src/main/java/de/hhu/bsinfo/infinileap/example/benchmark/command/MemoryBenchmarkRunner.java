@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
+import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -40,7 +41,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
     private final CommunicationBarrier barrier = new CommunicationBarrier();
 
     @Override
-    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Allocate a memory descriptor
         var descriptor = new MemoryDescriptor();
@@ -51,7 +52,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
                 .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         // Unpack remote key and extract remote address
         var remoteKey = endpoint.unpack(descriptor);
@@ -59,7 +60,9 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
         pushResource(remoteKey);
 
         // Create buffer and request parameters for subsequent get operations
-        var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize());
+        var targetRegion = context.allocateMemory(descriptor.remoteSize(), MemoryAlignment.PAGE);
+        var targetBuffer = targetRegion.segment();
+        pushResource(targetRegion);
 
         log.info("Using a buffer size of {} bytes", bufferSize);
         log.info("Running for {} iterations with {} operations each", iterations, operations);
@@ -89,7 +92,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Create initial data buffer
         var content = new byte[bufferSize];
@@ -97,7 +100,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
 
         // Create memory segment and fill it with data
         final var source = MemorySegment.ofArray(content);
-        final var memoryRegion = context.allocateMemory(bufferSize);
+        final var memoryRegion = context.allocateMemory(bufferSize, MemoryAlignment.PAGE);
         memoryRegion.segment().copyFrom(source);
         pushResource(memoryRegion);
 
@@ -108,7 +111,7 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
                 .setSendCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         // Wait until remote signals completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
@@ -116,6 +119,6 @@ public class MemoryBenchmarkRunner extends CommunicationDemo {
                 .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
     }
 }

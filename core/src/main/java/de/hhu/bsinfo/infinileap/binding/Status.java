@@ -75,8 +75,8 @@ public enum Status {
         return status.isNot(value);
     }
 
-    static boolean is(int value, Status status) {
-        return status.is(value);
+    public static boolean is(long value, Status status) {
+        return value == status.value;
     }
 
     static boolean is(MemoryAddress address, Status status) {
@@ -87,7 +87,7 @@ public enum Status {
         return isStatus(status.toRawLongValue());
     }
 
-    static boolean isStatus(long status) {
+    public static boolean isStatus(long status) {
         return status >= RANGE_MIN && status <= RANGE_MAX;
     }
 
@@ -95,7 +95,7 @@ public enum Status {
         return isError(status.toRawLongValue());
     }
 
-    static boolean isError(long status) {
+    public static boolean isError(long status) {
         return status >= RANGE_MIN && status < 0;
     }
 

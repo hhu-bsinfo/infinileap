@@ -23,7 +23,7 @@ public class Messaging extends CommunicationDemo {
     private final CommunicationBarrier barrier = new CommunicationBarrier();
 
     @Override
-    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) {
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer and write the message
         final var source = pushResource(MemorySegment.ofArray(MESSAGE_BYTES));
@@ -37,11 +37,11 @@ public class Messaging extends CommunicationDemo {
                     .setSendCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
         var buffer = pushResource(MemorySegment.allocateNative(MESSAGE_SIZE));
@@ -53,7 +53,7 @@ public class Messaging extends CommunicationDemo {
                 .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
-        request.release();
+        Requests.release(request);
 
         log.info("Received \"{}\"", new String(buffer.toByteArray()));
     }

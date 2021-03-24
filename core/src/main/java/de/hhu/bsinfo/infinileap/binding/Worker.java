@@ -6,7 +6,10 @@ import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
+import static org.openucx.Communication.ucp_request_cancel;
+import static org.openucx.Communication.ucp_request_free;
 import static org.openucx.ucx_h.*;
+import static org.openucx.Communication.ucp_tag_recv_nbx;
 
 public class Worker extends NativeObject {
 
@@ -46,7 +49,7 @@ public class Worker extends NativeObject {
         return Status.of(ucp_worker_wait(Parameter.of(this)));
     }
 
-    public Status wake() {
+    public Status signal() {
         return Status.of(ucp_worker_signal(Parameter.of(this)));
     }
 
@@ -82,20 +85,20 @@ public class Worker extends NativeObject {
         }
     }
 
-    public Request receiveTagged(NativeObject object, Tag tag) {
+    public long receiveTagged(NativeObject object, Tag tag) {
         return receiveTagged(object.segment(), tag, RequestParameters.EMPTY);
     }
 
-    public Request receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
+    public long receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
         return receiveTagged(object.segment(), tag, parameters);
     }
 
-    public Request receiveTagged(MemorySegment buffer, Tag tag) {
+    public long receiveTagged(MemorySegment buffer, Tag tag) {
         return receiveTagged(buffer, tag, RequestParameters.EMPTY);
     }
 
-    public Request receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
-        var address = ucp_tag_recv_nbx(
+    public long receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
+        return ucp_tag_recv_nbx(
                 Parameter.of(this),
                 buffer,
                 buffer.byteSize(),
@@ -103,8 +106,6 @@ public class Worker extends NativeObject {
                 tag.getValue(),
                 Parameter.of(parameters)
         );
-
-        return Request.of(address);
     }
 
     public FileDescriptor fileDescriptor() throws ControlException {
@@ -120,6 +121,13 @@ public class Worker extends NativeObject {
             }
 
             return FileDescriptor.of(MemoryAccess.getInt(descriptor));
+        }
+    }
+
+    public void cancelRequest(long request) {
+        if (!Status.isStatus(request)) {
+            ucp_request_cancel(Parameter.of(this), request);
+            ucp_request_free(request);
         }
     }
 

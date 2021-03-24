@@ -4,9 +4,9 @@ import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.example.benchmark.connection.BenchmarkClient;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkDetails;
 import de.hhu.bsinfo.infinileap.example.benchmark.message.BenchmarkInstruction;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.BenchmarkParams;
+import org.openjdk.jmh.infra.Control;
 import org.openjdk.jmh.infra.ThreadParams;
 
 import java.net.InetSocketAddress;
@@ -22,7 +22,8 @@ public abstract class BaseContext {
     @Param({ "2998" })
     public int serverPort;
 
-    protected void setupBenchmark(ThreadParams threadParams) throws ControlException {
+    @Setup(Level.Trial)
+    public void setup(ThreadParams threadParams) throws ControlException, InterruptedException {
         var address = new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex());
 
         connection = BenchmarkClient.connect(address);
@@ -32,7 +33,8 @@ public abstract class BaseContext {
         }
     }
 
-    protected void cleanupBenchmark() {
+    @TearDown(Level.Trial)
+    public void cleanup() throws InterruptedException {
         connection.synchronize();
         connection.close();
         connection = null;

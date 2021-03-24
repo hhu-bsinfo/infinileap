@@ -86,12 +86,11 @@ public class MessageBenchmarkRunner extends CommunicationDemo {
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
         var buffer = pushResource(MemorySegment.allocateNative(messageSize));
 
-        Request request = null;
         var expectedMessages = (long) iterations * operations;
         log.info("Receiving {} messages", expectedMessages);
         for (long counter = 0; counter < expectedMessages; counter++) {
@@ -101,11 +100,10 @@ public class MessageBenchmarkRunner extends CommunicationDemo {
         // Wait until remote signals completion
         log.info("Waiting for completion signal");
         final var completion = MemorySegment.allocateNative(Byte.BYTES);
-        pushResource(
-            worker.receiveTagged(completion, COMPLETION_TAG, new RequestParameters()
-                .setReceiveCallback(barrier::release))
-        );
+        final var request = worker.receiveTagged(completion, COMPLETION_TAG, new RequestParameters()
+                .setReceiveCallback(barrier::release));
 
         Requests.await(worker, barrier);
+        Requests.release(request);
     }
 }

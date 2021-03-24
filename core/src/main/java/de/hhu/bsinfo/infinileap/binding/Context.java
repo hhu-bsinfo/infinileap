@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -63,8 +64,11 @@ public class Context extends NativeObject {
     }
 
     public MemoryRegion allocateMemory(long size) throws ControlException {
-        return mapMemory(MemorySegment.allocateNative(size));
+        return allocateMemory(size, MemoryAlignment.CACHE);
+    }
 
+    public MemoryRegion allocateMemory(long size, MemoryAlignment alignment) throws ControlException {
+        return mapMemory(MemorySegment.allocateNative(size, alignment.value()));
     }
 
     public MemoryRegion mapMemory(NativeObject object) throws ControlException {

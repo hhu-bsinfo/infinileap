@@ -11,7 +11,7 @@ public interface StreamCallback extends ucp_stream_recv_nbx_callback_t {
 
     @Override
     default void apply(MemoryAddress request, byte status, long length, MemoryAddress data) {
-        onStreamReceived(Request.of(request), Status.of(status), length, data);
+        onStreamReceived(Request.of(request.toRawLongValue()), Status.of(status), length, data);
     }
 
     default MemorySegment upcallStub() {

@@ -10,11 +10,11 @@ public final class CommunicationBarrier {
 
     private final AtomicBoolean barrier = new AtomicBoolean(false);
 
-    public final void release(Request request, Status status, MemoryAddress data) {
+    public final void release(long request, Status status, MemoryAddress data) {
         barrier.set(true);
     }
 
-    public final void release(Request request, Status status, MemoryAddress tagInfo, MemoryAddress data) {
+    public final void release(long request, Status status, MemoryAddress tagInfo, MemoryAddress data) {
         barrier.set(true);
     }
 

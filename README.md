@@ -136,6 +136,17 @@ This demo atomically increments a value residing inside the remote server's memo
 ## :wrench: &nbsp; Requirements
 
   * [OpenJDK 17 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
+      
+    > We provide nightly builds of the `foreign-jextract` branch, which are compatible with [SDKMAN!](https://sdkman.io).
+    > 
+    > After installing SDKMAN! you can execute the following commands to install and use the latest nightly build.
+    > 
+    > 
+    > ```
+    > curl -s "https://coconucos.cs.hhu.de/forschung/jdk/install" | bash
+    > sdk use java panama
+    > ```
+    
   * [ucx 1.9.0](https://github.com/openucx/ucx/releases/tag/v1.9.0)
   
 ## :scroll: &nbsp; License

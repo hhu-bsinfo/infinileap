@@ -72,10 +72,12 @@ public abstract class CommunicationDemo implements Runnable {
             log.error("Native operation failed", e);
         } catch (CloseException e) {
             log.error("Closing resource failed", e);
+        } catch (InterruptedException e) {
+            log.error("Unexpected interrupt occured", e);
         }
     }
 
-    private void initialize() throws ControlException {
+    private void initialize() throws ControlException, InterruptedException {
 
         // Create context parameters
         var contextParameters = new ContextParameters()
@@ -111,7 +113,7 @@ public abstract class CommunicationDemo implements Runnable {
         }
     }
 
-    private void initializeClient() throws ControlException {
+    private void initializeClient() throws ControlException, InterruptedException {
         var endpointParameters = new EndpointParameters()
                 .setRemoteAddress(serverAddress);
 
@@ -123,7 +125,7 @@ public abstract class CommunicationDemo implements Runnable {
         onClientReady(context, worker, endpoint);
     }
 
-    private void initializeServer() throws ControlException {
+    private void initializeServer() throws ControlException, InterruptedException {
         var connectionRequest = new AtomicReference<ConnectionRequest>();
         var listenerParams = new ListenerParameters()
                 .setListenAddress(listenAddress)
@@ -146,7 +148,7 @@ public abstract class CommunicationDemo implements Runnable {
         return resource;
     }
 
-    protected abstract void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException;
+    protected abstract void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException;
 
-    protected abstract void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException;
+    protected abstract void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException;
 }

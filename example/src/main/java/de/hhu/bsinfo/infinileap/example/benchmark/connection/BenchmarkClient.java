@@ -7,6 +7,7 @@ import de.hhu.bsinfo.infinileap.example.util.*;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import de.hhu.bsinfo.infinileap.util.CloseException;
+import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
@@ -14,10 +15,17 @@ import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static de.hhu.bsinfo.infinileap.binding.AtomicOperation.*;
 
 @Slf4j
 public class BenchmarkClient implements AutoCloseable {
+
+    /**
+     * The number of atomics operations before the
+     * endpoint's internal queue is flushed.
+     */
+    private static final int ATOMIC_FLUSH_THRESHOLD = 1000;
 
     /**
      * This node's context.
@@ -70,6 +78,11 @@ public class BenchmarkClient implements AutoCloseable {
     private OpCode initialInstruction;
 
     /**
+     * The mode this benchmark is running.
+     */
+    private BenchmarkDetails.Mode benchmarkMode;
+
+    /**
      * 32 bit integer used for atomic operations.
      */
     private NativeInteger nativeInteger;
@@ -78,6 +91,27 @@ public class BenchmarkClient implements AutoCloseable {
      * 64 bit long used for atomic operations.
      */
     private NativeLong nativeLong;
+
+    /**
+     * A pool of requests for performing multiple operations at once.
+     */
+    private RequestPool requestPool;
+
+    /**
+     * The number of operations to perform simultaneously.
+     */
+    private int operationCount;
+
+    /**
+     * Used for flushing the endpoint's internal queue.
+     */
+    private int atomicCounter = 0;
+
+    private NativeInteger integerReply;
+    private RequestParameters atomicIntegerParameters;
+
+    private NativeLong longReply;
+    private RequestParameters atomicLongParameters;
 
     private final ResourcePool resources = new ResourcePool();
 
@@ -102,27 +136,32 @@ public class BenchmarkClient implements AutoCloseable {
         }
     }
 
-    public void prepare(OpCode initialInstruction, BenchmarkDetails details) throws ControlException {
-
+    public void prepare(OpCode initialInstruction, BenchmarkDetails details) throws ControlException, InterruptedException {
         // Remember initial instructions for exit signal
         this.initialInstruction = initialInstruction;
+        this.benchmarkMode = details.getBenchmarkMode();
+        this.operationCount = details.getOperationCount();
 
         // Initialize Server
         Requests.sendOpCode(worker, endpoint, initialInstruction);
         Requests.sendDetails(worker, endpoint, details);
 
         // Initialize local buffers
-        initBuffers(details.getBufferSize());
-        BenchmarkBarrier.signal(worker, endpoint);
+        initBuffers(details);
 
+        // Initialize request pool
+        requestPool = new RequestPool(details.getOperationCount() * 2);
+
+        // Initialize benchmark-specific resources
+        BenchmarkBarrier.signal(worker, endpoint);
         switch (this.initialInstruction) {
-            case RUN_READ_LATENCY,
-                 RUN_WRITE_LATENCY,
-                 RUN_ATOMIC_LATENCY
+            case RUN_READ,
+                    RUN_WRITE,
+                    RUN_ATOMIC
                     -> initMemory(details);
 
-            case RUN_SEND_LATENCY,
-                 RUN_PINGPONG_LATENCY
+            case RUN_SEND,
+                 RUN_PINGPONG
                     -> initMessaging(details);
         }
     }
@@ -139,9 +178,9 @@ public class BenchmarkClient implements AutoCloseable {
         MemoryAccess.setByte(sendBuffer, (byte) 0x00);
     }
 
-    private void initBuffers(long size) throws ControlException {
-        sendRegion = context.allocateMemory(size);
-        receiveRegion = context.allocateMemory(size);
+    private void initBuffers(BenchmarkDetails details) throws ControlException, InterruptedException {
+        sendRegion = context.allocateMemory(details.getBufferSize(), MemoryAlignment.PAGE);
+        receiveRegion = context.allocateMemory(details.getBufferSize(), MemoryAlignment.PAGE);
         resources.push(sendRegion);
         resources.push(receiveRegion);
 
@@ -150,15 +189,31 @@ public class BenchmarkClient implements AutoCloseable {
         resources.push(sendBuffer);
         resources.push(receiveBuffer);
 
-        if (sendBuffer.byteSize() == Constants.ATOMIC_32_BIT) {
+
+        // Initialize resources for atomic operations
+        if (details.getBufferSize() == Constants.ATOMIC_32_BIT) {
             nativeInteger = NativeInteger.map(sendBuffer);
             nativeInteger.set(1);
         }
 
-        if (sendBuffer.byteSize() == Constants.ATOMIC_64_BIT) {
+        if (details.getBufferSize() == Constants.ATOMIC_64_BIT) {
             nativeLong = NativeLong.map(sendBuffer);
             nativeLong.set(1);
         }
+
+        var integerRegion = context.allocateMemory(Integer.BYTES, MemoryAlignment.PAGE);
+        resources.push(integerRegion);
+        integerReply = NativeInteger.map(integerRegion.segment());
+        atomicIntegerParameters = new RequestParameters()
+                .setDataType(DataType.CONTIGUOUS_32_BIT)
+                .setReplyBuffer(integerRegion.segment());
+
+        var longRegion = context.allocateMemory(Long.BYTES, MemoryAlignment.PAGE);
+        resources.push(longRegion);
+        longReply = NativeLong.map(longRegion.segment());
+        atomicLongParameters = new RequestParameters()
+                .setDataType(DataType.CONTIGUOUS_32_BIT)
+                .setReplyBuffer(longRegion.segment());
 
         // Exchange memory region information
         Requests.sendDescriptor(worker, endpoint, receiveRegion.descriptor());
@@ -171,86 +226,184 @@ public class BenchmarkClient implements AutoCloseable {
 
     /*--- BENCHMARK COMMANDS ---*/
 
-    public final void synchronize() {
+    public final void synchronize() throws InterruptedException {
 
-        // Signal that the last message has been sent.
-        // This is necessary because JMH performs as many
-        // operations as it can within the specified time frame
-        // and the total number of operations cannot be known up front.
-        if (initialInstruction == OpCode.RUN_SEND_LATENCY) {
-            MemoryAccess.setByte(sendBuffer, Constants.LAST_MESSAGE);
-            blockingSendTagged();
+
+        // Signal that the current run has finished
+        BenchmarkSignal.send(worker, endpoint);
+
+        // Perform one more operation to get
+        // the server out of its blocking state
+        switch (benchmarkMode) {
+            case THROUGHPUT:
+                switch (initialInstruction) {
+                    case RUN_SEND -> sendThroughput();
+                    case RUN_WRITE -> putThroughput();
+                    case RUN_PINGPONG -> pingPongThroughput();
+                }
+
+            case LATENCY:
+                switch (initialInstruction) {
+                    case RUN_SEND -> blockingSendTagged();
+                    case RUN_WRITE -> putLatency();
+                    case RUN_PINGPONG -> pingPongLatency();
+                }
         }
 
-        if (initialInstruction == OpCode.RUN_WRITE_LATENCY) {
-            MemoryAccess.setByteAtOffset(sendBuffer, 1, Constants.LAST_MESSAGE);
-            blockingPut();
-        }
-
-        if (initialInstruction == OpCode.RUN_PINGPONG_LATENCY) {
-            MemoryAccess.setByte(sendBuffer, Constants.LAST_MESSAGE);
-            blockingPingPongTagged();
-        }
-
-        // Release barrier at the remote
+        // Barrier
         BenchmarkBarrier.signal(worker, endpoint);
+        BenchmarkBarrier.await(worker);
     }
 
     /*--- BENCHMARK OPERATIONS ---*/
 
-    public final void blockingGet() {
+    public final void getLatency() {
         Requests.blockingGet(worker, endpoint, receiveBuffer, remoteAddress, remoteKey);
     }
 
-    private byte writeCounter = 1;
+    public final void getThroughput() {
+        for (int i = 0; i < operationCount; i++) {
+            requestPool.add(Requests.get(endpoint, receiveBuffer, remoteAddress, remoteKey));
+        }
 
-    public final void blockingPut() {
-        MemoryAccess.setByte(sendBuffer, writeCounter);
+        requestPool.pollRemaining(worker);
+    }
+
+    private long writeCounter = 1;
+
+    public final void putLatency() {
+        MemoryAccess.setLong(sendBuffer, writeCounter);
         Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
-        while (MemoryAccess.getByte(receiveBuffer) != writeCounter) {
+        while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
             worker.progress();
         }
 
         writeCounter++;
     }
 
+    public final void putThroughput() {
+        for (int i = 0; i < operationCount; i++) {
+            MemoryAccess.setLong(sendBuffer, writeCounter++);
+            requestPool.add(Requests.put(endpoint, sendBuffer, remoteAddress, remoteKey));
+        }
+
+        requestPool.pollRemaining(worker);
+        writeCounter -= 1;
+
+        while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+            worker.progress();
+        }
+    }
+
+    public final void sendThroughput() {
+        for (int i = 0; i < operationCount; i++) {
+            requestPool.add(Requests.sendTagged(endpoint, sendBuffer));
+        }
+
+        requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+        requestPool.pollRemaining(worker);
+    }
+
     public final void blockingSendTagged() {
-        Requests.blockingSendTagged(worker, endpoint, sendBuffer);
-    }
-
-    public final void blockingReceiveTagged() {
-        Requests.blockingReceiveTagged(worker, endpoint, receiveBuffer);
-    }
-
-    public final void blockingPingPongTagged() {
-        blockingSendTagged();
-        blockingReceiveTagged();
-    }
-
-    private int atomicCounter = 0;
-
-    public final void blockingAtomicAdd32() {
-        Requests.blockingAtomicAdd(worker, endpoint, nativeInteger, remoteAddress, remoteKey);
-
-        if (atomicCounter == 1000) {
-            Requests.poll(worker, endpoint.flush());
-            atomicCounter = 0;
-            return;
+        for (int i = 0; i < operationCount; i++) {
+            requestPool.add(Requests.sendTagged(endpoint, sendBuffer));
         }
 
+        requestPool.pollRemaining(worker);
+    }
+
+    public final void pingPongLatency() {
+        requestPool.add(Requests.sendTagged(endpoint, sendBuffer));
+        requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+        requestPool.pollRemaining(worker);
+    }
+
+    public final void pingPongThroughput() {
+        for (int i = 0; i < operationCount; i++) {
+            requestPool.add(Requests.sendTagged(endpoint, sendBuffer));
+            requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+        }
+
+        requestPool.pollRemaining(worker);
+    }
+
+    public final void add32() {
+        Requests.blockingAtomic(ADD, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
         atomicCounter++;
     }
 
-    public final void blockingAtomicAdd64() {
-        Requests.blockingAtomicAdd(worker, endpoint, nativeLong, remoteAddress, remoteKey);
+    public final void swap32() {
+        Requests.blockingAtomic(SWAP, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
+        atomicCounter++;
+    }
 
-        if (atomicCounter == 1000) {
+    public final void compareAndSwap32() {
+        Requests.blockingAtomic(COMPARE_AND_SWAP, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void and32() {
+        Requests.blockingAtomic(AND, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void or32() {
+        Requests.blockingAtomic(OR, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void xor32() {
+        Requests.blockingAtomic(XOR, worker, endpoint, nativeInteger, remoteAddress, remoteKey, atomicIntegerParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void add64() {
+        Requests.blockingAtomic(ADD, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void swap64() {
+        Requests.blockingAtomic(SWAP, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void compareAndSwap64() {
+        Requests.blockingAtomic(COMPARE_AND_SWAP, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void and64() {
+        Requests.blockingAtomic(AND, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void or64() {
+        Requests.blockingAtomic(OR, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    public final void xor64() {
+        Requests.blockingAtomic(XOR, worker, endpoint, nativeLong, remoteAddress, remoteKey, atomicLongParameters);
+        flushRequests();
+        atomicCounter++;
+    }
+
+    private final void flushRequests() {
+        if (atomicCounter >= ATOMIC_FLUSH_THRESHOLD) {
             Requests.poll(worker, endpoint.flush());
             atomicCounter = 0;
-            return;
         }
-
-        atomicCounter++;
     }
 
     @Override

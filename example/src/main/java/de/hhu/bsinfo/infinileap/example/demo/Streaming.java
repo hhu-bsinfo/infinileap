@@ -20,7 +20,7 @@ public class Streaming extends CommunicationDemo {
     private static final long BUFFER_SIZE = Integer.BYTES * 2;
 
     @Override
-    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) {
+    protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer and write numbers into it
         final var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
@@ -45,7 +45,7 @@ public class Streaming extends CommunicationDemo {
     }
 
     @Override
-    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) {
+    protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
         var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
