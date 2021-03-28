@@ -1,5 +1,7 @@
 package de.hhu.bsinfo.infinileap.example.util;
 
+import de.hhu.bsinfo.infinileap.binding.Request;
+import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.binding.Worker;
 
 public class RequestPool {
@@ -14,8 +16,13 @@ public class RequestPool {
         requests = new long[size];
     }
 
-    public final void add(long request) {
+    public final boolean add(long request) {
+        if (Status.is(request, Status.OK)) {
+            return false;
+        }
+
         requests[producerIndex++] = request;
+        return true;
     }
 
     public final void pollRemaining(Worker worker) {
@@ -23,8 +30,7 @@ public class RequestPool {
             Requests.poll(worker, requests[i]);
         }
 
-        producerIndex = 0;
-        consumerIndex = 0;
+        rewind();
     }
 
     public final void poll(Worker worker) {

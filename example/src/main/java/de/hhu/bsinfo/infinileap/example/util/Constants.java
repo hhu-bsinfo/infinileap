@@ -18,5 +18,7 @@ public class Constants {
     public static final int ATOMIC_32_BIT = 4;
     public static final int ATOMIC_64_BIT = 8;
 
+    public static final int MAX_OUTSTANDING_REQUESTS = 32;
+
     public static final String[] BUFFER_SIZES_ALL = { "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096" };
 }

@@ -27,6 +27,8 @@ public class BenchmarkClient implements AutoCloseable {
      */
     private static final int ATOMIC_FLUSH_THRESHOLD = 1000;
 
+    private static final int MAX_OUTSTANDING = 32;
+
     /**
      * This node's context.
      */
@@ -262,8 +264,19 @@ public class BenchmarkClient implements AutoCloseable {
     }
 
     public final void getThroughput() {
+        var outstanding = 0;
         for (int i = 0; i < operationCount; i++) {
-            requestPool.add(Requests.get(endpoint, receiveBuffer, remoteAddress, remoteKey));
+
+            // Only increment outstanding requests if current request wasn't completed immediately
+            if (requestPool.add(Requests.get(endpoint, receiveBuffer, remoteAddress, remoteKey))) {
+                outstanding++;
+            }
+
+            // Wait until one request finishes
+            if (outstanding > Constants.MAX_OUTSTANDING_REQUESTS) {
+                requestPool.poll(worker);
+                outstanding--;
+            }
         }
 
         requestPool.pollRemaining(worker);
@@ -296,8 +309,19 @@ public class BenchmarkClient implements AutoCloseable {
     }
 
     public final void sendThroughput() {
+        var outstanding = 0;
         for (int i = 0; i < operationCount; i++) {
-            requestPool.add(Requests.sendTagged(endpoint, sendBuffer));
+
+            // Only increment outstanding requests if current request wasn't completed immediately
+            if (requestPool.add(Requests.sendTagged(endpoint, sendBuffer))) {
+                outstanding++;
+            }
+
+            // Wait until one request finishes
+            if (outstanding > Constants.MAX_OUTSTANDING_REQUESTS) {
+                requestPool.poll(worker);
+                outstanding--;
+            }
         }
 
         requestPool.add(Requests.receiveTagged(worker, receiveBuffer));

@@ -250,8 +250,19 @@ public class BenchmarkServer {
 
     private void sendThroughput(BenchmarkDetails details) throws ControlException {
         while (signal.isCleared()) {
+            var outstanding = 0;
             for (int i = 0; i < details.getOperationCount(); i++) {
-                requestPool.add(Requests.receiveTagged(worker, receiveBuffer));
+
+                // Only increment outstanding requests if current request wasn't completed immediately
+                if (requestPool.add(Requests.receiveTagged(worker, receiveBuffer))) {
+                    outstanding++;
+                }
+
+                // Wait until one request finishes
+                if (outstanding > Constants.MAX_OUTSTANDING_REQUESTS) {
+                    requestPool.poll(worker);
+                    outstanding--;
+                }
             }
 
             requestPool.pollRemaining(worker);
