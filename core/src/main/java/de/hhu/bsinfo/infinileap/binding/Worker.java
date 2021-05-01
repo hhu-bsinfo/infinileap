@@ -108,6 +108,17 @@ public class Worker extends NativeObject {
         );
     }
 
+    public void setHandler(HandlerParameters parameters) throws ControlException {
+        var status = ucp_worker_set_am_recv_handler(
+                Parameter.of(this),
+                Parameter.of(parameters)
+        );
+
+        if (Status.isNot(status, Status.OK)) {
+            throw new ControlException(status);
+        }
+    }
+
     public FileDescriptor fileDescriptor() throws ControlException {
         try (var descriptor = MemorySegment.allocateNative(CLinker.C_INT)) {
             var status = ucp_worker_get_efd(

@@ -11,7 +11,7 @@ import picocli.CommandLine;
     description = "",
     subcommands = {
         // Demos
-        Messaging.class, Memory.class, Atomic.class, Streaming.class, Info.class,
+        Messaging.class, Memory.class, Atomic.class, Streaming.class, ActiveMessage.class, Info.class,
 
         // Benchmarks
         MemoryBenchmarkRunner.class, MessageBenchmarkRunner.class, BenchmarkCommand.class

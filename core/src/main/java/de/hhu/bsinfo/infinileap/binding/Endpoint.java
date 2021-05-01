@@ -55,6 +55,18 @@ public class Endpoint extends NativeObject {
         );
     }
 
+    public long sendActive(Identifier identifier, MemorySegment header, MemorySegment data, RequestParameters parameters) {
+        return ucp_am_send_nbx(
+                Parameter.of(this),
+                identifier.value(),
+                header,
+                header.byteSize(),
+                data.address(),
+                data.byteSize(),
+                Parameter.of(parameters)
+        );
+    }
+
     public long receiveStream(MemorySegment buffer, long count, NativeLong length) {
         return receiveStream(buffer, count, length, RequestParameters.EMPTY);
     }

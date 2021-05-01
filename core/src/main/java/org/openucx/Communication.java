@@ -184,6 +184,32 @@ public class Communication {
         }
     }
 
+    // ----------- UCP AM SEND ------------- //
+
+    private static final FunctionDescriptor ucp_am_send_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
+            C_POINTER,
+            C_INT,
+            C_POINTER,
+            C_LONG,
+            C_POINTER,
+            C_LONG,
+            C_POINTER
+    );
+
+    private static final MethodHandle ucp_am_send_nbx$MH = RuntimeHelper.downcallHandle(
+            LIBRARIES, "ucp_am_send_nbx",
+            "(Ljdk/incubator/foreign/MemoryAddress;ILjdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;)J",
+            ucp_am_send_nbx$FUNC, false
+    );
+
+    public static long ucp_am_send_nbx ( Addressable ep,  int id,  Addressable header,  long header_length,  Addressable buffer,  long count,  Addressable param) {
+        try {
+            return (long) ucp_am_send_nbx$MH.invokeExact(ep.address(), id, header.address(), header_length, buffer.address(), count, param.address());
+        } catch (Throwable ex$) {
+            throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
     // -------- UCP WORKER FLUSH ---------- //
 
     private static final FunctionDescriptor ucp_worker_flush_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,

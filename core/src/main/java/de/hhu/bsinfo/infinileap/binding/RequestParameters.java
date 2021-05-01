@@ -104,7 +104,10 @@ public class RequestParameters extends NativeObject {
     }
 
     public enum Flag implements IntegerFlag {
-        STREAM_WAIT(UCP_STREAM_RECV_FLAG_WAITALL());
+        STREAM_WAIT(UCP_STREAM_RECV_FLAG_WAITALL()),
+        ACTIVE_MESSAGE_REPLY(UCP_AM_SEND_FLAG_REPLY()),
+        ACTIVE_MESSAGE_EAGER(UCP_AM_SEND_FLAG_EAGER()),
+        ACTIVE_MESSAGE_RENDEVOUZ(UCP_AM_SEND_FLAG_RNDV());
 
         private final int value;
 
