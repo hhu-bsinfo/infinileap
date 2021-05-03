@@ -1,8 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h.ucp_tag_recv_nbx_callback_t;
+import org.openucx.ucp_tag_recv_nbx_callback_t;
 
 @FunctionalInterface
 public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
@@ -14,7 +13,7 @@ public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
         onRequestReceived(request.toRawLongValue(), Status.of(status), tagInfo, data);
     }
 
-    default MemorySegment upcallStub() {
+    default MemoryAddress upcallStub() {
         return ucp_tag_recv_nbx_callback_t.allocate(this);
     }
 }

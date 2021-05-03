@@ -1,14 +1,16 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
-import static org.openucx.ucx_h.*;
+import javax.naming.Binding;
 
-public class Configuration extends NativeObject {
+import static org.openucx.OpenUcx.*;
+import static org.unix.Linux.stdout$get;
+
+import org.unix.Linux.*;
+
+public class Configuration extends NativeObject implements AutoCloseable{
 
     /* package-private */ Configuration(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
@@ -22,10 +24,11 @@ public class Configuration extends NativeObject {
      * Reads in the configuration form the environment.
      */
     public static Configuration read(@Nullable String prefix, @Nullable String filename) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
             var status = ucp_config_read(
-                    Parameter.ofNullable(prefix),
-                    Parameter.ofNullable(filename),
+                    Parameter.ofNullable(prefix, scope),
+                    Parameter.ofNullable(filename, scope),
                     pointer.address()
             );
 
@@ -44,6 +47,5 @@ public class Configuration extends NativeObject {
     @Override
     public void close() {
         ucp_config_release(address());
-        super.close();
     }
 }

@@ -26,8 +26,8 @@ public class Messaging extends CommunicationDemo {
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer and write the message
-        final var source = pushResource(MemorySegment.ofArray(MESSAGE_BYTES));
-        final var buffer = pushResource(MemorySegment.allocateNative(MESSAGE_SIZE));
+        final var source = MemorySegment.ofArray(MESSAGE_BYTES);
+        final var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, scope);
         buffer.copyFrom(source);
 
         // Send the buffer to the server
@@ -44,7 +44,7 @@ public class Messaging extends CommunicationDemo {
     protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
-        var buffer = pushResource(MemorySegment.allocateNative(MESSAGE_SIZE));
+        var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, scope);
 
         // Receive the message
         log.info("Receiving message");

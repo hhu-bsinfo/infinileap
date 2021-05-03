@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h.ucp_am_recv_callback_t;
+import org.openucx.ucp_am_recv_callback_t;
 
 public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
 
@@ -11,13 +11,14 @@ public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
 
     @Override
     default byte apply(MemoryAddress argument, MemoryAddress header, long headerSize, MemoryAddress data, long dataSize, MemoryAddress parameters) {
-        try (var headerSegment = MemoryUtil.createSegment(header, headerSize);
-             var dataSegment = MemoryUtil.createSegment(data, dataSize)) {
-            return (byte) onActiveMessage(argument, headerSegment, dataSegment, parameters).value();
-        }
+        return (byte) onActiveMessage(
+                argument,
+                MemoryUtil.wrap(header, headerSize),
+                MemoryUtil.wrap(data, dataSize),
+                parameters).value();
     }
 
-    default MemorySegment upcallStub() {
+    default MemoryAddress upcallStub() {
         return ucp_am_recv_callback_t.allocate(this);
     }
 }

@@ -4,14 +4,9 @@ import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
-public class NativeObject implements AutoCloseable {
-
-    /**
-     * The {@link MemorySegment} used to interact with memory
-     * obtained through native function calls.
-     */
-    private static final MemorySegment BASE = MemorySegment.ofNativeRestricted();
+public class NativeObject {
 
     /**
      * This struct's backing memory segment.
@@ -28,8 +23,8 @@ public class NativeObject implements AutoCloseable {
             throw new IllegalArgumentException("memory address is pointing at null");
         }
 
-        if (!segment.isAlive()) {
-            throw new IllegalArgumentException("the provided segment must be alive");
+        if (!segment.scope().isAlive()) {
+            throw new IllegalArgumentException("the provided segment's scope must be alive");
         }
 
         this.segment = segment;
@@ -44,7 +39,7 @@ public class NativeObject implements AutoCloseable {
         // Since accessing memory obtained from native functions is
         // considered dangerous, we need to create a restricted
         // MemorySegment first by using our base segment.
-        this(BASE.asSlice(address, byteSize));
+        this(MemoryUtil.wrap(address, byteSize));
     }
 
     protected MemoryAddress address() {
@@ -63,12 +58,7 @@ public class NativeObject implements AutoCloseable {
         MemoryUtil.dump(segment);
     }
 
-    @Override
-    public void close() {
-        try {
-            segment.close();
-        } catch (Exception e) {
-            // ignore
-        }
+    public ResourceScope scope() {
+        return segment.scope();
     }
 }

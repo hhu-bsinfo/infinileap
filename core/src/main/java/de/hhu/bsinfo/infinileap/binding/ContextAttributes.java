@@ -2,21 +2,22 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
+import jdk.incubator.foreign.*;
+import org.openucx.*;
 
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class ContextAttributes extends NativeObject {
 
     ContextAttributes() {
-        super(ucp_context_attr_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    ContextAttributes(ResourceScope scope) {
+        super(ucp_context_attr_t.allocate(scope));
     }
 
     public OptionalLong requestSize() {

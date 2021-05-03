@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.example.benchmark.message;
 import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 import java.lang.invoke.VarHandle;
 
@@ -33,7 +34,7 @@ public class BenchmarkDetails extends NativeObject {
         }
     }
 
-    private static final MemoryLayout LAYOUT = MemoryLayout.ofStruct(
+    private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
             C_LONG.withName("buffer_size"),
             C_INT.withName("op_count"),
             C_CHAR.withName("bench_mode")
@@ -49,7 +50,11 @@ public class BenchmarkDetails extends NativeObject {
             LAYOUT.varHandle(byte.class, MemoryLayout.PathElement.groupElement("bench_mode"));
 
     public BenchmarkDetails() {
-        super(MemorySegment.allocateNative(LAYOUT));
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public BenchmarkDetails(ResourceScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
     }
 
     public void setBufferSize(long size) {

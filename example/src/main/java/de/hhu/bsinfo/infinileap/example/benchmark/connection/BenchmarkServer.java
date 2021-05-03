@@ -150,15 +150,14 @@ public class BenchmarkServer {
                 .setConnectionRequest(connectionRequest);
 
         endpoint = worker.createEndpoint(endpointParameters);
-        resources.push(endpoint);
     }
 
     private ConnectionRequest accept() throws ControlException, CloseException, InterruptedException {
         try (var pool = new ResourcePool()) {
             var connectionRequest = new AtomicReference<ConnectionRequest>();
-            var listenerParams = pool.push(() -> new ListenerParameters()
+            var listenerParams = new ListenerParameters()
                     .setListenAddress(listenAddress)
-                    .setConnectionHandler(connectionRequest::set));
+                    .setConnectionHandler(connectionRequest::set);
 
             log.trace("Listening for new connection requests on {}", listenAddress);
             listener = worker.createListener(listenerParams);
@@ -171,42 +170,41 @@ public class BenchmarkServer {
 
     private void executeBenchmark() throws ControlException, CloseException, InterruptedException {
         var opCode = Requests.receiveOpCode(worker);
-        try (var details = Requests.receiveDetails(worker)) {
+        var details = Requests.receiveDetails(worker);
 
-            // Initialize send and receive buffers
-            initBuffers(details);
+        // Initialize send and receive buffers
+        initBuffers(details);
 
-            // Initialize request pool
-            requestPool = new RequestPool(details.getOperationCount() * 2);
+        // Initialize request pool
+        requestPool = new RequestPool(details.getOperationCount() * 2);
 
-            // Initialize benchmark signal
-            signal = BenchmarkSignal.listen(worker);
-            resources.push(signal);
+        // Initialize benchmark signal
+        signal = BenchmarkSignal.listen(worker);
+        resources.push(signal);
 
-            // Execute operation
-            BenchmarkBarrier.await(worker);
-            switch (details.getBenchmarkMode()) {
+        // Execute operation
+        BenchmarkBarrier.await(worker);
+        switch (details.getBenchmarkMode()) {
 
-                case LATENCY:
-                    switch (opCode) {
-                        case RUN_READ -> readLatency(details);
-                        case RUN_WRITE -> writeLatency(details);
-                        case RUN_SEND -> sendLatency(details);
-                        case RUN_PINGPONG -> pingPongLatency(details);
-                        case RUN_ATOMIC -> atomicLatency(details);
-                    }
-                    break;
+            case LATENCY:
+                switch (opCode) {
+                    case RUN_READ -> readLatency(details);
+                    case RUN_WRITE -> writeLatency(details);
+                    case RUN_SEND -> sendLatency(details);
+                    case RUN_PINGPONG -> pingPongLatency(details);
+                    case RUN_ATOMIC -> atomicLatency(details);
+                }
+                break;
 
-                case THROUGHPUT:
-                    switch (opCode) {
-                        case RUN_READ -> readThroughput(details);
-                        case RUN_WRITE -> writeThroughput(details);
-                        case RUN_SEND -> sendThroughput(details);
-                        case RUN_PINGPONG -> pingPongThroughput(details);
-                        case RUN_ATOMIC -> atomicThroughput(details);
-                    }
-                    break;
-            }
+            case THROUGHPUT:
+                switch (opCode) {
+                    case RUN_READ -> readThroughput(details);
+                    case RUN_WRITE -> writeThroughput(details);
+                    case RUN_SEND -> sendThroughput(details);
+                    case RUN_PINGPONG -> pingPongThroughput(details);
+                    case RUN_ATOMIC -> atomicThroughput(details);
+                }
+                break;
         }
     }
 
@@ -320,16 +318,14 @@ public class BenchmarkServer {
 
         sendBuffer = sendRegion.segment();
         receiveBuffer = receiveRegion.segment();
-        resources.push(sendBuffer);
-        resources.push(receiveBuffer);
 
         // Exchange memory region information
         Requests.sendDescriptor(worker, endpoint, receiveRegion.descriptor());
-        try (var descriptor = Requests.receiveDescriptor(worker)) {
-            remoteKey = endpoint.unpack(descriptor);
-            remoteAddress = descriptor.remoteAddress();
-            resources.push(remoteKey);
-        }
+        var descriptor = Requests.receiveDescriptor(worker);
+
+        remoteKey = endpoint.unpack(descriptor);
+        remoteAddress = descriptor.remoteAddress();
+        resources.push(remoteKey);
     }
 
     public static BenchmarkServer create(InetSocketAddress listenAddress) throws ControlException {

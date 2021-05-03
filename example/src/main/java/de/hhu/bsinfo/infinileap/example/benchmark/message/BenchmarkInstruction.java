@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.example.benchmark.message;
 import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class BenchmarkInstruction extends NativeObject {
         }
     }
 
-    private static final MemoryLayout LAYOUT = MemoryLayout.ofStruct(
+    private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
             C_INT.withName("op_code")
     );
 
@@ -49,10 +50,19 @@ public class BenchmarkInstruction extends NativeObject {
             LAYOUT.varHandle(int.class, MemoryLayout.PathElement.groupElement("op_code"));
 
     public BenchmarkInstruction() {
-        super(MemorySegment.allocateNative(LAYOUT));
+        this(ResourceScope.newImplicitScope());
     }
-    public BenchmarkInstruction(OpCode operation) {
-        super(MemorySegment.allocateNative(LAYOUT));
+
+    public BenchmarkInstruction(ResourceScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
+    }
+
+    public BenchmarkInstruction(OpCode opCode) {
+        this(opCode, ResourceScope.newImplicitScope());
+    }
+
+    public BenchmarkInstruction(OpCode operation, ResourceScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
         setOperation(operation);
     }
 

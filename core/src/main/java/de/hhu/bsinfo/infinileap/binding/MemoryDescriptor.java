@@ -10,10 +10,10 @@ public class MemoryDescriptor extends NativeObject {
 
     private static final long KEY_DATA_SIZE = 64;
 
-    private static final MemoryLayout LAYOUT = MemoryLayout.ofStruct(
+    private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
             C_LONG.withName("buf_size"),
             C_POINTER.withName("buf_addr"),
-            MemoryLayout.ofSequence(KEY_DATA_SIZE, C_CHAR).withName("key_data")
+            MemoryLayout.sequenceLayout(KEY_DATA_SIZE, C_CHAR).withName("key_data")
     );
 
     private static final VarHandle BUFFER_SIZE =
@@ -26,11 +26,19 @@ public class MemoryDescriptor extends NativeObject {
             LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("key_data"));
 
     public MemoryDescriptor() {
-        super(MemorySegment.allocateNative(LAYOUT));
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public MemoryDescriptor(ResourceScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
     }
 
     MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey) {
-        super(MemorySegment.allocateNative(LAYOUT));
+        this(segment, remoteKey, ResourceScope.newImplicitScope());
+    }
+
+    MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey, ResourceScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
 
         setBufferAddress(segment.address());
         setBufferSize(segment.byteSize());

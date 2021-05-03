@@ -112,21 +112,19 @@ public class Requests {
     }
 
     public static void sendOpCode(Worker worker, Endpoint endpoint, BenchmarkInstruction.OpCode opCode) throws InterruptedException {
-        try (var instruction = new BenchmarkInstruction(opCode)) {
-            Requests.await(
-                    worker, endpoint.sendTagged(instruction, Constants.TAG_BENCHMARK_OPCODE)
-            );
-        }
+        var instruction = new BenchmarkInstruction(opCode);
+        Requests.await(
+                worker, endpoint.sendTagged(instruction, Constants.TAG_BENCHMARK_OPCODE)
+        );
     }
 
     public static BenchmarkInstruction.OpCode receiveOpCode(Worker worker) throws InterruptedException {
-        try (var instruction = new BenchmarkInstruction()) {
-            Requests.await(
-                    worker, worker.receiveTagged(instruction, Constants.TAG_BENCHMARK_OPCODE)
-            );
+        var instruction = new BenchmarkInstruction();
+        Requests.await(
+                worker, worker.receiveTagged(instruction, Constants.TAG_BENCHMARK_OPCODE)
+        );
 
-            return instruction.opCode();
-        }
+        return instruction.opCode();
     }
 
     public static void sendDetails(Worker worker, Endpoint endpoint, BenchmarkDetails details) throws InterruptedException {

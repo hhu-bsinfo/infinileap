@@ -1,28 +1,23 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
 
 import static org.openucx.Communication.ucp_request_cancel;
 import static org.openucx.Communication.ucp_request_free;
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 import static org.openucx.Communication.ucp_tag_recv_nbx;
 
-public class Worker extends NativeObject {
+public class Worker extends NativeObject implements AutoCloseable {
 
     /* package-private */ Worker(MemoryAddress address) {
         super(address, CLinker.C_POINTER);
     }
 
     public WorkerAddress getAddress() throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
-             var length = MemorySegment.allocateNative(CLinker.C_LONG)) {
-
-
-
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var length = MemorySegment.allocateNative(CLinker.C_LONG, scope);
             var status = ucp_worker_get_address(
                     Parameter.of(this),
                     pointer,
@@ -54,7 +49,8 @@ public class Worker extends NativeObject {
     }
 
     public Endpoint createEndpoint(EndpointParameters parameters) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
             var status = ucp_ep_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -70,7 +66,8 @@ public class Worker extends NativeObject {
     }
 
     public Listener createListener(ListenerParameters parameters) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
             var status = ucp_listener_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -120,7 +117,8 @@ public class Worker extends NativeObject {
     }
 
     public FileDescriptor fileDescriptor() throws ControlException {
-        try (var descriptor = MemorySegment.allocateNative(CLinker.C_INT)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var descriptor = MemorySegment.allocateNative(CLinker.C_INT, scope);
             var status = ucp_worker_get_efd(
                 Parameter.of(this),
                 descriptor
@@ -145,6 +143,5 @@ public class Worker extends NativeObject {
     @Override
     public void close() {
         ucp_worker_destroy(segment());
-        super.close();
     }
 }

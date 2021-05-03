@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public enum LogLevel {
     TRACE(UCS_LOG_LEVEL_FATAL()),

@@ -1,14 +1,14 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.MemoryAddress;
+import org.openucx.ucs_log_func_t;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static de.hhu.bsinfo.infinileap.binding.LoggingHandler.Action.CONTINUE;
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class NativeLogger {
 
@@ -34,7 +34,7 @@ public class NativeLogger {
         return CONTINUE;
     };
 
-    private static final MemorySegment UPCALL = ucs_log_func_t.allocate(HANDLER);
+    private static final MemoryAddress UPCALL = ucs_log_func_t.allocate(HANDLER);
 
     private static final AtomicBoolean ENABLED = new AtomicBoolean(false);
 

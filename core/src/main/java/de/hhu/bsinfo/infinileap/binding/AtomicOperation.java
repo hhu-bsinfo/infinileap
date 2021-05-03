@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public enum AtomicOperation implements IntegerFlag {
     ADD(UCP_ATOMIC_OP_ADD()),

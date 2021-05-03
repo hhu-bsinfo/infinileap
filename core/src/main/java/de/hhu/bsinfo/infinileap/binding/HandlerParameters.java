@@ -4,12 +4,18 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 
-import static org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
+import static org.openucx.OpenUcx.*;
 
 public class HandlerParameters extends NativeObject {
 
     public HandlerParameters() {
-        super(ucp_am_handler_param_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public HandlerParameters(ResourceScope scope) {
+        super(ucp_am_handler_param_t.allocate(scope));
     }
 
     public HandlerParameters setId(Identifier id) {

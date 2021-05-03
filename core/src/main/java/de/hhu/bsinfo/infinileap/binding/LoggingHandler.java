@@ -1,23 +1,20 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.LogLevel;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.ucs_log_func_t;
+import jdk.incubator.foreign.*;
+import org.openucx.OpenUcx;
+import org.openucx.ucs_log_func_t;
 
-import static org.openucx.ucx_h.ucs_log_get_buffer_size;
-import static org.openucx.ucx_h.vsnprintf;
+import static org.openucx.OpenUcx.ucs_log_get_buffer_size;
+import static org.unix.Linux.vsnprintf;
 
 public interface LoggingHandler extends ucs_log_func_t {
 
     long LOG_BUFFER_SIZE = ucs_log_get_buffer_size();
 
     enum Action {
-        STOP(ucx_h.UCS_LOG_FUNC_RC_STOP()),
-        CONTINUE(ucx_h.UCS_LOG_FUNC_RC_CONTINUE());
+        STOP(OpenUcx.UCS_LOG_FUNC_RC_STOP()),
+        CONTINUE(OpenUcx.UCS_LOG_FUNC_RC_CONTINUE());
 
         private final int value;
 
@@ -39,7 +36,8 @@ public interface LoggingHandler extends ucs_log_func_t {
 
 
     private static String formatMessage(MemoryAddress format, MemoryAddress arguments) {
-        try (var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1, scope);
             vsnprintf(buffer, buffer.byteSize(), format, arguments);
             return CLinker.toJavaString(buffer);
         }

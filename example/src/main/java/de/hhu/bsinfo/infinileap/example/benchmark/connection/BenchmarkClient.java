@@ -120,22 +120,17 @@ public class BenchmarkClient implements AutoCloseable {
     private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {
         this.context = resources.push(() -> context);
         this.worker = resources.push(() -> worker);
-        this.endpoint = resources.push(() -> endpoint);
+        this.endpoint = endpoint;
     }
 
     public static BenchmarkClient connect(InetSocketAddress serverAddress) throws ControlException {
         var connectionResources = ConnectionResources.create();
         var context = connectionResources.context();
         var worker = connectionResources.worker();
+        var endpointParameters = new EndpointParameters()
+                .setRemoteAddress(serverAddress);
 
-        try (var pool = new ResourcePool()) {
-            var endpointParameters = pool.push(() -> new EndpointParameters()
-                    .setRemoteAddress(serverAddress));
-
-            return new BenchmarkClient(context, worker, worker.createEndpoint(endpointParameters));
-        } catch (CloseException e) {
-            throw new RuntimeException(e);
-        }
+        return new BenchmarkClient(context, worker, worker.createEndpoint(endpointParameters));
     }
 
     public void prepare(OpCode initialInstruction, BenchmarkDetails details) throws ControlException, InterruptedException {
@@ -188,8 +183,6 @@ public class BenchmarkClient implements AutoCloseable {
 
         sendBuffer = sendRegion.segment();
         receiveBuffer = receiveRegion.segment();
-        resources.push(sendBuffer);
-        resources.push(receiveBuffer);
 
 
         // Initialize resources for atomic operations
@@ -219,11 +212,11 @@ public class BenchmarkClient implements AutoCloseable {
 
         // Exchange memory region information
         Requests.sendDescriptor(worker, endpoint, receiveRegion.descriptor());
-        try (var descriptor = Requests.receiveDescriptor(worker)) {
-            remoteKey = endpoint.unpack(descriptor);
-            remoteAddress = descriptor.remoteAddress();
-            resources.push(remoteKey);
-        }
+        var descriptor = Requests.receiveDescriptor(worker);
+
+        remoteKey = endpoint.unpack(descriptor);
+        remoteAddress = descriptor.remoteAddress();
+        resources.push(remoteKey);
     }
 
     /*--- BENCHMARK COMMANDS ---*/

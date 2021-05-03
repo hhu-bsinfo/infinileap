@@ -4,9 +4,10 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class RequestParameters extends NativeObject {
 
@@ -17,7 +18,11 @@ public class RequestParameters extends NativeObject {
     private ReceiveCallback receiveCallback;
 
     public RequestParameters() {
-        super(ucp_request_param_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public RequestParameters(ResourceScope scope) {
+        super(ucp_request_param_t.allocate(scope));
     }
 
     public RequestParameters setUserData(long data) {

@@ -10,7 +10,9 @@ import jdk.incubator.foreign.MemorySegment;
 import java.io.IOException;
 import java.time.Duration;
 
-import static org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.unix.*;
+import static org.unix.Linux.*;
 
 public class Epoll {
 
@@ -50,6 +52,8 @@ public class Epoll {
      */
     private static final long LAYOUT_SIZE = epoll_event.sizeof();
 
+    private final ResourceScope scope = ResourceScope.newImplicitScope();
+
     /**
      * The epoll file descriptor used by this epoll instance.
      */
@@ -63,11 +67,11 @@ public class Epoll {
     /**
      * The segment used for add and modify operations.
      */
-    private final MemorySegment eventSegment = MemorySegment.allocateNative(epoll_event.$LAYOUT());
+    private final MemorySegment eventSegment = MemorySegment.allocateNative(epoll_event.$LAYOUT(), scope);
 
     private Epoll(FileDescriptor epfd, int pollSize) {
         this.epfd = epfd;
-        this.pollSegment = MemorySegment.allocateNative(pollSize * epoll_event.$LAYOUT().byteSize());
+        this.pollSegment = MemorySegment.allocateNative(pollSize * epoll_event.$LAYOUT().byteSize(), scope);
     }
 
     void add(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {
@@ -100,16 +104,13 @@ public class Epoll {
     }
 
     private void control(FileDescriptor fileDescriptor, int operation, EventType... eventTypes) throws IOException {
-        try (var event = MemorySegment.allocateNative(epoll_event.$LAYOUT())) {
+        // Initialize event
+        setEvents(eventSegment, eventTypes);
+        setData(eventSegment, fileDescriptor.intValue());
 
-            // Initialize event
-            setEvents(event, eventTypes);
-            setData(event, fileDescriptor.intValue());
-
-            // Execute operation
-            if (epoll_ctl(epfd.intValue(), operation, fileDescriptor.intValue(), event) != NativeError.OK) {
-                throw new IOException(NativeError.getMessage());
-            }
+        // Execute operation
+        if (epoll_ctl(epfd.intValue(), operation, fileDescriptor.intValue(), eventSegment) != NativeError.OK) {
+            throw new IOException(NativeError.getMessage());
         }
     }
 

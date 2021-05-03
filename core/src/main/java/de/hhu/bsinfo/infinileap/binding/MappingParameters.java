@@ -5,14 +5,19 @@ import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class MappingParameters extends NativeObject {
 
     public MappingParameters() {
-        super(ucp_mem_map_params_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public MappingParameters(ResourceScope scope) {
+        super(ucp_mem_map_params_t.allocate(scope));
     }
 
     public MappingParameters setSegment(MemorySegment segment) {

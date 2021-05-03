@@ -21,7 +21,6 @@ public final class BenchmarkSignal implements AutoCloseable {
     @Override
     public void close() throws Exception {
         Requests.release(request);
-        data.close();
     }
 
     public boolean isSet() {
@@ -38,8 +37,7 @@ public final class BenchmarkSignal implements AutoCloseable {
     }
 
     public static void send(Worker worker, Endpoint endpoint) {
-        try (var data = new NativeInteger(SIGNAL_SET)) {
-            Requests.poll(worker, endpoint.sendTagged(data, Constants.TAG_BENCHMARK_SIGNAL));
-        }
+        var data = new NativeInteger(SIGNAL_SET);
+        Requests.poll(worker, endpoint.sendTagged(data, Constants.TAG_BENCHMARK_SIGNAL));
     }
 }

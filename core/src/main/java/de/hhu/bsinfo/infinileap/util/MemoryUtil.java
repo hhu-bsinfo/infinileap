@@ -12,17 +12,23 @@ public class MemoryUtil {
     private static final String HEXDUMP_HEADER = "  OFFSET  | 0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F|   ANSI ASCII   ";
     private static final String LINE_SEPARATOR = LINE_SEPARATOR_CHARACTER.repeat(HEXDUMP_HEADER.length());
 
+
+
     public static MemorySegment allocateMemory(long capacity) {
-        return MemorySegment.ofNativeRestricted().asSlice(
-                CLinker.allocateMemoryRestricted(capacity), capacity);
+        return MemorySegment.globalNativeSegment().asSlice(
+                CLinker.allocateMemory(capacity), capacity);
     }
 
     public static void freeMemory(Addressable addressable) {
-        CLinker.freeMemoryRestricted(addressable.address());
+        CLinker.freeMemory(addressable.address());
     }
 
-    public static MemorySegment createSegment(MemoryAddress address, long capacity) {
-        return MemorySegment.ofNativeRestricted().asSlice(address, capacity);
+    public static MemorySegment wrap(MemoryAddress address, long capacity) {
+        return MemorySegment.globalNativeSegment().asSlice(address, capacity);
+    }
+
+    public static MemorySegment allocate(MemoryLayout layout) {
+        return MemorySegment.allocateNative(layout, ResourceScope.newSharedScope());
     }
 
     public static void dump(MemorySegment segment) {

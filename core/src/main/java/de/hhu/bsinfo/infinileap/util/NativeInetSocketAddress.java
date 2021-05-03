@@ -3,17 +3,15 @@ package de.hhu.bsinfo.infinileap.util;
 import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.ShortFlag;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
-import org.openucx.ucx_h.sockaddr_in;
-import org.openucx.ucx_h.sockaddr_in6;
-import org.openucx.ucx_h.sockaddr_storage;
+import jdk.incubator.foreign.ResourceScope;
+import org.unix.*;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static org.openucx.ucx_h.htons;
+import static org.unix.Linux.*;
 
 public class NativeInetSocketAddress extends NativeObject {
 
@@ -28,7 +26,11 @@ public class NativeInetSocketAddress extends NativeObject {
     private final int length;
 
     private NativeInetSocketAddress(AddressFamily family) {
-        super(sockaddr_storage.allocate());
+        this(family, ResourceScope.newImplicitScope());
+    }
+
+    private NativeInetSocketAddress(AddressFamily family, ResourceScope scope) {
+        super(sockaddr_storage.allocate(scope));
 
         this.family = family;
         sockaddr_storage.ss_family$set(segment(), family.getValue());
@@ -100,8 +102,8 @@ public class NativeInetSocketAddress extends NativeObject {
     }
 
     public enum AddressFamily implements ShortFlag {
-        INET4((short) ucx_h.AF_INET()),
-        INET6((short) ucx_h.AF_INET6());
+        INET4((short) AF_INET()),
+        INET6((short) AF_INET6());
 
         private final short value;
 

@@ -2,3 +2,5 @@ rootProject.name = 'infinileap'
 
 include 'example'
 include 'core'
+
+includeBuild '../gradle-jextract'

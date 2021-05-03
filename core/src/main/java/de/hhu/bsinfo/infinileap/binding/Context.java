@@ -1,15 +1,13 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
+import static org.unix.Linux.stdout$get;
 
-public class Context extends NativeObject {
+public class Context extends NativeObject implements AutoCloseable {
 
     private static final int UCP_MAJOR_VERSION = UCP_API_MAJOR();
     private static final int UCP_MINOR_VERSION = UCP_API_MINOR();
@@ -23,7 +21,8 @@ public class Context extends NativeObject {
     }
 
     public static Context initialize(ContextParameters parameters, @Nullable Configuration configuration) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
 
             /*
              * We have to use ucp_init_version at this point since ucp_init
@@ -48,7 +47,8 @@ public class Context extends NativeObject {
     }
 
     public Worker createWorker(WorkerParameters parameters) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER)) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
             var status = ucp_worker_create(
                     this.address(),
                     parameters.address(),
@@ -68,7 +68,7 @@ public class Context extends NativeObject {
     }
 
     public MemoryRegion allocateMemory(long size, MemoryAlignment alignment) throws ControlException {
-        return mapMemory(MemorySegment.allocateNative(size, alignment.value()));
+        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), ResourceScope.newSharedScope()));
     }
 
     public MemoryRegion mapMemory(NativeObject object) throws ControlException {
@@ -76,10 +76,10 @@ public class Context extends NativeObject {
     }
 
     public MemoryRegion mapMemory(MemorySegment segment) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
-             var parameters = new MappingParameters().setSegment(segment);
-             var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
-
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var parameters = new MappingParameters().setSegment(segment);
+            var size = MemorySegment.allocateNative(CLinker.C_LONG, scope);
             var status = ucp_mem_map(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -120,13 +120,12 @@ public class Context extends NativeObject {
     @Override
     public void close() {
         ucp_cleanup(Parameter.of(this));
-        super.close();
     }
 
     private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) throws ControlException {
-        try (var pointer = MemorySegment.allocateNative(CLinker.C_POINTER);
-             var size = MemorySegment.allocateNative(CLinker.C_LONG)) {
-
+        try (var scope = ResourceScope.newConfinedScope()) {
+            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var size = MemorySegment.allocateNative(CLinker.C_LONG, scope);
             var status = ucp_rkey_pack(
                     Parameter.of(this),
                     Parameter.of(handle),
@@ -139,7 +138,7 @@ public class Context extends NativeObject {
             }
 
             var remoteKey = MemoryAccess.getAddress(pointer)
-                    .asSegmentRestricted(MemoryAccess.getLong(size));
+                    .asSegment(MemoryAccess.getLong(size), ResourceScope.globalScope());
 
             var descriptor = new MemoryDescriptor(segment, remoteKey);
             ucp_rkey_buffer_release(remoteKey);
@@ -148,6 +147,6 @@ public class Context extends NativeObject {
     }
 
     public static String getVersion() {
-        return CLinker.toJavaStringRestricted(ucp_get_version_string());
+        return CLinker.toJavaString(ucp_get_version_string());
     }
 }

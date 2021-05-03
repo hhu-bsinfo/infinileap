@@ -41,15 +41,15 @@ public class ConnectionResources {
         try (var pool = new ResourcePool()) {
 
             // Create context parameters
-            var contextParameters = pool.push(() -> new ContextParameters()
+            var contextParameters = new ContextParameters()
                     .setFeatures(FEATURE_SET)
-                    .setRequestSize(0L));
+                    .setRequestSize(0L);
 
             // Initialize UCP context
             var context = Context.initialize(contextParameters);
 
-            var workerParameters = pool.push(() -> new WorkerParameters()
-                    .setThreadMode(ThreadMode.SINGLE));
+            var workerParameters = new WorkerParameters()
+                    .setThreadMode(ThreadMode.SINGLE);
 
             // Create a worker
             var worker = context.createWorker(workerParameters);

@@ -4,12 +4,17 @@ import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 import java.io.IOException;
 
-import static org.openucx.ucx_h.*;
+import static org.unix.Linux.*;
 
 public class EventFileDescriptor extends FileDescriptor {
+
+    private final ResourceScope scope = ResourceScope.newImplicitScope();
+
+    private final MemorySegment counter = MemorySegment.allocateNative(MemoryLayouts.JAVA_LONG, scope);
 
     private EventFileDescriptor(int fd) {
         super(fd);
@@ -20,14 +25,12 @@ public class EventFileDescriptor extends FileDescriptor {
     }
 
     public long read() throws IOException {
-        try (var counter = MemorySegment.allocateNative(MemoryLayouts.JAVA_LONG)) {
-            var bytesRead = eventfd_read(intValue(), counter);
-            if (bytesRead == NativeError.ERROR) {
-                throw new IOException(NativeError.getMessage());
-            }
-
-            return MemoryAccess.getLong(counter);
+        var bytesRead = eventfd_read(intValue(), counter);
+        if (bytesRead == NativeError.ERROR) {
+            throw new IOException(NativeError.getMessage());
         }
+
+        return MemoryAccess.getLong(counter);
     }
 
     public void increment(long addend) throws IOException {

@@ -3,17 +3,22 @@ package de.hhu.bsinfo.infinileap.primitive;
 import de.hhu.bsinfo.infinileap.binding.DataType;
 import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 
 public final class NativeByte extends NativePrimitive {
 
     private static final int SIZE = Byte.BYTES;
 
     public NativeByte() {
-        this((byte) 0);
+        this(ResourceScope.newImplicitScope());
     }
 
-    public NativeByte(byte initialValue) {
-        super(MemorySegment.allocateNative(SIZE), DataType.CONTIGUOUS_8_BIT);
+    public NativeByte(ResourceScope scope) {
+        this((byte) 0, scope);
+    }
+
+    public NativeByte(byte initialValue, ResourceScope scope) {
+        super(MemorySegment.allocateNative(SIZE, scope), DataType.CONTIGUOUS_8_BIT);
         set(initialValue);
     }
 

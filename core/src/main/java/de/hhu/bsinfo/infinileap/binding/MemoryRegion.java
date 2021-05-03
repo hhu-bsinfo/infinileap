@@ -2,9 +2,9 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import jdk.incubator.foreign.MemorySegment;
-import org.openucx.ucx_h;
+import org.openucx.OpenUcx;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class MemoryRegion implements AutoCloseable {
 

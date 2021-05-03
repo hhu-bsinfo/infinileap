@@ -38,7 +38,7 @@ public class Atomic extends CommunicationDemo {
         log.info("Waiting for remote access");
 
         // Wait until remote signals completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES);
+        final var completion = MemorySegment.allocateNative(Byte.BYTES, scope);
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
@@ -78,7 +78,7 @@ public class Atomic extends CommunicationDemo {
         Requests.await(worker, request);
 
         // Signal completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES);
+        final var completion = MemorySegment.allocateNative(Byte.BYTES, scope);
         endpoint.sendTagged(completion, Tag.of(0L));
     }
 }

@@ -27,10 +27,9 @@ public abstract class BaseContext {
         var address = new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex());
 
         connection = BenchmarkClient.connect(address);
-        try (var details = new BenchmarkDetails()) {
-            fillDetails(details);
-            connection.prepare(getInitialInstruction(), details);
-        }
+        var details = new BenchmarkDetails();
+        fillDetails(details);
+        connection.prepare(getInitialInstruction(), details);
     }
 
     @TearDown(Level.Trial)

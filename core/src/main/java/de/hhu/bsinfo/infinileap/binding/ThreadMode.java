@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import java.util.Arrays;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public enum ThreadMode {
     SINGLE(UCS_THREAD_MODE_SINGLE()),

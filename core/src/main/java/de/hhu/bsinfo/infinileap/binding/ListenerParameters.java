@@ -4,18 +4,23 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.MemoryAddress;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
 
 import java.net.InetSocketAddress;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class ListenerParameters extends NativeObject {
 
     private NativeInetSocketAddress listenAddress;
 
     public ListenerParameters() {
-        super(ucp_listener_params_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public ListenerParameters(ResourceScope scope) {
+        super(ucp_listener_params_t.allocate(scope));
     }
 
     public ListenerParameters setListenAddress(InetSocketAddress address) {

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @CommandLine.Command(
@@ -21,6 +22,7 @@ public class ActiveMessage extends CommunicationDemo {
 
     private static final Identifier IDENTIFIER = new Identifier(0x01);
 
+    private final AtomicBoolean messageReceived = new AtomicBoolean(false);
 
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
@@ -29,8 +31,8 @@ public class ActiveMessage extends CommunicationDemo {
         Thread.sleep(Duration.ofSeconds(1).toMillis());
 
         // Create header and data segments
-        final var header = MemorySegment.allocateNative(4);
-        final var data = MemorySegment.allocateNative(16);
+        final var header = MemorySegment.allocateNative(4, scope);
+        final var data = MemorySegment.allocateNative(16, scope);
 
         // Set data within segments
         MemoryAccess.setInt(header, 42);
@@ -45,22 +47,22 @@ public class ActiveMessage extends CommunicationDemo {
     protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
         // Register local handler
-        try (var params = new HandlerParameters()
+        var params = new HandlerParameters()
                 .setId(IDENTIFIER)
                 .setCallback(this::onActiveMessage)
-                .setFlags(HandlerParameters.Flag.WHOLE_MESSAGE)) {
-            worker.setHandler(params);
-        }
+                .setFlags(HandlerParameters.Flag.WHOLE_MESSAGE);
 
-        // Wait on active message
-        for (var i = 0; i < 5; i++) {
+        worker.setHandler(params);
+
+        while (!messageReceived.get()) {
             worker.progress();
-            Thread.sleep(Duration.ofSeconds(1).toMillis());
         }
     }
 
     private Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress params) {
-        MemoryUtil.dump(header);
+        log.info("Received integer value {} in header", MemoryAccess.getInt(header));
+        log.info("Received long value {} in body", MemoryAccess.getLong(data));
+        messageReceived.set(true);
         return Status.OK;
     }
 }

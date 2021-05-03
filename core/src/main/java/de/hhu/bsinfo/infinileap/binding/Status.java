@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public enum Status {
 
@@ -60,7 +60,7 @@ public enum Status {
 
     Status(int value) {
         this.value = value;
-        this.message = CLinker.toJavaStringRestricted(ucs_status_string((byte) value));
+        this.message = CLinker.toJavaString(ucs_status_string((byte) value));
     }
 
     public final int value() {

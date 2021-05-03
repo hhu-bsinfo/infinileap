@@ -4,18 +4,23 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
 
 import java.net.InetSocketAddress;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 public class EndpointParameters extends NativeObject {
 
     private NativeInetSocketAddress remoteAddress;
 
     public EndpointParameters() {
-        super(ucp_ep_params_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public EndpointParameters(ResourceScope scope) {
+        super(ucp_ep_params_t.allocate(scope));
     }
 
     public EndpointParameters setRemoteAddress(WorkerAddress address) {

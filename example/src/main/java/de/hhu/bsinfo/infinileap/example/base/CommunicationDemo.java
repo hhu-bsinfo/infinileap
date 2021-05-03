@@ -5,6 +5,7 @@ import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
+import jdk.incubator.foreign.ResourceScope;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -18,7 +19,7 @@ public abstract class CommunicationDemo implements Runnable {
     private static final long DEFAULT_REQUEST_SIZE = 1024;
 
     private static final Feature[] FEATURE_SET = {
-            Feature.TAG, Feature.RMA, Feature.WAKEUP,
+            Feature.TAG, Feature.RMA, Feature.WAKEUP, Feature.AM,
             Feature.ATOMIC_32, Feature.ATOMIC_64, Feature.STREAM
     };
 
@@ -59,6 +60,8 @@ public abstract class CommunicationDemo implements Runnable {
 
     private final AtomicBoolean barrier = new AtomicBoolean();
 
+    protected final ResourceScope scope = ResourceScope.newSharedScope();
+
     @Override
     public void run() {
 
@@ -75,6 +78,9 @@ public abstract class CommunicationDemo implements Runnable {
         } catch (InterruptedException e) {
             log.error("Unexpected interrupt occured", e);
         }
+
+        // Release resource scope
+        scope.close();
     }
 
     private void initialize() throws ControlException, InterruptedException {
@@ -118,9 +124,7 @@ public abstract class CommunicationDemo implements Runnable {
                 .setRemoteAddress(serverAddress);
 
         log.info("Connecting to {}", serverAddress);
-        endpoint = pushResource(
-                worker.createEndpoint(endpointParameters)
-        );
+        endpoint =  worker.createEndpoint(endpointParameters);
 
         onClientReady(context, worker, endpoint);
     }
@@ -139,7 +143,7 @@ public abstract class CommunicationDemo implements Runnable {
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest.get());
 
-        endpoint = pushResource(worker.createEndpoint(endpointParameters));
+        endpoint = worker.createEndpoint(endpointParameters);
         onServerReady(context, worker, endpoint);
     }
 

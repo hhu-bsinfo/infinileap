@@ -23,7 +23,7 @@ public class Streaming extends CommunicationDemo {
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer and write numbers into it
-        final var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
+        final var buffer = MemorySegment.allocateNative(BUFFER_SIZE, scope);
         final var first = NativeInteger.map(buffer, 0L);
         final var second = NativeInteger.map(buffer, 4L);
 
@@ -48,7 +48,7 @@ public class Streaming extends CommunicationDemo {
     protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
-        var buffer = MemorySegment.allocateNative(BUFFER_SIZE);
+        var buffer = MemorySegment.allocateNative(BUFFER_SIZE, scope);
         var length = new NativeLong();
 
         log.info("Receiving stream");

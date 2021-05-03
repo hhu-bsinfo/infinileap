@@ -2,15 +2,20 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import org.openucx.ucx_h.*;
+import jdk.incubator.foreign.ResourceScope;
+import org.openucx.*;
 
-import static org.openucx.ucx_h.*;
+import static org.openucx.OpenUcx.*;
 
 
 public class WorkerParameters extends NativeObject {
 
     public WorkerParameters() {
-        super(ucp_worker_params_t.allocate());
+        this(ResourceScope.newImplicitScope());
+    }
+
+    public WorkerParameters(ResourceScope scope) {
+        super(ucp_worker_params_t.allocate(scope));
     }
 
     public WorkerParameters setThreadMode(ThreadMode threadMode) {

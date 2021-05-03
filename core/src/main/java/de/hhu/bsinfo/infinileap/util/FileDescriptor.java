@@ -2,13 +2,13 @@ package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import org.openucx.ucx_h;
+import org.unix.Linux;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.openucx.ucx_h.*;
+import static org.unix.Linux.*;
 
 public class FileDescriptor implements Closeable, Watchable {
 
@@ -49,7 +49,7 @@ public class FileDescriptor implements Closeable, Watchable {
 
     @Override
     public void close() throws IOException {
-        ucx_h.close(this.fd);
+        Linux.close(this.fd);
     }
 
     @Override
