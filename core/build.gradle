@@ -2,22 +2,14 @@ plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.8.4'
-    id "com.jfrog.artifactory" version "4.13.0"
 
-    id "io.github.krakowski.jextract" version "0.1.6"
+    id 'io.github.krakowski.jextract' version '0.2.2'
 }
 
-compileJava {
-    sourceCompatibility = '16'
-    targetCompatibility = '16'
-    options.encoding = 'UTF-8'
-}
-
-compileTestJava {
-    sourceCompatibility = '16'
-    targetCompatibility = '16'
-    options.encoding = 'UTF-8'
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 group = 'de.hhu.bsinfo'
@@ -45,15 +37,9 @@ test {
     useJUnitPlatform()
 }
 
-apply from: 'gradle/publish.gradle'
-apply from: 'gradle/bintray.gradle'
-apply from: 'gradle/artifactory.gradle'
-
 jextract {
 
-    sourceMode = true
-
-    fromHeader("${project.projectDir}/src/main/resources/ucx.h") {
+    header("${project.projectDir}/src/main/resources/ucx.h") {
 
         libraries = [ 'ucp' ]
 
@@ -252,7 +238,7 @@ jextract {
 
     }
 
-    fromHeader("${project.projectDir}/src/main/resources/linux.h") {
+    header("${project.projectDir}/src/main/resources/linux.h") {
 
         libraries = [ 'stdc++' ]
 

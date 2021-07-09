@@ -4,15 +4,17 @@ plugins {
     id 'idea'
 
     // Jextract Plugin
-    id "io.github.krakowski.jextract" version "0.1.5"
+    id 'io.github.krakowski.jextract' version '0.2.2'
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 compileJava {
-    sourceCompatibility = '16'
-    targetCompatibility = '16'
-    options.encoding = 'UTF-8'
     options.compilerArgs += ['-XDignore.symbol.file']
-    options.forkOptions.jvmArgs += ['-J--illegal-access=permit']
 }
 
 applicationName = 'infinileap'
@@ -57,10 +59,10 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.12.2'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    testCompileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 test {

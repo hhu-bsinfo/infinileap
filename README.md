@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://openjdk.java.net/projects/jdk/16/"><img src="https://img.shields.io/badge/java-17-blue.svg"></a>
-<a href="https://github.com/openucx/ucx/tree/v1.9.0"><img src="https://img.shields.io/badge/ucx-1.9.0-red.svg"></a>
+<a href="https://github.com/openucx/ucx/tree/v1.10.0"><img src="https://img.shields.io/badge/ucx-1.10.0-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
   
 </p>
@@ -112,10 +112,10 @@ This demo atomically increments a value residing inside the remote server's memo
 
 ## :warning: &nbsp; Known issues
 
-  - Gradle (currently at 6.8.3) does not yet support OpenJDK 16+ ([#13481](https://github.com/gradle/gradle/issues/13481)). The [`gradle-jextract`](https://github.com/krakowski/gradle-jextract) plugin can work around this by using a different JDK for compiling the sources. To enable this feature the `javaHome` property has to be set within your global `gradle.properties` usually located inside `${HOME}/.gradle`.
-  
+  - If your JDK is not installed in one of the default locations, Gradle can be instructed to look in a custom location. To enable this feature the `org.gradle.java.installations.paths` property has to be set within your global `gradle.properties` file usually located inside `${HOME}/.gradle`.
+    
     ```
-    javaHome=/path/to/your/panama/java/home
+    org.gradle.java.installations.paths=/custom/path/jdk17
     ```
     
   - The HotSpot VM uses the SIGSEGV signal for its own purposes, which may interfere with signal handlers installed by the ucx library. Fortunately, ucx's signal handlers can be disabled by using an undocumented environment variable (see [MPI.jl issue #337](https://github.com/JuliaParallel/MPI.jl/issues/337#issuecomment-578377458)).
@@ -147,7 +147,7 @@ This demo atomically increments a value residing inside the remote server's memo
     > sdk use java panama
     > ```
     
-  * [ucx 1.9.0](https://github.com/openucx/ucx/releases/tag/v1.9.0)
+  * [ucx 1.10.0](https://github.com/openucx/ucx/releases/tag/v1.10.0)
   
 ## :scroll: &nbsp; License
 
