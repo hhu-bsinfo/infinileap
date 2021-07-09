@@ -1,9 +1,7 @@
 plugins {
     id 'idea'
     id 'java-library'
-    id 'maven-publish'
-
-    id 'io.github.krakowski.jextract' version '0.2.2'
+    id "io.github.krakowski.jextract" version "0.2.2"
 }
 
 java {
@@ -22,15 +20,15 @@ tasks.withType(Javadoc) {
 dependencies {
 
     // Logging
-    api 'org.slf4j:slf4j-api:1.7.26'
+    api "org.slf4j:slf4j-api:${slf4jVersion}"
 
     // Annotations
-    implementation 'org.jetbrains:annotations:17.0.0'
+    implementation "org.jetbrains:annotations:${jetbrainsAnnotationsVersion}"
 
     // Testing
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
-    testImplementation 'org.assertj:assertj-core:3.11.1'
-    testImplementation 'org.slf4j:slf4j-nop:1.7.28'
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testImplementation "org.slf4j:slf4j-nop:${slf4jVersion}"
 }
 
 test {

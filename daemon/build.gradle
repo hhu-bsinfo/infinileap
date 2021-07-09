@@ -1,0 +1,79 @@
+plugins {
+    // IDE plugins
+    id 'idea'
+    id 'eclipse'
+
+    // Gradle application plugin
+    id 'application'
+
+    // Jextract plugin
+    id "io.github.krakowski.jextract" version "0.2.2"
+
+    // Protobuf plugin
+    id "com.google.protobuf" version "0.8.15"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+group = 'de.hhu.bsinfo'
+version = getProperty('projectVersion')
+
+jextract.enabled = false
+
+mainClassName = 'de.hhu.infinileap.daemon.Application'
+
+dependencies {
+
+    // Infinileap
+    implementation project(':core')
+
+    // Command Line Application Framework
+    implementation "info.picocli:picocli:${picocliVersion}"
+
+    // gRPC
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    compileOnly "org.apache.tomcat:annotations-api:${tomcatAnnotationsVersion}"
+
+    // SLF4J Logging Library
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+
+    // Log4j Logger
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}

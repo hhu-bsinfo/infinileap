@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.util;
 
 import jdk.incubator.foreign.*;
 
+import java.io.PrintStream;
+
 public class MemoryUtil {
 
     private static final int LINE_LENGTH = 16;
@@ -32,12 +34,15 @@ public class MemoryUtil {
     }
 
     public static void dump(MemorySegment segment) {
+        dump(segment, System.out);
+    }
 
+    public static void dump(MemorySegment segment, PrintStream stream) {
         var bytes = segment.byteSize();
         var offset = 0L;
 
-        System.out.println(HEXDUMP_HEADER);
-        System.out.println(LINE_SEPARATOR);
+        stream.println(HEXDUMP_HEADER);
+        stream.println(LINE_SEPARATOR);
 
         int i;
         while (bytes > 0) {
@@ -45,35 +50,35 @@ public class MemoryUtil {
             var length = bytes >= LINE_LENGTH ? LINE_LENGTH : bytes;
 
             // Print memory address
-            System.out.printf(" %08X |", offset);
+            stream.printf(" %08X |", offset);
 
             // Print bytes
             for (i = 0; i < LINE_LENGTH; i++) {
                 if (i < length) {
-                    System.out.printf("%02X", MemoryAccess.getByteAtOffset(segment, offset + i));
+                    stream.printf("%02X", MemoryAccess.getByteAtOffset(segment, offset + i));
                 } else {
-                    System.out.print("  ");
+                    stream.print("  ");
                 }
 
                 if (i == 7) {
-                    System.out.print("  ");
+                    stream.print("  ");
                 } else if (i != LINE_LENGTH - 1) {
-                    System.out.print(" ");
+                    stream.print(" ");
                 }
             }
 
-            System.out.print(COLUMN_SEPARATOR_CHARACTER);
+            stream.print(COLUMN_SEPARATOR_CHARACTER);
 
             // Print characters
             for (i = 0; i < LINE_LENGTH; i++) {
                 if (i < length) {
-                    System.out.printf("%c", sanitize(MemoryAccess.getByteAtOffset(segment, offset + i)));
+                    stream.printf("%c", sanitize(MemoryAccess.getByteAtOffset(segment, offset + i)));
                 } else {
-                    System.out.print(" ");
+                    stream.print(" ");
                 }
             }
 
-            System.out.println();
+            stream.println();
 
             offset += length;
             bytes -= length;

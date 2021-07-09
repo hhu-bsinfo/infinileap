@@ -13,12 +13,10 @@ java {
     }
 }
 
-compileJava {
-    options.compilerArgs += ['-XDignore.symbol.file']
-}
-
 applicationName = 'infinileap'
 mainClassName = 'de.hhu.bsinfo.infinileap.example.App'
+
+application.applicationDefaultJvmArgs += [ '--enable-native-access=ALL-UNNAMED' ]
 
 project.startScripts.with {
     doLast {
@@ -46,23 +44,23 @@ dependencies {
     implementation project(':core')
 
     // Command Line Application Framework
-    implementation 'info.picocli:picocli:4.5.0'
+    implementation "info.picocli:picocli:${picocliVersion}"
 
     // Log4j Logger
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.13.3'
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
 
     // JMH Benchmarking Framework
-    implementation 'org.openjdk.jmh:jmh-core:1.27'
-    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.27'
+    implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
+    annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
 
     // AssertJ
-    testImplementation 'org.assertj:assertj-core:3.12.2'
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    testCompileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 test {

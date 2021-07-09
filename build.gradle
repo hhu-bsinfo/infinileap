@@ -1,5 +1,28 @@
 ext {
     projectVersion = '0.1.0' + (Boolean.valueOf(System.getProperty('release')) ? '' : '-SNAPSHOT')
+
+    // Command Line Application Framework
+    picocliVersion = '4.6.1'
+
+    // gRPC Framework
+    grpcVersion = '1.37.0'
+    protobufVersion = '3.15.8'
+
+    // Logging
+    slf4jVersion = '1.7.30'
+    log4jVersion = '2.14.1'
+
+    // Benchmarking
+    jmhVersion = '1.29'
+
+    // Code Generation
+    lombokVersion = '1.18.20'
+    tomcatAnnotationsVersion = '6.0.53'
+    jetbrainsAnnotationsVersion = '20.1.0'
+
+    // Testing
+    junitJupiterVersion = '5.7.1'
+    assertjVersion = '3.19.0'
 }
 
 buildscript {
@@ -16,5 +39,5 @@ subprojects {
 }
 
 wrapper {
-    gradleVersion = "7.1.1"
+    gradleVersion = "7.2"
 }
