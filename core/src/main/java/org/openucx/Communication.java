@@ -8,7 +8,11 @@ import static jdk.incubator.foreign.CLinker.*;
 
 public class Communication {
 
-    private static final LibraryLookup[] LIBRARIES = RuntimeHelper.libraries("ucp");
+    static {
+        System.loadLibrary("ucp");
+    }
+
+    private static final SymbolLookup LIBRARIES = RuntimeHelper.lookup();
 
     private static final ValueLayout REQUEST_HANDLE = C_LONG;
 

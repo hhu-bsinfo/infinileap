@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://openjdk.java.net/projects/jdk/16/"><img src="https://img.shields.io/badge/java-17-blue.svg"></a>
+  <a href="https://openjdk.java.net/projects/jdk/18/"><img src="https://img.shields.io/badge/java-18-blue.svg"></a>
 <a href="https://github.com/openucx/ucx/tree/v1.10.0"><img src="https://img.shields.io/badge/ucx-1.10.0-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
   
@@ -115,7 +115,7 @@ This demo atomically increments a value residing inside the remote server's memo
   - If your JDK is not installed in one of the default locations, Gradle can be instructed to look in a custom location. To enable this feature the `org.gradle.java.installations.paths` property has to be set within your global `gradle.properties` file usually located inside `${HOME}/.gradle`.
     
     ```
-    org.gradle.java.installations.paths=/custom/path/jdk17
+    org.gradle.java.installations.paths=/custom/path/jdk18
     ```
     
   - The HotSpot VM uses the SIGSEGV signal for its own purposes, which may interfere with signal handlers installed by the ucx library. Fortunately, ucx's signal handlers can be disabled by using an undocumented environment variable (see [MPI.jl issue #337](https://github.com/JuliaParallel/MPI.jl/issues/337#issuecomment-578377458)).
@@ -135,7 +135,7 @@ This demo atomically increments a value residing inside the remote server's memo
 
 ## :wrench: &nbsp; Requirements
 
-  * [OpenJDK 17 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
+  * [OpenJDK 18 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
       
     > We provide nightly builds of the `foreign-jextract` branch, which are compatible with [SDKMAN!](https://sdkman.io).
     > 
