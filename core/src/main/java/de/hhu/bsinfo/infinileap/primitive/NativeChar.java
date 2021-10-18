@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 public final class NativeChar extends NativePrimitive {
 
@@ -27,11 +27,11 @@ public final class NativeChar extends NativePrimitive {
     }
 
     public void set(char value) {
-        MemoryAccess.setChar(segment(), value);
+        segment().set(ValueLayout.JAVA_CHAR, 0L, value);
     }
 
     public char get() {
-        return MemoryAccess.getChar(segment());
+        return segment().get(ValueLayout.JAVA_CHAR, 0L);
     }
 
     public static NativeChar map(MemorySegment segment) {

@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucp_stream_recv_nbx_callback_t;
 
 @FunctionalInterface
@@ -15,6 +16,6 @@ public interface StreamCallback extends ucp_stream_recv_nbx_callback_t {
     }
 
     default MemoryAddress upcallStub() {
-        return ucp_stream_recv_nbx_callback_t.allocate(this);
+        return ucp_stream_recv_nbx_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
     }
 }

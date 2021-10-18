@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 public final class NativeDouble extends NativePrimitive {
 
@@ -27,11 +27,11 @@ public final class NativeDouble extends NativePrimitive {
     }
 
     public void set(double value) {
-        MemoryAccess.setDouble(segment(), value);
+        segment().set(ValueLayout.JAVA_DOUBLE, 0L, value);
     }
 
     public double get() {
-        return MemoryAccess.getDouble(segment());
+        return segment().get(ValueLayout.JAVA_DOUBLE, 0L);
     }
 
     public static NativeDouble map(MemorySegment segment) {

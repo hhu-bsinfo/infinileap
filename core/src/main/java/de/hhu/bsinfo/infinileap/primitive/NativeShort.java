@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 public final class NativeShort extends NativePrimitive {
 
@@ -27,11 +27,11 @@ public final class NativeShort extends NativePrimitive {
     }
 
     public void set(short value) {
-        MemoryAccess.setShort(segment(), value);
+        segment().set(ValueLayout.JAVA_SHORT, 0L, value);
     }
 
     public short get() {
-        return MemoryAccess.getShort(segment());
+        return segment().get(ValueLayout.JAVA_SHORT, 0L);
     }
 
     public static NativeShort map(MemorySegment segment) {

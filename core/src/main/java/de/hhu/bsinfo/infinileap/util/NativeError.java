@@ -7,17 +7,17 @@ import static org.unix.Linux.*;
 
 public class NativeError {
 
-    private static final MemorySegment ERRNO = MemorySegment.globalNativeSegment()
-            .asSlice(__errno_location(), CLinker.C_POINTER.byteSize());
+    private static final MemorySegment ERRNO = MemorySegment.ofAddressNative(
+            __errno_location(), ValueLayout.ADDRESS.byteSize(), ResourceScope.globalScope());
 
     public static final int OK = 0;
     public static final int ERROR = -1;
 
     public static String getMessage() {
-        return CLinker.toJavaString(strerror(getCode()));
+        return strerror(getCode()).getUtf8String(0L);
     }
 
     public static int getCode() {
-        return MemoryAccess.getInt(ERRNO);
+        return ERRNO.get(ValueLayout.JAVA_INT, 0L);
     }
 }

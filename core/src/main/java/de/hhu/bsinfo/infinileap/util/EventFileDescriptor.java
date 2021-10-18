@@ -1,10 +1,9 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 import java.io.IOException;
 
@@ -14,7 +13,7 @@ public class EventFileDescriptor extends FileDescriptor {
 
     private final ResourceScope scope = ResourceScope.newImplicitScope();
 
-    private final MemorySegment counter = MemorySegment.allocateNative(MemoryLayouts.JAVA_LONG, scope);
+    private final MemorySegment counter = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
 
     private EventFileDescriptor(int fd) {
         super(fd);
@@ -30,7 +29,7 @@ public class EventFileDescriptor extends FileDescriptor {
             throw new IOException(NativeError.getMessage());
         }
 
-        return MemoryAccess.getLong(counter);
+        return counter.get(ValueLayout.JAVA_LONG, 0L);
     }
 
     public void increment(long addend) throws IOException {

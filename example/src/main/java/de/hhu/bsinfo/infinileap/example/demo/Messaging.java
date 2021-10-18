@@ -5,6 +5,7 @@ import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -55,6 +56,6 @@ public class Messaging extends CommunicationDemo {
         Requests.await(worker, barrier);
         Requests.release(request);
 
-        log.info("Received \"{}\"", new String(buffer.toByteArray()));
+        log.info("Received \"{}\"", new String(buffer.toArray(ValueLayout.JAVA_BYTE)));
     }
 }

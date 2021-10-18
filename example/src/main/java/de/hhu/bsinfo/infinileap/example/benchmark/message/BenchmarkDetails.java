@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 import java.lang.invoke.VarHandle;
 
@@ -35,19 +36,19 @@ public class BenchmarkDetails extends NativeObject {
     }
 
     private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
-            C_LONG.withName("buffer_size"),
-            C_INT.withName("op_count"),
-            C_CHAR.withName("bench_mode")
+            ValueLayout.JAVA_LONG.withName("buffer_size"),
+            ValueLayout.JAVA_INT.withName("op_count"),
+            ValueLayout.JAVA_CHAR.withName("bench_mode")
     );
 
     private static final VarHandle BUFFER_SIZE =
-            LAYOUT.varHandle(long.class, MemoryLayout.PathElement.groupElement("buffer_size"));
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("buffer_size"));
 
     private static final VarHandle OPERATION_COUNT =
-            LAYOUT.varHandle(int.class, MemoryLayout.PathElement.groupElement("op_count"));
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("op_count"));
 
     private static final VarHandle BENCHMARK_MODE =
-            LAYOUT.varHandle(byte.class, MemoryLayout.PathElement.groupElement("bench_mode"));
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("bench_mode"));
 
     public BenchmarkDetails() {
         this(ResourceScope.newImplicitScope());

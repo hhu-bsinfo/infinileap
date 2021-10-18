@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
@@ -43,11 +44,11 @@ public class BenchmarkInstruction extends NativeObject {
     }
 
     private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
-            C_INT.withName("op_code")
+            ValueLayout.JAVA_INT.withName("op_code")
     );
 
     private static final VarHandle OP_CODE =
-            LAYOUT.varHandle(int.class, MemoryLayout.PathElement.groupElement("op_code"));
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("op_code"));
 
     public BenchmarkInstruction() {
         this(ResourceScope.newImplicitScope());

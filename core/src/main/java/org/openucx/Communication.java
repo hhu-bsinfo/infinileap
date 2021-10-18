@@ -11,26 +11,22 @@ public class Communication {
     static {
         System.loadLibrary("ucp");
     }
-
-    private static final SymbolLookup LIBRARIES = RuntimeHelper.lookup();
-
-    private static final ValueLayout REQUEST_HANDLE = C_LONG;
+    
+    private static final ValueLayout REQUEST_HANDLE = ValueLayout.JAVA_LONG;
 
     // -------- UCP GET ---------- //
 
     private static final FunctionDescriptor ucp_get_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_LONG,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_get_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_get_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JJLjdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_get_nbx$FUNC, false
+            "ucp_get_nbx", ucp_get_nbx$FUNC, false
     );
 
     public static long ucp_get_nbx ( Addressable ep,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
@@ -44,18 +40,16 @@ public class Communication {
     // -------- UCP PUT ---------- //
 
     private static final FunctionDescriptor ucp_put_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_LONG,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     static final MethodHandle ucp_put_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_put_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JJLjdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_put_nbx$FUNC, false
+            "ucp_put_nbx", ucp_put_nbx$FUNC, false
     );
 
     public static long ucp_put_nbx (Addressable ep, Addressable buffer, long count, long remote_addr, Addressable rkey, Addressable param) {
@@ -69,17 +63,15 @@ public class Communication {
     // -------- UCP TAG SEND ---------- //
 
     private static final FunctionDescriptor ucp_tag_send_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_LONG,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_tag_send_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_tag_send_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JJLjdk/incubator/foreign/MemoryAddress;)J",
-            ucp_tag_send_nbx$FUNC, false
+            "ucp_tag_send_nbx", ucp_tag_send_nbx$FUNC, false
     );
 
     public static long ucp_tag_send_nbx ( Addressable ep,  Addressable buffer,  long count,  long tag,  Addressable param) {
@@ -93,18 +85,16 @@ public class Communication {
     // -------- UCP TAG RECEIVE ---------- //
 
     private static final FunctionDescriptor ucp_tag_recv_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_LONG,
-            C_LONG,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_tag_recv_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_tag_recv_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JJJLjdk/incubator/foreign/MemoryAddress;)J",
-            ucp_tag_recv_nbx$FUNC, false
+            "ucp_tag_recv_nbx", ucp_tag_recv_nbx$FUNC, false
     );
 
     public static long ucp_tag_recv_nbx ( Addressable worker,  Addressable buffer,  long count,  long tag,  long tag_mask,  Addressable param) {
@@ -118,16 +108,14 @@ public class Communication {
     // -------- UCP STREAM RECEIVE ---------- //
 
     private static final FunctionDescriptor ucp_stream_send_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_stream_send_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_stream_send_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;)J",
-            ucp_stream_send_nbx$FUNC, false
+            "ucp_stream_send_nbx", ucp_stream_send_nbx$FUNC, false
     );
 
     public static long ucp_stream_send_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable param) {
@@ -141,17 +129,15 @@ public class Communication {
     // -------- UCP STREAM RECEIVE ---------- //
 
     private static final FunctionDescriptor ucp_stream_recv_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER,
-            C_LONG,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_stream_recv_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_stream_recv_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_stream_recv_nbx$FUNC, false
+            "ucp_stream_recv_nbx", ucp_stream_recv_nbx$FUNC, false
     );
 
     public static long ucp_stream_recv_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable length,  Addressable param) {
@@ -165,19 +151,17 @@ public class Communication {
     // -------- UCP ATOMIC OP ---------- //
 
     private static final FunctionDescriptor ucp_atomic_op_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_INT,
-            C_POINTER,
-            C_LONG,
-            C_LONG,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_INT,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_atomic_op_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_atomic_op_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;ILjdk/incubator/foreign/MemoryAddress;JJLjdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_atomic_op_nbx$FUNC, false
+            "ucp_atomic_op_nbx", ucp_atomic_op_nbx$FUNC, false
     );
 
     public static long ucp_atomic_op_nbx ( Addressable ep,  int opcode,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
@@ -191,19 +175,17 @@ public class Communication {
     // ----------- UCP AM SEND ------------- //
 
     private static final FunctionDescriptor ucp_am_send_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_INT,
-            C_POINTER,
-            C_LONG,
-            C_POINTER,
-            C_LONG,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_INT,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS,
+            ValueLayout.JAVA_LONG,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_am_send_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_am_send_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;ILjdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;JLjdk/incubator/foreign/MemoryAddress;)J",
-            ucp_am_send_nbx$FUNC, false
+            "ucp_am_send_nbx", ucp_am_send_nbx$FUNC, false
     );
 
     public static long ucp_am_send_nbx ( Addressable ep,  int id,  Addressable header,  long header_length,  Addressable buffer,  long count,  Addressable param) {
@@ -217,14 +199,12 @@ public class Communication {
     // -------- UCP WORKER FLUSH ---------- //
 
     private static final FunctionDescriptor ucp_worker_flush_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_worker_flush_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_worker_flush_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_worker_flush_nbx$FUNC, false
+            "ucp_worker_flush_nbx", ucp_worker_flush_nbx$FUNC, false
     );
 
     public static long ucp_worker_flush_nbx ( Addressable worker,  Addressable param) {
@@ -238,14 +218,12 @@ public class Communication {
     // -------- UCP WORKER FLUSH ---------- //
 
     private static final FunctionDescriptor ucp_ep_flush_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
-            C_POINTER,
-            C_POINTER
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
     );
 
     private static final MethodHandle ucp_ep_flush_nbx$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_ep_flush_nbx",
-            "(Ljdk/incubator/foreign/MemoryAddress;Ljdk/incubator/foreign/MemoryAddress;)J",
-            ucp_ep_flush_nbx$FUNC, false
+            "ucp_ep_flush_nbx", ucp_ep_flush_nbx$FUNC, false
     );
 
     public static long ucp_ep_flush_nbx ( Addressable ep,  Addressable param) {
@@ -259,14 +237,12 @@ public class Communication {
     // -------- UCP REQUEST CANCEL ---------- //
 
     private static final FunctionDescriptor ucp_request_cancel$FUNC = FunctionDescriptor.ofVoid(
-            C_POINTER,
+            ValueLayout.ADDRESS,
             REQUEST_HANDLE
     );
 
     private static final MethodHandle ucp_request_cancel$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_request_cancel",
-            "(Ljdk/incubator/foreign/MemoryAddress;J)V",
-            ucp_request_cancel$FUNC, false
+            "ucp_request_cancel", ucp_request_cancel$FUNC, false
     );
 
     public static void ucp_request_cancel ( Addressable worker,  long request) {
@@ -284,9 +260,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_request_free$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_request_free",
-            "(J)V",
-            ucp_request_free$FUNC, false
+            "ucp_request_free", ucp_request_free$FUNC, false
     );
 
     public static void ucp_request_free ( long request) {
@@ -299,14 +273,12 @@ public class Communication {
 
     // -------- UCP REQUEST CHECK STATUS ---------- //
 
-    private static final FunctionDescriptor ucp_request_check_status$FUNC = FunctionDescriptor.of(C_CHAR,
+    private static final FunctionDescriptor ucp_request_check_status$FUNC = FunctionDescriptor.of(ValueLayout.JAVA_CHAR,
             REQUEST_HANDLE
     );
 
     private static final MethodHandle ucp_request_check_status$MH = RuntimeHelper.downcallHandle(
-            LIBRARIES, "ucp_request_check_status",
-            "(J)B",
-            ucp_request_check_status$FUNC, false
+            "ucp_request_check_status", ucp_request_check_status$FUNC, false
     );
 
     public static byte ucp_request_check_status ( long request) {

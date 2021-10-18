@@ -31,7 +31,6 @@ buildscript {
     }
 }
 
-
 subprojects {
     repositories {
         mavenCentral()

@@ -1,10 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.*;
 
 public class NativeObject {
 
@@ -51,7 +48,7 @@ public class NativeObject {
     }
 
     public final byte[] toByteArray() {
-        return segment.toByteArray();
+        return segment.toArray(ValueLayout.JAVA_BYTE);
     }
 
     public final void hexDump() {

@@ -1,9 +1,7 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemoryAccess;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.*;
 
 public final class NativeFloat extends NativePrimitive {
 
@@ -20,6 +18,7 @@ public final class NativeFloat extends NativePrimitive {
     public NativeFloat(float initialValue, ResourceScope scope) {
         super(MemorySegment.allocateNative(SIZE, scope), DataType.CONTIGUOUS_32_BIT);
         set(initialValue);
+
     }
 
     private NativeFloat(MemorySegment segment) {
@@ -27,11 +26,11 @@ public final class NativeFloat extends NativePrimitive {
     }
 
     public void set(float value) {
-        MemoryAccess.setFloat(segment(), value);
+        segment().set(ValueLayout.JAVA_FLOAT, 0L, value);
     }
 
     public float get() {
-        return MemoryAccess.getFloat(segment());
+        return segment().get(ValueLayout.JAVA_FLOAT, 0L);
     }
 
     public static NativeFloat map(MemorySegment segment) {

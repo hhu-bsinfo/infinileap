@@ -13,7 +13,7 @@ import org.unix.Linux.*;
 public class Configuration extends NativeObject implements AutoCloseable{
 
     /* package-private */ Configuration(MemoryAddress address) {
-        super(address, CLinker.C_POINTER);
+        super(address, ValueLayout.ADDRESS);
     }
 
     public static Configuration read() throws ControlException {
@@ -25,7 +25,7 @@ public class Configuration extends NativeObject implements AutoCloseable{
      */
     public static Configuration read(@Nullable String prefix, @Nullable String filename) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var status = ucp_config_read(
                     Parameter.ofNullable(prefix, scope),
                     Parameter.ofNullable(filename, scope),
@@ -36,7 +36,7 @@ public class Configuration extends NativeObject implements AutoCloseable{
                 throw new ControlException(status);
             }
 
-            return new Configuration(MemoryAccess.getAddress(pointer));
+            return new Configuration(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 

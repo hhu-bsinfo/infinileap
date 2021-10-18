@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.*;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
 import static jdk.incubator.foreign.CLinker.*;
@@ -11,16 +12,16 @@ public class MemoryDescriptor extends NativeObject {
     private static final long KEY_DATA_SIZE = 64;
 
     private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
-            C_LONG.withName("buf_size"),
-            C_POINTER.withName("buf_addr"),
-            MemoryLayout.sequenceLayout(KEY_DATA_SIZE, C_CHAR).withName("key_data")
+            ValueLayout.JAVA_LONG.withName("buf_size"),
+            ValueLayout.ADDRESS.withName("buf_addr"),
+            MemoryLayout.sequenceLayout(KEY_DATA_SIZE, ValueLayout.JAVA_CHAR).withName("key_data")
     );
 
     private static final VarHandle BUFFER_SIZE =
-            LAYOUT.varHandle(long.class, MemoryLayout.PathElement.groupElement("buf_size"));
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("buf_size"));
 
-    private static final VarHandle BUFFER_ADDRESS = MemoryHandles.asAddressVarHandle(
-            LAYOUT.varHandle(long.class, MemoryLayout.PathElement.groupElement("buf_addr")));
+    private static final VarHandle BUFFER_ADDRESS =
+            LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("buf_addr"));
 
     private static final long KEY_DATA_OFFSET =
             LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("key_data"));

@@ -14,7 +14,7 @@ public class Endpoint extends NativeObject {
     private static final long SINGLE_ELEMENT = 1L;
 
     /* package-private */ Endpoint(MemoryAddress address) {
-        super(address, CLinker.C_POINTER);
+        super(address, ValueLayout.ADDRESS);
     }
 
     public long sendTagged(NativeObject object, Tag tag) {
@@ -131,7 +131,7 @@ public class Endpoint extends NativeObject {
     public RemoteKey unpack(MemoryDescriptor descriptor) throws ControlException {
         var keySegment = descriptor.keySegment();
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var status = ucp_ep_rkey_unpack(
                 Parameter.of(this),
                 keySegment,
@@ -142,7 +142,7 @@ public class Endpoint extends NativeObject {
                 throw new ControlException(status);
             }
 
-            return new RemoteKey(MemoryAccess.getAddress(pointer));
+            return new RemoteKey(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 

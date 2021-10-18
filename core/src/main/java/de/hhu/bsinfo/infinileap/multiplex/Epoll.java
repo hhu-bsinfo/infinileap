@@ -3,7 +3,6 @@ package de.hhu.bsinfo.infinileap.multiplex;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 import de.hhu.bsinfo.infinileap.util.NativeError;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -11,6 +10,7 @@ import java.io.IOException;
 import java.time.Duration;
 
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 import org.unix.*;
 import static org.unix.Linux.*;
 
@@ -100,7 +100,7 @@ public class Epoll {
     }
 
     long getData(long index) {
-        return MemoryAccess.getLongAtOffset(pollSegment, index * LAYOUT_SIZE + DATA_OFFSET);
+        return pollSegment.get(ValueLayout.JAVA_LONG, index * LAYOUT_SIZE + DATA_OFFSET);
     }
 
     private void control(FileDescriptor fileDescriptor, int operation, EventType... eventTypes) throws IOException {
@@ -129,6 +129,6 @@ public class Epoll {
     }
 
     private static void setData(MemorySegment segment, long data) {
-        MemoryAccess.setLongAtOffset(segment, DATA_OFFSET, data);
+        segment.set(ValueLayout.JAVA_LONG, DATA_OFFSET, data);
     }
 }

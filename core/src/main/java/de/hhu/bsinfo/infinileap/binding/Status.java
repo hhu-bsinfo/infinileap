@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemoryHandles;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -60,7 +61,7 @@ public enum Status {
 
     Status(int value) {
         this.value = value;
-        this.message = CLinker.toJavaString(ucs_status_string((byte) value));
+        this.message = ucs_status_string((byte) value).getUtf8String(0L);
     }
 
     public final int value() {

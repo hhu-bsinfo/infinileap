@@ -5,6 +5,7 @@ import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -75,7 +76,7 @@ public class Memory extends CommunicationDemo {
         Requests.await(worker, barrier);
         Requests.release(request);
 
-        log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toByteArray()));
+        log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toArray(ValueLayout.JAVA_BYTE)));
 
         // Signal completion
         final var completion = MemorySegment.allocateNative(Byte.BYTES, scope);

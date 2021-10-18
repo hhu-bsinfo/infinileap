@@ -11,13 +11,13 @@ import static org.openucx.Communication.ucp_tag_recv_nbx;
 public class Worker extends NativeObject implements AutoCloseable {
 
     /* package-private */ Worker(MemoryAddress address) {
-        super(address, CLinker.C_POINTER);
+        super(address, ValueLayout.ADDRESS);
     }
 
     public WorkerAddress getAddress() throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
-            var length = MemorySegment.allocateNative(CLinker.C_LONG, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+            var length = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
             var status = ucp_worker_get_address(
                     Parameter.of(this),
                     pointer,
@@ -28,7 +28,7 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new WorkerAddress(MemoryAccess.getAddress(pointer), MemoryAccess.getLong(length));
+            return new WorkerAddress(pointer.get(ValueLayout.ADDRESS, 0L), length.get(ValueLayout.JAVA_LONG, 0L));
         }
     }
 
@@ -50,7 +50,7 @@ public class Worker extends NativeObject implements AutoCloseable {
 
     public Endpoint createEndpoint(EndpointParameters parameters) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var status = ucp_ep_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -61,13 +61,13 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Endpoint(MemoryAccess.getAddress(pointer));
+            return new Endpoint(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 
     public Listener createListener(ListenerParameters parameters) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var status = ucp_listener_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -78,7 +78,7 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Listener(MemoryAccess.getAddress(pointer));
+            return new Listener(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 
@@ -118,7 +118,7 @@ public class Worker extends NativeObject implements AutoCloseable {
 
     public FileDescriptor fileDescriptor() throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var descriptor = MemorySegment.allocateNative(CLinker.C_INT, scope);
+            var descriptor = MemorySegment.allocateNative(ValueLayout.JAVA_INT, scope);
             var status = ucp_worker_get_efd(
                 Parameter.of(this),
                 descriptor
@@ -129,7 +129,7 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return FileDescriptor.of(MemoryAccess.getInt(descriptor));
+            return FileDescriptor.of(descriptor.get(ValueLayout.JAVA_INT, 0L));
         }
     }
 

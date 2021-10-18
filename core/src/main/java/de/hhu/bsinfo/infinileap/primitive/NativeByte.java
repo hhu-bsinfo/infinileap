@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 
 public final class NativeByte extends NativePrimitive {
 
@@ -27,11 +27,11 @@ public final class NativeByte extends NativePrimitive {
     }
 
     public void set(byte value) {
-        MemoryAccess.setByte(segment(), value);
+        segment().set(ValueLayout.JAVA_BYTE, 0L, value);
     }
 
     public byte get() {
-        return MemoryAccess.getByte(segment());
+        return segment().get(ValueLayout.JAVA_BYTE, 0L);
     }
 
     public static NativeByte map(MemorySegment segment) {

@@ -39,7 +39,7 @@ public interface LoggingHandler extends ucs_log_func_t {
         try (var scope = ResourceScope.newConfinedScope()) {
             var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1, scope);
             vsnprintf(buffer, buffer.byteSize(), format, arguments);
-            return CLinker.toJavaString(buffer);
+            return buffer.getUtf8String(0L);
         }
     }
 }

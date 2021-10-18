@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucp_err_handler_cb_t;
 
 public interface ErrorHandler extends ucp_err_handler_cb_t {
@@ -13,6 +14,6 @@ public interface ErrorHandler extends ucp_err_handler_cb_t {
     }
 
     default MemoryAddress upcallStub() {
-        return ucp_err_handler_cb_t.allocate(this);
+        return ucp_err_handler_cb_t.allocate(this, ResourceScope.newImplicitScope()).address();
     }
 }

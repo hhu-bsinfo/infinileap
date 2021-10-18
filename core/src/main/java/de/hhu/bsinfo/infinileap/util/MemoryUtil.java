@@ -15,18 +15,8 @@ public class MemoryUtil {
     private static final String LINE_SEPARATOR = LINE_SEPARATOR_CHARACTER.repeat(HEXDUMP_HEADER.length());
 
 
-
-    public static MemorySegment allocateMemory(long capacity) {
-        return MemorySegment.globalNativeSegment().asSlice(
-                CLinker.allocateMemory(capacity), capacity);
-    }
-
-    public static void freeMemory(Addressable addressable) {
-        CLinker.freeMemory(addressable.address());
-    }
-
     public static MemorySegment wrap(MemoryAddress address, long capacity) {
-        return MemorySegment.globalNativeSegment().asSlice(address, capacity);
+        return MemorySegment.ofAddressNative(address, capacity, ResourceScope.globalScope());
     }
 
     public static MemorySegment allocate(MemoryLayout layout) {
@@ -55,7 +45,7 @@ public class MemoryUtil {
             // Print bytes
             for (i = 0; i < LINE_LENGTH; i++) {
                 if (i < length) {
-                    stream.printf("%02X", MemoryAccess.getByteAtOffset(segment, offset + i));
+                    stream.printf("%02X", segment.get(ValueLayout.JAVA_BYTE, offset + i));
                 } else {
                     stream.print("  ");
                 }
@@ -72,7 +62,7 @@ public class MemoryUtil {
             // Print characters
             for (i = 0; i < LINE_LENGTH; i++) {
                 if (i < length) {
-                    stream.printf("%c", sanitize(MemoryAccess.getByteAtOffset(segment, offset + i)));
+                    stream.printf("%c", sanitize(segment.get(ValueLayout.JAVA_BYTE, offset + i)));
                 } else {
                     stream.print(" ");
                 }

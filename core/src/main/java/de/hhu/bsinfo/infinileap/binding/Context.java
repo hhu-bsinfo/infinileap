@@ -13,7 +13,7 @@ public class Context extends NativeObject implements AutoCloseable {
     private static final int UCP_MINOR_VERSION = UCP_API_MINOR();
 
     /* package-private */ Context(MemoryAddress address) {
-        super(address, CLinker.C_POINTER);
+        super(address, ValueLayout.ADDRESS);
     }
 
     public static Context initialize(ContextParameters parameters) throws ControlException {
@@ -22,7 +22,7 @@ public class Context extends NativeObject implements AutoCloseable {
 
     public static Context initialize(ContextParameters parameters, @Nullable Configuration configuration) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
 
             /*
              * We have to use ucp_init_version at this point since ucp_init
@@ -42,13 +42,13 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Context(MemoryAccess.getAddress(pointer));
+            return new Context(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 
     public Worker createWorker(WorkerParameters parameters) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var status = ucp_worker_create(
                     this.address(),
                     parameters.address(),
@@ -59,7 +59,7 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Worker(MemoryAccess.getAddress(pointer));
+            return new Worker(pointer.get(ValueLayout.ADDRESS, 0L));
         }
     }
 
@@ -77,9 +77,9 @@ public class Context extends NativeObject implements AutoCloseable {
 
     public MemoryRegion mapMemory(MemorySegment segment) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
             var parameters = new MappingParameters().setSegment(segment);
-            var size = MemorySegment.allocateNative(CLinker.C_LONG, scope);
+            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
             var status = ucp_mem_map(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -90,7 +90,7 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            final var handle = new MemoryHandle(MemoryAccess.getAddress(pointer));
+            final var handle = new MemoryHandle(pointer.get(ValueLayout.ADDRESS, 0L));
             final var descriptor = getDescriptor(segment, handle);
             return new MemoryRegion(this, handle, segment, descriptor);
         }
@@ -124,8 +124,8 @@ public class Context extends NativeObject implements AutoCloseable {
 
     private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) throws ControlException {
         try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(CLinker.C_POINTER, scope);
-            var size = MemorySegment.allocateNative(CLinker.C_LONG, scope);
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
             var status = ucp_rkey_pack(
                     Parameter.of(this),
                     Parameter.of(handle),
@@ -137,8 +137,12 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            var remoteKey = MemoryAccess.getAddress(pointer)
-                    .asSegment(MemoryAccess.getLong(size), ResourceScope.globalScope());
+
+            var remoteKey = MemorySegment.ofAddressNative(
+                    pointer.get(ValueLayout.ADDRESS, 0L),
+                    size.get(ValueLayout.JAVA_LONG, 0L),
+                    ResourceScope.globalScope()
+            );
 
             var descriptor = new MemoryDescriptor(segment, remoteKey);
             ucp_rkey_buffer_release(remoteKey);
@@ -147,6 +151,6 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public static String getVersion() {
-        return CLinker.toJavaString(ucp_get_version_string());
+        return ucp_get_version_string().getUtf8String(0L);
     }
 }

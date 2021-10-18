@@ -9,9 +9,9 @@ import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -172,7 +172,7 @@ public class BenchmarkClient implements AutoCloseable {
 
         // Clear first byte because it is used as
         // an exit signal at the end of the benchmark
-        MemoryAccess.setByte(sendBuffer, (byte) 0x00);
+        sendBuffer.set(ValueLayout.JAVA_BYTE, 0L, (byte) 0x00);
     }
 
     private void initBuffers(BenchmarkDetails details) throws ControlException, InterruptedException {
@@ -278,9 +278,9 @@ public class BenchmarkClient implements AutoCloseable {
     private long writeCounter = 1;
 
     public final void putLatency() {
-        MemoryAccess.setLong(sendBuffer, writeCounter);
+        sendBuffer.set(ValueLayout.JAVA_LONG, 0L, writeCounter);
         Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
-        while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+        while (receiveBuffer.get(ValueLayout.JAVA_LONG, 0L) != writeCounter) {
             worker.progress();
         }
 
@@ -289,14 +289,14 @@ public class BenchmarkClient implements AutoCloseable {
 
     public final void putThroughput() {
         for (int i = 0; i < operationCount; i++) {
-            MemoryAccess.setLong(sendBuffer, writeCounter++);
+            sendBuffer.set(ValueLayout.JAVA_LONG, 0L, writeCounter++);
             requestPool.add(Requests.put(endpoint, sendBuffer, remoteAddress, remoteKey));
         }
 
         requestPool.pollRemaining(worker);
         writeCounter -= 1;
 
-        while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+        while (receiveBuffer.get(ValueLayout.JAVA_LONG, 0L) != writeCounter) {
             worker.progress();
         }
     }

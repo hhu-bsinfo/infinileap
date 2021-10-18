@@ -1,17 +1,16 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.binding.NativeObject;
-import jdk.incubator.foreign.Addressable;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.invoke.MethodHandles;
 
 public class Parameter {
 
     static Addressable of(@NotNull String value, ResourceScope scope) {
-        return CLinker.toCString(value, scope);
+        return SegmentAllocator.nativeAllocator(scope).allocateUtf8String(value);
     }
 
     static Addressable ofNullable(@Nullable String value, ResourceScope scope) {

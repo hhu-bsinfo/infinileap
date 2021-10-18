@@ -6,9 +6,9 @@ import de.hhu.bsinfo.infinileap.example.util.*;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -218,11 +218,11 @@ public class BenchmarkServer {
 
     private void writeLatency(BenchmarkDetails details) throws ControlException {
         while (signal.isCleared()) {
-            while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+            while (receiveBuffer.get(ValueLayout.JAVA_LONG, 0L) != writeCounter) {
                 worker.progress();
             }
 
-            MemoryAccess.setLong(sendBuffer, writeCounter++);
+            sendBuffer.set(ValueLayout.JAVA_LONG, 0L, writeCounter++);
             Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
         }
 
@@ -234,12 +234,12 @@ public class BenchmarkServer {
 
             // Wait until last write was performed
             writeCounter += details.getOperationCount() - 1;
-            while (MemoryAccess.getLong(receiveBuffer) != writeCounter) {
+            while (receiveBuffer.get(ValueLayout.JAVA_LONG, 0L) != writeCounter) {
                 worker.progress();
             }
 
             // Send back the current counter value
-            MemoryAccess.setLong(sendBuffer, writeCounter);
+            sendBuffer.set(ValueLayout.JAVA_LONG, 0L, writeCounter);
             Requests.blockingPut(worker, endpoint, sendBuffer, remoteAddress, remoteKey);
         }
 

@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucp_am_recv_callback_t;
 
 public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
@@ -19,6 +20,6 @@ public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
     }
 
     default MemoryAddress upcallStub() {
-        return ucp_am_recv_callback_t.allocate(this);
+        return ucp_am_recv_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
     }
 }

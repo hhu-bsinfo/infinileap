@@ -4,9 +4,9 @@ import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import jdk.incubator.foreign.MemoryAccess;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -35,8 +35,8 @@ public class ActiveMessage extends CommunicationDemo {
         final var data = MemorySegment.allocateNative(16, scope);
 
         // Set data within segments
-        MemoryAccess.setInt(header, 42);
-        MemoryAccess.setLong(data, 42L);
+        header.set(ValueLayout.JAVA_INT, 0L, 42);
+        data.set(ValueLayout.JAVA_LONG, 0L, 42L);
 
         // Invoke remote handler
         Requests.await(worker, endpoint.sendActive(IDENTIFIER, header, data, new RequestParameters()
@@ -60,8 +60,8 @@ public class ActiveMessage extends CommunicationDemo {
     }
 
     private Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress params) {
-        log.info("Received integer value {} in header", MemoryAccess.getInt(header));
-        log.info("Received long value {} in body", MemoryAccess.getLong(data));
+        log.info("Received integer value {} in header", header.get(ValueLayout.JAVA_INT, 0L));
+        log.info("Received long value {} in body", data.get(ValueLayout.JAVA_INT, 0L));
         messageReceived.set(true);
         return Status.OK;
     }
