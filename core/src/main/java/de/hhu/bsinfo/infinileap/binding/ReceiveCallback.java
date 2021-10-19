@@ -14,7 +14,9 @@ public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
         onRequestReceived(request.toRawLongValue(), Status.of(status), tagInfo, data);
     }
 
+    // TODO(krakowski)
+    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
     default MemoryAddress upcallStub() {
-        return ucp_tag_recv_nbx_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
+        return ucp_tag_recv_nbx_callback_t.allocate(this, ResourceScope.globalScope()).address();
     }
 }

@@ -15,7 +15,9 @@ public interface StreamCallback extends ucp_stream_recv_nbx_callback_t {
         onStreamReceived(Request.of(request.toRawLongValue()), Status.of(status), length, data);
     }
 
+    // TODO(krakowski)
+    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
     default MemoryAddress upcallStub() {
-        return ucp_stream_recv_nbx_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
+        return ucp_stream_recv_nbx_callback_t.allocate(this, ResourceScope.globalScope()).address();
     }
 }

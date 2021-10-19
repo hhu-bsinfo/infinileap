@@ -76,7 +76,7 @@ public class Communication {
 
     public static long ucp_tag_send_nbx ( Addressable ep,  Addressable buffer,  long count,  long tag,  Addressable param) {
         try {
-            return (long) ucp_tag_send_nbx$MH.invokeExact(ep.address(), buffer.address(), count, tag, param.address());
+            return (long) ucp_tag_send_nbx$MH.invokeExact(ep, buffer, count, tag, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -99,7 +99,7 @@ public class Communication {
 
     public static long ucp_tag_recv_nbx ( Addressable worker,  Addressable buffer,  long count,  long tag,  long tag_mask,  Addressable param) {
         try {
-            return (long) ucp_tag_recv_nbx$MH.invokeExact(worker.address(), buffer.address(), count, tag, tag_mask, param.address());
+            return (long) ucp_tag_recv_nbx$MH.invokeExact(worker, buffer, count, tag, tag_mask, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -120,7 +120,7 @@ public class Communication {
 
     public static long ucp_stream_send_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable param) {
         try {
-            return (long) ucp_stream_send_nbx$MH.invokeExact(ep.address(), buffer.address(), count, param.address());
+            return (long) ucp_stream_send_nbx$MH.invokeExact(ep, buffer, count, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -142,7 +142,7 @@ public class Communication {
 
     public static long ucp_stream_recv_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable length,  Addressable param) {
         try {
-            return (long) ucp_stream_recv_nbx$MH.invokeExact(ep.address(), buffer.address(), count, length.address(), param.address());
+            return (long) ucp_stream_recv_nbx$MH.invokeExact(ep, buffer, count, length, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -166,7 +166,7 @@ public class Communication {
 
     public static long ucp_atomic_op_nbx ( Addressable ep,  int opcode,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
         try {
-            return (long) ucp_atomic_op_nbx$MH.invokeExact(ep.address(), opcode, buffer.address(), count, remote_addr, rkey.address(), param.address());
+            return (long) ucp_atomic_op_nbx$MH.invokeExact(ep, opcode, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -190,7 +190,7 @@ public class Communication {
 
     public static long ucp_am_send_nbx ( Addressable ep,  int id,  Addressable header,  long header_length,  Addressable buffer,  long count,  Addressable param) {
         try {
-            return (long) ucp_am_send_nbx$MH.invokeExact(ep.address(), id, header.address(), header_length, buffer.address(), count, param.address());
+            return (long) ucp_am_send_nbx$MH.invokeExact(ep, id, header, header_length, buffer, count, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -209,7 +209,7 @@ public class Communication {
 
     public static long ucp_worker_flush_nbx ( Addressable worker,  Addressable param) {
         try {
-            return (long) ucp_worker_flush_nbx$MH.invokeExact(worker.address(), param.address());
+            return (long) ucp_worker_flush_nbx$MH.invokeExact(worker, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -228,7 +228,7 @@ public class Communication {
 
     public static long ucp_ep_flush_nbx ( Addressable ep,  Addressable param) {
         try {
-            return (long) ucp_ep_flush_nbx$MH.invokeExact(ep.address(), param.address());
+            return (long) ucp_ep_flush_nbx$MH.invokeExact(ep, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -247,7 +247,7 @@ public class Communication {
 
     public static void ucp_request_cancel ( Addressable worker,  long request) {
         try {
-            ucp_request_cancel$MH.invokeExact(worker.address(), request);
+            ucp_request_cancel$MH.invokeExact(worker, request);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }

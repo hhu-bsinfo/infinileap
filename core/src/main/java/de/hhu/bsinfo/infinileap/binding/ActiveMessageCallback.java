@@ -19,7 +19,9 @@ public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
                 parameters).value();
     }
 
+    // TODO(krakowski)
+    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
     default MemoryAddress upcallStub() {
-        return ucp_am_recv_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
+        return ucp_am_recv_callback_t.allocate(this, ResourceScope.globalScope()).address();
     }
 }

@@ -13,7 +13,9 @@ public interface ErrorHandler extends ucp_err_handler_cb_t {
         onError(userData, endpoint, Status.of(status));
     }
 
+    // TODO(krakowski)
+    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
     default MemoryAddress upcallStub() {
-        return ucp_err_handler_cb_t.allocate(this, ResourceScope.newImplicitScope()).address();
+        return ucp_err_handler_cb_t.allocate(this, ResourceScope.globalScope()).address();
     }
 }

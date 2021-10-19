@@ -16,8 +16,8 @@ public interface ConnectionHandler extends ucp_listener_conn_callback_t {
     }
 
     // TODO(krakowski)
-    //  Check if using resource scope in this way is right
+    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
     default MemoryAddress upcallStub() {
-        return ucp_listener_conn_callback_t.allocate(this, ResourceScope.newImplicitScope()).address();
+        return ucp_listener_conn_callback_t.allocate(this, ResourceScope.globalScope()).address();
     }
 }
