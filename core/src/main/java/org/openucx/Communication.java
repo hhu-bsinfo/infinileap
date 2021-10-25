@@ -31,7 +31,7 @@ public class Communication {
 
     public static long ucp_get_nbx ( Addressable ep,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
         try {
-            return (long) ucp_get_nbx$MH.invokeExact(ep.address(), buffer.address(), count, remote_addr, rkey.address(), param.address());
+            return (long) ucp_get_nbx$MH.invokeExact(ep, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -54,7 +54,7 @@ public class Communication {
 
     public static long ucp_put_nbx (Addressable ep, Addressable buffer, long count, long remote_addr, Addressable rkey, Addressable param) {
         try {
-            return (long) ucp_put_nbx$MH.invokeExact(ep.address(), buffer.address(), count, remote_addr, rkey.address(), param.address());
+            return (long) ucp_put_nbx$MH.invokeExact(ep, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
             throw new AssertionError("should not reach here", ex$);
         }
@@ -273,7 +273,7 @@ public class Communication {
 
     // -------- UCP REQUEST CHECK STATUS ---------- //
 
-    private static final FunctionDescriptor ucp_request_check_status$FUNC = FunctionDescriptor.of(ValueLayout.JAVA_CHAR,
+    private static final FunctionDescriptor ucp_request_check_status$FUNC = FunctionDescriptor.of(ValueLayout.JAVA_BYTE,
             REQUEST_HANDLE
     );
 

@@ -38,7 +38,7 @@ public class BenchmarkDetails extends NativeObject {
     private static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
             ValueLayout.JAVA_LONG.withName("buffer_size"),
             ValueLayout.JAVA_INT.withName("op_count"),
-            ValueLayout.JAVA_CHAR.withName("bench_mode")
+            ValueLayout.JAVA_BYTE.withName("bench_mode")
     );
 
     private static final VarHandle BUFFER_SIZE =

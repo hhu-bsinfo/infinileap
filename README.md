@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://openjdk.java.net/projects/jdk/18/"><img src="https://img.shields.io/badge/java-18-blue.svg"></a>
-<a href="https://github.com/openucx/ucx/tree/v1.10.0"><img src="https://img.shields.io/badge/ucx-1.10.0-red.svg"></a>
+<a href="https://github.com/openucx/ucx/tree/v1.11.2"><img src="https://img.shields.io/badge/ucx-1.11.2-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
   
 </p>
@@ -147,7 +147,7 @@ This demo atomically increments a value residing inside the remote server's memo
     > sdk use java panama
     > ```
     
-  * [ucx 1.10.0](https://github.com/openucx/ucx/releases/tag/v1.10.0)
+  * [ucx 1.11.2](https://github.com/openucx/ucx/releases/tag/v1.11.2)
   
 ## :scroll: &nbsp; License
 
