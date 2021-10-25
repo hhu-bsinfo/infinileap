@@ -68,7 +68,7 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public MemoryRegion allocateMemory(long size, MemoryAlignment alignment) throws ControlException {
-        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), ResourceScope.newSharedScope()));
+        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), ResourceScope.newImplicitScope()));
     }
 
     public MemoryRegion mapMemory(NativeObject object) throws ControlException {

@@ -20,7 +20,7 @@ public class MemoryUtil {
     }
 
     public static MemorySegment allocate(MemoryLayout layout) {
-        return MemorySegment.allocateNative(layout, ResourceScope.newSharedScope());
+        return MemorySegment.allocateNative(layout, ResourceScope.newImplicitScope());
     }
 
     public static void dump(MemorySegment segment) {
