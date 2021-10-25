@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucp_am_recv_callback_t;
 
@@ -19,9 +20,7 @@ public interface ActiveMessageCallback extends ucp_am_recv_callback_t {
                 parameters).value();
     }
 
-    // TODO(krakowski)
-    //  Use implicit scope and store reference on callback instance to prevent garbage collector from cleaning it up.
-    default MemoryAddress upcallStub() {
-        return ucp_am_recv_callback_t.allocate(this, ResourceScope.globalScope()).address();
+    default NativeSymbol upcallStub() {
+        return ucp_am_recv_callback_t.allocate(this, ResourceScope.newImplicitScope());
     }
 }

@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucs_log_func_t;
 import org.slf4j.Logger;
@@ -35,9 +36,7 @@ public class NativeLogger {
         return CONTINUE;
     };
 
-    // TODO(krakowski)
-    //  Check if using resource scope in this way is right
-    private static final MemoryAddress UPCALL = ucs_log_func_t.allocate(HANDLER, ResourceScope.newImplicitScope()).address();
+    private static final NativeSymbol UPCALL = ucs_log_func_t.allocate(HANDLER, ResourceScope.globalScope());
 
     private static final AtomicBoolean ENABLED = new AtomicBoolean(false);
 

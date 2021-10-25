@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 
@@ -13,9 +14,9 @@ public class RequestParameters extends NativeObject {
 
     static final RequestParameters EMPTY = new RequestParameters();
 
-    // Prevent Garbage Collection
-    private SendCallback sendCallback;
-    private ReceiveCallback receiveCallback;
+    private NativeSymbol sendUpcall;
+    private NativeSymbol receiveUpcall;
+    private NativeSymbol streamUpcall;
 
     public RequestParameters() {
         this(ResourceScope.newImplicitScope());
@@ -32,21 +33,22 @@ public class RequestParameters extends NativeObject {
     }
 
     public RequestParameters setSendCallback(SendCallback callback) {
-        this.sendCallback = callback;
-        ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        sendUpcall = callback.upcallStub();
+        ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), sendUpcall.address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setReceiveCallback(ReceiveCallback callback) {
-        this.receiveCallback = callback;
-        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        receiveUpcall = callback.upcallStub();
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), receiveUpcall.address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setStreamCallback(StreamCallback callback) {
-        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), callback.upcallStub().address());
+        streamUpcall = callback.upcallStub();
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), streamUpcall.address());
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }

@@ -4,11 +4,14 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 
+import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 import static org.openucx.OpenUcx.*;
 
 public class HandlerParameters extends NativeObject {
+
+    private NativeSymbol upcallStub;
 
     public HandlerParameters() {
         this(ResourceScope.newImplicitScope());
@@ -31,7 +34,9 @@ public class HandlerParameters extends NativeObject {
     }
 
     public HandlerParameters setCallback(ActiveMessageCallback callback) {
-        ucp_am_handler_param_t.cb$set(segment(), callback.upcallStub().address());
+        this.upcallStub = callback.upcallStub();
+
+        ucp_am_handler_param_t.cb$set(segment(), this.upcallStub.address());
         addFieldMask(Field.CALLBACK);
         return this;
     }
