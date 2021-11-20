@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
+import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 
@@ -14,6 +15,7 @@ import static org.openucx.OpenUcx.*;
 public class EndpointParameters extends NativeObject {
 
     private NativeInetSocketAddress remoteAddress;
+    private NativeSymbol errorUpcall;
 
     public EndpointParameters() {
         this(ResourceScope.newImplicitScope());
@@ -43,6 +45,14 @@ public class EndpointParameters extends NativeObject {
     public EndpointParameters setConnectionRequest(ConnectionRequest request) {
         ucp_ep_params_t.conn_request$set(segment(), request.address());
         addFieldMask(Field.CONN_REQUEST);
+        return this;
+    }
+
+    public EndpointParameters setErrorHandler(ErrorHandler handler) {
+        errorUpcall = handler.upcallStub();
+        ucp_err_handler_t.cb$set(ucp_ep_params_t.err_handler$slice(segment()), errorUpcall.address());
+        ucp_ep_params_t.err_mode$set(segment(), ErrorHandlingMode.PEER.value());
+        addFieldMask(Field.ERR_HANDLER, Field.ERR_HANDLING_MODE);
         return this;
     }
 
@@ -96,6 +106,21 @@ public class EndpointParameters extends NativeObject {
 
         @Override
         public int getValue() {
+            return value;
+        }
+    }
+
+    private enum ErrorHandlingMode {
+        NONE(UCP_ERR_HANDLING_MODE_NONE()),
+        PEER(UCP_ERR_HANDLING_MODE_PEER());
+
+        private final int value;
+
+        ErrorHandlingMode(int value) {
+            this.value = value;
+        }
+
+        public int value() {
             return value;
         }
     }
