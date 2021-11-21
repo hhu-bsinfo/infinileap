@@ -234,6 +234,25 @@ public class Communication {
         }
     }
 
+    // -------- UCP ENDPOINT CLOSE ---------- //
+
+    private static final FunctionDescriptor ucp_ep_close_nbx$FUNC = FunctionDescriptor.of(REQUEST_HANDLE,
+            ValueLayout.ADDRESS,
+            ValueLayout.ADDRESS
+    );
+
+    private static final MethodHandle ucp_ep_close_nbx$MH = RuntimeHelper.downcallHandle(
+            "ucp_ep_close_nbx", ucp_ep_close_nbx$FUNC, false
+    );
+
+    public static long ucp_ep_close_nbx ( Addressable ep,  Addressable param) {
+        try {
+            return (long) ucp_ep_close_nbx$MH.invokeExact(ep, param);
+        } catch (Throwable ex$) {
+            throw new AssertionError("should not reach here", ex$);
+        }
+    }
+
     // -------- UCP REQUEST CANCEL ---------- //
 
     private static final FunctionDescriptor ucp_request_cancel$FUNC = FunctionDescriptor.ofVoid(

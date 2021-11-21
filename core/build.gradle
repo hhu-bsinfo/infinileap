@@ -60,7 +60,7 @@ jextract {
                 'ucp_am_data_release', 'ucp_am_recv_data_nbx', 'ucp_am_send_nbx',
 
                 // Endpoint
-                'ucp_ep_close_nbx', 'ucp_ep_create', 'ucp_ep_flush_nbx', 'ucp_ep_print_info', 'ucp_ep_rkey_unpack',
+                'ucp_ep_close_nbx', 'ucp_ep_create', 'ucp_ep_destroy', 'ucp_ep_flush_nbx', 'ucp_ep_print_info', 'ucp_ep_rkey_unpack',
 
                 // Listener
                 'ucp_listener_create', 'ucp_listener_destroy', 'ucp_listener_query', 'ucp_listener_reject', 'ucp_conn_request_query',
