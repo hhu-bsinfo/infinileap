@@ -3,13 +3,13 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import jdk.incubator.foreign.*;
-import org.openucx.Communication;
 
 import static org.openucx.Communication.*;
 import static org.openucx.OpenUcx.ucp_ep_rkey_unpack;
+import static org.openucx.OpenUcx.ucp_ep_destroy;
 
 
-public class Endpoint extends NativeObject {
+public class Endpoint extends NativeObject implements AutoCloseable {
 
     private static final long SINGLE_ELEMENT = 1L;
 
@@ -155,5 +155,21 @@ public class Endpoint extends NativeObject {
                 Parameter.of(this),
                 Parameter.of(parameters)
         );
+    }
+
+    public long closeNonBlocking() {
+        return closeNonBlocking(RequestParameters.EMPTY);
+    }
+
+    public long closeNonBlocking(RequestParameters parameters) {
+        return ucp_ep_close_nbx(
+                Parameter.of(this),
+                Parameter.of(parameters)
+        );
+    }
+
+    @Override
+    public void close() {
+        ucp_ep_destroy(segment());
     }
 }
