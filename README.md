@@ -3,8 +3,9 @@
 </p>
 
 <p align="center">
+  <a href="https://travis-ci.com/github/hhu-bsinfo/infinileap"><img src="https://www.travis-ci.com/hhu-bsinfo/infinileap.svg?branch=main"></a>
   <a href="https://openjdk.java.net/projects/jdk/19/"><img src="https://img.shields.io/badge/java-19-blue.svg"></a>
-<a href="https://github.com/openucx/ucx/tree/v1.11.2"><img src="https://img.shields.io/badge/ucx-1.11.2-red.svg"></a>
+  <a href="https://github.com/openucx/ucx/tree/v1.11.2"><img src="https://img.shields.io/badge/ucx-1.11.2-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
   
 </p>
