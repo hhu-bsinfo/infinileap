@@ -1,0 +1,27 @@
+os: linux
+dist: focal
+language: java
+
+addons:
+  apt:
+    sources:
+      - sourceline: deb http://coconucos.cs.uni-duesseldorf.de/forschung/apt/ stable main
+        key_url: http://coconucos.cs.uni-duesseldorf.de/forschung/apt/apt-key.asc
+    packages:
+      - libllvm11
+      - ucx
+
+stages:
+  - name: build
+
+jobs:
+  include:
+    - stage: build
+      before_install:
+        - wget -O panama.zip https://coconucos.cs.hhu.de/forschung/jdk/latest.zip
+        - unzip panama.zip -d /tmp
+        - echo "org.gradle.java.installations.paths=/tmp/panama/" > gradle.properties
+      install:
+        - ./gradlew core:assemble -x core:test
+      script:
+        - ./gradlew core:build -x core:test
