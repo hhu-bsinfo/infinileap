@@ -9,7 +9,7 @@ ext {
     protobufVersion = '3.15.8'
 
     // Logging
-    slf4jVersion = '1.7.30'
+    slf4jVersion = '1.7.32'
     log4jVersion = '2.14.1'
 
     // Benchmarking
@@ -18,11 +18,11 @@ ext {
     // Code Generation
     lombokVersion = '1.18.20'
     tomcatAnnotationsVersion = '6.0.53'
-    jetbrainsAnnotationsVersion = '20.1.0'
+    jetbrainsAnnotationsVersion = '22.0.0'
 
     // Testing
-    junitJupiterVersion = '5.7.1'
-    assertjVersion = '3.19.0'
+    junitJupiterVersion = '5.8.2'
+    assertjVersion = '3.21.0'
 }
 
 buildscript {
@@ -38,5 +38,5 @@ subprojects {
 }
 
 wrapper {
-    gradleVersion = "7.2"
+    gradleVersion = "7.3.1"
 }
