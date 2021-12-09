@@ -1,6 +1,7 @@
 plugins {
     id 'idea'
     id 'java-library'
+    id 'maven-publish'
     id "io.github.krakowski.jextract" version "0.2.2"
 }
 
@@ -15,6 +16,22 @@ version = getProperty('projectVersion')
 
 tasks.withType(Javadoc) {
     failOnError false
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
 
 dependencies {
@@ -302,3 +319,5 @@ jextract {
         ]
     }
 }
+
+apply from: 'publish.gradle'
