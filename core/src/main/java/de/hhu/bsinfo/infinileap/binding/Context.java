@@ -138,7 +138,7 @@ public class Context extends NativeObject implements AutoCloseable {
             }
 
 
-            var remoteKey = MemorySegment.ofAddressNative(
+            var remoteKey = MemorySegment.ofAddress(
                     pointer.get(ValueLayout.ADDRESS, 0L),
                     size.get(ValueLayout.JAVA_LONG, 0L),
                     ResourceScope.globalScope()

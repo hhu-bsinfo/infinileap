@@ -7,7 +7,7 @@ import static org.unix.Linux.*;
 
 public class NativeError {
 
-    private static final MemorySegment ERRNO = MemorySegment.ofAddressNative(
+    private static final MemorySegment ERRNO = MemorySegment.ofAddress(
             __errno_location(), ValueLayout.ADDRESS.byteSize(), ResourceScope.globalScope());
 
     public static final int OK = 0;

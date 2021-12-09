@@ -16,7 +16,7 @@ public class MemoryUtil {
 
 
     public static MemorySegment wrap(MemoryAddress address, long capacity) {
-        return MemorySegment.ofAddressNative(address, capacity, ResourceScope.globalScope());
+        return MemorySegment.ofAddress(address, capacity, ResourceScope.globalScope());
     }
 
     public static MemorySegment allocate(MemoryLayout layout) {
