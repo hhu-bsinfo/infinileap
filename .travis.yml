@@ -1,6 +1,8 @@
 os: linux
 dist: focal
 language: java
+jdk:
+  - openjdk17
 
 addons:
   apt:
@@ -13,6 +15,8 @@ addons:
 
 stages:
   - name: build
+  - name: release
+    if: tag IS present
 
 jobs:
   include:
@@ -21,7 +25,29 @@ jobs:
         - wget -O panama.zip https://coconucos.cs.hhu.de/forschung/jdk/latest.zip
         - unzip panama.zip -d /tmp
         - echo "org.gradle.java.installations.paths=/tmp/panama/" > gradle.properties
+        - echo "org.gradle.jvmargs=--add-modules jdk.incubator.foreign" >> gradle.properties
       install:
         - ./gradlew core:assemble -x core:test
       script:
         - ./gradlew core:build -x core:test
+    - stage: release
+      before_install:
+        - wget -O panama.zip https://coconucos.cs.hhu.de/forschung/jdk/latest.zip
+        - unzip panama.zip -d /tmp
+        - echo "org.gradle.java.installations.paths=/tmp/panama/" > gradle.properties
+        - echo "org.gradle.jvmargs=--add-modules jdk.incubator.foreign" >> gradle.properties
+      install:
+        - ./gradlew core:assemble -x core:test
+      script:
+        - ./gradlew publish -Dgpr.user=${GPR_USER} -Dgpr.token=${GPR_TOKEN} -Drelease=true
+        - export PUBLISH=true
+
+deploy:
+  provider: releases
+  token: ${ACCESS_TOKEN}
+  overwrite: true
+  on:
+    repo: hhu-bsinfo/infinileap
+    branch: master
+    tags: true
+    condition: ${PUBLISH} = true
