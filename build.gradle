@@ -10,7 +10,7 @@ ext {
 
     // Logging
     slf4jVersion = '1.7.32'
-    log4jVersion = '2.14.1'
+    log4jVersion = '2.17.0'
 
     // Benchmarking
     jmhVersion = '1.29'
@@ -38,5 +38,5 @@ subprojects {
 }
 
 wrapper {
-    gradleVersion = "7.3.1"
+    gradleVersion = "7.3.2"
 }
