@@ -9,8 +9,10 @@ addons:
     sources:
       - sourceline: deb http://coconucos.cs.uni-duesseldorf.de/forschung/apt/ stable main
         key_url: http://coconucos.cs.uni-duesseldorf.de/forschung/apt/apt-key.asc
+      - sourceline: deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main
+        key_url: https://apt.llvm.org/llvm-snapshot.gpg.key
     packages:
-      - libllvm11
+      - llvm-13
       - ucx
 
 stages:
