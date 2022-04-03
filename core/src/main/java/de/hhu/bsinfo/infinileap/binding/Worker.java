@@ -147,6 +147,10 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
         }
     }
 
+    public Context context() {
+        return context;
+    }
+
     @Override
     public void close() {
         ucp_worker_destroy(segment());

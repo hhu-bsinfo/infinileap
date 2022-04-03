@@ -178,6 +178,14 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         return super.address();
     }
 
+    public Worker worker() {
+        return worker;
+    }
+
+    public Context context() {
+        return worker.context();
+    }
+
     @Override
     public void close() {
         ucp_ep_destroy(segment());
