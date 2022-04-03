@@ -154,7 +154,6 @@ public class InfinileapEngine implements ConnectionHandler {
             channelMap.put(endpoint.address(), channel);
 
             log.info("Accepted new connection from {}", request.getClientAddress());
-            log.info("Remote client id is {}", Long.toHexString(request.getClientIdentifier()));
         } catch (ControlException e) {
             log.error("Accepting connection failed", e);
         } catch (ArithmeticException e) {

@@ -1,6 +1,7 @@
 package de.hhu.infinileap.engine.message;
 
 import de.hhu.bsinfo.infinileap.binding.*;
+import de.hhu.infinileap.engine.channel.Channel;
 import de.hhu.infinileap.engine.util.ChannelResolver;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -43,7 +44,7 @@ public class HandlerList implements Iterable<HandlerAdapter> {
         try {
             var caller = MethodHandles.lookup();
             var methodHandle = caller.unreflect(method);
-            var type = MethodType.methodType(void.class, MemorySegment.class, MemorySegment.class, Endpoint.class);
+            var type = MethodType.methodType(void.class, MemorySegment.class, MemorySegment.class, Channel.class);
             var site = LambdaMetafactory.metafactory(
                     caller,
                     "onMessage",

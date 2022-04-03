@@ -42,6 +42,7 @@ dependencies {
 
     // Infinileap
     implementation project(':core')
+    implementation project(':engine')
 
     // Command Line Application Framework
     implementation "info.picocli:picocli:${picocliVersion}"

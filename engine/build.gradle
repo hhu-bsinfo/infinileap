@@ -3,8 +3,8 @@ plugins {
     id 'idea'
     id 'eclipse'
 
-    // Gradle application plugin
-    id 'application'
+    // Gradle java-library plugin
+    id 'java-library'
 
     // Jextract plugin
     id "io.github.krakowski.jextract" version "0.2.3"
@@ -20,19 +20,6 @@ group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 jextract.enabled = false
-
-application.applicationDefaultJvmArgs += [ '--enable-native-access=ALL-UNNAMED' ]
-
-project.startScripts.with {
-    doLast {
-        // The HotSpot VM uses the SIGSEGV signal for its own purposes,
-        // which may interfere with signal handlers installed by the ucx library.
-        // Therefore, we turn off signal handlers with this (ugly) hack.
-        unixScript.text = unixScript.text.replaceFirst('exec ', 'UCX_ERROR_SIGNALS="" exec ')
-    }
-}
-
-mainClassName = 'de.hhu.infinileap.engine.Application'
 
 dependencies {
 
