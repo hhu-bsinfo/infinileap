@@ -21,8 +21,8 @@ public class MemoryUtil {
         return MemorySegment.ofAddress(address, capacity, ResourceScope.globalScope());
     }
 
-    public static MemorySegment allocate(MemoryLayout layout) {
-        return MemorySegment.allocateNative(layout, ResourceScope.newImplicitScope());
+    public static MemorySegment allocate(MemoryLayout layout, ResourceScope scope) {
+        return MemorySegment.allocateNative(layout, scope);
     }
 
     public static void dump(MemoryAddress address, long length) {

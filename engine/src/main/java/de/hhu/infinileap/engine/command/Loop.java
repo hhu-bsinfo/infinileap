@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -75,9 +76,17 @@ public class Loop implements Callable<Void> {
         body.set(ValueLayout.JAVA_LONG, 0L, 0L);
 
         var message = new Message(header, body);
-
         var channel = new Channel(endpoint);
-        channel.send(IDENTIFIER, message).get();
+
+        CompletableFuture.allOf(
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message),
+                channel.send(IDENTIFIER, message)
+        ).get();
 
         log.info("SENT");
     }
