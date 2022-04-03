@@ -4,12 +4,10 @@ import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.ShortFlag;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
 import org.unix.*;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
 
 import static org.unix.Linux.*;
 
@@ -42,6 +40,13 @@ public class NativeInetSocketAddress extends NativeObject {
         }
     }
 
+    private short getPort() {
+        return switch (this.family) {
+            case INET4 -> ntohs(sockaddr_in.sin_port$get(segment()));
+            case INET6 -> ntohs(sockaddr_in6.sin6_port$get(segment()));
+        };
+    }
+
     private NativeInetSocketAddress setPort(short port) {
         var value = htons(port);
         switch (this.family) {
@@ -59,6 +64,13 @@ public class NativeInetSocketAddress extends NativeObject {
 
         sockaddr_in6.sin6_scope_id$set(segment(), scopeId);
         return this;
+    }
+
+    private byte[] getAddressBytes() {
+        return switch (this.family) {
+            case INET4 -> sockaddr_in.sin_addr$slice(segment()).toArray(ValueLayout.OfByte.JAVA_BYTE);
+            case INET6 -> sockaddr_in6.sin6_addr$slice(segment()).toArray(ValueLayout.OfByte.JAVA_BYTE);
+        };
     }
 
     private NativeInetSocketAddress setAddressBytes(byte[] bytes) {
@@ -109,6 +121,18 @@ public class NativeInetSocketAddress extends NativeObject {
 
         AddressFamily(short value) {
             this.value = value;
+        }
+
+        public static AddressFamily of(short family) {
+            if (family == INET6.value) {
+                return INET6;
+            }
+
+            if (family == INET4.value) {
+                return INET4;
+            }
+
+            throw new IllegalArgumentException("Unknown address family " + family);
         }
 
         @Override

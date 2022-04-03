@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.multiplex;
 
 import de.hhu.bsinfo.infinileap.util.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.util.EventFileDescriptor.OpenMode;
+import de.hhu.bsinfo.infinileap.util.ThrowingConsumer;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -71,11 +72,11 @@ public class EpollSelector<T> {
         return selectionKey;
     }
 
-    public void select(Consumer<SelectionKey<T>> action) throws IOException {
-        select(action, DURATION_INDEFINITE);
+    public int select(ThrowingConsumer<SelectionKey<T>, IOException> action) throws IOException {
+        return select(action, DURATION_INDEFINITE);
     }
 
-    public void select(Consumer<SelectionKey<T>> action, Duration duration) throws IOException {
+    public int select(ThrowingConsumer<SelectionKey<T>, IOException> action, Duration duration) throws IOException {
         var count = epoll.wait(duration);
         for (int i = 0; i < count; i++) {
 
@@ -96,6 +97,8 @@ public class EpollSelector<T> {
             // Perform user action on selection key
             action.accept(selectionKey);
         }
+
+        return count;
     }
 
     public void wake() throws IOException {

@@ -5,10 +5,14 @@ import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 
+import java.util.Set;
+
 import static org.openucx.OpenUcx.*;
 
 
 public class ContextParameters extends NativeObject {
+
+    private static final int MULTITHREADING_ON = 1;
 
     public ContextParameters() {
         this(ResourceScope.newImplicitScope());
@@ -22,9 +26,19 @@ public class ContextParameters extends NativeObject {
         return ucp_params_t.features$get(segment());
     }
 
+    public ContextParameters setFeatures(Set<Feature> features) {
+        return setFeatures(features.toArray(Feature[]::new));
+    }
+
     public ContextParameters setFeatures(Feature... features) {
         ucp_params_t.features$set(segment(), BitMask.longOf(features));
         addFieldMask(Field.FEATURES);
+        return this;
+    }
+
+    public ContextParameters enableMultiThreading() {
+        ucp_params_t.mt_workers_shared$set(segment(), MULTITHREADING_ON);
+        addFieldMask(Field.SHARED_WORKERS);
         return this;
     }
 

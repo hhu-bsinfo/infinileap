@@ -12,8 +12,11 @@ public class Context extends NativeObject implements AutoCloseable {
     private static final int UCP_MAJOR_VERSION = UCP_API_MAJOR();
     private static final int UCP_MINOR_VERSION = UCP_API_MINOR();
 
-    /* package-private */ Context(MemoryAddress address) {
+    private final ContextParameters contextParameters;
+
+    /* package-private */ Context(MemoryAddress address, ContextParameters contextParameters) {
         super(address, ValueLayout.ADDRESS);
+        this.contextParameters = contextParameters;
     }
 
     public static Context initialize(ContextParameters parameters) throws ControlException {
@@ -42,7 +45,7 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Context(pointer.get(ValueLayout.ADDRESS, 0L));
+            return new Context(pointer.get(ValueLayout.ADDRESS, 0L), parameters);
         }
     }
 
@@ -59,7 +62,7 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Worker(pointer.get(ValueLayout.ADDRESS, 0L));
+            return new Worker(pointer.get(ValueLayout.ADDRESS, 0L), this, parameters);
         }
     }
 
@@ -96,8 +99,10 @@ public class Context extends NativeObject implements AutoCloseable {
         }
     }
 
-    public ContextAttributes query() throws ControlException {
+    public ContextAttributes query(ContextAttributes.Field... fields) throws ControlException {
         var attributes = new ContextAttributes();
+        attributes.setFields(fields);
+
         var status = ucp_context_query(
                 Parameter.of(this),
                 Parameter.of(attributes)

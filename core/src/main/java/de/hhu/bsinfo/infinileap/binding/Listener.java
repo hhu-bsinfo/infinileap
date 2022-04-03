@@ -6,10 +6,13 @@ import jdk.incubator.foreign.ValueLayout;
 
 import static org.openucx.OpenUcx.ucp_listener_destroy;
 
-public class Listener extends NativeObject implements AutoCloseable{
+public class Listener extends NativeObject implements AutoCloseable {
 
-    /* package-private */ Listener(MemoryAddress address) {
+    private final ListenerParameters parameters;
+
+    /* package-private */ Listener(MemoryAddress address, ListenerParameters parameters) {
         super(address, ValueLayout.ADDRESS);
+        this.parameters = parameters;
     }
 
     @Override

@@ -1,6 +1,7 @@
 // I/O Multiplexing
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/timerfd.h>
 
 // File descriptor utilities
 #include <fcntl.h>

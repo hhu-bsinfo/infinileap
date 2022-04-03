@@ -3,6 +3,7 @@ package de.hhu.bsinfo.infinileap.multiplex;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 import de.hhu.bsinfo.infinileap.util.NativeError;
+import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 
@@ -74,19 +75,19 @@ public class Epoll {
         this.pollSegment = MemorySegment.allocateNative(pollSize * epoll_event.$LAYOUT().byteSize(), scope);
     }
 
-    void add(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {
+    public void add(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {
         control(fileDescriptor, OPERATION_ADD, eventTypes);
     }
 
-    void modify(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {
+    public void modify(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {
         control(fileDescriptor, OPERATION_MODIFY, eventTypes);
     }
 
-    void delete(FileDescriptor fileDescriptor) throws IOException {
+    public void delete(FileDescriptor fileDescriptor) throws IOException {
         control(fileDescriptor, OPERATION_DELETE);
     }
 
-    int wait(Duration duration) throws IOException {
+    public int wait(Duration duration) throws IOException {
         var count = epoll_wait(epfd.intValue(), pollSegment, POLL_SIZE, (int) duration.toMillis());
         if (count == NativeError.ERROR) {
             throw new IOException(NativeError.getMessage());
@@ -95,18 +96,22 @@ public class Epoll {
         return count;
     }
 
-    int getEvents(long index) {
+    public int getEvents(long index) {
         return epoll_event.events$get(pollSegment, index);
     }
 
-    long getData(long index) {
+    public long getData(long index) {
         return pollSegment.get(ValueLayout.JAVA_LONG, index * LAYOUT_SIZE + DATA_OFFSET);
     }
 
     private void control(FileDescriptor fileDescriptor, int operation, EventType... eventTypes) throws IOException {
+        control(fileDescriptor, operation, fileDescriptor.intValue(), eventTypes);
+    }
+
+    private void control(FileDescriptor fileDescriptor, int operation, long data, EventType... eventTypes) throws IOException {
         // Initialize event
         setEvents(eventSegment, eventTypes);
-        setData(eventSegment, fileDescriptor.intValue());
+        setData(eventSegment, data);
 
         // Execute operation
         if (epoll_ctl(epfd.intValue(), operation, fileDescriptor.intValue(), eventSegment) != NativeError.OK) {
@@ -114,8 +119,12 @@ public class Epoll {
         }
     }
 
-    static Epoll create() throws IOException {
-        var epfd = epoll_create(DEFAULT_SIZE);
+    public static Epoll create() throws IOException {
+        return create(DEFAULT_SIZE);
+    }
+
+    public static Epoll create(int size) throws IOException {
+        var epfd = epoll_create(size);
         if (epfd == NativeError.ERROR) {
             throw new IOException(NativeError.getMessage());
         }

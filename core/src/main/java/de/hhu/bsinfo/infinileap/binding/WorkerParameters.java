@@ -6,6 +6,7 @@ import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
+import static org.openucx.OpenUcx.UCP_WORKER_PARAM_FIELD_EVENTS;
 
 
 public class WorkerParameters extends NativeObject {
@@ -21,6 +22,12 @@ public class WorkerParameters extends NativeObject {
     public WorkerParameters setThreadMode(ThreadMode threadMode) {
         ucp_worker_params_t.thread_mode$set(segment(), threadMode.value());
         addFieldMask(Field.THREAD_MODE);
+        return this;
+    }
+
+    public WorkerParameters setClientId(long clientId) {
+        ucp_worker_params_t.client_id$set(segment(), clientId);
+        addFieldMask(Field.CLIENT_ID);
         return this;
     }
 
@@ -41,7 +48,8 @@ public class WorkerParameters extends NativeObject {
         USER_DATA(UCP_WORKER_PARAM_FIELD_USER_DATA()),
         CPU_MASK(UCP_WORKER_PARAM_FIELD_CPU_MASK()),
         EVENT_FD(UCP_WORKER_PARAM_FIELD_EVENT_FD()),
-        EVENTS(UCP_WORKER_PARAM_FIELD_EVENTS());
+        EVENTS(UCP_WORKER_PARAM_FIELD_EVENTS()),
+        CLIENT_ID(UCP_WORKER_PARAM_FIELD_CLIENT_ID());
 
         private final long value;
 

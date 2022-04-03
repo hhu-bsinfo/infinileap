@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 import jdk.incubator.foreign.*;
 
@@ -8,10 +9,16 @@ import static org.openucx.Communication.ucp_request_free;
 import static org.openucx.OpenUcx.*;
 import static org.openucx.Communication.ucp_tag_recv_nbx;
 
-public class Worker extends NativeObject implements AutoCloseable {
+public class Worker extends NativeObject implements Watchable, AutoCloseable {
 
-    /* package-private */ Worker(MemoryAddress address) {
+    private final Context context;
+
+    private final WorkerParameters workerParameters;
+
+    /* package-private */ Worker(MemoryAddress address, Context context, WorkerParameters workerParameters) {
         super(address, ValueLayout.ADDRESS);
+        this.context = context;
+        this.workerParameters = workerParameters;
     }
 
     public WorkerAddress getAddress() throws ControlException {
@@ -61,7 +68,7 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Endpoint(pointer.get(ValueLayout.ADDRESS, 0L));
+            return new Endpoint(pointer.get(ValueLayout.ADDRESS, 0L), this, parameters);
         }
     }
 
@@ -78,7 +85,7 @@ public class Worker extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Listener(pointer.get(ValueLayout.ADDRESS, 0L));
+            return new Listener(pointer.get(ValueLayout.ADDRESS, 0L), parameters);
         }
     }
 
@@ -143,5 +150,14 @@ public class Worker extends NativeObject implements AutoCloseable {
     @Override
     public void close() {
         ucp_worker_destroy(segment());
+    }
+
+    @Override
+    public FileDescriptor descriptor() {
+        try {
+            return fileDescriptor();
+        } catch (ControlException e) {
+            return null;
+        }
     }
 }

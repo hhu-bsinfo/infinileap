@@ -1,8 +1,10 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import jdk.incubator.foreign.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.text.AttributedCharacterIterator;
 
 public class MemoryUtil {
 
@@ -23,11 +25,38 @@ public class MemoryUtil {
         return MemorySegment.allocateNative(layout, ResourceScope.newImplicitScope());
     }
 
-    public static void dump(MemorySegment segment) {
-        dump(segment, System.out);
+    public static void dump(MemoryAddress address, long length) {
+        dump(address, length, null);
     }
 
-    public static void dump(MemorySegment segment, PrintStream stream) {
+    public static void dump(MemoryAddress address, long length, String title) {
+        dump(address, length, title, System.out);
+    }
+
+    public static void dump(MemoryAddress address, long length, String title, PrintStream stream) {
+        try (var scope = ResourceScope.newConfinedScope()) {
+            dump(MemorySegment.ofAddress(address, length, scope), title, stream);
+        }
+    }
+
+    public static void dump(MemorySegment segment) {
+        dump(segment, null);
+    }
+
+    public static void dump(MemorySegment segment, @Nullable String title) {
+        dump(segment, title, System.out);
+    }
+
+    public static void dump(MemorySegment segment, @Nullable String title, PrintStream stream) {
+
+        stream.println();
+
+        if (title != null) {
+            stream.println(LINE_SEPARATOR);
+            stream.println(" ".repeat((LINE_SEPARATOR.length() - title.length()) / 2).concat(title));
+            stream.println(LINE_SEPARATOR);
+        }
+
         var bytes = segment.byteSize();
         var offset = 0L;
 
@@ -73,10 +102,12 @@ public class MemoryUtil {
             offset += length;
             bytes -= length;
         }
+
+        stream.println();
     }
 
     private static char sanitize(byte value) {
-        if (value < 0x40 || value > 0x7E) {
+        if (value < 0x30 || value > 0x7E) {
             return '.';
         }
 

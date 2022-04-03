@@ -103,7 +103,8 @@ public abstract class CommunicationDemo implements Runnable {
         );
 
         var workerParameters = new WorkerParameters()
-                .setThreadMode(ThreadMode.SINGLE);
+                .setThreadMode(ThreadMode.SINGLE)
+                .setClientId(0x42L);
 
         log.info("Creating worker");
 
@@ -121,7 +122,8 @@ public abstract class CommunicationDemo implements Runnable {
 
     private void initializeClient() throws ControlException, InterruptedException {
         var endpointParameters = new EndpointParameters()
-                .setRemoteAddress(serverAddress);
+                .setRemoteAddress(serverAddress)
+                .enableClientIdentifier();
 
         log.info("Connecting to {}", serverAddress);
         endpoint =  worker.createEndpoint(endpointParameters);
@@ -141,7 +143,8 @@ public abstract class CommunicationDemo implements Runnable {
         Requests.await(worker, connectionRequest);
 
         var endpointParameters = new EndpointParameters()
-                .setConnectionRequest(connectionRequest.get());
+                .setConnectionRequest(connectionRequest.get())
+                .enableClientIdentifier();
 
         endpoint = worker.createEndpoint(endpointParameters);
         onServerReady(context, worker, endpoint);

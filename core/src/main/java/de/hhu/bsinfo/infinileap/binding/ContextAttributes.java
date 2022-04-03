@@ -20,24 +20,16 @@ public class ContextAttributes extends NativeObject {
         super(ucp_context_attr_t.allocate(scope));
     }
 
-    public OptionalLong requestSize() {
-        if (hasField(Field.REQUEST_SIZE)) {
-            return OptionalLong.of(ucp_context_attr_t.request_size$get(segment()));
-        }
-
-        return OptionalLong.empty();
+    public long requestSize() {
+        return ucp_context_attr_t.request_size$get(segment());
     }
 
-    public Optional<ThreadMode> threadMode() {
-        if (hasField(Field.THREAD_MODE)) {
-            return Optional.of(ThreadMode.from(ucp_context_attr_t.thread_mode$get(segment())));
-        }
-
-        return Optional.empty();
+    public ThreadMode threadMode() {
+        return ThreadMode.from(ucp_context_attr_t.thread_mode$get(segment()));
     }
 
-    private boolean hasField(Field field) {
-        return BitMask.isSet(ucp_context_attr_t.field_mask$get(segment()), field);
+    void setFields(Field... fields) {
+        ucp_context_attr_t.field_mask$set(segment(), BitMask.longOf(fields));
     }
 
     public enum Field implements LongFlag {

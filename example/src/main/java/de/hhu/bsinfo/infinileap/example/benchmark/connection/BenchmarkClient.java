@@ -118,8 +118,8 @@ public class BenchmarkClient implements AutoCloseable {
     private final ResourcePool resources = new ResourcePool();
 
     private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {
-        this.context = resources.push(() -> context);
-        this.worker = resources.push(() -> worker);
+        this.context = resources.push(context);
+        this.worker = resources.push(worker);
         this.endpoint = endpoint;
     }
 

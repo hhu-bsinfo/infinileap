@@ -7,6 +7,7 @@ import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.openucx.Communication.ucp_request_check_status;
 import static org.openucx.Communication.ucp_request_free;
 
+@Slf4j
 public class Requests {
 
     public enum State {
@@ -53,6 +55,7 @@ public class Requests {
     public static void await(Worker worker, CommunicationBarrier barrier) throws InterruptedException {
         while (!barrier.isReleased()) {
             if (worker.progress() == WorkerProgress.IDLE) {
+                log.info("Sleeping until next event");
                 worker.await();
             }
 

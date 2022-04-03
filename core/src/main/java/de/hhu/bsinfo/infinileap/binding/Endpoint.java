@@ -13,8 +13,14 @@ public class Endpoint extends NativeObject implements AutoCloseable {
 
     private static final long SINGLE_ELEMENT = 1L;
 
-    /* package-private */ Endpoint(MemoryAddress address) {
+    private final Worker worker;
+
+    private final EndpointParameters endpointParameters;
+
+    /* package-private */ Endpoint(MemoryAddress address, Worker worker, EndpointParameters endpointParameters) {
         super(address, ValueLayout.ADDRESS);
+        this.worker = worker;
+        this.endpointParameters = endpointParameters;
     }
 
     public long sendTagged(NativeObject object, Tag tag) {
@@ -58,8 +64,8 @@ public class Endpoint extends NativeObject implements AutoCloseable {
                 identifier.value(),
                 header,
                 header.byteSize(),
-                data.address(),
-                data.byteSize(),
+                data == null ? MemoryAddress.NULL : data.address(),
+                data == null ? 0L : data.byteSize(),
                 Parameter.of(parameters)
         );
     }
@@ -166,6 +172,10 @@ public class Endpoint extends NativeObject implements AutoCloseable {
                 Parameter.of(this),
                 Parameter.of(parameters)
         );
+    }
+
+    public MemoryAddress address() {
+        return super.address();
     }
 
     @Override

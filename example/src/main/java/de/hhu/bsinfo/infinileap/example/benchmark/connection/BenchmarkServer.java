@@ -141,8 +141,8 @@ public class BenchmarkServer {
 
     private void initialize() throws ControlException, CloseException, InterruptedException {
         var connectionResources = ConnectionResources.create();
-        context = resources.push(connectionResources::context);
-        worker = resources.push(connectionResources::worker);
+        context = resources.push(connectionResources.context());
+        worker = resources.push(connectionResources.worker());
         var connectionRequest = accept();
 
         log.trace("Accepted new client connection");

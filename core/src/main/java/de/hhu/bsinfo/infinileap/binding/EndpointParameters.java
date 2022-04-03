@@ -38,7 +38,7 @@ public class EndpointParameters extends NativeObject {
         ucs_sock_addr_t.addrlen$set(sockaddr, remoteAddress.getLength());
 
         addFieldMask(Field.SOCK_ADDR);
-        setFlags(Flag.CLIENT_SERVER);
+        addFlags(Flag.CLIENT_SERVER);
         return this;
     }
 
@@ -56,6 +56,11 @@ public class EndpointParameters extends NativeObject {
         return this;
     }
 
+    public EndpointParameters enableClientIdentifier() {
+        addFlags(Flag.SEND_CLIENT_ID);
+        return this;
+    }
+
     private long getFieldMask() {
         return ucp_ep_params_t.field_mask$get(segment());
     }
@@ -68,8 +73,12 @@ public class EndpointParameters extends NativeObject {
         ucp_ep_params_t.field_mask$set(segment(), BitMask.longOf(fields) | getFieldMask());
     }
 
-    private void setFlags(Flag... flags) {
-        ucp_ep_params_t.flags$set(segment(), BitMask.intOf(flags));
+    private int getFlags() {
+        return ucp_ep_params_t.flags$get(segment());
+    }
+
+    private void addFlags(Flag... flags) {
+        ucp_ep_params_t.flags$set(segment(), BitMask.intOf(flags) | getFlags());
         addFieldMask(Field.FLAGS);
     }
 
@@ -96,7 +105,8 @@ public class EndpointParameters extends NativeObject {
 
     public enum Flag implements IntegerFlag {
         CLIENT_SERVER(UCP_EP_PARAMS_FLAGS_CLIENT_SERVER()),
-        NO_LOOPBACK(UCP_EP_PARAMS_FLAGS_NO_LOOPBACK());
+        NO_LOOPBACK(UCP_EP_PARAMS_FLAGS_NO_LOOPBACK()),
+        SEND_CLIENT_ID(UCP_EP_PARAMS_FLAGS_SEND_CLIENT_ID());
 
         private final int value;
 

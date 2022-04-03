@@ -71,6 +71,11 @@ public class RequestParameters extends NativeObject {
         return this;
     }
 
+    public RequestParameters disableImmediateCompletion() {
+        addAttributeMask(Attribute.NO_IMMEDIATE_COMPLETION);
+        return this;
+    }
+
     public RequestParameters setFlags(Flag... flags) {
         ucp_request_param_t.flags$set(segment(), BitMask.intOf(flags));
         addAttributeMask(Attribute.FLAGS);
@@ -95,7 +100,12 @@ public class RequestParameters extends NativeObject {
         REQUEST(UCP_OP_ATTR_FIELD_REQUEST()),
         REPLY_BUFFER(UCP_OP_ATTR_FIELD_REPLY_BUFFER()),
         USER_DATA(UCP_OP_ATTR_FIELD_USER_DATA()),
-        FLAGS(UCP_OP_ATTR_FIELD_FLAGS());
+        FLAGS(UCP_OP_ATTR_FIELD_FLAGS()),
+        MEMORY_TYPE(UCP_OP_ATTR_FIELD_MEMORY_TYPE()),
+        RECEIVE_INFO(UCP_OP_ATTR_FIELD_RECV_INFO()),
+        NO_IMMEDIATE_COMPLETION(UCP_OP_ATTR_FLAG_NO_IMM_CMPL()),
+        FAST_COMPLETION(UCP_OP_ATTR_FLAG_FAST_CMPL()),
+        FORCE_IMMEDIATE_COMPLETION(UCP_OP_ATTR_FLAG_FORCE_IMM_CMPL());
 
 
         private final int value;

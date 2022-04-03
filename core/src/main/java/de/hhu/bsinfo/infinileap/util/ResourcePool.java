@@ -7,12 +7,7 @@ public class ResourcePool implements AutoCloseable {
 
     private final Stack<AutoCloseable> resources = new Stack<>();
 
-    public void push(AutoCloseable resource) {
-        resources.push(resource);
-    }
-
-    public <T extends AutoCloseable> T push(Supplier<T> supplier) {
-        var resource = supplier.get();
+    public <T extends AutoCloseable> T push(T resource) {
         resources.push(resource);
         return resource;
     }

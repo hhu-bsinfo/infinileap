@@ -3,14 +3,13 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.example.util.Requests;
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
-import java.time.Duration;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -20,27 +19,43 @@ import java.util.concurrent.atomic.AtomicBoolean;
 )
 public class ActiveMessage extends CommunicationDemo {
 
-    private static final Identifier IDENTIFIER = new Identifier(0x01);
+    private static final Identifier IDENTIFIER = Identifier.of(0x01);
 
-    private final AtomicBoolean messageReceived = new AtomicBoolean(false);
+    private final AtomicBoolean lastMessageReceived = new AtomicBoolean(false);
+
+    @CommandLine.Option(
+            names = {"-n", "--count"},
+            description = "The number of messages to send.")
+    private int count = 1;
 
     @Override
     protected void onClientReady(Context context, Worker worker, Endpoint endpoint) throws ControlException, InterruptedException {
 
-        // Wait one second so that the server has registered its handler
-        Thread.sleep(Duration.ofSeconds(1).toMillis());
+        // Allocate
+        var message = MemorySegment.ofArray(
+                "Hello World".getBytes(StandardCharsets.US_ASCII)
+        );
 
         // Create header and data segments
         final var header = MemorySegment.allocateNative(4, scope);
-        final var data = MemorySegment.allocateNative(16, scope);
+        final var data = MemorySegment.allocateNative(message.byteSize(), scope);
+
+        // Copy message into native segment
+        MemorySegment.copy(message, 0L, data, 0L, message.byteSize());
 
         // Set data within segments
         header.set(ValueLayout.JAVA_INT, 0L, 42);
-        data.set(ValueLayout.JAVA_LONG, 0L, 42L);
 
         // Invoke remote handler
+        for (var i = 0; i < count; i++) {
+            Requests.await(worker, endpoint.sendActive(IDENTIFIER, header, data, new RequestParameters()
+                    .setDataType(DataType.CONTIGUOUS_8_BIT)));
+        }
+
+        // Send last message
+        header.set(ValueLayout.JAVA_INT, 0L, 0xDEAD);
         Requests.await(worker, endpoint.sendActive(IDENTIFIER, header, data, new RequestParameters()
-                        .setDataType(DataType.CONTIGUOUS_8_BIT)));
+                .setDataType(DataType.CONTIGUOUS_8_BIT)));
     }
 
     @Override
@@ -49,20 +64,27 @@ public class ActiveMessage extends CommunicationDemo {
         // Register local handler
         var params = new HandlerParameters()
                 .setId(IDENTIFIER)
-                .setCallback(this::onActiveMessage)
+                .setCallback(callback)
                 .setFlags(HandlerParameters.Flag.WHOLE_MESSAGE);
 
         worker.setHandler(params);
 
-        while (!messageReceived.get()) {
+        while (!lastMessageReceived.get()) {
             worker.progress();
         }
     }
 
-    private Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress params) {
-        log.info("Received integer value {} in header", header.get(ValueLayout.JAVA_INT, 0L));
-        log.info("Received long value {} in body", data.get(ValueLayout.JAVA_INT, 0L));
-        messageReceived.set(true);
-        return Status.OK;
-    }
+    private final ActiveMessageCallback callback = new ActiveMessageCallback() {
+
+        @Override
+        protected Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress parameters) {
+            log.info("Received integer value {} in header", header.get(ValueLayout.JAVA_INT, 0L));
+            log.info("Received long value {} in body", data.get(ValueLayout.JAVA_INT, 0L));
+            if (header.get(ValueLayout.JAVA_INT, 0L) == 0xDEAD) {
+                lastMessageReceived.set(true);
+            }
+
+            return Status.OK;
+        }
+    };
 }

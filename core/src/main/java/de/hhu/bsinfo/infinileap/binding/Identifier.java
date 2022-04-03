@@ -4,11 +4,15 @@ public class Identifier {
 
     private final int value;
 
-    public Identifier(int value) {
+    private Identifier(int value) {
         this.value = value;
     }
 
     int value() {
         return value;
+    }
+
+    public static Identifier of(int value) {
+        return new Identifier(value);
     }
 }
