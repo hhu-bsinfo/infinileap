@@ -12,11 +12,18 @@ public class Context extends NativeObject implements AutoCloseable {
     private static final int UCP_MAJOR_VERSION = UCP_API_MAJOR();
     private static final int UCP_MINOR_VERSION = UCP_API_MINOR();
 
+    private static final ContextAttributes.Field[] QUERY_FIELDS = {
+        ContextAttributes.Field.REQUEST_SIZE, ContextAttributes.Field.THREAD_MODE
+    };
+
     private final ContextParameters contextParameters;
 
-    /* package-private */ Context(MemoryAddress address, ContextParameters contextParameters) {
+    private final ContextAttributes attributes;
+
+    /* package-private */ Context(MemoryAddress address, ContextParameters contextParameters, ContextAttributes attributes) {
         super(address, ValueLayout.ADDRESS);
         this.contextParameters = contextParameters;
+        this.attributes = attributes;
     }
 
     public static Context initialize(ContextParameters parameters) throws ControlException {
@@ -45,7 +52,8 @@ public class Context extends NativeObject implements AutoCloseable {
                 throw new ControlException(status);
             }
 
-            return new Context(pointer.get(ValueLayout.ADDRESS, 0L), parameters);
+            var contextAddress = pointer.get(ValueLayout.ADDRESS, 0L);
+            return new Context(contextAddress, parameters, query(contextAddress));
         }
     }
 
@@ -99,22 +107,6 @@ public class Context extends NativeObject implements AutoCloseable {
         }
     }
 
-    public ContextAttributes query(ContextAttributes.Field... fields) throws ControlException {
-        var attributes = new ContextAttributes();
-        attributes.setFields(fields);
-
-        var status = ucp_context_query(
-                Parameter.of(this),
-                Parameter.of(attributes)
-        );
-
-        if (Status.isNot(status, Status.OK)) {
-            throw new ControlException(status);
-        }
-
-        return attributes;
-    }
-
     public void printInfo() {
         ucp_context_print_info(
                 Parameter.of(this),
@@ -155,7 +147,31 @@ public class Context extends NativeObject implements AutoCloseable {
         }
     }
 
+    public long requestSize() {
+        return attributes.requestSize();
+    }
+
+    public ThreadMode threadMode() {
+        return attributes.threadMode();
+    }
+
     public static String getVersion() {
         return ucp_get_version_string().getUtf8String(0L);
+    }
+
+    private static ContextAttributes query(MemoryAddress contextAddress) throws ControlException {
+        var attributes = new ContextAttributes();
+        attributes.setFields(QUERY_FIELDS);
+
+        var status = ucp_context_query(
+                contextAddress,
+                Parameter.of(attributes)
+        );
+
+        if (Status.isNot(status, Status.OK)) {
+            throw new ControlException(status);
+        }
+
+        return attributes;
     }
 }

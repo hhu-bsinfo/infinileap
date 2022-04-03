@@ -43,6 +43,10 @@ public class NativeObject {
         return baseAddress;
     }
 
+    protected ResourceScope scope() {
+        return segment.scope();
+    }
+
     protected final MemorySegment segment() {
         return segment;
     }
@@ -53,9 +57,5 @@ public class NativeObject {
 
     public final void hexDump() {
         MemoryUtil.dump(segment);
-    }
-
-    public ResourceScope scope() {
-        return segment.scope();
     }
 }
