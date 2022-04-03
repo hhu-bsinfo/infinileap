@@ -25,6 +25,10 @@ public class MemoryUtil {
         return MemorySegment.allocateNative(layout, scope);
     }
 
+    public static MemorySegment allocate(long size, MemoryAlignment alignment, ResourceScope scope) {
+        return MemorySegment.allocateNative(size, alignment.value(), scope);
+    }
+
     public static void dump(MemoryAddress address, long length) {
         dump(address, length, null);
     }
