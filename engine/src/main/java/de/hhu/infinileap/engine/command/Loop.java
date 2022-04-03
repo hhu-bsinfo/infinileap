@@ -70,15 +70,14 @@ public class Loop implements Callable<Void> {
     }
 
     private void runClient(InfinileapEngine engine) throws ControlException, InterruptedException, ExecutionException {
-        var endpoint = engine.connect(remoteAddress);
+        var channel = engine.connect(remoteAddress);
+        var message = new Message(
+                IDENTIFIER,
+                MemorySegment.allocateNative(4L, SCOPE),
+                MemorySegment.allocateNative(8L, SCOPE)
+        );
 
-        var header = MemorySegment.allocateNative(4L, SCOPE);
-        var body = MemorySegment.allocateNative(8L, SCOPE);
-        body.set(ValueLayout.JAVA_LONG, 0L, 0L);
-
-        var message = new Message(IDENTIFIER, header, body);
-        var channel = new Channel(endpoint);
-
+        message.body().set(ValueLayout.JAVA_LONG, 0L, 0L);
         channel.send(message, new Callback<>() {
             @Override
             public void onNext(Void message) {
