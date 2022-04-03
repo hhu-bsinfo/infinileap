@@ -2,8 +2,7 @@ package de.hhu.infinileap.engine.message;
 
 import de.hhu.bsinfo.infinileap.binding.ActiveMessageCallback;
 import de.hhu.bsinfo.infinileap.binding.Status;
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import de.hhu.infinileap.engine.util.EndpointResolver;
+import de.hhu.infinileap.engine.util.ChannelResolver;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
@@ -19,7 +18,7 @@ public class HandlerAdapter extends ActiveMessageCallback {
 
     private final MessageHandler handler;
 
-    private final EndpointResolver resolver;
+    private final ChannelResolver resolver;
 
     @Override
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {

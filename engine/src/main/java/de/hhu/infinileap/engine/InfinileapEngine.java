@@ -3,33 +3,19 @@ package de.hhu.infinileap.engine;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.infinileap.engine.agent.WorkerAgent;
-import de.hhu.infinileap.engine.message.Handler;
-import de.hhu.infinileap.engine.message.HandlerAdapter;
+import de.hhu.infinileap.engine.channel.Channel;
 import de.hhu.infinileap.engine.message.HandlerList;
-import de.hhu.infinileap.engine.message.MessageHandler;
 import de.hhu.infinileap.engine.multiplex.EventLoopGroup;
-import de.hhu.infinileap.engine.util.EndpointResolver;
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.NoOpIdleStrategy;
 
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-
-import static de.hhu.bsinfo.infinileap.binding.HandlerParameters.Flag.WHOLE_MESSAGE;
 
 @Slf4j
 public class InfinileapEngine implements ConnectionHandler {
@@ -60,7 +46,7 @@ public class InfinileapEngine implements ConnectionHandler {
 
     private final HandlerList handlerList;
 
-    private final ConcurrentMap<MemoryAddress, Endpoint> endpointMap;
+    private final ConcurrentMap<MemoryAddress, Channel> channelMap;
 
     @Builder
     private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
@@ -100,8 +86,8 @@ public class InfinileapEngine implements ConnectionHandler {
         }
 
         // Collect user-defined RPC handlers
-        endpointMap = new ConcurrentHashMap<>();
-        handlerList = HandlerList.forServiceInstance(this.serviceInstance, this.endpointMap::get);
+        channelMap = new ConcurrentHashMap<>();
+        handlerList = HandlerList.forServiceInstance(this.serviceInstance, this.channelMap::get);
     }
 
 
@@ -132,7 +118,7 @@ public class InfinileapEngine implements ConnectionHandler {
                 .createListener(listenerParameters);
     }
 
-    public Endpoint connect(InetSocketAddress remoteAddress) throws ControlException {
+    public Channel connect(InetSocketAddress remoteAddress) throws ControlException {
         var endpointParameters = new EndpointParameters()
                 .setRemoteAddress(remoteAddress)
                 .enableClientIdentifier();
@@ -142,9 +128,10 @@ public class InfinileapEngine implements ConnectionHandler {
                 .getWorker()
                 .createEndpoint(endpointParameters);
 
-        endpointMap.put(endpoint.address(), endpoint);
+        var channel = new Channel(endpoint);
+        channelMap.put(endpoint.address(), channel);
 
-        return endpoint;
+        return channel;
     }
 
     public void join() throws InterruptedException {
@@ -163,7 +150,8 @@ public class InfinileapEngine implements ConnectionHandler {
                     .getWorker()
                     .createEndpoint(endpointParameters);
 
-            endpointMap.put(endpoint.address(), endpoint);
+            var channel = new Channel(endpoint);
+            channelMap.put(endpoint.address(), channel);
 
             log.info("Accepted new connection from {}", request.getClientAddress());
             log.info("Remote client id is {}", Long.toHexString(request.getClientIdentifier()));

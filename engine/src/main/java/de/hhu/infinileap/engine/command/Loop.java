@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.util.MemoryUtil;
 import de.hhu.infinileap.engine.InfinileapEngine;
 import de.hhu.infinileap.engine.channel.Channel;
+import de.hhu.infinileap.engine.message.Callback;
 import de.hhu.infinileap.engine.message.Handler;
 import de.hhu.infinileap.engine.message.Message;
 import jdk.incubator.foreign.MemorySegment;
@@ -75,20 +76,25 @@ public class Loop implements Callable<Void> {
         var body = MemorySegment.allocateNative(8L, SCOPE);
         body.set(ValueLayout.JAVA_LONG, 0L, 0L);
 
-        var message = new Message(header, body);
+        var message = new Message(IDENTIFIER, header, body);
         var channel = new Channel(endpoint);
 
-        CompletableFuture.allOf(
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message),
-                channel.send(IDENTIFIER, message)
-        ).get();
+        channel.send(message, new Callback<>() {
+            @Override
+            public void onNext(Void message) {
 
-        log.info("SENT");
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                log.info("Message sent");
+            }
+        });
     }
 
     public static final class RpcService {

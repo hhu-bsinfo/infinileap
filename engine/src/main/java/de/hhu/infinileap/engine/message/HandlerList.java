@@ -1,7 +1,7 @@
 package de.hhu.infinileap.engine.message;
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.infinileap.engine.util.EndpointResolver;
+import de.hhu.infinileap.engine.util.ChannelResolver;
 import jdk.incubator.foreign.MemorySegment;
 
 import java.lang.invoke.LambdaMetafactory;
@@ -24,7 +24,7 @@ public class HandlerList implements Iterable<HandlerAdapter> {
         this.handlerAdapters = handlerAdapters;
     }
 
-    public static HandlerList forServiceInstance(final Object serviceInstance, final EndpointResolver resolver) {
+    public static HandlerList forServiceInstance(final Object serviceInstance, final ChannelResolver resolver) {
         // Collect user-defined RPC handlers
         var handlerAdapters = extractHandlers(serviceInstance.getClass()).stream()
                 .map(method -> createAdapter(serviceInstance, method, resolver))
@@ -39,7 +39,7 @@ public class HandlerList implements Iterable<HandlerAdapter> {
                 .collect(Collectors.toList());
     }
 
-    private static HandlerAdapter createAdapter(Object serviceInstance, Method method, EndpointResolver resolver) {
+    private static HandlerAdapter createAdapter(Object serviceInstance, Method method, ChannelResolver resolver) {
         try {
             var caller = MethodHandles.lookup();
             var methodHandle = caller.unreflect(method);
