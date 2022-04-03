@@ -10,7 +10,7 @@ addons:
       - sourceline: deb http://coconucos.cs.uni-duesseldorf.de/forschung/apt/ stable main
         key_url: http://coconucos.cs.uni-duesseldorf.de/forschung/apt/apt-key.asc
     packages:
-      - llvm
+      - llvm-11
       - ucx
 
 stages:
