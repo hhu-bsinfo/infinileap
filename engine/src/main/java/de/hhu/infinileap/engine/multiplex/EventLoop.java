@@ -8,6 +8,8 @@ import org.agrona.concurrent.DynamicCompositeAgent;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.hints.ThreadHints;
 
+import java.util.concurrent.ThreadFactory;
+
 @Slf4j
 public final class EventLoop<T extends Agent> implements AutoCloseable {
 
@@ -22,15 +24,21 @@ public final class EventLoop<T extends Agent> implements AutoCloseable {
     private final AgentRunner runner;
 
     /**
+     * The thread factory used by agent runners.
+     */
+    private final ThreadFactory threadFactory;
+
+    /**
      * The thread on which this event loop is run.
      */
     private Thread thread;
 
     private T agent;
 
-    public EventLoop(String name, IdleStrategy idleStrategy) {
+    public EventLoop(String name, IdleStrategy idleStrategy, ThreadFactory threadFactory) {
         compositeAgent = new DynamicCompositeAgent(name);
         runner = new AgentRunner(idleStrategy, EventLoop::errorHandler, null, compositeAgent);
+        this.threadFactory = threadFactory;
     }
 
     public void add(T agent) {
@@ -58,7 +66,7 @@ public final class EventLoop<T extends Agent> implements AutoCloseable {
     }
 
     void start() {
-        thread = AgentRunner.startOnThread(runner);
+        thread = AgentRunner.startOnThread(runner, threadFactory);
     }
 
     @Override

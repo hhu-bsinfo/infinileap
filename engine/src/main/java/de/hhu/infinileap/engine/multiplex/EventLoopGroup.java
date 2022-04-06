@@ -10,6 +10,7 @@ import org.agrona.hints.ThreadHints;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
@@ -33,12 +34,16 @@ public class EventLoopGroup<T extends Agent> implements AutoCloseable, Iterable<
      */
     private final AtomicInteger index = new AtomicInteger();
 
+    public EventLoopGroup(String name, int workerCount, Supplier<IdleStrategy> idleStrategySupplier) {
+        this(name, workerCount, idleStrategySupplier, Thread::new);
+    }
+
     public EventLoopGroup(String name, Supplier<IdleStrategy> idleStrategySupplier) {
-        this(name, RUNTIME.availableProcessors(), idleStrategySupplier);
+        this(name, RUNTIME.availableProcessors(), idleStrategySupplier, Thread::new);
     }
 
     @SuppressWarnings("unchecked")
-    public EventLoopGroup(String name, int workerCount, Supplier<IdleStrategy> idleStrategySupplier) {
+    public EventLoopGroup(String name, int workerCount, Supplier<IdleStrategy> idleStrategySupplier, ThreadFactory threadFactory) {
         if (workerCount <= 0) {
             throw new IllegalArgumentException("At least one worker has to be created");
         }
@@ -46,7 +51,7 @@ public class EventLoopGroup<T extends Agent> implements AutoCloseable, Iterable<
         log.debug("Using {} worker threads with idle strategy {}", workerCount, idleStrategySupplier.get());
         eventLoops = new EventLoop[workerCount];
         for (int i = 0; i < workerCount; i++) {
-            eventLoops[i] = new EventLoop<>(name + "-" + i, idleStrategySupplier.get());
+            eventLoops[i] = new EventLoop<>(name + "-" + i, idleStrategySupplier.get(), threadFactory);
         }
     }
 
