@@ -48,7 +48,7 @@ public class MemoryRegion implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws CloseException {
         var status = ucp_mem_unmap(context.address(), handle.address());
         if (Status.isNot(status, Status.OK)) {
             throw new CloseException(new ControlException(status));
