@@ -6,6 +6,7 @@ import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,6 +39,18 @@ public class Requests {
         }
 
         value.set(false);
+    }
+
+    public static void await(Worker worker, Queue queue) throws InterruptedException {
+        while (queue.isEmpty()) {
+            if (worker.progress() == WorkerProgress.IDLE) {
+                worker.await();
+            }
+
+            if (Thread.interrupted()) {
+                throw new InterruptedException();
+            }
+        }
     }
 
     public static void poll(Worker worker, CommunicationBarrier barrier) {
