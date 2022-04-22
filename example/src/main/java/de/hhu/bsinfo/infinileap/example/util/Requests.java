@@ -9,6 +9,7 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,6 +43,18 @@ public class Requests {
         }
 
         value.set(false);
+    }
+
+    public static void await(Worker worker, Queue queue) throws InterruptedException {
+        while (queue.isEmpty()) {
+            if (worker.progress() == WorkerProgress.IDLE) {
+                worker.await();
+            }
+
+            if (Thread.interrupted()) {
+                throw new InterruptedException();
+            }
+        }
     }
 
     public static void poll(Worker worker, CommunicationBarrier barrier) {
