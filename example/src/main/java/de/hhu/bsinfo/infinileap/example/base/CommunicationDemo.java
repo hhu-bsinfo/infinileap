@@ -2,8 +2,8 @@ package de.hhu.bsinfo.infinileap.example.base;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
-import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.util.CloseException;
+import de.hhu.bsinfo.infinileap.util.Requests;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import jdk.incubator.foreign.ResourceScope;
 import lombok.extern.slf4j.Slf4j;
@@ -135,7 +135,12 @@ public abstract class CommunicationDemo implements Runnable {
         var connectionRequest = new AtomicReference<ConnectionRequest>();
         var listenerParams = new ListenerParameters()
                 .setListenAddress(listenAddress)
-                .setConnectionHandler(connectionRequest::set);
+                .setConnectionHandler(new ConnectionHandler() {
+                    @Override
+                    protected void onConnection(ConnectionRequest request) {
+                        connectionRequest.set(request);
+                    }
+                });
 
         log.info("Listening for new connection requests on {}", listenAddress);
         listener = pushResource(worker.createListener(listenerParams));

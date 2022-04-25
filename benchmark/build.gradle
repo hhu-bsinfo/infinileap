@@ -1,0 +1,70 @@
+plugins {
+    // Base Plugins
+    id 'application'
+    id 'idea'
+
+    // Jextract Plugin
+    id 'io.github.krakowski.jextract' version '0.2.6'
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19))
+    }
+}
+
+applicationName = 'benchmark'
+mainClassName = 'de.hhu.bsinfo.infinileap.benchmark.App'
+
+application.applicationDefaultJvmArgs += [ '--enable-native-access=ALL-UNNAMED' ]
+
+project.startScripts.with {
+    doLast {
+        // The HotSpot VM uses the SIGSEGV signal for its own purposes,
+        // which may interfere with signal handlers installed by the ucx library.
+        // Therefore, we turn off signal handlers with this (ugly) hack.
+        unixScript.text = unixScript.text.replaceFirst('exec ', 'UCX_ERROR_SIGNALS="" exec ')
+    }
+}
+
+if (project.hasProperty('installPath')) {
+    installDist {
+        destinationDir = project.file(project.property('installPath'))
+    }
+}
+
+jextract.enabled = false
+
+group = 'de.hhu.bsinfo'
+version = getProperty('projectVersion')
+
+dependencies {
+
+    // Infinileap
+    implementation project(':core')
+    implementation project(':engine')
+    implementation project(':common')
+
+    // Command Line Application Framework
+    implementation "info.picocli:picocli:${picocliVersion}"
+
+    // Log4j Logger
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+
+    // JMH Benchmarking Framework
+    implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
+    annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
+
+    // AssertJ
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}

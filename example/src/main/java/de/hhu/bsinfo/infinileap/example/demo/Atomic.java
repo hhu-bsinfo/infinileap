@@ -2,9 +2,9 @@ package de.hhu.bsinfo.infinileap.example.demo;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
-import de.hhu.bsinfo.infinileap.example.util.CommunicationBarrier;
-import de.hhu.bsinfo.infinileap.example.util.Requests;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
+import de.hhu.bsinfo.infinileap.util.CommunicationBarrier;
+import de.hhu.bsinfo.infinileap.util.Requests;
 import jdk.incubator.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;

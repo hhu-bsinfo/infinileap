@@ -1,11 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
 import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.invoke.MethodHandles;
 
 public class Parameter {
 

@@ -2,7 +2,7 @@ plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id "io.github.krakowski.jextract" version "0.2.3"
+    id "io.github.krakowski.jextract" version "0.2.6"
 }
 
 java {
@@ -35,6 +35,9 @@ artifacts {
 }
 
 dependencies {
+
+    // Common code
+    implementation project(':common')
 
     // Logging
     api "org.slf4j:slf4j-api:${slf4jVersion}"

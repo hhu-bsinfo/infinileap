@@ -1,0 +1,44 @@
+plugins {
+    // IDE plugins
+    id 'idea'
+    id 'eclipse'
+
+    // Gradle java-library plugin
+    id 'java-library'
+
+    // Jextract plugin
+    id "io.github.krakowski.jextract" version "0.2.6"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19))
+    }
+}
+
+group = 'de.hhu.bsinfo'
+version = getProperty('projectVersion')
+
+jextract.enabled = false
+
+dependencies {
+
+    // Annotations
+    implementation "org.jetbrains:annotations:${jetbrainsAnnotationsVersion}"
+
+    // Agrona
+    implementation "org.agrona:agrona:${agronaVersion}"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+test {
+    useJUnitPlatform()
+}

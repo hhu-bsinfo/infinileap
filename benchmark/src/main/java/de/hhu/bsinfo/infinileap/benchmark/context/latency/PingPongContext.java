@@ -1,0 +1,29 @@
+package de.hhu.bsinfo.infinileap.benchmark.context.latency;
+
+import de.hhu.bsinfo.infinileap.benchmark.context.BaseContext;
+import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;
+import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkInstruction.OpCode;
+import org.openjdk.jmh.annotations.*;
+
+@State(Scope.Thread)
+public class PingPongContext extends BaseContext {
+
+    @Param({ "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096" })
+    public int bufferSize;
+
+    @Override
+    protected OpCode getInitialInstruction() {
+        return OpCode.RUN_PINGPONG;
+    }
+
+    @Override
+    protected void fillDetails(BenchmarkDetails details) {
+        details.setBufferSize(bufferSize);
+        details.setOperationCount(1);
+        details.setBenchmarkMode(BenchmarkDetails.Mode.LATENCY);
+    }
+
+    public final void pingPong() {
+        connection.pingPongLatency();
+    }
+}

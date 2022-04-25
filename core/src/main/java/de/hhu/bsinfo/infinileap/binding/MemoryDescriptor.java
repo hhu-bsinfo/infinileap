@@ -2,10 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import jdk.incubator.foreign.*;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-
-import static jdk.incubator.foreign.CLinker.*;
 
 public class MemoryDescriptor extends NativeObject {
 

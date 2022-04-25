@@ -7,7 +7,7 @@ plugins {
     id 'java-library'
 
     // Jextract plugin
-    id "io.github.krakowski.jextract" version "0.2.3"
+    id "io.github.krakowski.jextract" version "0.2.6"
 }
 
 java {
@@ -25,6 +25,7 @@ dependencies {
 
     // Infinileap
     implementation project(':core')
+    implementation project(':common')
 
     // Command Line Application Framework
     implementation "info.picocli:picocli:${picocliVersion}"

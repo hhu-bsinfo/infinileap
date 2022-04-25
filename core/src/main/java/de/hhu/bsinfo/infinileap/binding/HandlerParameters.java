@@ -5,7 +5,6 @@ import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
 import static org.openucx.OpenUcx.*;

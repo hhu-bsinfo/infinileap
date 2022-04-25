@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import jdk.incubator.foreign.*;
 
 public class NativeObject {
@@ -39,7 +39,7 @@ public class NativeObject {
         this(MemoryUtil.wrap(address, byteSize));
     }
 
-    protected MemoryAddress address() {
+    public MemoryAddress address() {
         return baseAddress;
     }
 

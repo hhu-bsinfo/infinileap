@@ -3,5 +3,7 @@ rootProject.name = 'infinileap'
 include 'core'
 include 'engine'
 include 'example'
+include 'common'
+include 'benchmark'
 
 

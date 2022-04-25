@@ -3,12 +3,8 @@ package de.hhu.bsinfo.infinileap.binding;
 import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
-import javax.naming.Binding;
-
 import static org.openucx.OpenUcx.*;
 import static org.unix.Linux.stdout$get;
-
-import org.unix.Linux.*;
 
 public class Configuration extends NativeObject implements AutoCloseable{
 

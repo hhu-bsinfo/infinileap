@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import jdk.incubator.foreign.*;
 import org.openucx.ucp_am_recv_callback_t;
 

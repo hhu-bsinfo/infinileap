@@ -5,9 +5,6 @@ import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
 import jdk.incubator.foreign.*;
 import org.openucx.*;
 
-import java.util.Optional;
-import java.util.OptionalLong;
-
 import static org.openucx.OpenUcx.*;
 
 public class ContextAttributes extends NativeObject {

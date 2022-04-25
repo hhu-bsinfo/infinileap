@@ -6,17 +6,21 @@ import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.ucp_listener_conn_callback_t;
 
-@FunctionalInterface
-public interface ConnectionHandler extends ucp_listener_conn_callback_t {
+public abstract class ConnectionHandler {
 
-    void onConnection(ConnectionRequest request);
+    private final NativeSymbol upcallSymbol;
 
-    @Override
-    default void apply(MemoryAddress request, MemoryAddress data) {
+    private final ucp_listener_conn_callback_t callback = (request, data) -> {
         onConnection(ConnectionRequest.of(request, data.toRawLongValue()));
+    };
+
+    public ConnectionHandler() {
+        this.upcallSymbol = ucp_listener_conn_callback_t.allocate(callback, ResourceScope.newImplicitScope());
     }
 
-    default NativeSymbol upcallStub() {
-        return ucp_listener_conn_callback_t.allocate(this, ResourceScope.newImplicitScope());
+    public MemoryAddress upcallAddress() {
+        return upcallSymbol.address();
     }
+
+    protected abstract void onConnection(ConnectionRequest request);
 }

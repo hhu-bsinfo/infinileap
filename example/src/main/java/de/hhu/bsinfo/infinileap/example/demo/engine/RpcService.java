@@ -1,12 +1,11 @@
 package de.hhu.bsinfo.infinileap.example.demo.engine;
 
-import de.hhu.bsinfo.infinileap.binding.Endpoint;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
-import de.hhu.bsinfo.infinileap.util.MemoryUtil;
-import de.hhu.infinileap.engine.channel.Channel;
-import de.hhu.infinileap.engine.message.Callback;
-import de.hhu.infinileap.engine.message.Handler;
-import de.hhu.infinileap.engine.message.Message;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
+import de.hhu.bsinfo.infinileap.engine.channel.Channel;
+import de.hhu.bsinfo.infinileap.engine.message.Callback;
+import de.hhu.bsinfo.infinileap.engine.message.Handler;
+import de.hhu.bsinfo.infinileap.engine.message.Message;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import jdk.incubator.foreign.SegmentAllocator;

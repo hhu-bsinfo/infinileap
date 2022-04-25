@@ -1,7 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.binding.NativeObject;
-import jdk.incubator.foreign.MemoryAddress;
 
 import java.util.ArrayList;
 

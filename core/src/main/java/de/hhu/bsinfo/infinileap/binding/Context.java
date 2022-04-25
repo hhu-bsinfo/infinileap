@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.MemoryAlignment;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
