@@ -87,6 +87,7 @@ public abstract class CommunicationDemo implements Runnable {
 
         // Create context parameters
         var contextParameters = new ContextParameters()
+                .enableMultiThreading()
                 .setFeatures(FEATURE_SET)
                 .setRequestSize(DEFAULT_REQUEST_SIZE);
 
@@ -103,7 +104,7 @@ public abstract class CommunicationDemo implements Runnable {
         );
 
         var workerParameters = new WorkerParameters()
-                .setThreadMode(ThreadMode.SINGLE)
+                .setThreadMode(ThreadMode.MULTI)
                 .setClientId(0x42L);
 
         log.info("Creating worker");

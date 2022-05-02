@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.benchmark.util;
+package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.binding.Worker;
@@ -31,6 +31,10 @@ public class RequestPool {
         }
 
         rewind();
+    }
+
+    public int count() {
+        return producerIndex - consumerIndex;
     }
 
     public final void poll(Worker worker) {

@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.benchmark.connection;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.util.CloseException;
+import de.hhu.bsinfo.infinileap.util.RequestPool;
 import de.hhu.bsinfo.infinileap.util.Requests;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;

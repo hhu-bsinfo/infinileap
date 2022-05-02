@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.engine;
 
 
 import de.hhu.bsinfo.infinileap.binding.*;
+import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
@@ -40,6 +42,8 @@ public class InfinileapEngine {
 
     private final MessageDispatcher messageDispatcher;
 
+    private final BufferPool bufferPool;
+
     @Builder
     private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
 
@@ -52,8 +56,11 @@ public class InfinileapEngine {
         this.loopGroup = new EventLoopGroup<>(EVENT_LOOP_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
         this.listenAddress = listenAddress;
 
+        // Allocate buffer pool for outgoing messages
+        this.bufferPool = new BufferPool(1024, MemoryAlignment.PAGE.value());
+
         // Create connection manager
-        this.connectionManager = new ConnectionManager(() -> loopGroup.next().getAgent());
+        this.connectionManager = new ConnectionManager(() -> loopGroup.next().getAgent(), bufferPool);
 
         try {
             // Create context parameters

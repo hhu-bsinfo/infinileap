@@ -62,8 +62,8 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         return ucp_am_send_nbx(
                 Parameter.of(this),
                 identifier.value(),
-                header,
-                header.byteSize(),
+                header == null ? MemoryAddress.NULL : header.address(),
+                header == null ? 0L : header.byteSize(),
                 data == null ? MemoryAddress.NULL : data.address(),
                 data == null ? 0L : data.byteSize(),
                 Parameter.of(parameters)

@@ -15,8 +15,8 @@ public abstract class ActiveMessageCallback {
     private final ucp_am_recv_callback_t callback = (argument, header, headerSize, data, dataSize, parameters) ->
             (byte) onActiveMessage(
                         argument,
-                        MemoryUtil.wrap(header, headerSize),
-                        MemoryUtil.wrap(data, dataSize),
+                        headerSize == 0 ? null : MemoryUtil.wrap(header, headerSize),
+                        dataSize == 0 ? null : MemoryUtil.wrap(data, dataSize),
                         parameters
             ).value();
 

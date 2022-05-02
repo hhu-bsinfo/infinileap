@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.engine.network;
 
 import de.hhu.bsinfo.infinileap.binding.*;
+import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.util.AgentProvider;
@@ -18,13 +19,17 @@ public class ConnectionManager extends ConnectionHandler {
 
     private final AgentProvider<WorkerAgent> agentProvider;
 
+    private final BufferPool bufferPool;
+
     private ListenerParameters listenerParameters;
 
     private Listener listener;
 
-    public ConnectionManager(AgentProvider<WorkerAgent> provider) {
+
+    public ConnectionManager(AgentProvider<WorkerAgent> provider, BufferPool bufferPool) {
         this.channelMap = new ConcurrentHashMap<>();
         this.agentProvider = provider;
+        this.bufferPool = bufferPool;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class ConnectionManager extends ConnectionHandler {
                     .getWorker()
                     .createEndpoint(endpointParameters);
 
-            var channel = new Channel(endpoint);
+            var channel = new Channel(endpoint, bufferPool);
             channelMap.put(endpoint.address(), channel);
 
             log.info("Accepted new connection from {}", request.getClientAddress());
@@ -65,7 +70,7 @@ public class ConnectionManager extends ConnectionHandler {
                 .enableClientIdentifier();
 
         var endpoint = worker.createEndpoint(endpointParameters);
-        var channel = new Channel(endpoint);
+        var channel = new Channel(endpoint, bufferPool);
         channelMap.put(endpoint.address(), channel);
 
         return channel;

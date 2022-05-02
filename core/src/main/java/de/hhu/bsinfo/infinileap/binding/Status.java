@@ -104,7 +104,7 @@ public enum Status {
         return of((int) status.toRawLongValue());
     }
 
-    static Status of(int status) {
+    public static Status of(int status) {
         var ret = Lookup.get(status);
         if (ret != null) {
             return ret;

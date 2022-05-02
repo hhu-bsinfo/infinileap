@@ -5,6 +5,7 @@ import static org.openucx.OpenUcx.*;
 public enum LogLevel {
     TRACE(UCS_LOG_LEVEL_FATAL()),
     DEBUG(UCS_LOG_LEVEL_DEBUG()),
+    DIAG(3),
     INFO(UCS_LOG_LEVEL_INFO()),
     WARN(UCS_LOG_LEVEL_WARN()),
     ERROR(UCS_LOG_LEVEL_ERROR()),
@@ -23,6 +24,6 @@ public enum LogLevel {
             }
         }
 
-        throw new IllegalArgumentException("Level not defined");
+        throw new IllegalArgumentException("Level " + level + " not defined");
     }
 }

@@ -28,6 +28,7 @@ public class NativeLogger {
         switch (level) {
             case TRACE -> LOGGER.trace(message);
             case DEBUG -> LOGGER.debug(message);
+            case DIAG  -> LOGGER.info(message);
             case INFO  -> LOGGER.info(message);
             case WARN  -> LOGGER.warn(message);
             case ERROR, FATAL -> LOGGER.error(message);

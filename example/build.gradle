@@ -16,7 +16,7 @@ java {
 applicationName = 'infinileap'
 mainClassName = 'de.hhu.bsinfo.infinileap.example.App'
 
-application.applicationDefaultJvmArgs += [ '--enable-native-access=ALL-UNNAMED' ]
+application.applicationDefaultJvmArgs += [ '--enable-native-access=ALL-UNNAMED', '-XX:+ShowMessageBoxOnError' ]
 
 project.startScripts.with {
     doLast {
