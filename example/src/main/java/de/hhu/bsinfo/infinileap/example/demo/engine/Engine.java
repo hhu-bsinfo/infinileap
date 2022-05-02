@@ -63,6 +63,8 @@ public class Engine implements Callable<Void> {
             log.error("Unexpected interrupt", e);
         }
 
+        engine.close();
+
         return null;
     }
 
@@ -74,6 +76,7 @@ public class Engine implements Callable<Void> {
 
         while (true) {
             channel.send(identifier, message, message, callback);
+            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
         }
     }
 

@@ -58,12 +58,12 @@ public class SelectionKey<T> {
         return BitMask.isSet(readyOps, type);
     }
 
-    public void interestOps(EventType... types) {
-        interestOps(BitMask.intOf(types));
+    public void setInterestOps(EventType... types) {
+        setInterestOps(BitMask.intOf(types));
     }
 
-    void interestOps(int ops) {
-        INTERESTS.getAndSet(ops);
+    void setInterestOps(int ops) {
+        INTERESTS.getAndSet(this, ops);
     }
 
     public void readyOps(EventType... types) {

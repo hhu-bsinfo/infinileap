@@ -7,7 +7,6 @@ import de.hhu.bsinfo.infinileap.util.ThrowingConsumer;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class EpollSelector<T> {
 
@@ -55,7 +54,7 @@ public class EpollSelector<T> {
 
         // Create selection key and set interest ops
         var selectionKey = new SelectionKey<>(watchable, attachment, this);
-        selectionKey.interestOps(eventTypes);
+        selectionKey.setInterestOps(eventTypes);
 
         // Extract descriptor and add it to the key map
         var descriptor = watchable.descriptor();

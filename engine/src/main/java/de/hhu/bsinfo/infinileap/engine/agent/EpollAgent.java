@@ -84,7 +84,7 @@ public abstract class EpollAgent<T extends Watchable> implements Agent {
     /**
      * Adds the connection to this agent's watch list.
      */
-    protected final void add(T watchable, EventType... eventTypes) throws IOException {
+    public final void add(T watchable, EventType... eventTypes) throws IOException {
 
         // Add connection so it will be picked up and added on the next work cycle
         var request = new WatchRequest<>(watchable, eventTypes);

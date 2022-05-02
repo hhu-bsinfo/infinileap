@@ -2,6 +2,8 @@ package de.hhu.bsinfo.infinileap.engine;
 
 
 import de.hhu.bsinfo.infinileap.binding.*;
+import de.hhu.bsinfo.infinileap.engine.agent.ConnectionAgent;
+import de.hhu.bsinfo.infinileap.engine.agent.EpollAgent;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
@@ -9,16 +11,18 @@ import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
 import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
 import de.hhu.bsinfo.infinileap.engine.network.ConnectionManager;
+import de.hhu.bsinfo.infinileap.multiplex.EventType;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.NoOpIdleStrategy;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
 @Slf4j
-public class InfinileapEngine {
+public class InfinileapEngine implements AutoCloseable {
 
     private static final String EVENT_LOOP_PREFIX = "infinileap";
 
@@ -34,7 +38,7 @@ public class InfinileapEngine {
 
     private final WorkerParameters workerParameters;
 
-    private final EventLoopGroup<WorkerAgent> loopGroup;
+    private final EventLoopGroup<ConnectionAgent> loopGroup;
 
     private final InetSocketAddress listenAddress;
 
@@ -93,7 +97,7 @@ public class InfinileapEngine {
     }
 
 
-    public void start() throws ControlException {
+    public void start() throws ControlException, IOException {
 
         // Start and wait until all event loops are active
         loopGroup.start();
@@ -102,10 +106,12 @@ public class InfinileapEngine {
         // Add worker to each event loop
         for (var eventLoop : loopGroup) {
             var worker = context.createWorker(workerParameters);
-            var agent = new WorkerAgent(worker);
+            var epollAgent = new ConnectionAgent(worker);
+            epollAgent.add(worker, EventType.EPOLLIN, EventType.EPOLLOUT);
+//            var agent = new WorkerAgent(worker);
 
             messageDispatcher.registerOn(worker);
-            eventLoop.add(agent);
+            eventLoop.add(epollAgent);
         }
 
         // Listen for new connections on first worker
@@ -124,5 +130,10 @@ public class InfinileapEngine {
 
     public void join() throws InterruptedException {
         loopGroup.join();
+    }
+
+    @Override
+    public void close() {
+        this.context.close();
     }
 }
