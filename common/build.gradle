@@ -19,8 +19,6 @@ java {
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
-jextract.enabled = false
-
 dependencies {
 
     // Annotations
@@ -37,6 +35,86 @@ dependencies {
 
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+jextract {
+
+    header("${project.projectDir}/src/main/resources/linux.h") {
+
+        libraries = [ 'stdc++' ]
+
+        targetPackage = 'org.unix'
+
+        className = 'Linux'
+
+        functions = [
+
+                // Filedescriptor
+                'fcntl', 'close',
+
+                // Printing
+                'vsnprintf',
+
+                // Event Filedescriptor
+                'eventfd', 'eventfd_read', 'eventfd_write',
+
+                // Timers
+                'timerfd_create', 'timerfd_settime', 'timerfd_gettime',
+
+                // Epoll
+                'epoll_wait', 'epoll_ctl', 'epoll_create',
+
+                // Error
+                '__errno_location', 'strerror',
+
+                // Helper
+                'htons', 'ntohs'
+        ]
+
+        variables = [
+
+                // Standard I/O
+                'stdout', 'stderr', 'stdin'
+        ]
+
+        structs = [
+
+                // Epoll
+                'epoll_event',
+
+                // Timers
+                'timespec', 'itimerspec',
+
+                // Networking
+                'sockaddr_storage', 'sockaddr_in', 'sockaddr_in6',
+        ]
+
+        macros = [
+
+                // Filedescriptor
+                'F_GETFL', 'F_SETFL', 'O_RDONLY', 'O_WRONLY', 'O_RDWR', 'O_CREAT', 'O_EXCL', 'O_NOCTTY', 'O_TRUNC',
+                'O_APPEND', 'O_NONBLOCK',
+
+                // Event Filedescriptor
+                'EFD_CLOEXEC', 'EFD_NONBLOCK', 'EFD_SEMAPHORE',
+
+                // Timers
+                'CLOCK_REALTIME', 'CLOCK_MONOTONIC', 'CLOCK_BOOTTIME',
+                'CLOCK_REALTIME_ALARM', 'CLOCK_BOOTTIME_ALARM',
+                'TFD_NONBLOCK', 'TFD_CLOEXEC', 'TFD_TIMER_ABSTIME', 'TFD_TIMER_CANCEL_ON_SET',
+
+                // Epoll
+                'EPOLLERR', 'EPOLLET', 'EPOLLEXCLUSIVE', 'EPOLLHUP', 'EPOLLIN', 'EPOLLMSG', 'EPOLLONESHOT',
+                'EPOLLOUT', 'EPOLLPRI', 'EPOLLWRBAND', 'EPOLLRDBAND', 'EPOLLRDHUP', 'EPOLLWRNORM', 'EPOLLRDNORM',
+                'EPOLLWAKEUP',
+
+                'EPOLL_CTL_ADD', 'EPOLL_CTL_MOD', 'EPOLL_CTL_DEL',
+
+                // Networking
+                'AF_INET', 'AF_INET6'
+
+        ]
+    }
 }
 
 test {
