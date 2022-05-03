@@ -1,8 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import de.hhu.bsinfo.infinileap.multiplex.Watchable;
-import de.hhu.bsinfo.infinileap.util.FileDescriptor;
+import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
+import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import jdk.incubator.foreign.*;
 
 import static org.openucx.Communication.ucp_request_cancel;

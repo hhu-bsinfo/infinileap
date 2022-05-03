@@ -1,8 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 import jdk.incubator.foreign.*;
 import org.openucx.*;
 

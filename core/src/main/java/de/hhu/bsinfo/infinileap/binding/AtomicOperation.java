@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 
 import static org.openucx.OpenUcx.*;
 

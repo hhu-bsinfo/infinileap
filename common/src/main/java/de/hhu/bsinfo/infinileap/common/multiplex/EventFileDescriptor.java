@@ -1,6 +1,9 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.common.multiplex;
 
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.NativeError;
+import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import jdk.incubator.foreign.ValueLayout;
@@ -9,7 +12,7 @@ import java.io.IOException;
 
 import static org.unix.Linux.*;
 
-public class EventFileDescriptor extends FileDescriptor {
+public final class EventFileDescriptor extends FileDescriptor {
 
     private final ResourceScope scope = ResourceScope.newImplicitScope();
 

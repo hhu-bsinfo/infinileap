@@ -3,15 +3,13 @@ package de.hhu.bsinfo.infinileap.engine;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.engine.agent.ConnectionAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.EpollAgent;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
-import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
 import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
 import de.hhu.bsinfo.infinileap.engine.network.ConnectionManager;
-import de.hhu.bsinfo.infinileap.multiplex.EventType;
+import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.NoOpIdleStrategy;

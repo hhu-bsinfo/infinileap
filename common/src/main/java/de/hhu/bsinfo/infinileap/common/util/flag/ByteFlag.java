@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.util.flag;
+package de.hhu.bsinfo.infinileap.common.util.flag;
 
 @FunctionalInterface
 public interface ByteFlag {

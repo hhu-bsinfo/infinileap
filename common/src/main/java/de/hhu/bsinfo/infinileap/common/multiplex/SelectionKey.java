@@ -1,6 +1,6 @@
-package de.hhu.bsinfo.infinileap.multiplex;
+package de.hhu.bsinfo.infinileap.common.multiplex;
 
-import de.hhu.bsinfo.infinileap.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
 
 import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandles;

@@ -1,6 +1,6 @@
-package de.hhu.bsinfo.infinileap.multiplex;
+package de.hhu.bsinfo.infinileap.common.multiplex;
 
-import de.hhu.bsinfo.infinileap.util.FileDescriptor;
+import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 
 public interface Watchable {
 

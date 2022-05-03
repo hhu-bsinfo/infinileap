@@ -2,7 +2,6 @@ package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.binding.Worker;
-import de.hhu.bsinfo.infinileap.util.Requests;
 
 public class RequestPool {
     

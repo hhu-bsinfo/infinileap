@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.engine.agent;
 
 import de.hhu.bsinfo.infinileap.binding.Worker;
 import de.hhu.bsinfo.infinileap.binding.WorkerProgress;
-import de.hhu.bsinfo.infinileap.multiplex.SelectionKey;
+import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 
 import java.io.IOException;
 

@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.infinileap.engine.agent;
 
-import de.hhu.bsinfo.infinileap.multiplex.EpollSelector;
-import de.hhu.bsinfo.infinileap.multiplex.EventType;
-import de.hhu.bsinfo.infinileap.multiplex.SelectionKey;
-import de.hhu.bsinfo.infinileap.multiplex.Watchable;
-import de.hhu.bsinfo.infinileap.util.ThrowingConsumer;
+import de.hhu.bsinfo.infinileap.common.multiplex.EpollSelector;
+import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
+import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
+import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
+import de.hhu.bsinfo.infinileap.common.util.ThrowingConsumer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.Agent;

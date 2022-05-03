@@ -1,9 +1,9 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.common.util;
 
-import de.hhu.bsinfo.infinileap.util.flag.ByteFlag;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
-import de.hhu.bsinfo.infinileap.util.flag.ShortFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.ByteFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.ShortFlag;
 
 public final class BitMask {
 

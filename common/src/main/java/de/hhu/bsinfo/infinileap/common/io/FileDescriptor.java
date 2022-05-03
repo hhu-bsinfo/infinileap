@@ -1,7 +1,9 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.common.io;
 
-import de.hhu.bsinfo.infinileap.multiplex.Watchable;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.NativeError;
+import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import org.unix.Linux;
 
 import java.io.Closeable;
@@ -27,7 +29,7 @@ public class FileDescriptor implements Closeable, Watchable {
 
     public final void setFlags(OpenMode... modes) throws IOException {
         var oldFlags = fcntl(this.fd, GET);
-        if (fcntl(this.fd, SET, oldFlags | BitMask.intOf(modes)) == NativeError.ERROR) {
+        if (Linux.fcntl(this.fd, SET, oldFlags | BitMask.intOf(modes)) == NativeError.ERROR) {
             throw new IOException(NativeError.getMessage());
         }
     }

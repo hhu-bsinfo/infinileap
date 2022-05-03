@@ -1,8 +1,6 @@
-package de.hhu.bsinfo.infinileap.multiplex;
+package de.hhu.bsinfo.infinileap.common.multiplex;
 
-import de.hhu.bsinfo.infinileap.util.EventFileDescriptor;
-import de.hhu.bsinfo.infinileap.util.EventFileDescriptor.OpenMode;
-import de.hhu.bsinfo.infinileap.util.ThrowingConsumer;
+import de.hhu.bsinfo.infinileap.common.util.ThrowingConsumer;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -105,6 +103,6 @@ public class EpollSelector<T> {
     }
 
     public static <T> EpollSelector<T> create() throws IOException {
-        return new EpollSelector<>(Epoll.create(), EventFileDescriptor.create(OpenMode.NONBLOCK));
+        return new EpollSelector<>(Epoll.create(), EventFileDescriptor.create(EventFileDescriptor.OpenMode.NONBLOCK));
     }
 }

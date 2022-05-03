@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.common.util;
 
 import jdk.incubator.foreign.*;
 

@@ -1,7 +1,7 @@
-package de.hhu.bsinfo.infinileap.util;
+package de.hhu.bsinfo.infinileap.common.network;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.flag.ShortFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.ShortFlag;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import jdk.incubator.foreign.ValueLayout;
@@ -11,7 +11,7 @@ import java.net.*;
 
 import static org.unix.Linux.*;
 
-public class NativeInetSocketAddress extends NativeObject {
+public final class NativeInetSocketAddress extends NativeObject {
 
     /**
      * The address family.

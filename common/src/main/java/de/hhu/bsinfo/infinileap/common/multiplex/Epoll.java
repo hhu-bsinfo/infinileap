@@ -1,18 +1,17 @@
-package de.hhu.bsinfo.infinileap.multiplex;
+package de.hhu.bsinfo.infinileap.common.multiplex;
 
-import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.FileDescriptor;
-import de.hhu.bsinfo.infinileap.util.NativeError;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.NativeError;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.ResourceScope;
+import jdk.incubator.foreign.ValueLayout;
+import org.unix.epoll_event;
 
 import java.io.IOException;
 import java.time.Duration;
 
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
-import org.unix.*;
 import static org.unix.Linux.*;
 
 public class Epoll {

@@ -1,10 +1,10 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import de.hhu.bsinfo.infinileap.util.BitMask;
-import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
-import de.hhu.bsinfo.infinileap.util.flag.IntegerFlag;
-import de.hhu.bsinfo.infinileap.util.flag.LongFlag;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
+import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
+import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 import jdk.incubator.foreign.NativeSymbol;
 import jdk.incubator.foreign.ResourceScope;
 import org.openucx.*;
