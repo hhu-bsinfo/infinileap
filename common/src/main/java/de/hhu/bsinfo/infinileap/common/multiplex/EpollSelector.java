@@ -4,9 +4,10 @@ import de.hhu.bsinfo.infinileap.common.util.ThrowingConsumer;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class EpollSelector<T> {
+public final class EpollSelector<T> {
 
     /**
      * The {@link Duration} instance used for blocking epoll wait invocations.
@@ -31,7 +32,7 @@ public class EpollSelector<T> {
     /**
      * The mapping between file descriptors and SelectionKeys.
      */
-    private final ConcurrentHashMap<Integer, SelectionKey<T>> keyMap = new ConcurrentHashMap<>();
+    private final Map<Integer, SelectionKey<T>> keyMap = new ConcurrentHashMap<>();
 
     private EpollSelector(Epoll epoll, EventFileDescriptor notifier) {
         this.epoll = epoll;

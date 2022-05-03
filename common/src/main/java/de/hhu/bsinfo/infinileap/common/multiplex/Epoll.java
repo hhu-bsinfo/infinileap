@@ -14,7 +14,7 @@ import java.time.Duration;
 
 import static org.unix.Linux.*;
 
-public class Epoll {
+public final class Epoll {
 
     /**
      * The watchlist's default size.

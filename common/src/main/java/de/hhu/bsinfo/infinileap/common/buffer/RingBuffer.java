@@ -18,6 +18,7 @@ import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
  */
 public class RingBuffer implements SegmentAllocator {
 
+    @FunctionalInterface
     public interface MessageHandler {
         void onMessage(int msgTypeId, MemorySegment buffer, long index, int length);
     }
@@ -103,7 +104,7 @@ public class RingBuffer implements SegmentAllocator {
             bytesRead += BitUtil.align(recordLength, RecordDescriptor.ALIGNMENT);
 
             // Skip this record if it represents padding
-            final var messageTypeId = (int) INT_HANDLE.get(typeOffset(recordIndex));
+            final var messageTypeId = (int) INT_HANDLE.get(buffer, typeOffset(recordIndex));
             if (messageTypeId == PADDING_MSG_TYPE_ID) {
                 continue;
             }
@@ -148,9 +149,10 @@ public class RingBuffer implements SegmentAllocator {
         return buffer.asSlice(encodedMsgOffset(recordIndex), bytes);
     }
 
-    public void commitWrite(final long index) {
+    public void commitWrite(final MemorySegment segment) {
 
         final var buffer = this.buffer;
+        final long index = segment.address().toRawLongValue() - buffer.address().toRawLongValue();
 
         // Calculate the request index and length
         final long recordIndex = index - RecordDescriptor.HEADER_LENGTH;
