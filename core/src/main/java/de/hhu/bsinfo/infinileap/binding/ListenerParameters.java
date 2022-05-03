@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.BitMask;
 import de.hhu.bsinfo.infinileap.util.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.util.flag.LongFlag;

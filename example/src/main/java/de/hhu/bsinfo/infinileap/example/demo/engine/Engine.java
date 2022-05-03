@@ -76,7 +76,7 @@ public class Engine implements Callable<Void> {
 
         while (true) {
             channel.send(identifier, message, message, callback);
-            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
+//            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
         }
     }
 

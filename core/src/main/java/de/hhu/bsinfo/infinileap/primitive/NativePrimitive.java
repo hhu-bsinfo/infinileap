@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import jdk.incubator.foreign.MemorySegment;
 
 class NativePrimitive extends NativeObject {

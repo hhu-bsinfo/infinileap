@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.util.FileDescriptor;
 import jdk.incubator.foreign.*;
@@ -10,6 +11,8 @@ import static org.openucx.OpenUcx.*;
 import static org.openucx.Communication.ucp_tag_recv_nbx;
 
 public class Worker extends NativeObject implements Watchable, AutoCloseable {
+
+    private static final int NO_PROGRESS = 0;
 
     private final Context context;
 
@@ -40,7 +43,7 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public WorkerProgress progress() {
-        return ucp_worker_progress(this.address()) == 0 ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
+        return ucp_worker_progress(address()) == NO_PROGRESS ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
     }
 
     public Status arm() {
@@ -90,11 +93,11 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public long receiveTagged(NativeObject object, Tag tag) {
-        return receiveTagged(object.segment(), tag, RequestParameters.EMPTY);
+        return receiveTagged(object.address(), object.byteSize(), tag, RequestParameters.EMPTY);
     }
 
     public long receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
-        return receiveTagged(object.segment(), tag, parameters);
+        return receiveTagged(object.address(), object.byteSize(), tag, parameters);
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag) {
@@ -102,10 +105,14 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
+        return receiveTagged(buffer.address(), buffer.byteSize(), tag, parameters);
+    }
+
+    private long receiveTagged(MemoryAddress address, long byteSize, Tag tag, RequestParameters parameters) {
         return ucp_tag_recv_nbx(
                 Parameter.of(this),
-                buffer,
-                buffer.byteSize(),
+                address,
+                byteSize,
                 tag.getValue(),
                 tag.getValue(),
                 Parameter.of(parameters)

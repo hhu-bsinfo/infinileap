@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.benchmark.message;
 
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;

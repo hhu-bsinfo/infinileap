@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 
 import java.util.ArrayList;
 

@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.util.factory;
 
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import jdk.incubator.foreign.MemoryAddress;
 
 @FunctionalInterface

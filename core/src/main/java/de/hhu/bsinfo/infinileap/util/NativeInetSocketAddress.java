@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.util;
 
-import de.hhu.bsinfo.infinileap.binding.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.util.flag.ShortFlag;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;

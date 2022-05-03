@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.binding;
+package de.hhu.bsinfo.infinileap.common.util;
 
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import jdk.incubator.foreign.*;
@@ -43,11 +43,15 @@ public class NativeObject {
         return baseAddress;
     }
 
+    public long byteSize() {
+        return segment.byteSize();
+    }
+
     protected ResourceScope scope() {
         return segment.scope();
     }
 
-    protected final MemorySegment segment() {
+    public final MemorySegment segment() {
         return segment;
     }
 
