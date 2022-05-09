@@ -78,6 +78,10 @@ public class SelectionKey<T> {
         return attachment;
     }
 
+    public <S extends Watchable> S get(Class<S> clazz) {
+        return clazz.cast(watchable);
+    }
+
     public EpollSelector<T> selector() {
         return selector;
     }

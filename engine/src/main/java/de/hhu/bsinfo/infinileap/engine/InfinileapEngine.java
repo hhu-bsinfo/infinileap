@@ -3,6 +3,8 @@ package de.hhu.bsinfo.infinileap.engine;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.engine.agent.ConnectionAgent;
+import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
+import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
@@ -105,21 +107,20 @@ public class InfinileapEngine implements AutoCloseable {
         for (var eventLoop : loopGroup) {
             var worker = context.createWorker(workerParameters);
             var epollAgent = new ConnectionAgent(worker);
-            epollAgent.add(worker, EventType.EPOLLIN, EventType.EPOLLOUT);
-//            var agent = new WorkerAgent(worker);
 
             messageDispatcher.registerOn(worker);
             eventLoop.add(epollAgent);
         }
 
         // Listen for new connections on first worker
-        connectionManager.listen(
-                loopGroup.first().getAgent().getWorker(),
-                listenAddress
-        );
+        var firstAgent = loopGroup.first().getAgent();
+        firstAgent.pushCommand(new ListenCommand(listenAddress));
     }
 
     public Channel connect(InetSocketAddress remoteAddress) throws ControlException {
+        var agent = loopGroup.next().getAgent();
+
+        agent.pushCommand(new ConnectCommand(remoteAddress));
         return connectionManager.connect(
                 loopGroup.next().getAgent().getWorker(),
                 remoteAddress

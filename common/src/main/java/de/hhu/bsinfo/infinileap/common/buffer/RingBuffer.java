@@ -1,12 +1,16 @@
 package de.hhu.bsinfo.infinileap.common.buffer;
 
+import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
+import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
+import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import jdk.incubator.foreign.*;
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
 
+import java.io.IOException;
 import java.lang.invoke.VarHandle;
 
 import static org.agrona.concurrent.broadcast.RecordDescriptor.PADDING_MSG_TYPE_ID;
@@ -16,7 +20,9 @@ import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
  * A ring buffer used for storing requests.
  * This implementation is a modified version of {@link org.agrona.concurrent.ringbuffer.ManyToOneRingBuffer}.
  */
-public class RingBuffer implements SegmentAllocator {
+public class RingBuffer implements SegmentAllocator, Watchable {
+
+
 
     @FunctionalInterface
     public interface MessageHandler {
@@ -28,6 +34,8 @@ public class RingBuffer implements SegmentAllocator {
     private static final VarHandle INT_HANDLE = MemoryHandles.varHandle(ValueLayout.JAVA_INT);
 
     private static final int REQUEST_MESSAGE_ID = 1;
+
+    private final EventFileDescriptor eventFileDescriptor;
 
     /**
      * This buffer's maximum capacity in bytes.
@@ -74,6 +82,12 @@ public class RingBuffer implements SegmentAllocator {
         headPositionIndex = capacity + RingBufferDescriptor.HEAD_POSITION_OFFSET;
         headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
         tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
+
+        try {
+            eventFileDescriptor = EventFileDescriptor.create(EventFileDescriptor.OpenMode.NONBLOCK);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int read(final MessageHandler handler, final int limit) {
@@ -254,6 +268,15 @@ public class RingBuffer implements SegmentAllocator {
 
     public static long encodedMsgOffset(final long recordOffset) {
         return recordOffset + RecordDescriptor.HEADER_LENGTH;
+    }
+
+    public void wake() throws IOException {
+        eventFileDescriptor.fire();
+    }
+
+    @Override
+    public FileDescriptor descriptor() {
+        return eventFileDescriptor;
     }
 
     @Override

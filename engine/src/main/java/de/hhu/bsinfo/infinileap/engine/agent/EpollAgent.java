@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Slf4j
-public abstract class EpollAgent<T extends Watchable> implements Agent {
+public abstract class EpollAgent<T> implements Agent {
 
     private static final int WAIT_INDEFINITELY = -1;
 
@@ -75,7 +75,7 @@ public abstract class EpollAgent<T extends Watchable> implements Agent {
     private void watch(WatchRequest<T> request) {
         log.debug("Registering for {}", Arrays.toString(request.getEventTypes()));
         try {
-            selector.register(request.getWatchable(), request.getEventTypes());
+            selector.register(request.getWatchable(), request.getAttachment(), request.getEventTypes());
         } catch (IOException e) {
             log.error("Registering watchable failed");
         }
@@ -84,10 +84,10 @@ public abstract class EpollAgent<T extends Watchable> implements Agent {
     /**
      * Adds the connection to this agent's watch list.
      */
-    public final void add(T watchable, EventType... eventTypes) throws IOException {
+    public final void add(Watchable watchable, T attachment, EventType... eventTypes) throws IOException {
 
         // Add connection so it will be picked up and added on the next work cycle
-        var request = new WatchRequest<>(watchable, eventTypes);
+        var request = new WatchRequest<>(watchable, attachment, eventTypes);
         while (!requestPipe.offer(request)) {
             ThreadHints.onSpinWait();
         }
@@ -101,7 +101,8 @@ public abstract class EpollAgent<T extends Watchable> implements Agent {
     protected abstract void process(SelectionKey<T> selectionKey) throws IOException;
 
     public static final @Data class WatchRequest<T> {
-        private final T watchable;
+        private final Watchable watchable;
+        private final T attachment;
         private final EventType[] eventTypes;
     }
 }
