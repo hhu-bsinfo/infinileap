@@ -64,7 +64,7 @@ public class InfinileapEngine implements AutoCloseable {
         this.bufferPool = new BufferPool(1024, MemoryAlignment.PAGE.value());
 
         // Create connection manager
-        this.connectionManager = new ConnectionManager(() -> loopGroup.next().getAgent(), bufferPool);
+        this.connectionManager = new ConnectionManager();
 
         try {
             // Create context parameters
@@ -97,7 +97,7 @@ public class InfinileapEngine implements AutoCloseable {
     }
 
 
-    public void start() throws ControlException, IOException {
+    public void start() throws ControlException {
 
         // Start and wait until all event loops are active
         loopGroup.start();
@@ -106,7 +106,7 @@ public class InfinileapEngine implements AutoCloseable {
         // Add worker to each event loop
         for (var eventLoop : loopGroup) {
             var worker = context.createWorker(workerParameters);
-            var epollAgent = new ConnectionAgent(worker);
+            var epollAgent = new ConnectionAgent(worker, bufferPool);
 
             messageDispatcher.registerOn(worker);
             eventLoop.add(epollAgent);
@@ -117,14 +117,20 @@ public class InfinileapEngine implements AutoCloseable {
         firstAgent.pushCommand(new ListenCommand(listenAddress));
     }
 
-    public Channel connect(InetSocketAddress remoteAddress) throws ControlException {
+    public Channel connect(InetSocketAddress remoteAddress) {
         var agent = loopGroup.next().getAgent();
 
-        agent.pushCommand(new ConnectCommand(remoteAddress));
-        return connectionManager.connect(
-                loopGroup.next().getAgent().getWorker(),
-                remoteAddress
-        );
+        // Instruct agent to connect with the specified remote address
+        var command = new ConnectCommand(remoteAddress);
+        agent.pushCommand(command);
+
+        try {
+            // Wait until command completes
+            return command.await();
+        } catch (InterruptedException e) {
+            log.error("Connection establishment failed", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public void join() throws InterruptedException {

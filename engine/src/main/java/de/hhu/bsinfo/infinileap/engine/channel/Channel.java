@@ -29,11 +29,14 @@ public class Channel {
 
     private final Endpoint endpoint;
 
+    private final int channelIdentifier;
+
     private final AtomicInteger REQUEST_COUNTER = new AtomicInteger();
 
     private final BufferPool bufferPool;
 
-    public Channel(Endpoint endpoint, BufferPool bufferPool) {
+    public Channel(int channelIdentifier, Endpoint endpoint, BufferPool bufferPool) {
+        this.channelIdentifier = channelIdentifier;
         this.endpoint = endpoint;
         this.bufferPool = bufferPool;
     }
@@ -131,6 +134,10 @@ public class Channel {
                 .setSendCallback(sendCallback);
         requestMap.put(requestIdentifier, callback);
         return userData;
+    }
+
+    public int getChannelIdentifier() {
+        return channelIdentifier;
     }
 
     private static long pack(int requestIdentifier, int bufferIdentifier) {

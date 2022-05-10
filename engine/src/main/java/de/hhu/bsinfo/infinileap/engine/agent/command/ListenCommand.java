@@ -7,11 +7,9 @@ import lombok.RequiredArgsConstructor;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
-public @Data class ListenCommand extends AgentCommand {
+public @Data class ListenCommand extends AgentCommand<Void> {
 
     private final InetSocketAddress listenAddress;
-
-    private final CountDownLatch latch = new CountDownLatch(1);
 
     @Override
     public Type type() {

@@ -9,6 +9,8 @@ import de.hhu.bsinfo.infinileap.engine.agent.command.AcceptCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
+import de.hhu.bsinfo.infinileap.engine.channel.Channel;
+import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.hints.ThreadHints;
 
@@ -31,6 +33,8 @@ public class ConnectionAgent extends EpollAgent<ConnectionAgent.WakeReason> {
 
     private final CommandQueue commands = new CommandQueue(COMMAND_QUEUE_SIZE);
 
+    private final BufferPool bufferPool;
+
     /**
      * The listener instance this agent uses for listening to new connections. May be null if this agent
      * does not accept connections.
@@ -38,17 +42,22 @@ public class ConnectionAgent extends EpollAgent<ConnectionAgent.WakeReason> {
     private Listener listener;
     private ListenerParameters listenerParameters;
 
-    private int endpointCounter = 0;
-    private final Endpoint[] endpoints = new Endpoint[MAX_ENDPOINT_COUNT];
+    private int channelCounter = 0;
 
-    public ConnectionAgent(Worker worker) {
-        super();
+    // All channels associated with this agent instance.
+    private final Channel[] channels = new Channel[MAX_ENDPOINT_COUNT];
+
+    public ConnectionAgent(Worker worker, BufferPool bufferPool) {
         this.worker = worker;
+        this.bufferPool = bufferPool;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
+        // Add file descriptors to epoll instance in order to wake up
+        // the event loop once an event occures.
 
         try {
             add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT);
@@ -71,7 +80,7 @@ public class ConnectionAgent extends EpollAgent<ConnectionAgent.WakeReason> {
         }
     }
 
-    private void processCommand(AgentCommand command) {
+    private void processCommand(AgentCommand<?> command) {
         switch (command.type()) {
             case LISTEN -> processListen((ListenCommand) command);
             case CONNECT -> processConnect((ConnectCommand) command);
@@ -116,7 +125,15 @@ public class ConnectionAgent extends EpollAgent<ConnectionAgent.WakeReason> {
                 .enableClientIdentifier();
 
         try {
-            endpoints[endpointCounter++] = worker.createEndpoint(endpointParameters);
+
+            // Create the channel and assign it an unique identifier
+            var endpoint = worker.createEndpoint(endpointParameters);
+            var channel = new Channel(channelCounter++, endpoint, bufferPool);
+
+            // Register channel and complete the command
+            channels[channel.getChannelIdentifier()] = channel;
+            command.complete(channel);
+
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }
@@ -147,7 +164,11 @@ public class ConnectionAgent extends EpollAgent<ConnectionAgent.WakeReason> {
     private final ConnectionHandler connectionHandler = new ConnectionHandler() {
         @Override
         protected void onConnection(ConnectionRequest request) {
-
+            try {
+                log.debug("Received new connection request from {}", request.getClientAddress());
+            } catch (ControlException e) {
+                // ignored
+            }
         }
     };
 
