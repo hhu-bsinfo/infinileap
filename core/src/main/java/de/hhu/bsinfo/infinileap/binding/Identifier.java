@@ -8,7 +8,7 @@ public class Identifier {
         this.value = value;
     }
 
-    int value() {
+    public int value() {
         return value;
     }
 

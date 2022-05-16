@@ -31,12 +31,17 @@ public final class RpcService {
         if (header != null) logPayload(header);
         if (body != null) logPayload(body);
 
-        replyChannel.send(replyIdentifier, this.replyMessage, this.replyMessage, callback);
+        try {
+            replyChannel.send(replyIdentifier, this.replyMessage, this.replyMessage, callback);
+        } catch (Throwable e) {
+            log.error("Unexpected exception", e);
+        }
     }
 
     @Handler(identifier = 0x02)
     public void onReply(MemorySegment header, MemorySegment body, Channel replyChannel) {
-        logPayload(body);
+        if (header != null) logPayload(header);
+        if (body != null) logPayload(body);
     }
 
     private static void logPayload(MemorySegment payload) {

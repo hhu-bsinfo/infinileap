@@ -5,7 +5,9 @@ import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
+import jdk.incubator.foreign.ValueLayout;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +44,16 @@ public class Channel {
     }
 
     public void send(Identifier identifier, Distributable header, Distributable body, Callback<Void> callback) {
+        var segment= ringBuffer.claim((int) header.byteSize() + 2 * Integer.BYTES);
+        segment.set(ValueLayout.JAVA_INT, 0, this.identifier);
+        segment.set(ValueLayout.JAVA_INT, Integer.BYTES, identifier.value());
+        header.writeTo(segment.asSlice(2 * Integer.BYTES));
+        ringBuffer.commitWrite(segment);
 
+        try {
+            ringBuffer.wake();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

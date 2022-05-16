@@ -49,7 +49,7 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final ConnectionManager connectionManager;
 
-    private final MessageDispatcher messageDispatcher;
+    private final Object serviceInstance;
 
     private final BufferPool bufferPool;
 
@@ -93,10 +93,7 @@ public class InfinileapEngine implements AutoCloseable {
 
         try {
             // Instantiate service class
-            var serviceInstance = serviceClass.getDeclaredConstructor().newInstance();
-
-            // Collect user-defined RPC handlers
-            messageDispatcher = MessageDispatcher.forServiceInstance(serviceInstance, connectionManager::resolve);
+            serviceInstance = serviceClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Instantiating service failed", e);
         }
@@ -112,9 +109,7 @@ public class InfinileapEngine implements AutoCloseable {
         // Add worker to each event loop
         for (var eventLoop : workerGroup) {
             var worker = context.createWorker(workerParameters);
-            var workerAgent = new WorkerAgent(worker, bufferPool);
-
-            messageDispatcher.registerOn(worker);
+            var workerAgent = new WorkerAgent(worker, serviceInstance);
             eventLoop.add(workerAgent);
         }
 

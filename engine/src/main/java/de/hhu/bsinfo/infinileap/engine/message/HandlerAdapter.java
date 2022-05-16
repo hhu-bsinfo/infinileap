@@ -8,10 +8,12 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openucx.ucp_am_recv_param_t;
 
 @Getter
 @RequiredArgsConstructor
+@Slf4j
 public class HandlerAdapter extends ActiveMessageCallback {
 
     private final int identifier;
@@ -24,7 +26,9 @@ public class HandlerAdapter extends ActiveMessageCallback {
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
         var params = ucp_am_recv_param_t.ofAddress(parameters, ResourceScope.globalScope());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
-        handler.onMessage(header, body, resolver.resolve(endpoint));
+        var channel = resolver.resolve(endpoint);
+        log.info("Looking up endpoint 0x{} : {}", Long.toHexString(endpoint.address().toRawLongValue()), channel);
+        handler.onMessage(header, body, channel);
         return Status.OK;
     }
 }

@@ -70,14 +70,14 @@ public class Engine implements Callable<Void> {
 
     private void runClient(InfinileapEngine engine) throws ControlException {
         var channel = engine.connect(remoteAddress);
+        log.info("Established connection with {}", remoteAddress);
+
         final Identifier identifier = Identifier.of(0x1);
         final Distributable message = new RpcService.SimpleMessage(0xDEAD, 0xBEEF);
 
 
-        while (true) {
-            channel.send(identifier, message, message, callback);
-//            LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
-        }
+        channel.send(identifier, message, message, callback);
+        LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
     }
 
     private final Callback<Void> callback = new Callback<>() {

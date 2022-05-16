@@ -9,6 +9,7 @@ import jdk.incubator.foreign.*;
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
+import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
 import java.lang.invoke.VarHandle;
@@ -137,6 +138,15 @@ public class RingBuffer implements SegmentAllocator, Watchable {
         final var head = (long) LONG_HANDLE.get(headPositionIndex);
 
         LONG_HANDLE.setRelease(buffer, headPositionIndex, head + bytes);
+    }
+
+    public MemorySegment claim(final int bytes) {
+        MemorySegment result = null;
+        while ((result = tryClaim(bytes)) == null) {
+            ThreadHints.onSpinWait();
+        }
+
+        return result;
     }
 
     public MemorySegment tryClaim(final int bytes) {
@@ -272,6 +282,10 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
     public void wake() throws IOException {
         eventFileDescriptor.fire();
+    }
+
+    public void disarm() throws IOException {
+        eventFileDescriptor.reset();
     }
 
     @Override

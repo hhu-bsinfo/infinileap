@@ -16,6 +16,7 @@ import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ import java.util.Map;
 
 @Slf4j
 public class WorkerAgent extends CommandableAgent {
+
+    private static final int REQUEST_LIMIT = Integer.MAX_VALUE;
 
     /**
      * The maximum number of endpoints this agent supports.
@@ -45,6 +48,11 @@ public class WorkerAgent extends CommandableAgent {
     private final Channel[] channels = new Channel[MAX_ENDPOINT_COUNT];
 
     /**
+     * All endpoints associated with this agent instance.
+     */
+    private final Endpoint[] endpoints = new Endpoint[MAX_ENDPOINT_COUNT];
+
+    /**
      * Maps from endpoint memory address to the corresponding channel.
      */
     private final Map<MemoryAddress, Channel> channelMap = new HashMap<>();
@@ -64,6 +72,7 @@ public class WorkerAgent extends CommandableAgent {
 
         try {
             messageDispatcher.registerOn(worker);
+            log.debug("Registered message dispatcher");
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }
@@ -82,7 +91,10 @@ public class WorkerAgent extends CommandableAgent {
     @Override
     protected void onSelect(SelectionKey<WakeReason> selectionKey) throws IOException {
         switch (selectionKey.attachment()) {
-            case DATA -> processRequests();
+            case DATA -> {
+                requestBuffer.disarm();
+                requestBuffer.read(requestHandler, REQUEST_LIMIT);
+            }
             case PROGRESS -> AgentOperations.progressWorker(worker);
         }
     }
@@ -91,7 +103,7 @@ public class WorkerAgent extends CommandableAgent {
     protected void onCommand(AgentCommand<?> command) {
         switch (command.type()) {
             case CONNECT -> processConnect((ConnectCommand) command);
-            case ACCEPT -> processAccept((AcceptCommand) command);
+            case ACCEPT  -> processAccept((AcceptCommand) command);
         }
     }
 
@@ -130,10 +142,6 @@ public class WorkerAgent extends CommandableAgent {
         }
     }
 
-    private void processRequests() {
-
-    }
-
 
     private int nextChannelId() {
         return channelCounter++;
@@ -150,7 +158,9 @@ public class WorkerAgent extends CommandableAgent {
         }
 
         this.channels[identifier] = channel;
+        this.endpoints[identifier] = endpoint;
         this.channelMap.put(endpoint.address(), channel);
+        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address()));
     }
 
 //    public void send(Identifier identifier, MemorySegment header, MemorySegment data, Callback<Void> callback) {
@@ -173,8 +183,26 @@ public class WorkerAgent extends CommandableAgent {
 //    }
 
     private final RingBuffer.MessageHandler requestHandler = (msgTypeId, buffer, index, length) -> {
+        log.debug("Processing message with type {} at index {} containing {} bytes", msgTypeId, index, length);
 
+        var requestParameters = new RequestParameters()
+                .setDataType(DataType.CONTIGUOUS_8_BIT)
+                .setFlags(RequestParameters.Flag.ACTIVE_MESSAGE_REPLY);
+
+        var endpoint = endpoints[buffer.get(ValueLayout.JAVA_INT, index)];
+        var request = endpoint.sendActive(
+                Identifier.of(buffer.get(ValueLayout.JAVA_INT, index + Integer.BYTES)),
+                buffer.asSlice(index, length),
+                null,
+                requestParameters
+        );
+
+        if (Status.is(request, Status.OK)) {
+            log.debug("Request {} finished immediately", request);
+        }
     };
+
+
 
     public Worker getWorker() {
         return worker;
