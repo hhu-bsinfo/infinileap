@@ -16,4 +16,10 @@ public interface Distributable {
      * @param source The source memory segment.
      */
     void readFrom(MemorySegment source);
+
+    /**
+     * Calculates this object's size in bytes.
+     * @return This object's size in bytes.
+     */
+    long byteSize();
 }

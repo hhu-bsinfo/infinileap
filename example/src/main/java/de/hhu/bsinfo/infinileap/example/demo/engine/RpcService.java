@@ -88,5 +88,10 @@ public final class RpcService {
             firstNumber = source.get(ValueLayout.JAVA_INT, 0L);
             secondNumber = source.get(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT.byteSize());
         }
+
+        @Override
+        public long byteSize() {
+            return 2 * Integer.BYTES;
+        }
     }
 }

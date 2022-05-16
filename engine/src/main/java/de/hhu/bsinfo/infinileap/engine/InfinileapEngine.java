@@ -2,7 +2,9 @@ package de.hhu.bsinfo.infinileap.engine;
 
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.bsinfo.infinileap.engine.agent.ConnectionAgent;
+import de.hhu.bsinfo.infinileap.engine.agent.AcceptorAgent;
+import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
+import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
@@ -11,12 +13,10 @@ import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
 import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
 import de.hhu.bsinfo.infinileap.engine.network.ConnectionManager;
-import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.NoOpIdleStrategy;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Set;
@@ -24,7 +24,10 @@ import java.util.Set;
 @Slf4j
 public class InfinileapEngine implements AutoCloseable {
 
-    private static final String EVENT_LOOP_PREFIX = "infinileap";
+    private static final int ACCEPTOR_THREADS = 1;
+
+    private static final String ACCEPTOR_PREFIX = "acceptor";
+    private static final String WORKER_PREFIX = "worker";
 
     private static final Set<ContextParameters.Feature> FEATURE_SET = Set.of(
             ContextParameters.Feature.RMA,       // Remote Memory Access
@@ -38,7 +41,9 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final WorkerParameters workerParameters;
 
-    private final EventLoopGroup<ConnectionAgent> loopGroup;
+    private final EventLoopGroup<CommandableAgent> workerGroup;
+
+    private final EventLoopGroup<CommandableAgent> acceptorGroup;
 
     private final InetSocketAddress listenAddress;
 
@@ -56,8 +61,9 @@ public class InfinileapEngine implements AutoCloseable {
 
         log.info("Using UCX version {}", Context.getVersion());
 
-        // Instantiate new event loop group
-        this.loopGroup = new EventLoopGroup<>(EVENT_LOOP_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
+        // Instantiate new event loop groups
+        this.acceptorGroup = new EventLoopGroup<>(ACCEPTOR_PREFIX, ACCEPTOR_THREADS, () -> NoOpIdleStrategy.INSTANCE);
+        this.workerGroup = new EventLoopGroup<>(WORKER_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
         this.listenAddress = listenAddress;
 
         // Allocate buffer pool for outgoing messages
@@ -100,25 +106,33 @@ public class InfinileapEngine implements AutoCloseable {
     public void start() throws ControlException {
 
         // Start and wait until all event loops are active
-        loopGroup.start();
-        loopGroup.waitOnStart();
+        workerGroup.start();
+        workerGroup.waitOnStart();
 
         // Add worker to each event loop
-        for (var eventLoop : loopGroup) {
+        for (var eventLoop : workerGroup) {
             var worker = context.createWorker(workerParameters);
-            var epollAgent = new ConnectionAgent(worker, bufferPool);
+            var workerAgent = new WorkerAgent(worker, bufferPool);
 
             messageDispatcher.registerOn(worker);
-            eventLoop.add(epollAgent);
+            eventLoop.add(workerAgent);
         }
 
-        // Listen for new connections on first worker
-        var firstAgent = loopGroup.first().getAgent();
-        firstAgent.pushCommand(new ListenCommand(listenAddress));
+        acceptorGroup.start();
+        acceptorGroup.waitOnStart();
+
+        // Add acceptor to event loop
+        var worker = context.createWorker(workerParameters);
+        var acceptorAgent = new AcceptorAgent(worker, workerGroup);
+        var eventLoop = acceptorGroup.first();
+        eventLoop.add(acceptorAgent);
+
+        // Listen for new connections on acceptor
+        acceptorAgent.pushCommand(new ListenCommand(listenAddress));
     }
 
     public Channel connect(InetSocketAddress remoteAddress) {
-        var agent = loopGroup.next().getAgent();
+        var agent = workerGroup.next().getAgent();
 
         // Instruct agent to connect with the specified remote address
         var command = new ConnectCommand(remoteAddress);
@@ -134,7 +148,7 @@ public class InfinileapEngine implements AutoCloseable {
     }
 
     public void join() throws InterruptedException {
-        loopGroup.join();
+        workerGroup.join();
     }
 
     @Override

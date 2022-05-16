@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @Slf4j
 public class EventLoopGroup<T extends Agent> implements AutoCloseable, Iterable<EventLoop<T>> {
@@ -97,5 +98,9 @@ public class EventLoopGroup<T extends Agent> implements AutoCloseable, Iterable<
     @Override
     public Iterator<EventLoop<T>> iterator() {
         return Arrays.stream(eventLoops).iterator();
+    }
+
+    public Stream<EventLoop<T>> stream() {
+        return Arrays.stream(eventLoops);
     }
 }

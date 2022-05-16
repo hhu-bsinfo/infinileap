@@ -171,4 +171,9 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
             return null;
         }
     }
+
+    @Override
+    public String name() {
+        return Worker.class.getSimpleName();
+    }
 }

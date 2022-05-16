@@ -1,10 +1,12 @@
-package de.hhu.bsinfo.infinileap.engine.agent;
+package de.hhu.bsinfo.infinileap.engine.agent.base;
 
 import de.hhu.bsinfo.infinileap.common.multiplex.EpollSelector;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.common.util.ThrowingConsumer;
+import de.hhu.bsinfo.infinileap.engine.agent.util.CommandQueue;
+import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.Agent;
@@ -21,6 +23,7 @@ public abstract class EpollAgent<T> implements Agent {
     private static final int WAIT_INDEFINITELY = -1;
 
     private static final int MAX_CONNECTIONS = 1024;
+
 
     /**
      * Incoming connections which should be watched by this agent.
@@ -43,6 +46,7 @@ public abstract class EpollAgent<T> implements Agent {
      */
     private final ThrowingConsumer<SelectionKey<T>, IOException> consumer = this::process;
 
+
     protected EpollAgent(int timeout) {
         this.timeout = timeout;
         try {
@@ -57,11 +61,6 @@ public abstract class EpollAgent<T> implements Agent {
     }
 
     @Override
-    public void onStart() {
-
-    }
-
-    @Override
     public int doWork() throws Exception {
 
         // Add new connections to our watch list
@@ -73,7 +72,12 @@ public abstract class EpollAgent<T> implements Agent {
     }
 
     private void watch(WatchRequest<T> request) {
-        log.debug("Registering for {}", Arrays.toString(request.getEventTypes()));
+        if (request.watchable.name() != Watchable.NO_NAME) {
+            log.debug("Registering {} for {}", request.watchable.name(), Arrays.toString(request.getEventTypes()));
+        } else {
+            log.debug("Registering for {}", Arrays.toString(request.getEventTypes()));
+        }
+
         try {
             selector.register(request.getWatchable(), request.getAttachment(), request.getEventTypes());
         } catch (IOException e) {

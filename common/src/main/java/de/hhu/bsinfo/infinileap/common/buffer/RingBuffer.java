@@ -288,4 +288,9 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
         return segment;
     }
+
+    @Override
+    public String name() {
+        return RingBuffer.class.getSimpleName();
+    }
 }
