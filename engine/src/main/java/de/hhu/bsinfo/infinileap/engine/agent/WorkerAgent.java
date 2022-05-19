@@ -3,25 +3,29 @@ package de.hhu.bsinfo.infinileap.engine.agent;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.base.EpollAgent;
 import de.hhu.bsinfo.infinileap.engine.agent.command.AcceptCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
+import de.hhu.bsinfo.infinileap.engine.agent.message.SendActiveMessage;
 import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
 import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.openucx.Communication.ucp_request_free;
 
 @Slf4j
 public class WorkerAgent extends CommandableAgent {
@@ -38,7 +42,9 @@ public class WorkerAgent extends CommandableAgent {
      */
     private final Worker worker;
 
-    private final RingBuffer requestBuffer = new RingBuffer(128 * MemoryAlignment.PAGE.value());
+    private final RingBuffer requestBuffer;
+
+    private final BufferPool bufferPool;
 
     private int channelCounter = 0;
 
@@ -59,8 +65,10 @@ public class WorkerAgent extends CommandableAgent {
 
     private final MessageDispatcher messageDispatcher;
 
-    public WorkerAgent(Worker worker, Object serviceInstance) {
+    public WorkerAgent(Worker worker, BufferPool bufferPool, Object serviceInstance) {
         this.worker = worker;
+        this.bufferPool = bufferPool;
+        this.requestBuffer = new RingBuffer(MemoryAlignment.PAGE.value());
         messageDispatcher = MessageDispatcher.forServiceInstance(serviceInstance, channelMap::get);
     }
 
@@ -93,7 +101,8 @@ public class WorkerAgent extends CommandableAgent {
         switch (selectionKey.attachment()) {
             case DATA -> {
                 requestBuffer.disarm();
-                requestBuffer.read(requestHandler, REQUEST_LIMIT);
+                var bytesRead = requestBuffer.read(requestHandler, REQUEST_LIMIT);
+                requestBuffer.commitRead(bytesRead);
             }
             case PROGRESS -> AgentOperations.progressWorker(worker);
         }
@@ -148,7 +157,7 @@ public class WorkerAgent extends CommandableAgent {
     }
 
     private Channel newChannel() {
-        return new Channel(nextChannelId(), requestBuffer);
+        return new Channel(nextChannelId(), requestBuffer, bufferPool);
     }
 
     private void registerChannel(Endpoint endpoint, Channel channel) {
@@ -163,42 +172,49 @@ public class WorkerAgent extends CommandableAgent {
         log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address()));
     }
 
-//    public void send(Identifier identifier, MemorySegment header, MemorySegment data, Callback<Void> callback) {
-//        // Register callback
-//        var requestIdentifier = REQUEST_COUNTER.incrementAndGet();
-//        requestParameters.setUserData(requestIdentifier);
-//        requestMap.put(requestIdentifier, callback);
-//
-//        // Send message
-//        var request = endpoint.sendActive(
-//                identifier,
-//                header,
-//                data,
-//                requestParameters
-//        );
-//
-//        if (Status.is(request, Status.OK)) {
-//            requestMap.remove(requestIdentifier).onComplete();
-//        }
-//    }
+    private final SendCallback sendCallback = (request, status, data) -> {
+        ucp_request_free(request);
+        var userBuffer = getBuffer((int) data.toRawLongValue());
+        var callback = userBuffer.getCallback();
+        log.debug("Releasing Buffer {}", userBuffer.identifier());
+        userBuffer.release();
+        log.debug("Buffer {} released", userBuffer.identifier());
+        callback.onComplete();
+    };
+
+    private final RequestParameters activeMessageParameters = new RequestParameters()
+            .setDataType(DataType.CONTIGUOUS_8_BIT)
+            .setSendCallback(sendCallback)
+            .setFlags(RequestParameters.Flag.ACTIVE_MESSAGE_REPLY);
+
+    private BufferPool.PooledBuffer getBuffer(int identifier) {
+        return bufferPool.get(identifier);
+    }
 
     private final RingBuffer.MessageHandler requestHandler = (msgTypeId, buffer, index, length) -> {
-        log.debug("Processing message with type {} at index {} containing {} bytes", msgTypeId, index, length);
+        var slice = buffer.asSlice(index, length);
+        MemoryUtil.dump(slice);
+        var channelId = SendActiveMessage.getChannelId(slice);
+        var bufferId = SendActiveMessage.getBufferId(slice);
+        var messageId = SendActiveMessage.getMessageId(slice);
+        var userLength = SendActiveMessage.getLength(slice);
+        var userBuffer = getBuffer(bufferId);
 
-        var requestParameters = new RequestParameters()
-                .setDataType(DataType.CONTIGUOUS_8_BIT)
-                .setFlags(RequestParameters.Flag.ACTIVE_MESSAGE_REPLY);
+        activeMessageParameters.setUserData(bufferId);
 
-        var endpoint = endpoints[buffer.get(ValueLayout.JAVA_INT, index)];
+        log.debug("Using endpoint id {}", channelId);
+        var endpoint = endpoints[channelId];
         var request = endpoint.sendActive(
-                Identifier.of(buffer.get(ValueLayout.JAVA_INT, index + Integer.BYTES)),
-                buffer.asSlice(index, length),
+                Identifier.of(messageId),
+                userBuffer.segment().asSlice(0, userLength),
                 null,
-                requestParameters
+                activeMessageParameters
         );
 
         if (Status.is(request, Status.OK)) {
-            log.debug("Request {} finished immediately", request);
+            var callback = userBuffer.getCallback();
+            userBuffer.release();
+            callback.onComplete();
         }
     };
 

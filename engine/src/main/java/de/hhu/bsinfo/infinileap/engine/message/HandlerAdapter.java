@@ -27,7 +27,6 @@ public class HandlerAdapter extends ActiveMessageCallback {
         var params = ucp_am_recv_param_t.ofAddress(parameters, ResourceScope.globalScope());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
         var channel = resolver.resolve(endpoint);
-        log.info("Looking up endpoint 0x{} : {}", Long.toHexString(endpoint.address().toRawLongValue()), channel);
         handler.onMessage(header, body, channel);
         return Status.OK;
     }

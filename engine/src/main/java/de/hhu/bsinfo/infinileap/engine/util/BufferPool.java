@@ -4,8 +4,10 @@ import de.hhu.bsinfo.infinileap.binding.DataType;
 import de.hhu.bsinfo.infinileap.binding.RequestParameters;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
+import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
+import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
 import org.agrona.concurrent.QueuedPipe;
 import org.agrona.hints.ThreadHints;
@@ -60,6 +62,7 @@ public class BufferPool {
         // Create variable for spin-wait loop
         PooledBuffer tmp;
 
+
         // Busy-wait until we get an buffer
         while ((tmp = buffers.poll()) == null) {
             ThreadHints.onSpinWait();
@@ -81,6 +84,10 @@ public class BufferPool {
 
     public PooledBuffer get(int identifier) {
         return indexedBuffers[identifier];
+    }
+
+    public int count() {
+        return indexedBuffers.length;
     }
 
     @Override
@@ -110,6 +117,11 @@ public class BufferPool {
         private final IntConsumer releaser;
 
         /**
+         * The client's callback instance.
+         */
+        private Callback<Void> callback;
+
+        /**
          * The request parameters belonging to this buffer slice.
          */
         private final RequestParameters requestParameters = new RequestParameters()
@@ -136,6 +148,14 @@ public class BufferPool {
 
         public void release() {
             releaser.accept(identifier);
+        }
+
+        public void setCallback(Callback<Void> callback) {
+            this.callback = callback;
+        }
+
+        public Callback<Void> getCallback() {
+            return callback;
         }
     }
 }

@@ -28,20 +28,16 @@ public final class RpcService {
 
     @Handler(identifier = 0x01)
     public void onMessage(MemorySegment header, MemorySegment body, Channel replyChannel) {
-        if (header != null) logPayload(header);
-        if (body != null) logPayload(body);
+//        if (header != null) logPayload(header);
+//        if (body != null) logPayload(body);
 
-        try {
-            replyChannel.send(replyIdentifier, this.replyMessage, this.replyMessage, callback);
-        } catch (Throwable e) {
-            log.error("Unexpected exception", e);
-        }
+        replyChannel.send(replyIdentifier, this.replyMessage, callback);
     }
 
     @Handler(identifier = 0x02)
     public void onReply(MemorySegment header, MemorySegment body, Channel replyChannel) {
-        if (header != null) logPayload(header);
-        if (body != null) logPayload(body);
+//        if (header != null) logPayload(header);
+//        if (body != null) logPayload(body);
     }
 
     private static void logPayload(MemorySegment payload) {
@@ -55,6 +51,9 @@ public final class RpcService {
     }
 
     private final Callback<Void> callback = new Callback<Void>() {
+
+        long counter = 0L;
+
         @Override
         public void onNext(Void message) {
             // Reply is not supported yet
@@ -67,7 +66,7 @@ public final class RpcService {
 
         @Override
         public void onComplete() {
-            log.info("Message sent");
+            log.info("Message {} sent", counter++);
         }
     };
 

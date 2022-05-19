@@ -67,7 +67,7 @@ public class InfinileapEngine implements AutoCloseable {
         this.listenAddress = listenAddress;
 
         // Allocate buffer pool for outgoing messages
-        this.bufferPool = new BufferPool(1024, MemoryAlignment.PAGE.value());
+        this.bufferPool = new BufferPool(2, MemoryAlignment.PAGE.value());
 
         // Create connection manager
         this.connectionManager = new ConnectionManager();
@@ -109,7 +109,7 @@ public class InfinileapEngine implements AutoCloseable {
         // Add worker to each event loop
         for (var eventLoop : workerGroup) {
             var worker = context.createWorker(workerParameters);
-            var workerAgent = new WorkerAgent(worker, serviceInstance);
+            var workerAgent = new WorkerAgent(worker, bufferPool, serviceInstance);
             eventLoop.add(workerAgent);
         }
 

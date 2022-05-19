@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
@@ -76,11 +77,15 @@ public class Engine implements Callable<Void> {
         final Distributable message = new RpcService.SimpleMessage(0xDEAD, 0xBEEF);
 
 
-        channel.send(identifier, message, message, callback);
-        LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
+        while (true) {
+            channel.send(identifier, message, callback);
+            LockSupport.parkNanos(Duration.ofMillis(100).toNanos());
+        }
     }
 
     private final Callback<Void> callback = new Callback<>() {
+
+        private long counter = 0L;
 
         @Override
         public void onNext(Void message) {
@@ -94,7 +99,7 @@ public class Engine implements Callable<Void> {
 
         @Override
         public void onComplete() {
-
+            log.info("Message {} sent", counter++);
         }
     };
 }

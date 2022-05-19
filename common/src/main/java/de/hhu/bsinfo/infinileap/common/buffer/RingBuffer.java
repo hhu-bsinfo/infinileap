@@ -6,6 +6,7 @@ import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import jdk.incubator.foreign.*;
+import lombok.extern.slf4j.Slf4j;
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
@@ -41,22 +42,22 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     /**
      * This buffer's maximum capacity in bytes.
      */
-    private final long capacity;
+    private final int capacity;
 
     /**
      * The index within our backing buffer at which the head position is stored.
      */
-    private final long headPositionIndex;
+    private final int headPositionIndex;
 
     /**
      * The index within our backing buffer at which the cached head position is stored.
      */
-    private final long headCachePositionIndex;
+    private final int headCachePositionIndex;
 
     /**
      * The index within our backing buffer at which the tail position is stored.
      */
-    private final long tailPositionIndex;
+    private final int tailPositionIndex;
 
     /**
      * The underlying buffer used for storing data.
@@ -66,7 +67,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     /**
      * Bitmask used to keep indices within the buffer's bounds.
      */
-    private final long indexMask;
+    private final int indexMask;
 
     private final ResourceScope resourceScope = ResourceScope.newImplicitScope();
 
@@ -76,7 +77,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
         buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, resourceScope);
 
         // Store the buffer's actual capacity
-        capacity = buffer.byteSize() - RingBufferDescriptor.TRAILER_LENGTH;
+        capacity = (int) buffer.byteSize() - RingBufferDescriptor.TRAILER_LENGTH;
         indexMask = capacity - 1;
 
         // Remember positions at which indices are stored
@@ -101,7 +102,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
         final var headPositionIndex = this.headPositionIndex;
         final var head = (long) LONG_HANDLE.get(buffer, headPositionIndex);
         final var capacity = this.capacity;
-        final var headIndex = head & indexMask;
+        final var headIndex = (int) head & indexMask;
         final var maxBlockLength = capacity - headIndex;
 
         // Keep track of the number of bytes we read
@@ -135,13 +136,15 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     public void commitRead(int bytes) {
         final var buffer = this.buffer;
         final var headPositionIndex = this.headPositionIndex;
-        final var head = (long) LONG_HANDLE.get(headPositionIndex);
+        final var head = (long) LONG_HANDLE.get(buffer, headPositionIndex);
+        final var headIndex = (int) head & indexMask;
 
+        buffer.asSlice(headIndex, bytes).fill((byte) 0);
         LONG_HANDLE.setRelease(buffer, headPositionIndex, head + bytes);
     }
 
     public MemorySegment claim(final int bytes) {
-        MemorySegment result = null;
+        MemorySegment result;
         while ((result = tryClaim(bytes)) == null) {
             ThreadHints.onSpinWait();
         }
@@ -206,8 +209,8 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
         var head = (long) LONG_HANDLE.getVolatile(buffer, headCachePosition);
         long tail;
-        long tailIndex;
-        long padding;
+        int tailIndex;
+        int padding;
 
         do {
 
@@ -231,7 +234,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
             // Try to acquire the required space
             padding = 0;
-            tailIndex = tail & mask;
+            tailIndex = (int) tail & mask;
             final var remaining = total - tailIndex;
             if (required > remaining) { // If the space between the tail and the upper bound is not sufficient
 
@@ -286,6 +289,10 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
     public void disarm() throws IOException {
         eventFileDescriptor.reset();
+    }
+
+    public int offsetOf(MemorySegment segment) {
+        return (int) (segment.address().toRawLongValue() - buffer.address().toRawLongValue());
     }
 
     @Override
