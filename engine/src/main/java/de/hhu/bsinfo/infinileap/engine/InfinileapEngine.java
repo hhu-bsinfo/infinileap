@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.engine;
 
 
+import com.google.protobuf.CodedOutputStream;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.engine.agent.AcceptorAgent;
 import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
@@ -67,7 +68,7 @@ public class InfinileapEngine implements AutoCloseable {
         this.listenAddress = listenAddress;
 
         // Allocate buffer pool for outgoing messages
-        this.bufferPool = new BufferPool(2, MemoryAlignment.PAGE.value());
+        this.bufferPool = new BufferPool(4096, 128);
 
         // Create connection manager
         this.connectionManager = new ConnectionManager();

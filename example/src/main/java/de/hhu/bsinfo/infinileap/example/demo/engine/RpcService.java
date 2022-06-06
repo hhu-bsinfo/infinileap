@@ -6,7 +6,7 @@ import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.message.Handler;
-import de.hhu.bsinfo.infinileap.engine.message.Message;
+import de.hhu.bsinfo.infinileap.message.TextMessage;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import jdk.incubator.foreign.SegmentAllocator;
@@ -20,22 +20,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public final class RpcService {
 
-    private final Distributable replyMessage = new SimpleMessage(0xCAFE, 0xF00D);
     private final Identifier replyIdentifier = Identifier.of(0x02);
 
     private final MemorySegment data = MemorySegment.allocateNative(16L, ResourceScope.newImplicitScope());
     private final MemorySegment header = MemorySegment.allocateNative(8L, ResourceScope.newImplicitScope());
 
     @Handler(identifier = 0x01)
-    public void onMessage(MemorySegment header, MemorySegment body, Channel replyChannel) {
+    public void onMessage(TextMessage textMessage, Channel replyChannel) {
+        log.debug(textMessage.getContent());
 //        if (header != null) logPayload(header);
 //        if (body != null) logPayload(body);
 
-        replyChannel.send(replyIdentifier, this.replyMessage, callback);
+//        var reply= TextMessage.newBuilder()
+//                .setContent("Hello Back!")
+//                .build();
+
+//        replyChannel.send(replyIdentifier, reply, callback);
     }
 
     @Handler(identifier = 0x02)
-    public void onReply(MemorySegment header, MemorySegment body, Channel replyChannel) {
+    public void onReply(TextMessage textMessage, Channel replyChannel) {
 //        if (header != null) logPayload(header);
 //        if (body != null) logPayload(body);
     }
@@ -69,33 +73,4 @@ public final class RpcService {
             log.info("Message {} sent", counter++);
         }
     };
-
-    public static final class SimpleMessage implements Distributable {
-
-        private int firstNumber;
-        private int secondNumber;
-
-        public SimpleMessage(int firstNumber, int secondNumber) {
-            this.firstNumber = firstNumber;
-            this.secondNumber = secondNumber;
-        }
-
-        @Override
-        public long writeTo(MemorySegment target) {
-            target.set(ValueLayout.JAVA_INT, 0L, firstNumber);
-            target.set(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT.byteSize(), secondNumber);
-            return ValueLayout.JAVA_INT.byteSize() * 2;
-        }
-
-        @Override
-        public void readFrom(MemorySegment source) {
-            firstNumber = source.get(ValueLayout.JAVA_INT, 0L);
-            secondNumber = source.get(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT.byteSize());
-        }
-
-        @Override
-        public long byteSize() {
-            return 2 * Integer.BYTES;
-        }
-    }
 }

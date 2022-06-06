@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static org.openucx.Communication.ucp_request_free;
 
@@ -68,7 +69,7 @@ public class WorkerAgent extends CommandableAgent {
     public WorkerAgent(Worker worker, BufferPool bufferPool, Object serviceInstance) {
         this.worker = worker;
         this.bufferPool = bufferPool;
-        this.requestBuffer = new RingBuffer(MemoryAlignment.PAGE.value());
+        this.requestBuffer = new RingBuffer(32 * MemoryAlignment.PAGE.value());
         messageDispatcher = MessageDispatcher.forServiceInstance(serviceInstance, channelMap::get);
     }
 
@@ -176,9 +177,7 @@ public class WorkerAgent extends CommandableAgent {
         ucp_request_free(request);
         var userBuffer = getBuffer((int) data.toRawLongValue());
         var callback = userBuffer.getCallback();
-        log.debug("Releasing Buffer {}", userBuffer.identifier());
         userBuffer.release();
-        log.debug("Buffer {} released", userBuffer.identifier());
         callback.onComplete();
     };
 
@@ -193,7 +192,6 @@ public class WorkerAgent extends CommandableAgent {
 
     private final RingBuffer.MessageHandler requestHandler = (msgTypeId, buffer, index, length) -> {
         var slice = buffer.asSlice(index, length);
-        MemoryUtil.dump(slice);
         var channelId = SendActiveMessage.getChannelId(slice);
         var bufferId = SendActiveMessage.getBufferId(slice);
         var messageId = SendActiveMessage.getMessageId(slice);
@@ -201,8 +199,6 @@ public class WorkerAgent extends CommandableAgent {
         var userBuffer = getBuffer(bufferId);
 
         activeMessageParameters.setUserData(bufferId);
-
-        log.debug("Using endpoint id {}", channelId);
         var endpoint = endpoints[channelId];
         var request = endpoint.sendActive(
                 Identifier.of(messageId),

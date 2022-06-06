@@ -2,10 +2,9 @@ package de.hhu.bsinfo.infinileap.example.demo.engine;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
-import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
-import de.hhu.bsinfo.infinileap.example.demo.Atomic;
+import de.hhu.bsinfo.infinileap.message.TextMessage;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 import jdk.incubator.foreign.ValueLayout;
@@ -13,12 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 import java.net.InetSocketAddress;
-import java.time.Duration;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 @CommandLine.Command(
@@ -74,13 +68,15 @@ public class Engine implements Callable<Void> {
         log.info("Established connection with {}", remoteAddress);
 
         final Identifier identifier = Identifier.of(0x1);
-        final Distributable message = new RpcService.SimpleMessage(0xDEAD, 0xBEEF);
+        final var message = TextMessage.newBuilder()
+                .setContent("Hello World!")
+                .build();
 
 
-        while (true) {
+//        while (true) {
             channel.send(identifier, message, callback);
-            LockSupport.parkNanos(Duration.ofMillis(100).toNanos());
-        }
+//            LockSupport.parkNanos(Duration.ofMillis(100).toNanos());
+//        }
     }
 
     private final Callback<Void> callback = new Callback<>() {

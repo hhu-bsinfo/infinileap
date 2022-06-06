@@ -7,7 +7,6 @@ import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
-import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
 import org.agrona.concurrent.QueuedPipe;
 import org.agrona.hints.ThreadHints;
@@ -121,13 +120,6 @@ public class BufferPool {
          */
         private Callback<Void> callback;
 
-        /**
-         * The request parameters belonging to this buffer slice.
-         */
-        private final RequestParameters requestParameters = new RequestParameters()
-                .setDataType(DataType.CONTIGUOUS_8_BIT)
-                .setFlags(RequestParameters.Flag.ACTIVE_MESSAGE_REPLY);
-
         public PooledBuffer(int identifier, MemorySegment segment, IntConsumer releaser) {
             this.identifier = identifier;
             this.releaser = releaser;
@@ -140,10 +132,6 @@ public class BufferPool {
 
         public int identifier() {
             return identifier;
-        }
-
-        public RequestParameters requestParameters() {
-            return requestParameters;
         }
 
         public void release() {

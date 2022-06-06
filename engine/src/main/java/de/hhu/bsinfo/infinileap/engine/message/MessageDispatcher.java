@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.engine.message;
 
+import com.google.protobuf.Message;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.util.ChannelResolver;
@@ -46,14 +47,16 @@ public class MessageDispatcher  {
         try {
             var caller = MethodHandles.lookup();
             var methodHandle = caller.unreflect(method);
-            var type = MethodType.methodType(void.class, MemorySegment.class, MemorySegment.class, Channel.class);
+            var factoryType = MethodType.methodType(MessageHandler.class, serviceInstance.getClass());
+            var interfaceType = MethodType.methodType(void.class, Message.class, Channel.class);
+            var dynamicType = MethodType.methodType(void.class, method.getParameterTypes()[0], Channel.class);
             var site = LambdaMetafactory.metafactory(
                     caller,
                     "onMessage",
-                    MethodType.methodType(MessageHandler.class, serviceInstance.getClass()),
-                    type,
+                    factoryType,
+                    interfaceType,
                     methodHandle,
-                    type
+                    dynamicType
             );
 
             MethodHandle factory = site.getTarget();

@@ -55,6 +55,9 @@ dependencies {
     implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
     annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
 
+    // Protobuf
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+
     // AssertJ
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
