@@ -20,11 +20,25 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class HandlerAdapter extends ActiveMessageCallback {
 
+    /**
+     * The identifier associated with this handler.
+     */
     private final int identifier;
 
+    /**
+     * The actual handler, which gets called whenever a message arrives.
+     */
     private final MessageHandler handler;
 
+    /**
+     * Maps memory addresses to {@link de.hhu.bsinfo.infinileap.engine.channel.Channel} instances.
+     */
     private final ChannelResolver resolver;
+
+    /**
+     * Used for deserializing incoming messages.
+     */
+    private final Parser<? extends MessageLite> parser;
 
     @Override
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
@@ -32,13 +46,10 @@ public class HandlerAdapter extends ActiveMessageCallback {
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
         var channel = resolver.resolve(endpoint);
 
+
         try {
-            var any = Any.parseFrom(header.asByteBuffer());
-            if (any.is(TextMessage.class)) {
-                handler.onMessage(any.unpack(TextMessage.class), channel);
-            } else {
-                log.error("Unrecognized message type");
-            }
+            var parsed = parser.parseFrom(header.asByteBuffer());
+            handler.onMessage(parsed, channel);
 
             return Status.OK;
         } catch (InvalidProtocolBufferException e) {

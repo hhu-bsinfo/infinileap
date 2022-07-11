@@ -3,7 +3,6 @@ package de.hhu.bsinfo.infinileap.engine.agent;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
-import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
@@ -14,17 +13,14 @@ import de.hhu.bsinfo.infinileap.engine.agent.message.SendActiveMessage;
 import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
 import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
-import de.hhu.bsinfo.infinileap.engine.message.MessageDispatcher;
+import de.hhu.bsinfo.infinileap.engine.message.CallManager;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import static org.openucx.Communication.ucp_request_free;
 
@@ -64,13 +60,13 @@ public class WorkerAgent extends CommandableAgent {
      */
     private final Map<MemoryAddress, Channel> channelMap = new HashMap<>();
 
-    private final MessageDispatcher messageDispatcher;
+    private final CallManager callManager;
 
     public WorkerAgent(Worker worker, BufferPool bufferPool, Object serviceInstance) {
         this.worker = worker;
         this.bufferPool = bufferPool;
         this.requestBuffer = new RingBuffer(32 * MemoryAlignment.PAGE.value());
-        messageDispatcher = MessageDispatcher.forServiceInstance(serviceInstance, channelMap::get);
+        callManager = CallManager.forServiceInstance(serviceInstance, channelMap::get);
     }
 
     @Override
@@ -80,7 +76,7 @@ public class WorkerAgent extends CommandableAgent {
         // Register message dispatcher with this agent's worker instance
 
         try {
-            messageDispatcher.registerOn(worker);
+            callManager.registerOn(worker);
             log.debug("Registered message dispatcher");
         } catch (ControlException e) {
             throw new RuntimeException(e);

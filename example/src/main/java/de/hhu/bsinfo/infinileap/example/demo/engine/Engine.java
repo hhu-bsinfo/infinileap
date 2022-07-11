@@ -73,10 +73,7 @@ public class Engine implements Callable<Void> {
                 .build();
 
 
-//        while (true) {
-            channel.send(identifier, message, callback);
-//            LockSupport.parkNanos(Duration.ofMillis(100).toNanos());
-//        }
+        channel.send(identifier, message, callback);
     }
 
     private final Callback<Void> callback = new Callback<>() {

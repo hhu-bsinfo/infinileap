@@ -24,8 +24,6 @@ import static org.openucx.Communication.ucp_request_free;
 @Slf4j
 public class Channel {
 
-    private static final int REQUEST_SHIFT = Integer.SIZE;
-
     private final int identifier;
 
     private final BufferPool bufferPool;
@@ -42,38 +40,28 @@ public class Channel {
         return identifier;
     }
 
-    private static long pack(int requestIdentifier, int bufferIdentifier) {
-        return (long) requestIdentifier << REQUEST_SHIFT | bufferIdentifier;
-    }
-
-    private static int getBufferIdentifier(long userData) {
-        return (int) userData;
-    }
-
-    private static int getRequestIdentifier(long userData) {
-        return (int) (userData >> REQUEST_SHIFT);
-    }
-
-
-
     public void send(Identifier identifier, Message message, Callback<Void> callback) {
 
         // Copy data into reserved buffer
         var buffer = bufferPool.claim();
 
+        // Allocate output stream pointing to claimed buffer region
         var outputStream = MemorySegmentOutputStream.wrap(buffer.segment());
 
         try {
-            Any.pack(message).writeTo(outputStream);
+            // Write message to claimed buffer region
+            message.writeTo(outputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        // Remember number of bytes written
         var length = outputStream.bytesWritten();
+
+        // Set callback for completion event
         buffer.setCallback(callback);
 
         // Send message to event loop
-
         var segment= ringBuffer.claim(SendActiveMessage.BYTES);
         SendActiveMessage.setChannelId(segment, this.identifier);
         SendActiveMessage.setMessageId(segment, identifier.value());
