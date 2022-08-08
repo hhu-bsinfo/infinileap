@@ -7,10 +7,10 @@ import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.message.Handler;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.SegmentAllocator;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -22,8 +22,8 @@ public final class RpcService {
 
     private final Identifier replyIdentifier = Identifier.of(0x02);
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, ResourceScope.newImplicitScope());
-    private final MemorySegment header = MemorySegment.allocateNative(8L, ResourceScope.newImplicitScope());
+    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
+    private final MemorySegment header = MemorySegment.allocateNative(8L, MemorySession.openImplicit());
 
     @Handler(identifier = 0x01)
     public void onMessage(TextMessage textMessage, Channel replyChannel) {

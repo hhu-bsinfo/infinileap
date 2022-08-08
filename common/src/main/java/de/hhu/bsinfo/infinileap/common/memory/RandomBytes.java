@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.common.memory;
 
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 import java.util.concurrent.ThreadLocalRandom;
 

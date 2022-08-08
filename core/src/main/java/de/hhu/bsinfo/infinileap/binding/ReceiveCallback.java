@@ -1,8 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.NativeSymbol;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.ucp_tag_recv_nbx_callback_t;
 
 @FunctionalInterface
@@ -15,7 +15,7 @@ public interface ReceiveCallback extends ucp_tag_recv_nbx_callback_t {
         onRequestReceived(request.toRawLongValue(), Status.of(status), tagInfo, data);
     }
 
-    default NativeSymbol upcallStub() {
-        return ucp_tag_recv_nbx_callback_t.allocate(this, ResourceScope.newImplicitScope());
+    default MemorySegment upcallStub() {
+        return ucp_tag_recv_nbx_callback_t.allocate(this, MemorySession.openImplicit());
     }
 }

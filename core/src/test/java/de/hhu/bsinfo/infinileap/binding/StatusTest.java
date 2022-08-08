@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAddress;
+import java.lang.foreign.MemoryAddress;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

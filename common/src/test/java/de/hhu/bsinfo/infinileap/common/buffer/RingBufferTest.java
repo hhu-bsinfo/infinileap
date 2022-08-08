@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.common.buffer;
 
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.ValueLayout;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;

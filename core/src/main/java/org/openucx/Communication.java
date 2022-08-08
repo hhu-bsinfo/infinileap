@@ -1,10 +1,8 @@
 package org.openucx;
 
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 import java.lang.invoke.MethodHandle;
-
-import static jdk.incubator.foreign.CLinker.*;
 
 public class Communication {
 
@@ -26,7 +24,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_get_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_get_nbx", ucp_get_nbx$FUNC, false
+            "ucp_get_nbx", ucp_get_nbx$FUNC
     );
 
     public static long ucp_get_nbx ( Addressable ep,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
@@ -49,7 +47,7 @@ public class Communication {
     );
 
     static final MethodHandle ucp_put_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_put_nbx", ucp_put_nbx$FUNC, false
+            "ucp_put_nbx", ucp_put_nbx$FUNC
     );
 
     public static long ucp_put_nbx (Addressable ep, Addressable buffer, long count, long remote_addr, Addressable rkey, Addressable param) {
@@ -71,7 +69,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_tag_send_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_tag_send_nbx", ucp_tag_send_nbx$FUNC, false
+            "ucp_tag_send_nbx", ucp_tag_send_nbx$FUNC
     );
 
     public static long ucp_tag_send_nbx ( Addressable ep,  Addressable buffer,  long count,  long tag,  Addressable param) {
@@ -94,7 +92,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_tag_recv_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_tag_recv_nbx", ucp_tag_recv_nbx$FUNC, false
+            "ucp_tag_recv_nbx", ucp_tag_recv_nbx$FUNC
     );
 
     public static long ucp_tag_recv_nbx ( Addressable worker,  Addressable buffer,  long count,  long tag,  long tag_mask,  Addressable param) {
@@ -115,7 +113,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_stream_send_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_stream_send_nbx", ucp_stream_send_nbx$FUNC, false
+            "ucp_stream_send_nbx", ucp_stream_send_nbx$FUNC
     );
 
     public static long ucp_stream_send_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable param) {
@@ -137,7 +135,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_stream_recv_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_stream_recv_nbx", ucp_stream_recv_nbx$FUNC, false
+            "ucp_stream_recv_nbx", ucp_stream_recv_nbx$FUNC
     );
 
     public static long ucp_stream_recv_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable length,  Addressable param) {
@@ -161,7 +159,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_atomic_op_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_atomic_op_nbx", ucp_atomic_op_nbx$FUNC, false
+            "ucp_atomic_op_nbx", ucp_atomic_op_nbx$FUNC
     );
 
     public static long ucp_atomic_op_nbx ( Addressable ep,  int opcode,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
@@ -185,7 +183,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_am_send_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_am_send_nbx", ucp_am_send_nbx$FUNC, false
+            "ucp_am_send_nbx", ucp_am_send_nbx$FUNC
     );
 
     public static long ucp_am_send_nbx ( Addressable ep,  int id,  Addressable header,  long header_length,  Addressable buffer,  long count,  Addressable param) {
@@ -204,7 +202,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_worker_flush_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_worker_flush_nbx", ucp_worker_flush_nbx$FUNC, false
+            "ucp_worker_flush_nbx", ucp_worker_flush_nbx$FUNC
     );
 
     public static long ucp_worker_flush_nbx ( Addressable worker,  Addressable param) {
@@ -223,7 +221,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_ep_flush_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_ep_flush_nbx", ucp_ep_flush_nbx$FUNC, false
+            "ucp_ep_flush_nbx", ucp_ep_flush_nbx$FUNC
     );
 
     public static long ucp_ep_flush_nbx ( Addressable ep,  Addressable param) {
@@ -242,7 +240,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_ep_close_nbx$MH = RuntimeHelper.downcallHandle(
-            "ucp_ep_close_nbx", ucp_ep_close_nbx$FUNC, false
+            "ucp_ep_close_nbx", ucp_ep_close_nbx$FUNC
     );
 
     public static long ucp_ep_close_nbx ( Addressable ep,  Addressable param) {
@@ -261,7 +259,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_request_cancel$MH = RuntimeHelper.downcallHandle(
-            "ucp_request_cancel", ucp_request_cancel$FUNC, false
+            "ucp_request_cancel", ucp_request_cancel$FUNC
     );
 
     public static void ucp_request_cancel ( Addressable worker,  long request) {
@@ -279,7 +277,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_request_free$MH = RuntimeHelper.downcallHandle(
-            "ucp_request_free", ucp_request_free$FUNC, false
+            "ucp_request_free", ucp_request_free$FUNC
     );
 
     public static void ucp_request_free ( long request) {
@@ -297,7 +295,7 @@ public class Communication {
     );
 
     private static final MethodHandle ucp_request_check_status$MH = RuntimeHelper.downcallHandle(
-            "ucp_request_check_status", ucp_request_check_status$FUNC, false
+            "ucp_request_check_status", ucp_request_check_status$FUNC
     );
 
     public static byte ucp_request_check_status ( long request) {

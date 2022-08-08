@@ -15,7 +15,7 @@ import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.CallManager;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
-import jdk.incubator.foreign.MemoryAddress;
+import java.lang.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

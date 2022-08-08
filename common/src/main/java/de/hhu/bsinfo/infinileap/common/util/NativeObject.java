@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.common.util;
 
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 public class NativeObject {
 
@@ -20,8 +20,8 @@ public class NativeObject {
             throw new IllegalArgumentException("memory address is pointing at null");
         }
 
-        if (!segment.scope().isAlive()) {
-            throw new IllegalArgumentException("the provided segment's scope must be alive");
+        if (!segment.session().isAlive()) {
+            throw new IllegalArgumentException("the provided segment's session must be alive");
         }
 
         this.segment = segment;
@@ -47,8 +47,8 @@ public class NativeObject {
         return segment.byteSize();
     }
 
-    protected ResourceScope scope() {
-        return segment.scope();
+    protected MemorySession session() {
+        return segment.session();
     }
 
     public final MemorySegment segment() {

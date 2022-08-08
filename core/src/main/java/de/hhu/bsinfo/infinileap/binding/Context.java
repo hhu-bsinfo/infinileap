@@ -2,7 +2,7 @@ package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
 import static org.openucx.OpenUcx.*;
@@ -32,8 +32,8 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public static Context initialize(ContextParameters parameters, @Nullable Configuration configuration) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
 
             /*
              * We have to use ucp_init_version at this point since ucp_init
@@ -59,8 +59,8 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public Worker createWorker(WorkerParameters parameters) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var status = ucp_worker_create(
                     this.address(),
                     parameters.address(),
@@ -80,7 +80,7 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public MemoryRegion allocateMemory(long size, MemoryAlignment alignment) throws ControlException {
-        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), ResourceScope.newImplicitScope()));
+        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), MemorySession.openImplicit()));
     }
 
     public MemoryRegion mapMemory(NativeObject object) throws ControlException {
@@ -88,10 +88,10 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public MemoryRegion mapMemory(MemorySegment segment) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var parameters = new MappingParameters().setSegment(segment);
-            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
+            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
             var status = ucp_mem_map(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -121,9 +121,9 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
-            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
             var status = ucp_rkey_pack(
                     Parameter.of(this),
                     Parameter.of(handle),
@@ -139,7 +139,7 @@ public class Context extends NativeObject implements AutoCloseable {
             var remoteKey = MemorySegment.ofAddress(
                     pointer.get(ValueLayout.ADDRESS, 0L),
                     size.get(ValueLayout.JAVA_LONG, 0L),
-                    ResourceScope.globalScope()
+                    MemorySession.global()
             );
 
             var descriptor = new MemoryDescriptor(segment, remoteKey);

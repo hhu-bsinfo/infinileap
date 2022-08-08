@@ -1,8 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.NativeSymbol;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.ucs_log_func_t;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class NativeLogger {
         return CONTINUE;
     };
 
-    private static final NativeSymbol UPCALL = ucs_log_func_t.allocate(HANDLER, ResourceScope.globalScope());
+    private static final MemorySegment UPCALL = ucs_log_func_t.allocate(HANDLER, MemorySession.global());
 
     private static final AtomicBoolean ENABLED = new AtomicBoolean(false);
 

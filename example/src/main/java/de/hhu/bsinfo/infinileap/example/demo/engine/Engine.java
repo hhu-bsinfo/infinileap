@@ -5,9 +5,9 @@ import de.hhu.bsinfo.infinileap.binding.Identifier;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -31,8 +31,8 @@ public class Engine implements Callable<Void> {
             description = "The address this instance connects to.")
     private InetSocketAddress remoteAddress;
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, ResourceScope.newImplicitScope());
-    private final MemorySegment header = MemorySegment.allocateNative(8L, ResourceScope.newImplicitScope());
+    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
+    private final MemorySegment header = MemorySegment.allocateNative(8L, MemorySession.openImplicit());
 
     @Override
     public Void call() throws Exception {

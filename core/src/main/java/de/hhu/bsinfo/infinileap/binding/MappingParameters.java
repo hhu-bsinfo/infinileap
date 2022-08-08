@@ -4,9 +4,9 @@ import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -14,11 +14,11 @@ import static org.openucx.OpenUcx.*;
 public class MappingParameters extends NativeObject {
 
     public MappingParameters() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public MappingParameters(ResourceScope scope) {
-        super(ucp_mem_map_params_t.allocate(scope));
+    public MappingParameters(MemorySession session) {
+        super(ucp_mem_map_params_t.allocate(session));
     }
 
     public MappingParameters setSegment(MemorySegment segment) {

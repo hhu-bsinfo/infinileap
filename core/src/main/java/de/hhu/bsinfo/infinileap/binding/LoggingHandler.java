@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.util.LogLevel;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.openucx.OpenUcx;
 import org.openucx.ucs_log_func_t;
 
@@ -36,8 +36,8 @@ public interface LoggingHandler extends ucs_log_func_t {
 
 
     private static String formatMessage(MemoryAddress format, MemoryAddress arguments) {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1, scope);
+        try (var session = MemorySession.openConfined()) {
+            var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1, session);
             vsnprintf(buffer, buffer.byteSize(), format, arguments);
             return buffer.getUtf8String(0L);
         }

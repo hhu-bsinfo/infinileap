@@ -5,8 +5,9 @@ import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import jdk.incubator.foreign.NativeSymbol;
-import jdk.incubator.foreign.ResourceScope;
+
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.*;
 
 import java.net.InetSocketAddress;
@@ -16,14 +17,14 @@ import static org.openucx.OpenUcx.*;
 public class EndpointParameters extends NativeObject {
 
     private NativeInetSocketAddress remoteAddress;
-    private NativeSymbol errorUpcall;
+    private MemorySegment errorUpcall;
 
     public EndpointParameters() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public EndpointParameters(ResourceScope scope) {
-        super(ucp_ep_params_t.allocate(scope));
+    public EndpointParameters(MemorySession session) {
+        super(ucp_ep_params_t.allocate(session));
     }
 
     public EndpointParameters setRemoteAddress(WorkerAddress address) {

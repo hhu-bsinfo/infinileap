@@ -1,17 +1,17 @@
 package de.hhu.bsinfo.infinileap.engine.util;
 
-import jdk.incubator.foreign.MemoryHandles;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
 public class MemorySegmentInputStream extends InputStream {
 
-    private static final VarHandle BYTE_HANDLE = MemoryHandles.varHandle(ValueLayout.JAVA_BYTE);
+    private static final VarHandle BYTE_HANDLE = MethodHandles.memorySegmentViewVarHandle(ValueLayout.JAVA_BYTE);
 
     private MemorySegment segment;
 

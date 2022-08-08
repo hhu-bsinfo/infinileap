@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.common.util;
 
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 
 public interface Distributable {
 

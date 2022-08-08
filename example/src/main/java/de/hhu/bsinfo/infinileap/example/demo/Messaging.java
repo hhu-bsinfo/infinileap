@@ -4,8 +4,8 @@ import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.util.CommunicationBarrier;
 import de.hhu.bsinfo.infinileap.util.Requests;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -28,7 +28,7 @@ public class Messaging extends CommunicationDemo {
 
         // Allocate a buffer and write the message
         final var source = MemorySegment.ofArray(MESSAGE_BYTES);
-        final var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, scope);
+        final var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, session);
         buffer.copyFrom(source);
 
         // Send the buffer to the server
@@ -45,7 +45,7 @@ public class Messaging extends CommunicationDemo {
     protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
-        var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, scope);
+        var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, session);
 
         // Receive the message
         log.info("Receiving message");

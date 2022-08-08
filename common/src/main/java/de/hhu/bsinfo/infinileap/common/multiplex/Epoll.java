@@ -3,10 +3,10 @@ package de.hhu.bsinfo.infinileap.common.multiplex;
 import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.NativeError;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 import org.unix.epoll_event;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public final class Epoll {
      */
     private static final long LAYOUT_SIZE = epoll_event.sizeof();
 
-    private final ResourceScope scope = ResourceScope.newImplicitScope();
+    private final MemorySession session = MemorySession.openImplicit();
 
     /**
      * The epoll file descriptor used by this epoll instance.
@@ -67,11 +67,11 @@ public final class Epoll {
     /**
      * The segment used for add and modify operations.
      */
-    private final MemorySegment eventSegment = MemorySegment.allocateNative(epoll_event.$LAYOUT(), scope);
+    private final MemorySegment eventSegment = MemorySegment.allocateNative(epoll_event.$LAYOUT(), session);
 
     private Epoll(FileDescriptor epfd, int pollSize) {
         this.epfd = epfd;
-        this.pollSegment = MemorySegment.allocateNative(pollSize * epoll_event.$LAYOUT().byteSize(), scope);
+        this.pollSegment = MemorySegment.allocateNative(pollSize * epoll_event.$LAYOUT().byteSize(), session);
     }
 
     public void add(FileDescriptor fileDescriptor, EventType... eventTypes) throws IOException {

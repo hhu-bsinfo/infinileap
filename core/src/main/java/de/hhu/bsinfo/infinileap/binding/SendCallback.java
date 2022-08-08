@@ -1,9 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.NativeSymbol;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.ucp_send_nbx_callback_t;
 
 @FunctionalInterface
@@ -16,7 +15,7 @@ public interface SendCallback extends ucp_send_nbx_callback_t {
         onRequestSent(request.toRawLongValue(), Status.of(status), data);
     }
 
-    default NativeSymbol upcallStub() {
-        return ucp_send_nbx_callback_t.allocate(this, ResourceScope.newImplicitScope());
+    default MemorySegment upcallStub() {
+        return ucp_send_nbx_callback_t.allocate(this, MemorySession.openImplicit());
     }
 }

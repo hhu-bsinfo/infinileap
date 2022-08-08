@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -11,11 +11,11 @@ import static org.openucx.OpenUcx.*;
 public class ContextAttributes extends NativeObject {
 
     ContextAttributes() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    ContextAttributes(ResourceScope scope) {
-        super(ucp_context_attr_t.allocate(scope));
+    ContextAttributes(MemorySession session) {
+        super(ucp_context_attr_t.allocate(session));
     }
 
     public long requestSize() {

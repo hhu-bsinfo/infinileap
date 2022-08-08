@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.common.memory;
 
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
@@ -17,15 +17,15 @@ public class MemoryUtil {
 
 
     public static MemorySegment wrap(MemoryAddress address, long capacity) {
-        return MemorySegment.ofAddress(address, capacity, ResourceScope.globalScope());
+        return MemorySegment.ofAddress(address, capacity, MemorySession.global());
     }
 
-    public static MemorySegment allocate(MemoryLayout layout, ResourceScope scope) {
-        return MemorySegment.allocateNative(layout, scope);
+    public static MemorySegment allocate(MemoryLayout layout, MemorySession session) {
+        return MemorySegment.allocateNative(layout, session);
     }
 
-    public static MemorySegment allocate(long size, MemoryAlignment alignment, ResourceScope scope) {
-        return MemorySegment.allocateNative(size, alignment.value(), scope);
+    public static MemorySegment allocate(long size, MemoryAlignment alignment, MemorySession session) {
+        return MemorySegment.allocateNative(size, alignment.value(), session);
     }
 
     public static void dump(MemoryAddress address, long length) {
@@ -37,8 +37,8 @@ public class MemoryUtil {
     }
 
     public static void dump(MemoryAddress address, long length, String title, PrintStream stream) {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            dump(MemorySegment.ofAddress(address, length, scope), title, stream);
+        try (var session = MemorySession.openConfined()) {
+            dump(MemorySegment.ofAddress(address, length, session), title, stream);
         }
     }
 

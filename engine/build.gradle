@@ -7,7 +7,7 @@ plugins {
     id 'java-library'
 
     // Jextract plugin
-    id "io.github.krakowski.jextract" version "0.2.6"
+    id "io.github.krakowski.jextract" version "0.3.0"
 
     // Protobuf plugin
     id "com.google.protobuf" version "0.8.18"

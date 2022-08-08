@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.common.util;
 
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 import static org.unix.Linux.*;
 
@@ -8,7 +8,7 @@ import static org.unix.Linux.*;
 public class NativeError {
 
     private static final MemorySegment ERRNO = MemorySegment.ofAddress(
-            __errno_location(), ValueLayout.ADDRESS.byteSize(), ResourceScope.globalScope());
+            __errno_location(), ValueLayout.ADDRESS.byteSize(), MemorySession.global());
 
     public static final int OK = 0;
     public static final int ERROR = -1;

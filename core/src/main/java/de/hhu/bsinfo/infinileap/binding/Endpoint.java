@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 import static org.openucx.Communication.*;
 import static org.openucx.OpenUcx.ucp_ep_rkey_unpack;
@@ -137,8 +137,8 @@ public class Endpoint extends NativeObject implements AutoCloseable {
 
     public RemoteKey unpack(MemoryDescriptor descriptor) throws ControlException {
         var keySegment = descriptor.keySegment();
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var status = ucp_ep_rkey_unpack(
                 Parameter.of(this),
                 keySegment,

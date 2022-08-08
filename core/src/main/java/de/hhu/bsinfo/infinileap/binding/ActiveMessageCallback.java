@@ -1,15 +1,15 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.openucx.ucp_am_recv_callback_t;
 
 public abstract class ActiveMessageCallback {
 
-    private final NativeSymbol upcallSymbol;
+    private final MemorySegment upcallSymbol;
 
     protected ActiveMessageCallback() {
-        this.upcallSymbol = ucp_am_recv_callback_t.allocate(callback, ResourceScope.newImplicitScope());
+        this.upcallSymbol = ucp_am_recv_callback_t.allocate(callback, MemorySession.openImplicit());
     }
 
     private final ucp_am_recv_callback_t callback = (argument, header, headerSize, data, dataSize, parameters) ->

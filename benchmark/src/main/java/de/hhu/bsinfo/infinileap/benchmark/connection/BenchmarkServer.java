@@ -8,9 +8,9 @@ import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;
 import de.hhu.bsinfo.infinileap.benchmark.util.*;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;

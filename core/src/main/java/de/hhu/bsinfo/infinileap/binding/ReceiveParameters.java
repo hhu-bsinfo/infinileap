@@ -3,8 +3,8 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 import org.openucx.ucp_am_recv_param_t;
 
 import static org.openucx.OpenUcx.*;
@@ -12,11 +12,11 @@ import static org.openucx.OpenUcx.*;
 public class ReceiveParameters extends NativeObject {
 
     public ReceiveParameters() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public ReceiveParameters(ResourceScope scope) {
-        super(ucp_am_recv_param_t.allocate(scope));
+    public ReceiveParameters(MemorySession session) {
+        super(ucp_am_recv_param_t.allocate(session));
     }
 
     public MemoryAddress getReplyEndpoint() {

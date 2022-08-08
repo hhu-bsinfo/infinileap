@@ -5,8 +5,8 @@ import de.hhu.bsinfo.infinileap.binding.RequestParameters;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
 import org.agrona.concurrent.QueuedPipe;
 import org.agrona.hints.ThreadHints;
@@ -33,7 +33,7 @@ public class BufferPool {
     /**
      * This pool's associated resource scope.
      */
-    private final ResourceScope scope = ResourceScope.newImplicitScope();
+    private final MemorySession session = MemorySession.openImplicit();
 
     public BufferPool(final int count, final long size) {
         indexedBuffers = new PooledBuffer[count];
@@ -41,7 +41,7 @@ public class BufferPool {
 
         // Create base buffer containing enough space for pooled buffers
         // and register it with the InfiniBand hardware
-        baseBuffer = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, scope);
+        baseBuffer = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, session);
 
         IntConsumer releaser = this::release;
         for (int i = 0; i < count; i++) {

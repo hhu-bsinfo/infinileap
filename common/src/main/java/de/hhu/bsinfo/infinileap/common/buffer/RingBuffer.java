@@ -5,14 +5,16 @@ import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
-import jdk.incubator.foreign.*;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.foreign.*;
+
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
 import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
 import static org.agrona.concurrent.broadcast.RecordDescriptor.PADDING_MSG_TYPE_ID;
@@ -31,9 +33,9 @@ public class RingBuffer implements SegmentAllocator, Watchable {
         void onMessage(int msgTypeId, MemorySegment buffer, long index, int length);
     }
 
-    private static final VarHandle LONG_HANDLE = MemoryHandles.varHandle(ValueLayout.JAVA_LONG);
+    private static final VarHandle LONG_HANDLE = MethodHandles.memorySegmentViewVarHandle(ValueLayout.JAVA_LONG);
 
-    private static final VarHandle INT_HANDLE = MemoryHandles.varHandle(ValueLayout.JAVA_INT);
+    private static final VarHandle INT_HANDLE = MethodHandles.memorySegmentViewVarHandle(ValueLayout.JAVA_INT);
 
     private static final int REQUEST_MESSAGE_ID = 1;
 
@@ -69,12 +71,12 @@ public class RingBuffer implements SegmentAllocator, Watchable {
      */
     private final int indexMask;
 
-    private final ResourceScope resourceScope = ResourceScope.newImplicitScope();
+    private final MemorySession session = MemorySession.openImplicit();
 
     public RingBuffer(int size) {
 
         // Allocate a new page-aligned buffer
-        buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, resourceScope);
+        buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
 
         // Store the buffer's actual capacity
         capacity = (int) buffer.byteSize() - RingBufferDescriptor.TRAILER_LENGTH;

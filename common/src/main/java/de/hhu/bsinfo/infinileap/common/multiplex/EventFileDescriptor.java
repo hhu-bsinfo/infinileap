@@ -4,9 +4,9 @@ import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.NativeError;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 
 import java.io.IOException;
 
@@ -14,9 +14,9 @@ import static org.unix.Linux.*;
 
 public final class EventFileDescriptor extends FileDescriptor {
 
-    private final ResourceScope scope = ResourceScope.newImplicitScope();
+    private final MemorySession session = MemorySession.openImplicit();
 
-    private final MemorySegment counter = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
+    private final MemorySegment counter = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
 
     private EventFileDescriptor(int fd) {
         super(fd);

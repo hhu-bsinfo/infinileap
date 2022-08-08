@@ -11,7 +11,7 @@ import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.util.MemorySegmentOutputStream;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

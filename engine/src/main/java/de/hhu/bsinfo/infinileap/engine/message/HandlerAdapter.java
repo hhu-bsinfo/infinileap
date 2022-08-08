@@ -5,9 +5,9 @@ import de.hhu.bsinfo.infinileap.binding.ActiveMessageCallback;
 import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.engine.util.ChannelResolver;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class HandlerAdapter extends ActiveMessageCallback {
 
     @Override
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
-        var params = ucp_am_recv_param_t.ofAddress(parameters, ResourceScope.globalScope());
+        var params = ucp_am_recv_param_t.ofAddress(parameters, MemorySession.global());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
         var channel = resolver.resolve(endpoint);
 

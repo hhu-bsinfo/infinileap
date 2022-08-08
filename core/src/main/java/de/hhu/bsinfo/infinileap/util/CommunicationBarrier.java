@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.util;
 
 import de.hhu.bsinfo.infinileap.binding.Status;
-import jdk.incubator.foreign.MemoryAddress;
+import java.lang.foreign.MemoryAddress;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

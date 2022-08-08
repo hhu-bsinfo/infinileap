@@ -1,8 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.ValueLayout;
 
 public class MemoryHandle extends NativeObject {
 

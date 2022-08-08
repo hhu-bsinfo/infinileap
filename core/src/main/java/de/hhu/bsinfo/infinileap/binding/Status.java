@@ -1,8 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryHandles;
+import java.lang.foreign.MemoryAddress;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;

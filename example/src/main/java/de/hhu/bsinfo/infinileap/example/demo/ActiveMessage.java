@@ -3,9 +3,9 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.util.Requests;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -37,8 +37,8 @@ public class ActiveMessage extends CommunicationDemo {
         );
 
         // Create header and data segments
-        final var header = MemorySegment.allocateNative(4, scope);
-        final var data = MemorySegment.allocateNative(message.byteSize(), scope);
+        final var header = MemorySegment.allocateNative(4, session);
+        final var data = MemorySegment.allocateNative(message.byteSize(), session);
 
         // Copy message into native segment
         MemorySegment.copy(message, 0L, data, 0L, message.byteSize());

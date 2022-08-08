@@ -6,7 +6,7 @@ import de.hhu.bsinfo.infinileap.binding.Worker;
 import de.hhu.bsinfo.infinileap.util.Requests;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkInstruction;
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 
 public class BenchmarkInstructions {
 

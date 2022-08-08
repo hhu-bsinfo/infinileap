@@ -5,7 +5,7 @@ import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.Requests;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemorySession;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -60,7 +60,7 @@ public abstract class CommunicationDemo implements Runnable {
 
     private final AtomicBoolean barrier = new AtomicBoolean();
 
-    protected final ResourceScope scope = ResourceScope.newSharedScope();
+    protected final MemorySession session = MemorySession.openShared();
 
     @Override
     public void run() {
@@ -79,8 +79,8 @@ public abstract class CommunicationDemo implements Runnable {
             log.error("Unexpected interrupt occured", e);
         }
 
-        // Release resource scope
-        scope.close();
+        // Close memory session
+        session.close();
     }
 
     private void initialize() throws ControlException, InterruptedException {

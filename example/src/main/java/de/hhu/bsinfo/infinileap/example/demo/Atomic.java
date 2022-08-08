@@ -5,7 +5,7 @@ import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.util.CommunicationBarrier;
 import de.hhu.bsinfo.infinileap.util.Requests;
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -38,7 +38,7 @@ public class Atomic extends CommunicationDemo {
         log.info("Waiting for remote access");
 
         // Wait until remote signals completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES, scope);
+        final var completion = MemorySegment.allocateNative(Byte.BYTES, session);
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
                 .setReceiveCallback(barrier::release));
 
@@ -78,7 +78,7 @@ public class Atomic extends CommunicationDemo {
         Requests.await(worker, request);
 
         // Signal completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES, scope);
+        final var completion = MemorySegment.allocateNative(Byte.BYTES, session);
         endpoint.sendTagged(completion, Tag.of(0L));
     }
 }

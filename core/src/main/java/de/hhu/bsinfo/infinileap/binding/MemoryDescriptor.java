@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 import java.lang.invoke.VarHandle;
 
@@ -25,19 +25,19 @@ public class MemoryDescriptor extends NativeObject {
             LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("key_data"));
 
     public MemoryDescriptor() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public MemoryDescriptor(ResourceScope scope) {
-        super(MemorySegment.allocateNative(LAYOUT, scope));
+    public MemoryDescriptor(MemorySession session) {
+        super(MemorySegment.allocateNative(LAYOUT, session));
     }
 
     MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey) {
-        this(segment, remoteKey, ResourceScope.newImplicitScope());
+        this(segment, remoteKey, MemorySession.openImplicit());
     }
 
-    MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey, ResourceScope scope) {
-        super(MemorySegment.allocateNative(LAYOUT, scope));
+    MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey, MemorySession session) {
+        super(MemorySegment.allocateNative(LAYOUT, session));
 
         setBufferAddress(segment.address());
         setBufferSize(segment.byteSize());

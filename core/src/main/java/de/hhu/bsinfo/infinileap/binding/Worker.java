@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 
 import static org.openucx.Communication.ucp_request_cancel;
 import static org.openucx.Communication.ucp_request_free;
@@ -25,9 +25,9 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public WorkerAddress getAddress() throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
-            var length = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+            var length = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
             var status = ucp_worker_get_address(
                     Parameter.of(this),
                     pointer,
@@ -59,8 +59,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public Endpoint createEndpoint(EndpointParameters parameters) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var status = ucp_ep_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -76,8 +76,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public Listener createListener(ListenerParameters parameters) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var status = ucp_listener_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -131,8 +131,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public FileDescriptor fileDescriptor() throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var descriptor = MemorySegment.allocateNative(ValueLayout.JAVA_INT, scope);
+        try (var session = MemorySession.openConfined()) {
+            var descriptor = MemorySegment.allocateNative(ValueLayout.JAVA_INT, session);
             var status = ucp_worker_get_efd(
                 Parameter.of(this),
                 descriptor

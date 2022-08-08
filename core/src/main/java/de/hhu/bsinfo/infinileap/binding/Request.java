@@ -1,6 +1,6 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import jdk.incubator.foreign.MemoryAddress;
+import java.lang.foreign.MemoryAddress;
 
 import java.io.Closeable;
 

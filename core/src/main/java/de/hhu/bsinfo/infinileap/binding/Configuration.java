@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import jdk.incubator.foreign.*;
+import java.lang.foreign.*;
 import org.jetbrains.annotations.Nullable;
 
 import static org.openucx.OpenUcx.*;
@@ -21,11 +21,11 @@ public class Configuration extends NativeObject implements AutoCloseable{
      * Reads in the configuration form the environment.
      */
     public static Configuration read(@Nullable String prefix, @Nullable String filename) throws ControlException {
-        try (var scope = ResourceScope.newConfinedScope()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, scope);
+        try (var session = MemorySession.openConfined()) {
+            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
             var status = ucp_config_read(
-                    Parameter.ofNullable(prefix, scope),
-                    Parameter.ofNullable(filename, scope),
+                    Parameter.ofNullable(prefix, session),
+                    Parameter.ofNullable(filename, session),
                     pointer.address()
             );
 

@@ -3,10 +3,9 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.NativeSymbol;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -15,16 +14,16 @@ public class RequestParameters extends NativeObject {
 
     static final RequestParameters EMPTY = new RequestParameters();
 
-    private NativeSymbol sendUpcall;
-    private NativeSymbol receiveUpcall;
-    private NativeSymbol streamUpcall;
+    private MemorySegment sendUpcall;
+    private MemorySegment receiveUpcall;
+    private MemorySegment streamUpcall;
 
     public RequestParameters() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public RequestParameters(ResourceScope scope) {
-        super(ucp_request_param_t.allocate(scope));
+    public RequestParameters(MemorySession session) {
+        super(ucp_request_param_t.allocate(session));
     }
 
     public RequestParameters setUserData(long data) {

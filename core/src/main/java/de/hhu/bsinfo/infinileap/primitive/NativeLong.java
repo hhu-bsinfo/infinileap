@@ -1,24 +1,24 @@
 package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 
 public final class NativeLong extends NativePrimitive {
 
     private static final int SIZE = Long.BYTES;
 
     public NativeLong() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public NativeLong(ResourceScope scope) {
-        this(0, scope);
+    public NativeLong(MemorySession session) {
+        this(0, session);
     }
 
-    public NativeLong(long initialValue, ResourceScope scope) {
-        super(MemorySegment.allocateNative(SIZE, scope), DataType.CONTIGUOUS_64_BIT);
+    public NativeLong(long initialValue, MemorySession session) {
+        super(MemorySegment.allocateNative(SIZE, session), DataType.CONTIGUOUS_64_BIT);
         set(initialValue);
     }
 

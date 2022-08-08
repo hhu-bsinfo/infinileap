@@ -2,9 +2,9 @@ package de.hhu.bsinfo.infinileap.common.network;
 
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.flag.ShortFlag;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-import jdk.incubator.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 import org.unix.*;
 
 import java.net.*;
@@ -24,11 +24,11 @@ public final class NativeInetSocketAddress extends NativeObject {
     private final int length;
 
     private NativeInetSocketAddress(AddressFamily family) {
-        this(family, ResourceScope.newImplicitScope());
+        this(family, MemorySession.openImplicit());
     }
 
-    private NativeInetSocketAddress(AddressFamily family, ResourceScope scope) {
-        super(sockaddr_storage.allocate(scope));
+    private NativeInetSocketAddress(AddressFamily family, MemorySession session) {
+        super(sockaddr_storage.allocate(session));
 
         this.family = family;
         sockaddr_storage.ss_family$set(segment(), family.getValue());

@@ -5,19 +5,19 @@ import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 import org.openucx.*;
 import static org.openucx.OpenUcx.*;
 
 public class HandlerParameters extends NativeObject {
 
     public HandlerParameters() {
-        this(ResourceScope.newImplicitScope());
+        this(MemorySession.openImplicit());
     }
 
-    public HandlerParameters(ResourceScope scope) {
-        super(ucp_am_handler_param_t.allocate(scope));
+    public HandlerParameters(MemorySession session) {
+        super(ucp_am_handler_param_t.allocate(session));
     }
 
     public HandlerParameters setId(Identifier id) {
