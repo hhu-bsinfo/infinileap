@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.common.multiplex;
 
 import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.Layouts;
 import de.hhu.bsinfo.infinileap.common.util.NativeError;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
@@ -100,7 +101,7 @@ public final class Epoll {
     }
 
     public long getData(long index) {
-        return pollSegment.get(ValueLayout.JAVA_LONG, index * LAYOUT_SIZE + DATA_OFFSET);
+        return pollSegment.get(Layouts.JAVA_LONG_UNALIGNED, index * LAYOUT_SIZE + DATA_OFFSET);
     }
 
     private void control(FileDescriptor fileDescriptor, int operation, EventType... eventTypes) throws IOException {
@@ -137,6 +138,6 @@ public final class Epoll {
     }
 
     private static void setData(MemorySegment segment, long data) {
-        segment.set(ValueLayout.JAVA_LONG, DATA_OFFSET, data);
+        segment.set(Layouts.JAVA_LONG_UNALIGNED, DATA_OFFSET, data);
     }
 }
