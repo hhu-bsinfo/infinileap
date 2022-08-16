@@ -11,9 +11,11 @@ import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
 import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
+import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 @Slf4j
 public class AcceptorAgent extends CommandableAgent {
@@ -33,10 +35,13 @@ public class AcceptorAgent extends CommandableAgent {
      */
     private final EventLoopGroup<CommandableAgent> workerGroup;
 
+    private final Supplier<ChannelPipeline> pipelineSupplier;
 
-    public AcceptorAgent(Worker worker, EventLoopGroup<CommandableAgent> workerGroup) {
+
+    public AcceptorAgent(Worker worker, EventLoopGroup<CommandableAgent> workerGroup, Supplier<ChannelPipeline> pipelineSupplier) {
         this.worker = worker;
         this.workerGroup = workerGroup;
+        this.pipelineSupplier = pipelineSupplier;
     }
 
     @Override
@@ -95,7 +100,7 @@ public class AcceptorAgent extends CommandableAgent {
 
             // Instruct next agent to accept and manage the incoming connection
             var nextAgent = workerGroup.next().getAgent();
-            nextAgent.pushCommand(new AcceptCommand(request));
+            nextAgent.pushCommand(new AcceptCommand(request, pipelineSupplier.get()));
         }
     };
 

@@ -14,6 +14,7 @@ import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
 import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.CallManager;
+import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import java.lang.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +118,7 @@ public class WorkerAgent extends CommandableAgent {
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(command.getConnectionRequest());
 
-        var channel = newChannel();
+        var channel = newChannel(command.getPipeline());
 
         try {
             var endpoint = worker.createEndpoint(endpointParameters);
@@ -139,7 +140,7 @@ public class WorkerAgent extends CommandableAgent {
 
             // Create the channel and assign it an unique identifier
             var endpoint = worker.createEndpoint(endpointParameters);
-            var channel = newChannel();
+            var channel = newChannel(command.getPipeline());
             registerChannel(endpoint, channel);
             command.complete(channel);
 
@@ -153,8 +154,8 @@ public class WorkerAgent extends CommandableAgent {
         return channelCounter++;
     }
 
-    private Channel newChannel() {
-        return new Channel(nextChannelId(), requestBuffer, bufferPool);
+    private Channel newChannel(ChannelPipeline pipeline) {
+        return new Channel(nextChannelId(), requestBuffer, bufferPool, pipeline);
     }
 
     private void registerChannel(Endpoint endpoint, Channel channel) {

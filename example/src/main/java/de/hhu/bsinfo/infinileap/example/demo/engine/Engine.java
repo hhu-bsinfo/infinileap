@@ -2,8 +2,10 @@ package de.hhu.bsinfo.infinileap.example.demo.engine;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
+import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
@@ -32,15 +34,22 @@ public class Engine implements Callable<Void> {
     private InetSocketAddress remoteAddress;
 
     private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
-    private final MemorySegment header = MemorySegment.allocateNative(8L, MemorySession.openImplicit());
 
     @Override
     public Void call() throws Exception {
 
         data.set(ValueLayout.JAVA_INT, 0L, 42);
-        header.set(ValueLayout.JAVA_INT, 0L, 42);
 
         var engine = InfinileapEngine.builder()
+                .pipelineSupplier(() -> {
+                    var pipeline = new ChannelPipeline();
+                    pipeline.add((source, segment) -> {
+                        log.info("Received new message from {}", source.identifier());
+                        MemoryUtil.dump(segment);
+                    });
+
+                    return pipeline;
+                })
                 .serviceClass(RpcService.class)
                 .listenAddress(listenAddress)
                 .threadCount(4)
@@ -68,12 +77,7 @@ public class Engine implements Callable<Void> {
         log.info("Established connection with {}", remoteAddress);
 
         final Identifier identifier = Identifier.of(0x1);
-        final var message = TextMessage.newBuilder()
-                .setContent("Hello World!")
-                .build();
-
-
-        channel.send(identifier, message, callback);
+        channel.send(identifier, data, callback);
     }
 
     private final Callback<Void> callback = new Callback<>() {

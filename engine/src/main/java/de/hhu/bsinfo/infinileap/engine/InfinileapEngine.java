@@ -7,6 +7,7 @@ import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
 import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
 import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
+import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
@@ -18,6 +19,7 @@ import org.agrona.concurrent.NoOpIdleStrategy;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Set;
+import java.util.function.Supplier;
 
 @Slf4j
 public class InfinileapEngine implements AutoCloseable {
@@ -51,8 +53,10 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final BufferPool bufferPool;
 
+    private final Supplier<ChannelPipeline> pipelineSupplier;
+
     @Builder
-    private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
+    private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress, Supplier<ChannelPipeline> pipelineSupplier) {
 
         // Redirect native logs through Slf4j
         NativeLogger.enable();
@@ -63,6 +67,7 @@ public class InfinileapEngine implements AutoCloseable {
         this.acceptorGroup = new EventLoopGroup<>(ACCEPTOR_PREFIX, ACCEPTOR_THREADS, () -> NoOpIdleStrategy.INSTANCE);
         this.workerGroup = new EventLoopGroup<>(WORKER_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
         this.listenAddress = listenAddress;
+        this.pipelineSupplier = pipelineSupplier;
 
         // Allocate buffer pool for outgoing messages
         this.bufferPool = new BufferPool(4096, 128);
@@ -116,7 +121,7 @@ public class InfinileapEngine implements AutoCloseable {
 
         // Add acceptor to event loop
         var worker = context.createWorker(workerParameters);
-        var acceptorAgent = new AcceptorAgent(worker, workerGroup);
+        var acceptorAgent = new AcceptorAgent(worker, workerGroup, pipelineSupplier);
         var eventLoop = acceptorGroup.first();
         eventLoop.add(acceptorAgent);
 
@@ -128,7 +133,7 @@ public class InfinileapEngine implements AutoCloseable {
         var agent = workerGroup.next().getAgent();
 
         // Instruct agent to connect with the specified remote address
-        var command = new ConnectCommand(remoteAddress);
+        var command = new ConnectCommand(remoteAddress, pipelineSupplier.get());
         agent.pushCommand(command);
 
         try {

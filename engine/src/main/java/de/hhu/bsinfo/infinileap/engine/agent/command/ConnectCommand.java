@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.engine.agent.command;
 
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
+import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,6 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public @Data class ConnectCommand extends AgentCommand<Channel> {
 
     private final InetSocketAddress remoteAddress;
+
+    private final ChannelPipeline pipeline;
 
     @Override
     public Type type() {

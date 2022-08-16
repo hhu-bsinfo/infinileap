@@ -1,19 +1,18 @@
 package de.hhu.bsinfo.infinileap.engine.message;
 
-import com.google.protobuf.*;
+import com.google.protobuf.MessageLite;
+import com.google.protobuf.Parser;
 import de.hhu.bsinfo.infinileap.binding.ActiveMessageCallback;
 import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.engine.util.ChannelResolver;
-import de.hhu.bsinfo.infinileap.message.TextMessage;
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openucx.ucp_am_recv_param_t;
 
-import java.util.concurrent.ExecutorService;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 
 @Getter
 @RequiredArgsConstructor
@@ -46,15 +45,8 @@ public class HandlerAdapter extends ActiveMessageCallback {
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
         var channel = resolver.resolve(endpoint);
 
-
-        try {
-            var parsed = parser.parseFrom(header.asByteBuffer());
-            handler.onMessage(parsed, channel);
-
-            return Status.OK;
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
-        }
-
+        // Run channel pipeline to process the incoming message
+        channel.runPipeline(header);
+        return Status.OK;
     }
 }
