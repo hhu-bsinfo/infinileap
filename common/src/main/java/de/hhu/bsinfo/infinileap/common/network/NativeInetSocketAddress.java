@@ -94,6 +94,26 @@ public final class NativeInetSocketAddress extends NativeObject {
                 .setAddressBytes(socketAddress.getAddress().getAddress());
     }
 
+    public static NativeInetSocketAddress wrap(MemorySegment nativeSocketAddress) {
+        var family = NativeInetSocketAddress.AddressFamily.of(
+                sockaddr_storage.ss_family$get(nativeSocketAddress)
+        );
+
+        // Get raw address bytes
+        var addressBytes = switch (family) {
+            case INET4 -> sockaddr_in.sin_addr$slice(nativeSocketAddress).toArray(ValueLayout.OfByte.JAVA_BYTE);
+            case INET6 -> sockaddr_in6.sin6_addr$slice(nativeSocketAddress).toArray(ValueLayout.OfByte.JAVA_BYTE);
+        };
+
+        // Convert port to host byte order
+        var port = switch (family) {
+            case INET4 -> ntohs(sockaddr_in.sin_port$get(nativeSocketAddress));
+            case INET6 -> ntohs(sockaddr_in6.sin6_port$get(nativeSocketAddress));
+        };
+
+        return new NativeInetSocketAddress(family).setAddressBytes(addressBytes).setPort(port);
+    }
+
     private static AddressFamily detectFamily(InetSocketAddress socketAddress) {
         InetAddress address = socketAddress.getAddress();
         if (address instanceof Inet4Address) {
@@ -111,6 +131,27 @@ public final class NativeInetSocketAddress extends NativeObject {
 
     public int getLength() {
         return length;
+    }
+
+    public InetSocketAddress toInetSocketAddress() {
+        // Get raw address bytes
+        var addressBytes = switch (family) {
+            case INET4 -> sockaddr_in.sin_addr$slice(segment()).toArray(ValueLayout.OfByte.JAVA_BYTE);
+            case INET6 -> sockaddr_in6.sin6_addr$slice(segment()).toArray(ValueLayout.OfByte.JAVA_BYTE);
+        };
+
+        // Convert port to host byte order
+        var port = switch (family) {
+            case INET4 -> Short.toUnsignedInt(ntohs(sockaddr_in.sin_port$get(segment())));
+            case INET6 -> Short.toUnsignedInt(ntohs(sockaddr_in6.sin6_port$get(segment())));
+        };
+
+        try {
+            var inetAddress = InetAddress.getByAddress(addressBytes);
+            return new InetSocketAddress(inetAddress, port);
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public enum AddressFamily implements ShortFlag {
