@@ -1,23 +1,17 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.lang.foreign.ValueLayout;
-import org.openucx.ucp_conn_request_attr_t;
-import org.unix.sockaddr_in;
-import org.unix.sockaddr_in6;
-import org.unix.sockaddr_storage;
 
-import java.net.InetAddress;
+import org.openucx.ucp_conn_request_attr_t;
+
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 
 import static org.openucx.OpenUcx.*;
-import static org.unix.Linux.ntohs;
 
 public class ConnectionRequest {
 
@@ -44,32 +38,13 @@ public class ConnectionRequest {
     }
 
     public InetSocketAddress getClientAddress() throws ControlException {
-
         // Extract client address and address family from attributes
         var attributes = queryAttributes(Field.CLIENT_ADDR);
         var clientAddress = ucp_conn_request_attr_t.client_address$slice(attributes);
-        var addressFamily = NativeInetSocketAddress.AddressFamily.of(
-                sockaddr_storage.ss_family$get(clientAddress)
-        );
 
-        // Get raw address bytes
-        var addressBytes = switch (addressFamily) {
-            case INET4 -> sockaddr_in.sin_addr$slice(clientAddress).toArray(ValueLayout.OfByte.JAVA_BYTE);
-            case INET6 -> sockaddr_in6.sin6_addr$slice(clientAddress).toArray(ValueLayout.OfByte.JAVA_BYTE);
-        };
-
-        // Convert port to host byte order
-        var port = switch (addressFamily) {
-            case INET4 -> Short.toUnsignedInt(ntohs(sockaddr_in.sin_port$get(clientAddress)));
-            case INET6 -> Short.toUnsignedInt(ntohs(sockaddr_in6.sin6_port$get(clientAddress)));
-        };
-
-        try {
-            var inetAddress = InetAddress.getByAddress(addressBytes);
-            return new InetSocketAddress(inetAddress, port);
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(e);
-        }
+        // Convert native address struct to InetSocketAddress
+        var nativeAddress = NativeInetSocketAddress.wrap(clientAddress);
+        return nativeAddress.toInetSocketAddress();
     }
 
     private MemorySegment queryAttributes(Field... fields) throws ControlException {
