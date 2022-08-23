@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
+import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.message.TextMessage;
@@ -14,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @CommandLine.Command(
@@ -24,14 +27,24 @@ import java.util.concurrent.Callable;
 public class Engine implements Callable<Void> {
 
     @CommandLine.Option(
-            names = {"-l", "--listen"},
+            names = {"--listen"},
             description = "The address the server listens on.")
     private InetSocketAddress listenAddress;
 
     @CommandLine.Option(
-            names = {"-c", "--connect"},
+            names = {"--connect"},
             description = "The address this instance connects to.")
     private InetSocketAddress remoteAddress;
+
+    @CommandLine.Option(
+            names = {"--messages"},
+            description = "The number of messages to send.")
+    private int messageCount = 1;
+
+    @CommandLine.Option(
+            names = {"--connections"},
+            description = "The number of messages to send.")
+    private int connectionCount = 1;
 
     private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
 
@@ -45,7 +58,6 @@ public class Engine implements Callable<Void> {
                     var pipeline = new ChannelPipeline();
                     pipeline.add((source, segment) -> {
                         log.info("Received new message from {}", source.identifier());
-                        MemoryUtil.dump(segment);
                     });
 
                     return pipeline;
@@ -73,16 +85,24 @@ public class Engine implements Callable<Void> {
     }
 
     private void runClient(InfinileapEngine engine) throws ControlException {
-        var channel = engine.connect(remoteAddress);
-        log.info("Established connection with {}", remoteAddress);
 
+        var channels = new Channel[connectionCount];
+        for (int i = 0; i < connectionCount; i++) {
+            channels[i] = engine.connect(remoteAddress);
+        }
+
+        log.info("Established {} connection(s) with {}", connectionCount, remoteAddress);
         final Identifier identifier = Identifier.of(0x1);
-        channel.send(identifier, data, callback);
+        for (int i = 0; i < messageCount; i++) {
+            for (int j = 0; j < connectionCount; j++) {
+                channels[j].send(identifier, data, callback);
+            }
+        }
     }
 
     private final Callback<Void> callback = new Callback<>() {
 
-        private long counter = 0L;
+        private final AtomicLong counter = new AtomicLong(0);
 
         @Override
         public void onNext(Void message) {
@@ -96,7 +116,7 @@ public class Engine implements Callable<Void> {
 
         @Override
         public void onComplete() {
-            log.info("Message {} sent", counter++);
+            log.info("Message {} sent", counter.incrementAndGet());
         }
     };
 }

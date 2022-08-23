@@ -11,6 +11,9 @@ ext {
     // Agrona
     agronaVersion = '1.14.0'
 
+    // LMAX Disruptor
+    disruptorVersion = '4.0.0.RC1'
+
     // Logging
     slf4jVersion = '1.7.32'
     log4jVersion = '2.17.0'

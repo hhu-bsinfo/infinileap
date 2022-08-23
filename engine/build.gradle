@@ -51,6 +51,8 @@ dependencies {
     // Protobuf
     implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
 
+    // LMAX Disruptor
+    implementation "com.lmax:disruptor:${disruptorVersion}"
 
     // Lombok
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
