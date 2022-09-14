@@ -6,42 +6,36 @@ import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.message.Handler;
-import de.hhu.bsinfo.infinileap.message.TextMessage;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.ValueLayout;
+
+import java.lang.foreign.*;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public final class RpcService {
 
-    private final Identifier replyIdentifier = Identifier.of(0x02);
+    private static final Identifier REPLY_MESSAGE = Identifier.of(0x02);
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
-    private final MemorySegment header = MemorySegment.allocateNative(8L, MemorySession.openImplicit());
+    private static final ValueLayout.OfLong UNALIGNED_JAVA_LONG = ValueLayout.JAVA_LONG.withBitAlignment(8L);
 
     @Handler(identifier = 0x01)
-    public void onMessage(TextMessage textMessage, Channel replyChannel) {
-        log.debug(textMessage.getContent());
-//        if (header != null) logPayload(header);
-//        if (body != null) logPayload(body);
+    public void onMessage(MemorySegment header, MemorySegment body, Channel replyChannel) {
+        var buffer = replyChannel.claimBuffer();
+        buffer.segment().set(
+            ValueLayout.JAVA_LONG, 0L, header.get(UNALIGNED_JAVA_LONG, 0) + 1
+        );
 
-//        var reply= TextMessage.newBuilder()
-//                .setContent("Hello Back!")
-//                .build();
-
-//        replyChannel.send(replyIdentifier, reply, callback);
+        replyChannel.send(REPLY_MESSAGE, buffer, (int) ValueLayout.JAVA_LONG.byteSize(), callback);
     }
 
     @Handler(identifier = 0x02)
-    public void onReply(TextMessage textMessage, Channel replyChannel) {
-//        if (header != null) logPayload(header);
-//        if (body != null) logPayload(body);
+    public void onReply(MemorySegment header, MemorySegment body, Channel replyChannel) {
+        log.info("{}", header.get(UNALIGNED_JAVA_LONG, 0));
     }
 
     private static void logPayload(MemorySegment payload) {
@@ -56,21 +50,19 @@ public final class RpcService {
 
     private final Callback<Void> callback = new Callback<Void>() {
 
-        long counter = 0L;
-
         @Override
         public void onNext(Void message) {
-            // Reply is not supported yet
+
         }
 
         @Override
         public void onError(Throwable throwable) {
-            log.error("An error occured", throwable);
+
         }
 
         @Override
         public void onComplete() {
-            log.info("Message {} sent", counter++);
+
         }
     };
 }

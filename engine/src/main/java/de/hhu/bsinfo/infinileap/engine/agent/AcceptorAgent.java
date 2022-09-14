@@ -35,13 +35,9 @@ public class AcceptorAgent extends CommandableAgent {
      */
     private final EventLoopGroup<CommandableAgent> workerGroup;
 
-    private final Supplier<ChannelPipeline> pipelineSupplier;
-
-
-    public AcceptorAgent(Worker worker, EventLoopGroup<CommandableAgent> workerGroup, Supplier<ChannelPipeline> pipelineSupplier) {
+    public AcceptorAgent(Worker worker, EventLoopGroup<CommandableAgent> workerGroup) {
         this.worker = worker;
         this.workerGroup = workerGroup;
-        this.pipelineSupplier = pipelineSupplier;
     }
 
     @Override
@@ -100,7 +96,7 @@ public class AcceptorAgent extends CommandableAgent {
 
             // Instruct next agent to accept and manage the incoming connection
             var nextAgent = workerGroup.next().getAgent();
-            nextAgent.pushCommand(new AcceptCommand(request, pipelineSupplier.get()));
+            nextAgent.pushCommand(new AcceptCommand(request));
         }
     };
 

@@ -15,8 +15,6 @@ public @Data class ConnectCommand extends AgentCommand<Channel> {
 
     private final InetSocketAddress remoteAddress;
 
-    private final ChannelPipeline pipeline;
-
     @Override
     public Type type() {
         return Type.CONNECT;

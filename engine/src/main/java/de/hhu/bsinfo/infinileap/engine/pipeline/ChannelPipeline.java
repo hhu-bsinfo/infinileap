@@ -18,9 +18,9 @@ public class ChannelPipeline {
         processors.add(processor);
     }
 
-    public void run(Channel source, MemorySegment message) {
+    public void run(Channel source, int identifier, MemorySegment header, MemorySegment body) {
         for (var processor : processors) {
-            processor.process(source, message);
+            processor.process(source, identifier, header, body);
         }
     }
 }

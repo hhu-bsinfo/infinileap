@@ -8,9 +8,6 @@ plugins {
 
     // Jextract plugin
     id "io.github.krakowski.jextract" version "0.3.0"
-
-    // Protobuf plugin
-    id "com.google.protobuf" version "0.8.18"
 }
 
 java {
@@ -23,12 +20,6 @@ group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
 jextract.enabled = false
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${protobufVersion}"
-    }
-}
 
 dependencies {
 
@@ -47,9 +38,6 @@ dependencies {
 
     // Log4j Logger
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
-
-    // Protobuf
-    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
 
     // LMAX Disruptor
     implementation "com.lmax:disruptor:${disruptorVersion}"

@@ -1,7 +1,5 @@
 package de.hhu.bsinfo.infinileap.engine.message;
 
-import com.google.protobuf.MessageLite;
-import com.google.protobuf.Parser;
 import de.hhu.bsinfo.infinileap.binding.ActiveMessageCallback;
 import de.hhu.bsinfo.infinileap.binding.Status;
 import de.hhu.bsinfo.infinileap.engine.util.ChannelResolver;
@@ -34,19 +32,12 @@ public class HandlerAdapter extends ActiveMessageCallback {
      */
     private final ChannelResolver resolver;
 
-    /**
-     * Used for deserializing incoming messages.
-     */
-    private final Parser<? extends MessageLite> parser;
-
     @Override
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
         var params = ucp_am_recv_param_t.ofAddress(parameters, MemorySession.global());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
-        var channel = resolver.resolve(endpoint);
 
-        // Run channel pipeline to process the incoming message
-        channel.runPipeline(header);
+        handler.onMessage(header, body, resolver.resolve(endpoint));
         return Status.OK;
     }
 }

@@ -84,7 +84,7 @@ public class WorkerAgent extends CommandableAgent {
         }
 
         // Add file descriptors to epoll instance in order to wake up
-        // the event loop once an event occures.
+        // the event loop once an event occurs.
 
         try {
             add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT);
@@ -118,7 +118,7 @@ public class WorkerAgent extends CommandableAgent {
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(command.getConnectionRequest());
 
-        var channel = newChannel(command.getPipeline());
+        var channel = newChannel();
 
         try {
             var endpoint = worker.createEndpoint(endpointParameters);
@@ -140,7 +140,7 @@ public class WorkerAgent extends CommandableAgent {
 
             // Create the channel and assign it an unique identifier
             var endpoint = worker.createEndpoint(endpointParameters);
-            var channel = newChannel(command.getPipeline());
+            var channel = newChannel();
             registerChannel(endpoint, channel);
             command.complete(channel);
 
@@ -154,8 +154,8 @@ public class WorkerAgent extends CommandableAgent {
         return channelCounter++;
     }
 
-    private Channel newChannel(ChannelPipeline pipeline) {
-        return new Channel(nextChannelId(), requestBuffer, bufferPool, pipeline);
+    private Channel newChannel() {
+        return new Channel(nextChannelId(), requestBuffer, bufferPool);
     }
 
     private void registerChannel(Endpoint endpoint, Channel channel) {
@@ -203,7 +203,7 @@ public class WorkerAgent extends CommandableAgent {
                 null,
                 activeMessageParameters
         );
-
+        
         if (Status.is(request, Status.OK)) {
             var callback = userBuffer.getCallback();
             userBuffer.release();

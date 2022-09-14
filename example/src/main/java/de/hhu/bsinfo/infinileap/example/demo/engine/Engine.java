@@ -2,20 +2,17 @@ package de.hhu.bsinfo.infinileap.example.demo.engine;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
-import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
-import de.hhu.bsinfo.infinileap.message.TextMessage;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
-import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,20 +45,14 @@ public class Engine implements Callable<Void> {
 
     private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
 
+    private static final Identifier SIMPLE_MESSAGE = Identifier.of(0x01);
+
     @Override
     public Void call() throws Exception {
 
         data.set(ValueLayout.JAVA_INT, 0L, 42);
 
         var engine = InfinileapEngine.builder()
-                .pipelineSupplier(() -> {
-                    var pipeline = new ChannelPipeline();
-                    pipeline.add((source, segment) -> {
-                        log.info("Received new message from {}", source.identifier());
-                    });
-
-                    return pipeline;
-                })
                 .serviceClass(RpcService.class)
                 .listenAddress(listenAddress)
                 .threadCount(4)
@@ -85,24 +76,24 @@ public class Engine implements Callable<Void> {
     }
 
     private void runClient(InfinileapEngine engine) throws ControlException {
-
         var channels = new Channel[connectionCount];
         for (int i = 0; i < connectionCount; i++) {
             channels[i] = engine.connect(remoteAddress);
         }
 
+        var size = (int) ValueLayout.JAVA_LONG.byteSize();
+
         log.info("Established {} connection(s) with {}", connectionCount, remoteAddress);
-        final Identifier identifier = Identifier.of(0x1);
         for (int i = 0; i < messageCount; i++) {
             for (int j = 0; j < connectionCount; j++) {
-                channels[j].send(identifier, data, callback);
+                var buffer = engine.claimBuffer();
+                buffer.segment().set(ValueLayout.JAVA_LONG, 0L, i);
+                channels[j].send(SIMPLE_MESSAGE, buffer, size, callback);
             }
         }
     }
 
     private final Callback<Void> callback = new Callback<>() {
-
-        private final AtomicLong counter = new AtomicLong(0);
 
         @Override
         public void onNext(Void message) {
@@ -116,7 +107,7 @@ public class Engine implements Callable<Void> {
 
         @Override
         public void onComplete() {
-            log.info("Message {} sent", counter.incrementAndGet());
+
         }
     };
 }

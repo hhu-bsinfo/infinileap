@@ -15,8 +15,6 @@ public @Data class AcceptCommand extends AgentCommand<Channel> {
 
     private final ConnectionRequest connectionRequest;
 
-    private final ChannelPipeline pipeline;
-
     @Override
     public Type type() {
         return Type.ACCEPT;

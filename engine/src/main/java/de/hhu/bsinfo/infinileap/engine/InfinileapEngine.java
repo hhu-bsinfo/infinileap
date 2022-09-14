@@ -53,10 +53,8 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final BufferPool bufferPool;
 
-    private final Supplier<ChannelPipeline> pipelineSupplier;
-
     @Builder
-    private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress, Supplier<ChannelPipeline> pipelineSupplier) {
+    private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
 
         // Redirect native logs through Slf4j
         NativeLogger.enable();
@@ -67,7 +65,6 @@ public class InfinileapEngine implements AutoCloseable {
         this.acceptorGroup = new EventLoopGroup<>(ACCEPTOR_PREFIX, ACCEPTOR_THREADS, () -> NoOpIdleStrategy.INSTANCE);
         this.workerGroup = new EventLoopGroup<>(WORKER_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
         this.listenAddress = listenAddress;
-        this.pipelineSupplier = pipelineSupplier;
 
         // Allocate buffer pool for outgoing messages
         this.bufferPool = new BufferPool(4096, 128);
@@ -121,7 +118,7 @@ public class InfinileapEngine implements AutoCloseable {
 
         // Add acceptor to event loop
         var worker = context.createWorker(workerParameters);
-        var acceptorAgent = new AcceptorAgent(worker, workerGroup, pipelineSupplier);
+        var acceptorAgent = new AcceptorAgent(worker, workerGroup);
         var eventLoop = acceptorGroup.first();
         eventLoop.add(acceptorAgent);
 
@@ -133,7 +130,7 @@ public class InfinileapEngine implements AutoCloseable {
         var agent = workerGroup.next().getAgent();
 
         // Instruct agent to connect with the specified remote address
-        var command = new ConnectCommand(remoteAddress, pipelineSupplier.get());
+        var command = new ConnectCommand(remoteAddress);
         agent.pushCommand(command);
 
         try {
@@ -147,6 +144,10 @@ public class InfinileapEngine implements AutoCloseable {
 
     public void join() throws InterruptedException {
         workerGroup.join();
+    }
+
+    public BufferPool.PooledBuffer claimBuffer() {
+        return bufferPool.claim();
     }
 
     @Override
