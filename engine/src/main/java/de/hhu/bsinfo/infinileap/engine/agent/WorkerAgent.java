@@ -18,6 +18,8 @@ import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
 import java.lang.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
+import org.agrona.collections.Long2ObjectCache;
+import org.agrona.collections.Long2ObjectHashMap;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,7 +61,7 @@ public class WorkerAgent extends CommandableAgent {
     /**
      * Maps from endpoint memory address to the corresponding channel.
      */
-    private final Map<MemoryAddress, Channel> channelMap = new HashMap<>();
+    private Long2ObjectHashMap<Channel> channelMap = new Long2ObjectHashMap<>();
 
     private final CallManager callManager;
 

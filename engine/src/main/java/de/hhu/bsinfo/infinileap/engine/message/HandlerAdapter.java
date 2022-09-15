@@ -11,6 +11,8 @@ import org.openucx.ucp_am_recv_param_t;
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @Getter
 @RequiredArgsConstructor
@@ -32,12 +34,14 @@ public class HandlerAdapter extends ActiveMessageCallback {
      */
     private final ChannelResolver resolver;
 
+    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
     @Override
     public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
         var params = ucp_am_recv_param_t.ofAddress(parameters, MemorySession.global());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
 
-        handler.onMessage(header, body, resolver.resolve(endpoint));
+        EXECUTOR.execute(() -> handler.onMessage(header, body, resolver.resolve(endpoint.toRawLongValue())));
         return Status.OK;
     }
 }

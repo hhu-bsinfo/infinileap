@@ -5,5 +5,5 @@ import java.lang.foreign.MemoryAddress;
 
 @FunctionalInterface
 public interface ChannelResolver {
-    Channel resolve(MemoryAddress address);
+    Channel resolve(long endpointAddress);
 }
