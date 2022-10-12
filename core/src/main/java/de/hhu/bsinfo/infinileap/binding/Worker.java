@@ -13,6 +13,7 @@ import static org.openucx.Communication.ucp_tag_recv_nbx;
 public class Worker extends NativeObject implements Watchable, AutoCloseable {
 
     private static final int NO_PROGRESS = 0;
+    private static final Tag TAG_MASK_FULL = Tag.of(0xffffffffffffffffL);
 
     private final Context context;
 
@@ -93,28 +94,44 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public long receiveTagged(NativeObject object, Tag tag) {
-        return receiveTagged(object.address(), object.byteSize(), tag, RequestParameters.EMPTY);
+        return receiveTagged(object.address(), object.byteSize(), tag, TAG_MASK_FULL, RequestParameters.EMPTY);
     }
 
     public long receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
-        return receiveTagged(object.address(), object.byteSize(), tag, parameters);
+        return receiveTagged(object.address(), object.byteSize(), tag, TAG_MASK_FULL, parameters);
+    }
+
+    public long receiveTagged(NativeObject object, Tag tag, Tag tagMask) {
+        return receiveTagged(object.address(), object.byteSize(), tag, tagMask, RequestParameters.EMPTY);
+    }
+
+    public long receiveTagged(NativeObject object, Tag tag, Tag tagMask, RequestParameters parameters) {
+        return receiveTagged(object.address(), object.byteSize(), tag, tagMask, parameters);
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag) {
-        return receiveTagged(buffer, tag, RequestParameters.EMPTY);
+        return receiveTagged(buffer, tag, TAG_MASK_FULL, RequestParameters.EMPTY);
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag, RequestParameters parameters) {
-        return receiveTagged(buffer.address(), buffer.byteSize(), tag, parameters);
+        return receiveTagged(buffer, tag, TAG_MASK_FULL, parameters);
     }
 
-    private long receiveTagged(MemoryAddress address, long byteSize, Tag tag, RequestParameters parameters) {
+    public long receiveTagged(MemorySegment buffer, Tag tag, Tag tagMask) {
+        return receiveTagged(buffer, tag, tagMask, RequestParameters.EMPTY);
+    }
+
+    public long receiveTagged(MemorySegment buffer, Tag tag, Tag tagMask, RequestParameters parameters) {
+        return receiveTagged(buffer.address(), buffer.byteSize(), tag, tagMask, parameters);
+    }
+
+    private long receiveTagged(MemoryAddress address, long byteSize, Tag tag, Tag tagMask, RequestParameters parameters) {
         return ucp_tag_recv_nbx(
                 Parameter.of(this),
                 address,
                 byteSize,
                 tag.getValue(),
-                tag.getValue(),
+                tagMask.getValue(),
                 Parameter.of(parameters)
         );
     }
