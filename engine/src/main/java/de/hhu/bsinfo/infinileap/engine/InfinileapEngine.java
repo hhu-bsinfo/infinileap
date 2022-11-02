@@ -2,24 +2,23 @@ package de.hhu.bsinfo.infinileap.engine;
 
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.bsinfo.infinileap.engine.agent.AcceptorAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.WorkerAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
-import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
-import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
+import de.hhu.bsinfo.infinileap.engine.buffer.DynamicBufferPool;
+import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
-import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
-import de.hhu.bsinfo.infinileap.engine.network.ConnectionManager;
+import de.hhu.bsinfo.infinileap.engine.event.command.ConnectCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.ListenCommand;
+import de.hhu.bsinfo.infinileap.engine.event.loop.AcceptorEventLoop;
+import de.hhu.bsinfo.infinileap.engine.event.loop.CommandableEventLoop;
+import de.hhu.bsinfo.infinileap.engine.event.loop.EventLoopGroup;
+import de.hhu.bsinfo.infinileap.engine.event.loop.WorkerEventLoop;
+import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import de.hhu.bsinfo.infinileap.engine.util.NamedThreadFactory;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.agrona.concurrent.NoOpIdleStrategy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Set;
-import java.util.function.Supplier;
 
 @Slf4j
 public class InfinileapEngine implements AutoCloseable {
@@ -41,17 +40,17 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final WorkerParameters workerParameters;
 
-    private final EventLoopGroup<CommandableAgent> workerGroup;
+    private final EventLoopGroup<CommandableEventLoop> workerGroup;
 
-    private final EventLoopGroup<CommandableAgent> acceptorGroup;
+    private final EventLoopGroup<CommandableEventLoop> acceptorGroup;
 
     private final InetSocketAddress listenAddress;
 
-    private final ConnectionManager connectionManager;
-
     private final Object serviceInstance;
 
-    private final BufferPool bufferPool;
+    private final StaticBufferPool sharedPool;
+
+    private final int threadCount;
 
     @Builder
     private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
@@ -62,15 +61,13 @@ public class InfinileapEngine implements AutoCloseable {
         log.info("Using UCX version {}", Context.getVersion());
 
         // Instantiate new event loop groups
-        this.acceptorGroup = new EventLoopGroup<>(ACCEPTOR_PREFIX, ACCEPTOR_THREADS, () -> NoOpIdleStrategy.INSTANCE);
-        this.workerGroup = new EventLoopGroup<>(WORKER_PREFIX, threadCount, () -> NoOpIdleStrategy.INSTANCE);
+        this.acceptorGroup = new EventLoopGroup<>();
+        this.workerGroup = new EventLoopGroup<>();
         this.listenAddress = listenAddress;
+        this.threadCount = threadCount;
 
         // Allocate buffer pool for outgoing messages
-        this.bufferPool = new BufferPool(4096, 128);
-
-        // Create connection manager
-        this.connectionManager = new ConnectionManager();
+        this.sharedPool = new StaticBufferPool(2, 4096);
 
         try {
             // Create context parameters
@@ -100,38 +97,51 @@ public class InfinileapEngine implements AutoCloseable {
     }
 
 
-    public void start() throws ControlException {
+    public void start() {
 
-        // Start and wait until all event loops are active
-        workerGroup.start();
+        // Populate the worker group
+        workerGroup.populate(threadCount, () -> {
+            try {
+                return new WorkerEventLoop(
+                        context.createWorker(workerParameters),
+                        sharedPool,
+                        serviceInstance
+                );
+            } catch (ControlException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Start and wait until all worker event loops are active
+        workerGroup.start(new NamedThreadFactory(WORKER_PREFIX));
         workerGroup.waitOnStart();
 
-        // Add worker to each event loop
-        for (var eventLoop : workerGroup) {
-            var worker = context.createWorker(workerParameters);
-            var workerAgent = new WorkerAgent(worker, bufferPool, serviceInstance);
-            eventLoop.add(workerAgent);
-        }
+        // Populate acceptor group
+        acceptorGroup.populate(ACCEPTOR_THREADS, () -> {
+            try {
+                return new AcceptorEventLoop(
+                        context.createWorker(workerParameters),
+                        workerGroup
+                );
+            } catch (ControlException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        acceptorGroup.start();
+        // Start and wait until all acceptor event loops are active
+        acceptorGroup.start(new NamedThreadFactory(ACCEPTOR_PREFIX));
         acceptorGroup.waitOnStart();
 
-        // Add acceptor to event loop
-        var worker = context.createWorker(workerParameters);
-        var acceptorAgent = new AcceptorAgent(worker, workerGroup);
-        var eventLoop = acceptorGroup.first();
-        eventLoop.add(acceptorAgent);
-
-        // Listen for new connections on acceptor
-        acceptorAgent.pushCommand(new ListenCommand(listenAddress));
+        // Start listening on acceptor event loop
+        acceptorGroup.first().pushCommand(new ListenCommand(listenAddress));
     }
 
     public Channel connect(InetSocketAddress remoteAddress) {
-        var agent = workerGroup.next().getAgent();
+        var loop = workerGroup.next();
 
         // Instruct agent to connect with the specified remote address
         var command = new ConnectCommand(remoteAddress);
-        agent.pushCommand(command);
+        loop.pushCommand(command);
 
         try {
             // Wait until command completes
@@ -144,10 +154,6 @@ public class InfinileapEngine implements AutoCloseable {
 
     public void join() throws InterruptedException {
         workerGroup.join();
-    }
-
-    public BufferPool.PooledBuffer claimBuffer() {
-        return bufferPool.claim();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.engine.agent.message;
+package de.hhu.bsinfo.infinileap.engine.event.message;
 
 import java.lang.foreign.GroupLayout;
 import java.lang.foreign.MemoryLayout;

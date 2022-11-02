@@ -1,11 +1,11 @@
-package de.hhu.bsinfo.infinileap.engine.agent.command;
+package de.hhu.bsinfo.infinileap.engine.event.command;
 
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class AgentCommand<T> {
+public abstract class EventLoopCommand<T> {
 
     private final CountDownLatch completion = new CountDownLatch(1);
 

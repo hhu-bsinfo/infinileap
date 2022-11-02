@@ -1,14 +1,14 @@
-package de.hhu.bsinfo.infinileap.engine.agent.util;
+package de.hhu.bsinfo.infinileap.engine.event.util;
 
 import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
 import org.agrona.concurrent.ManyToOneConcurrentArrayQueue;
 
 import java.io.IOException;
 
-public class CommandQueue extends ManyToOneConcurrentArrayQueue<AgentCommand<?>> implements Watchable {
+public class CommandQueue extends ManyToOneConcurrentArrayQueue<EventLoopCommand<?>> implements Watchable {
 
     private final EventFileDescriptor eventFileDescriptor;
 

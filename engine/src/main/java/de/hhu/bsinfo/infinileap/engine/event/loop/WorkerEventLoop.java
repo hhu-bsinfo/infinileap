@@ -1,33 +1,34 @@
-package de.hhu.bsinfo.infinileap.engine.agent;
+package de.hhu.bsinfo.infinileap.engine.event.loop;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
+import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
-import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AcceptCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.command.ConnectCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.message.SendActiveMessage;
-import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
-import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
+import de.hhu.bsinfo.infinileap.engine.buffer.BufferPool;
+import de.hhu.bsinfo.infinileap.engine.buffer.DynamicBufferPool;
+import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
+import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import de.hhu.bsinfo.infinileap.engine.event.command.AcceptCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.ConnectCommand;
+import de.hhu.bsinfo.infinileap.engine.event.message.SendActiveMessage;
+import de.hhu.bsinfo.infinileap.engine.event.util.EventLoopOperations;
+import de.hhu.bsinfo.infinileap.engine.event.util.WakeReason;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.CallManager;
-import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
-import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
+import de.hhu.bsinfo.infinileap.engine.util.DebouncingLogger;
 import lombok.extern.slf4j.Slf4j;
-import org.agrona.collections.Long2ObjectCache;
 import org.agrona.collections.Long2ObjectHashMap;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ThreadFactory;
 
 import static org.openucx.Communication.ucp_request_free;
 
 @Slf4j
-public class WorkerAgent extends CommandableAgent {
+public class WorkerEventLoop extends CommandableEventLoop {
 
     private static final int REQUEST_LIMIT = Integer.MAX_VALUE;
 
@@ -42,8 +43,6 @@ public class WorkerAgent extends CommandableAgent {
     private final Worker worker;
 
     private final RingBuffer requestBuffer;
-
-    private final BufferPool bufferPool;
 
     private int channelCounter = 0;
 
@@ -60,35 +59,63 @@ public class WorkerAgent extends CommandableAgent {
     /**
      * Maps from endpoint memory address to the corresponding channel.
      */
-    private Long2ObjectHashMap<Channel> channelMap = new Long2ObjectHashMap<>();
+    private final Long2ObjectHashMap<Channel> channelMap = new Long2ObjectHashMap<>();
 
-    private final CallManager callManager;
+    private final BufferPool sharedPool;
 
-    public WorkerAgent(Worker worker, BufferPool bufferPool, Object serviceInstance) {
+    private CallManager callManager;
+
+    private EventLoopContext context;
+
+    private final Object serviceInstance;
+
+    private final EventFileDescriptor workerNotifier;
+
+    private final DebouncingLogger debouncingLogger = new DebouncingLogger(1000);
+
+    public WorkerEventLoop(Worker worker, StaticBufferPool sharedPool, Object serviceInstance) {
         this.worker = worker;
-        this.bufferPool = bufferPool;
+        this.sharedPool = sharedPool;
+        this.serviceInstance = serviceInstance;
         this.requestBuffer = new RingBuffer(32 * MemoryAlignment.PAGE.value());
-        callManager = CallManager.forServiceInstance(serviceInstance, channelMap::get);
+
+        try {
+            this.workerNotifier = EventFileDescriptor.create(EventFileDescriptor.OpenMode.NONBLOCK);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void onStart() {
+    public void onStart() throws Exception {
         super.onStart();
 
-        // Register message dispatcher with this agent's worker instance
+        // Create context
+        this.context = EventLoopContext.builder()
+                .privatePool(new DynamicBufferPool(1, 4096))
+                .sharedPool(sharedPool)
+                .thread(Thread.currentThread())
+                .worker(worker)
+                .loop(this)
+                .loopNotifier(workerNotifier)
+                .build();
+
+        // Create handlers for worker callbacks
+        callManager = CallManager.forServiceInstance(serviceInstance, channelMap::get);
 
         try {
+            // Register message dispatcher with this loop's worker instance
             callManager.registerOn(worker);
             log.debug("Registered message dispatcher");
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }
 
-        // Add file descriptors to epoll instance in order to wake up
-        // the event loop once an event occurs.
-
         try {
+            // Add file descriptors to epoll instance in order to wake up
+            // the event loop once an event occurs.
             add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT);
+            add(workerNotifier, WakeReason.NOTIFY, EventType.EPOLLIN);
             add(requestBuffer, WakeReason.DATA, EventType.EPOLLIN);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -97,18 +124,23 @@ public class WorkerAgent extends CommandableAgent {
 
     @Override
     protected void onSelect(SelectionKey<WakeReason> selectionKey) throws IOException {
+        debouncingLogger.info("Loop is running");
         switch (selectionKey.attachment()) {
             case DATA -> {
                 requestBuffer.disarm();
                 var bytesRead = requestBuffer.read(requestHandler, REQUEST_LIMIT);
                 requestBuffer.commitRead(bytesRead);
             }
-            case PROGRESS -> AgentOperations.progressWorker(worker);
+            case PROGRESS -> EventLoopOperations.progressWorker(worker);
+            case NOTIFY -> {
+                workerNotifier.reset();
+                EventLoopOperations.progressWorker(worker);
+            }
         }
     }
 
     @Override
-    protected void onCommand(AgentCommand<?> command) {
+    protected void onCommand(EventLoopCommand<?> command) {
         switch (command.type()) {
             case CONNECT -> processConnect((ConnectCommand) command);
             case ACCEPT  -> processAccept((AcceptCommand) command);
@@ -156,7 +188,7 @@ public class WorkerAgent extends CommandableAgent {
     }
 
     private Channel newChannel() {
-        return new Channel(nextChannelId(), requestBuffer, bufferPool);
+        return new Channel(nextChannelId(), requestBuffer, context);
     }
 
     private void registerChannel(Endpoint endpoint, Channel channel) {
@@ -167,13 +199,14 @@ public class WorkerAgent extends CommandableAgent {
 
         this.channels[identifier] = channel;
         this.endpoints[identifier] = endpoint;
-        this.channelMap.put(endpoint.segment().address(), channel);
-        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.segment().address()), channelMap.get(endpoint.segment().address()));
+        this.channelMap.put(endpoint.address().toRawLongValue(), channel);
+        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address().toRawLongValue()));
     }
 
     private final SendCallback sendCallback = (request, status, data) -> {
         ucp_request_free(request);
-        var userBuffer = getBuffer((int) data.address());
+        log.info("Releasing buffer with id {}", data.toRawLongValue());
+        var userBuffer = getBuffer((int) data.toRawLongValue());
         var callback = userBuffer.getCallback();
         userBuffer.release();
         callback.onComplete();
@@ -184,8 +217,8 @@ public class WorkerAgent extends CommandableAgent {
             .setSendCallback(sendCallback)
             .setFlags(RequestParameters.Flag.ACTIVE_MESSAGE_REPLY);
 
-    private BufferPool.PooledBuffer getBuffer(int identifier) {
-        return bufferPool.get(identifier);
+    private PooledBuffer getBuffer(int identifier) {
+        return context.getBuffer(identifier);
     }
 
     private final RingBuffer.MessageHandler requestHandler = (msgTypeId, buffer, index, length) -> {
@@ -194,32 +227,31 @@ public class WorkerAgent extends CommandableAgent {
         var bufferId = SendActiveMessage.getBufferId(slice);
         var messageId = SendActiveMessage.getMessageId(slice);
         var userLength = SendActiveMessage.getLength(slice);
+
+        sendActive(channelId, bufferId, messageId, userLength);
+    };
+
+    public final void sendActive(int channelId, int bufferId, int messageId, int length) {
         var userBuffer = getBuffer(bufferId);
 
         activeMessageParameters.setUserData(bufferId);
         var endpoint = endpoints[channelId];
         var request = endpoint.sendActive(
                 Identifier.of(messageId),
-                userBuffer.segment().asSlice(0, userLength),
+                userBuffer.segment().asSlice(0, length),
                 null,
                 activeMessageParameters
         );
-        
+
         if (Status.is(request, Status.OK)) {
             var callback = userBuffer.getCallback();
             userBuffer.release();
             callback.onComplete();
         }
-    };
-
+    }
 
 
     public Worker getWorker() {
         return worker;
-    }
-
-    @Override
-    public String roleName() {
-        return "worker";
     }
 }

@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.engine.agent.message;
+package de.hhu.bsinfo.infinileap.engine.event.message;
 
 public class MessageIdentifiers {
 

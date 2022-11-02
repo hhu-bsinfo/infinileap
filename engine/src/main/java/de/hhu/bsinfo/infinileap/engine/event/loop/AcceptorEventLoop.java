@@ -1,24 +1,19 @@
-package de.hhu.bsinfo.infinileap.engine.agent;
+package de.hhu.bsinfo.infinileap.engine.event.loop;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
-import de.hhu.bsinfo.infinileap.engine.agent.base.CommandableAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.base.EpollAgent;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AcceptCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.command.ListenCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.util.AgentOperations;
-import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
-import de.hhu.bsinfo.infinileap.engine.multiplex.EventLoopGroup;
-import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
+import de.hhu.bsinfo.infinileap.engine.event.command.AcceptCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.ListenCommand;
+import de.hhu.bsinfo.infinileap.engine.event.util.EventLoopOperations;
+import de.hhu.bsinfo.infinileap.engine.event.util.WakeReason;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 @Slf4j
-public class AcceptorAgent extends CommandableAgent {
+public class AcceptorEventLoop extends CommandableEventLoop {
 
     /**
      * The worker instance this agent uses for making progress.
@@ -33,15 +28,15 @@ public class AcceptorAgent extends CommandableAgent {
     /**
      * The group of event loops this agent dispatches its connection requests to.
      */
-    private final EventLoopGroup<CommandableAgent> workerGroup;
+    private final EventLoopGroup<CommandableEventLoop> workerGroup;
 
-    public AcceptorAgent(Worker worker, EventLoopGroup<CommandableAgent> workerGroup) {
+    public AcceptorEventLoop(Worker worker, EventLoopGroup<CommandableEventLoop> workerGroup) {
         this.worker = worker;
         this.workerGroup = workerGroup;
     }
 
     @Override
-    public void onStart() {
+    public void onStart() throws Exception {
         super.onStart();
 
         try {
@@ -54,13 +49,13 @@ public class AcceptorAgent extends CommandableAgent {
     @Override
     protected void onSelect(SelectionKey<WakeReason> selectionKey) throws IOException {
         if (selectionKey.attachment() == WakeReason.PROGRESS) {
-            AgentOperations.progressWorker(worker);
+            EventLoopOperations.progressWorker(worker);
         }
     }
 
     @Override
-    protected void onCommand(AgentCommand<?> command) {
-        if (command.type() == AgentCommand.Type.LISTEN) {
+    protected void onCommand(EventLoopCommand<?> command) {
+        if (command.type() == EventLoopCommand.Type.LISTEN) {
             startListener((ListenCommand) command);
         }
     }
@@ -95,13 +90,8 @@ public class AcceptorAgent extends CommandableAgent {
             }
 
             // Instruct next agent to accept and manage the incoming connection
-            var nextAgent = workerGroup.next().getAgent();
-            nextAgent.pushCommand(new AcceptCommand(request));
+            var workerLoop = workerGroup.next();
+            workerLoop.pushCommand(new AcceptCommand(request));
         }
     };
-
-    @Override
-    public String roleName() {
-        return "acceptor";
-    }
 }

@@ -26,8 +26,6 @@ import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
  */
 public class RingBuffer implements SegmentAllocator, Watchable {
 
-
-
     @FunctionalInterface
     public interface MessageHandler {
         void onMessage(int msgTypeId, MemorySegment buffer, long index, int length);
@@ -143,6 +141,16 @@ public class RingBuffer implements SegmentAllocator, Watchable {
 
         buffer.asSlice(headIndex, bytes).fill((byte) 0);
         LONG_HANDLE.setRelease(buffer, headPositionIndex, head + bytes);
+    }
+
+    public MemorySegment claim(final int bytes, int timeout) {
+        MemorySegment result;
+        var start = System.currentTimeMillis();
+        while ((result = tryClaim(bytes)) == null && (System.currentTimeMillis() - start) < timeout) {
+            ThreadHints.onSpinWait();
+        }
+
+        return result;
     }
 
     public MemorySegment claim(final int bytes) {

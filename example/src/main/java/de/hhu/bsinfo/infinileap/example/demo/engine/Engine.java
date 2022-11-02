@@ -86,7 +86,7 @@ public class Engine implements Callable<Void> {
         log.info("Established {} connection(s) with {}", connectionCount, remoteAddress);
         for (int i = 0; i < messageCount; i++) {
             for (int j = 0; j < connectionCount; j++) {
-                var buffer = engine.claimBuffer();
+                var buffer = channels[j].claimBuffer();
                 buffer.segment().set(ValueLayout.JAVA_LONG, 0L, i);
                 channels[j].send(SIMPLE_MESSAGE, buffer, size, callback);
             }

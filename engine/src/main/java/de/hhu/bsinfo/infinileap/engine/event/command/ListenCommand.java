@@ -1,15 +1,12 @@
-package de.hhu.bsinfo.infinileap.engine.agent.command;
+package de.hhu.bsinfo.infinileap.engine.event.command;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 
 @EqualsAndHashCode(callSuper = true)
-public @Data class ListenCommand extends AgentCommand<Void> {
+public @Data class ListenCommand extends EventLoopCommand<Void> {
 
     private final InetSocketAddress listenAddress;
 

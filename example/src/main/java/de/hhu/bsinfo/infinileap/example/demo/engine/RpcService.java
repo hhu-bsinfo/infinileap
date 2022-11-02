@@ -2,19 +2,15 @@ package de.hhu.bsinfo.infinileap.example.demo.engine;
 
 import de.hhu.bsinfo.infinileap.binding.Identifier;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
-import de.hhu.bsinfo.infinileap.common.util.Distributable;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.message.Handler;
-
-import java.lang.foreign.*;
-
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 @Slf4j
 public final class RpcService {

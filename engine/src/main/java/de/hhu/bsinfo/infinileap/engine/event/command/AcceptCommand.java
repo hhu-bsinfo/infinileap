@@ -1,17 +1,12 @@
-package de.hhu.bsinfo.infinileap.engine.agent.command;
+package de.hhu.bsinfo.infinileap.engine.event.command;
 
 import de.hhu.bsinfo.infinileap.binding.ConnectionRequest;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
-import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @EqualsAndHashCode(callSuper = true)
-public @Data class AcceptCommand extends AgentCommand<Channel> {
+public @Data class AcceptCommand extends EventLoopCommand<Channel> {
 
     private final ConnectionRequest connectionRequest;
 

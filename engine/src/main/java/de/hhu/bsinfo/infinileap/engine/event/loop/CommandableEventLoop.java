@@ -1,22 +1,22 @@
-package de.hhu.bsinfo.infinileap.engine.agent.base;
+package de.hhu.bsinfo.infinileap.engine.event.loop;
 
 import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
-import de.hhu.bsinfo.infinileap.engine.agent.command.AgentCommand;
-import de.hhu.bsinfo.infinileap.engine.agent.util.CommandQueue;
-import de.hhu.bsinfo.infinileap.engine.agent.util.WakeReason;
+import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
+import de.hhu.bsinfo.infinileap.engine.event.util.CommandQueue;
+import de.hhu.bsinfo.infinileap.engine.event.util.WakeReason;
 import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
 
-public abstract class CommandableAgent extends EpollAgent<WakeReason> {
+public abstract class CommandableEventLoop extends EpollEventLoop<WakeReason> {
 
     private static final int COMMAND_QUEUE_SIZE = 4096;
 
     private final CommandQueue commands = new CommandQueue(COMMAND_QUEUE_SIZE);
 
     @Override
-    public void onStart() {
+    public void onStart() throws Exception {
         super.onStart();
 
         // Add command queue file descriptor to epoll interest list.
@@ -38,7 +38,7 @@ public abstract class CommandableAgent extends EpollAgent<WakeReason> {
         }
     }
 
-    public void pushCommand(AgentCommand<?> command) {
+    public void pushCommand(EventLoopCommand<?> command) {
         while(!commands.offer(command)) {
             ThreadHints.onSpinWait();
         }
@@ -48,5 +48,5 @@ public abstract class CommandableAgent extends EpollAgent<WakeReason> {
 
     protected abstract void onSelect(SelectionKey<WakeReason> selectionKey) throws IOException;
 
-    protected abstract void onCommand(AgentCommand<?> command);
+    protected abstract void onCommand(EventLoopCommand<?> command);
 }
