@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.infinileap.engine.event.loop;
 
 import lombok.extern.slf4j.Slf4j;
+import org.agrona.hints.ThreadHints;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
@@ -83,12 +84,18 @@ public abstract class AbstractEventLoop implements Runnable {
     }
 
     protected void onStart() throws Exception {
-        // do nothing
+        log.info("Starting event loop");
     }
 
 
     protected void onStop() throws Exception {
-        // do nothing
+        log.info("Stopping event loop");
+    }
+
+    public final void waitOnStart() {
+        while (status != EventLoopStatus.RUNNING) {
+            ThreadHints.onSpinWait();
+        }
     }
 
     public final void join() throws InterruptedException {

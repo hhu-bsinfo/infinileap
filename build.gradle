@@ -13,6 +13,7 @@ ext {
 
     // LMAX Disruptor
     disruptorVersion = '4.0.0.RC1'
+    conversantDisruptorVersion = '1.2.21'
 
     // Logging
     slf4jVersion = '1.7.32'

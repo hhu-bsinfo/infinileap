@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
+import de.hhu.bsinfo.infinileap.engine.event.loop.PhasedEventLoop;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,6 +51,22 @@ public class Engine implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
+
+        var loop = new PhasedEventLoop(Duration.ofSeconds(5), Duration.ofSeconds(6), Duration.ofMillis(100)) {
+
+            private final long now = System.currentTimeMillis();
+
+            @Override
+            protected LoopStatus doWork() throws Exception {
+                return System.currentTimeMillis() - now > 5000L ? LoopStatus.IDLE : LoopStatus.ACTIVE;
+            }
+        };
+
+        loop.start(Thread::new);
+        loop.waitOnStart();
+        loop.join();
+
+        log.info("Thread termianted");
 
         data.set(ValueLayout.JAVA_INT, 0L, 42);
 
