@@ -5,7 +5,6 @@ import de.hhu.bsinfo.infinileap.common.multiplex.EventType;
 import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import de.hhu.bsinfo.infinileap.common.util.ThrowingConsumer;
-import de.hhu.bsinfo.infinileap.engine.event.loop.AbstractEventLoop;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.concurrent.ManyToOneConcurrentArrayQueue;

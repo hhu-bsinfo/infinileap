@@ -12,6 +12,8 @@ import de.hhu.bsinfo.infinileap.engine.event.loop.CommandableEventLoop;
 import de.hhu.bsinfo.infinileap.engine.event.loop.EventLoopGroup;
 import de.hhu.bsinfo.infinileap.engine.event.loop.WorkerEventLoop;
 import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningCommandableEventLoop;
+import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningWorkerEventLoop;
 import de.hhu.bsinfo.infinileap.engine.util.NamedThreadFactory;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,7 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final WorkerParameters workerParameters;
 
-    private final EventLoopGroup<CommandableEventLoop> workerGroup;
+    private final EventLoopGroup<SpinningCommandableEventLoop> workerGroup;
 
     private final EventLoopGroup<CommandableEventLoop> acceptorGroup;
 
@@ -102,7 +104,7 @@ public class InfinileapEngine implements AutoCloseable {
         // Populate the worker group
         workerGroup.populate(threadCount, () -> {
             try {
-                return new WorkerEventLoop(
+                return new SpinningWorkerEventLoop(
                         context.createWorker(workerParameters),
                         sharedPool,
                         serviceInstance

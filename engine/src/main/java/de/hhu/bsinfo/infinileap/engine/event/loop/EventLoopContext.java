@@ -7,6 +7,7 @@ import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.engine.buffer.BufferPool;
 import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
 import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningWorkerEventLoop;
 import lombok.Builder;
 import lombok.Data;
 
@@ -25,7 +26,7 @@ public @Data class EventLoopContext {
 
     private final Worker worker;
 
-    private final WorkerEventLoop loop;
+    private final SpinningWorkerEventLoop loop;
 
     private final EventFileDescriptor loopNotifier;
 

@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.engine.event.loop;
+package de.hhu.bsinfo.infinileap.engine.event.loop.spin;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
@@ -10,25 +10,26 @@ import de.hhu.bsinfo.infinileap.engine.buffer.BufferPool;
 import de.hhu.bsinfo.infinileap.engine.buffer.DynamicBufferPool;
 import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
 import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.event.command.AcceptCommand;
-import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
 import de.hhu.bsinfo.infinileap.engine.event.command.ConnectCommand;
+import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
+import de.hhu.bsinfo.infinileap.engine.event.loop.CommandableEventLoop;
+import de.hhu.bsinfo.infinileap.engine.event.loop.EventLoopContext;
 import de.hhu.bsinfo.infinileap.engine.event.message.SendActiveMessage;
 import de.hhu.bsinfo.infinileap.engine.event.util.EventLoopOperations;
 import de.hhu.bsinfo.infinileap.engine.event.util.WakeReason;
-import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.CallManager;
 import de.hhu.bsinfo.infinileap.engine.util.DebouncingLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.collections.Long2ObjectHashMap;
 
 import java.io.IOException;
-import java.util.concurrent.ThreadFactory;
 
 import static org.openucx.Communication.ucp_request_free;
 
 @Slf4j
-public class WorkerEventLoop extends CommandableEventLoop {
+public class SpinningWorkerEventLoop extends SpinningCommandableEventLoop {
 
     private static final int REQUEST_LIMIT = Integer.MAX_VALUE;
 
@@ -73,7 +74,7 @@ public class WorkerEventLoop extends CommandableEventLoop {
 
     private final DebouncingLogger debouncingLogger = new DebouncingLogger(1000);
 
-    public WorkerEventLoop(Worker worker, StaticBufferPool sharedPool, Object serviceInstance) {
+    public SpinningWorkerEventLoop(Worker worker, StaticBufferPool sharedPool, Object serviceInstance) {
         this.worker = worker;
         this.sharedPool = sharedPool;
         this.serviceInstance = serviceInstance;
@@ -96,7 +97,7 @@ public class WorkerEventLoop extends CommandableEventLoop {
                 .sharedPool(sharedPool)
                 .thread(Thread.currentThread())
                 .worker(worker)
-                .loop(null)
+                .loop(this)
                 .loopNotifier(workerNotifier)
                 .build();
 
@@ -110,39 +111,30 @@ public class WorkerEventLoop extends CommandableEventLoop {
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }
-
-        try {
-            // Add file descriptors to epoll instance in order to wake up
-            // the event loop once an event occurs.
-            add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT);
-            add(workerNotifier, WakeReason.NOTIFY, EventType.EPOLLIN);
-            add(requestBuffer, WakeReason.DATA, EventType.EPOLLIN);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
-    protected void onSelect(SelectionKey<WakeReason> selectionKey) throws IOException {
-        debouncingLogger.info("Loop is running");
+    protected LoopStatus doWork() throws Exception {
 
-        // Always progress worker
-        EventLoopOperations.progressWorker(worker);
+        // Process commands
+        var loopStatus = super.doWork();
 
+        // Progress UCX Worker
+        if (EventLoopOperations.progressWorker(worker) == WorkerProgress.ACTIVE) {
+            loopStatus = LoopStatus.ACTIVE;
+        }
+
+        // Process outgoing messages
         var bytesRead = requestBuffer.read(requestHandler, REQUEST_LIMIT);
         requestBuffer.commitRead(bytesRead);
-
-        switch (selectionKey.attachment()) {
-            case DATA -> {
-                bytesRead = requestBuffer.read(requestHandler, REQUEST_LIMIT);
-                requestBuffer.commitRead(bytesRead);
-            }
-            case PROGRESS -> EventLoopOperations.progressWorker(worker);
-            case NOTIFY -> {
-                EventLoopOperations.progressWorker(worker);
-            }
+        if (bytesRead != 0) {
+            loopStatus = LoopStatus.ACTIVE;
         }
+
+        return loopStatus;
     }
+
+
 
     @Override
     protected void onCommand(EventLoopCommand<?> command) {
@@ -161,7 +153,7 @@ public class WorkerEventLoop extends CommandableEventLoop {
         try {
             var endpoint = worker.createEndpoint(endpointParameters);
             registerChannel(endpoint, channel);
-            log.info("Accepted connection from {}", command.getConnectionRequest().getClientAddress());
+//            log.info("Accepted connection from {}", command.getConnectionRequest().getClientAddress());
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }

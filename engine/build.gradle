@@ -42,6 +42,8 @@ dependencies {
     // Conversant Disruptor
     implementation "com.conversantmedia:disruptor:${conversantDisruptorVersion}"
 
+    // Core Locking
+    implementation 'net.openhft:Java-Thread-Affinity:3.23.2'
 
     // Lombok
     compileOnly "org.projectlombok:lombok:${lombokVersion}"

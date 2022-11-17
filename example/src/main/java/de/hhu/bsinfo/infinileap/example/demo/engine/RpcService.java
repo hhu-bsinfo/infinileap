@@ -31,7 +31,10 @@ public final class RpcService {
 
     @Handler(identifier = 0x02)
     public void onReply(MemorySegment header, MemorySegment body, Channel replyChannel) {
-        log.info("{}", header.get(UNALIGNED_JAVA_LONG, 0));
+        var value = header.get(UNALIGNED_JAVA_LONG, 0);
+        if ((value % 100000) == 0) {
+            log.info("{}", value);
+        }
     }
 
     private static void logPayload(MemorySegment payload) {

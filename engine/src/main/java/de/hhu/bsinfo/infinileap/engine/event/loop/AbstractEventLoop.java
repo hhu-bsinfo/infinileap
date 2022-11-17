@@ -79,6 +79,7 @@ public abstract class AbstractEventLoop implements Runnable {
         try {
             onLoop();
         } catch (Exception e) {
+            log.error("Exception in event loop", e);
             isRunning = false;
         }
     }

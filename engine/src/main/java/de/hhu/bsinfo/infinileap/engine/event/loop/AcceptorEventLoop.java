@@ -6,6 +6,7 @@ import de.hhu.bsinfo.infinileap.common.multiplex.SelectionKey;
 import de.hhu.bsinfo.infinileap.engine.event.command.AcceptCommand;
 import de.hhu.bsinfo.infinileap.engine.event.command.EventLoopCommand;
 import de.hhu.bsinfo.infinileap.engine.event.command.ListenCommand;
+import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningCommandableEventLoop;
 import de.hhu.bsinfo.infinileap.engine.event.util.EventLoopOperations;
 import de.hhu.bsinfo.infinileap.engine.event.util.WakeReason;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,9 @@ public class AcceptorEventLoop extends CommandableEventLoop {
     /**
      * The group of event loops this agent dispatches its connection requests to.
      */
-    private final EventLoopGroup<CommandableEventLoop> workerGroup;
+    private final EventLoopGroup<SpinningCommandableEventLoop> workerGroup;
 
-    public AcceptorEventLoop(Worker worker, EventLoopGroup<CommandableEventLoop> workerGroup) {
+    public AcceptorEventLoop(Worker worker, EventLoopGroup<SpinningCommandableEventLoop> workerGroup) {
         this.worker = worker;
         this.workerGroup = workerGroup;
     }
@@ -40,7 +41,7 @@ public class AcceptorEventLoop extends CommandableEventLoop {
         super.onStart();
 
         try {
-            add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT);
+            add(worker, WakeReason.PROGRESS, EventType.EPOLLIN, EventType.EPOLLOUT, EventType.EPOLLET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

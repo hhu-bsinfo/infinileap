@@ -4,9 +4,7 @@ import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.Identifier;
 import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
-import de.hhu.bsinfo.infinileap.engine.event.loop.PhasedEventLoop;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
-import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -16,7 +14,7 @@ import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 @CommandLine.Command(
@@ -52,21 +50,21 @@ public class Engine implements Callable<Void> {
     @Override
     public Void call() throws Exception {
 
-        var loop = new PhasedEventLoop(Duration.ofSeconds(5), Duration.ofSeconds(6), Duration.ofMillis(100)) {
-
-            private final long now = System.currentTimeMillis();
-
-            @Override
-            protected LoopStatus doWork() throws Exception {
-                return System.currentTimeMillis() - now > 5000L ? LoopStatus.IDLE : LoopStatus.ACTIVE;
-            }
-        };
-
-        loop.start(Thread::new);
-        loop.waitOnStart();
-        loop.join();
-
-        log.info("Thread termianted");
+//        var loop = new PhasedEventLoop(Duration.ofSeconds(5), Duration.ofSeconds(6), Duration.ofMillis(100)) {
+//
+//            private final long now = System.currentTimeMillis();
+//
+//            @Override
+//            protected LoopStatus doWork() throws Exception {
+//                return System.currentTimeMillis() - now > 5000L ? LoopStatus.IDLE : LoopStatus.ACTIVE;
+//            }
+//        };
+//
+//        loop.start(Thread::new);
+//        loop.waitOnStart();
+//        loop.join();
+//
+//        log.info("Thread termianted");
 
         data.set(ValueLayout.JAVA_INT, 0L, 42);
 
@@ -107,6 +105,8 @@ public class Engine implements Callable<Void> {
                 var buffer = channels[j].claimBuffer();
                 buffer.segment().set(ValueLayout.JAVA_LONG, 0L, i);
                 channels[j].send(SIMPLE_MESSAGE, buffer, size, callback);
+
+                LockSupport.parkNanos(Duration.ofSeconds(10).toNanos());
             }
         }
     }
