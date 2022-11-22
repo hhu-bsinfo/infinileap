@@ -52,14 +52,7 @@ public class Channel {
             return;
         }
 
-        MemorySegment segment;
-        while ((segment = ringBuffer.claim(SendActiveMessage.BYTES, 100)) == null) {
-            try {
-                context.getLoopNotifier().fire();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        MemorySegment segment = ringBuffer.claim(SendActiveMessage.BYTES);
 
         // Send message to event loop
         SendActiveMessage.setChannelId(segment, this.identifier);
@@ -67,22 +60,12 @@ public class Channel {
         SendActiveMessage.setBufferId(segment, buffer.identifier());
         SendActiveMessage.setLength(segment, length);
         ringBuffer.commitWrite(segment);
-
-        try {
-            ringBuffer.wake();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public PooledBuffer claimBuffer() {
         PooledBuffer buffer;
         while ((buffer = context.claimBuffer()) == null) {
-            try {
-                context.getLoopNotifier().fire();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            Thread.onSpinWait();
         }
 
         return buffer;

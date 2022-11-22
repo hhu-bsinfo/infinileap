@@ -105,8 +105,6 @@ public class Engine implements Callable<Void> {
                 var buffer = channels[j].claimBuffer();
                 buffer.segment().set(ValueLayout.JAVA_LONG, 0L, i);
                 channels[j].send(SIMPLE_MESSAGE, buffer, size, callback);
-
-                LockSupport.parkNanos(Duration.ofSeconds(10).toNanos());
             }
         }
     }

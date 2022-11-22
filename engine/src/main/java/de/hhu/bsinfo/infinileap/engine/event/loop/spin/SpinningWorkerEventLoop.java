@@ -153,7 +153,6 @@ public class SpinningWorkerEventLoop extends SpinningCommandableEventLoop {
         try {
             var endpoint = worker.createEndpoint(endpointParameters);
             registerChannel(endpoint, channel);
-//            log.info("Accepted connection from {}", command.getConnectionRequest().getClientAddress());
         } catch (ControlException e) {
             throw new RuntimeException(e);
         }
