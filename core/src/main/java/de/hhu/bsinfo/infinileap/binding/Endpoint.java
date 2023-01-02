@@ -4,6 +4,7 @@ import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import de.hhu.bsinfo.infinileap.util.Requests;
+import lombok.extern.slf4j.Slf4j;
 import org.openucx.OpenUcx;
 
 import java.lang.foreign.*;
@@ -12,6 +13,7 @@ import static org.openucx.Communication.*;
 import static org.openucx.OpenUcx.ucp_ep_rkey_unpack;
 import static org.openucx.OpenUcx.ucp_ep_destroy;
 
+@Slf4j
 public class Endpoint extends NativeObject implements AutoCloseable {
 
     private static final long SINGLE_ELEMENT = 1L;
@@ -19,6 +21,9 @@ public class Endpoint extends NativeObject implements AutoCloseable {
     private final Worker worker;
 
     private final EndpointParameters endpointParameters;
+
+    private static final RequestParameters FORCE_CLOSE = new RequestParameters()
+            .setFlags(RequestParameters.Flag.CLOSE_FORCE);
 
     /* package-private */ Endpoint(MemoryAddress address, Worker worker, EndpointParameters endpointParameters) {
         super(address, ValueLayout.ADDRESS);
@@ -198,6 +203,7 @@ public class Endpoint extends NativeObject implements AutoCloseable {
 
         // Endpoint was closed immediately
         if (Status.is(request, Status.OK)) {
+            log.debug("Closed endpoint immediately");
             return;
         }
 
@@ -216,5 +222,7 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        log.debug("Closed endpoint");
     }
 }

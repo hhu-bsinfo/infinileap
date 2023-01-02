@@ -45,6 +45,12 @@ dependencies {
     // Annotations
     implementation "org.jetbrains:annotations:${jetbrainsAnnotationsVersion}"
 
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"

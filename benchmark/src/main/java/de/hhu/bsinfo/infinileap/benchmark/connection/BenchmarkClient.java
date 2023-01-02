@@ -18,6 +18,8 @@ import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.util.concurrent.locks.LockSupport;
 
 import static de.hhu.bsinfo.infinileap.binding.AtomicOperation.*;
 
@@ -120,6 +122,10 @@ public class BenchmarkClient implements AutoCloseable {
 
     private final ResourcePool resources = new ResourcePool();
 
+    private static final ErrorHandler ERROR_HANDLER = ((userData, endpoint, status) -> {
+        log.error("Received error on endpoint {} with status {}", endpoint.toRawLongValue(), status);
+    });
+
     private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {
         this.context = resources.push(context);
         this.worker = resources.push(worker);
@@ -131,6 +137,7 @@ public class BenchmarkClient implements AutoCloseable {
         var context = connectionResources.context();
         var worker = connectionResources.worker();
         var endpointParameters = new EndpointParameters()
+                .setErrorHandler(ERROR_HANDLER)
                 .setRemoteAddress(serverAddress);
 
         return new BenchmarkClient(context, worker, worker.createEndpoint(endpointParameters));

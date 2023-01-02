@@ -14,8 +14,10 @@ import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 public class BenchmarkServer {
@@ -96,14 +98,31 @@ public class BenchmarkServer {
      */
     private final ResourcePool resources = new ResourcePool();
 
+    private final ResourcePool globalResources = new ResourcePool();
+
     private final AtomicBoolean controlledShutdown = new AtomicBoolean(false);
 
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
     private final AtomicReference<Thread> workerThread = new AtomicReference<>(null);
 
+    private final AtomicReference<ConnectionRequest> connectionRequest = new AtomicReference<>();
+    private final ListenerParameters listenerParams;
+
+    private static final ErrorHandler ERROR_HANDLER = ((userData, endpoint, status) -> {
+        log.error("Received error on endpoint {} with status {}", endpoint.toRawLongValue(), status);
+    });
+
     private BenchmarkServer(InetSocketAddress listenAddress) {
         this.listenAddress = listenAddress;
+        this.listenerParams = new ListenerParameters()
+                .setListenAddress(listenAddress)
+                .setConnectionHandler(new ConnectionHandler() {
+                    @Override
+                    protected void onConnection(ConnectionRequest request) {
+                        connectionRequest.set(request);
+                    }
+                });
     }
 
     public void start() {
@@ -112,67 +131,75 @@ public class BenchmarkServer {
         workerThread.set(Thread.currentThread());
         isRunning.set(true);
 
-        while (true) {
-            try (resources) {
+        log.info("Started Benchmark Server");
 
-                // Initialize and execute benchmark
-                initialize();
-                executeBenchmark();
+        try {
+            initialize();
+        } catch (ControlException e) {
+            throw new RuntimeException(e);
+        }
 
-                // Barrier
-                BenchmarkBarrier.await(worker);
-                BenchmarkBarrier.signal(worker, endpoint);
-            } catch (ControlException e) {
-                log.error("Native operation failed", e);
-                return;
-            } catch (CloseException e) {
-                log.error("Closing resource failed", e);
-                return;
-            } catch (InterruptedException e) {
-                if (controlledShutdown.get()) {
+
+        try (globalResources) {
+            while (true) {
+                try (resources) {
+                    // Initialize and execute benchmark
+                    var connectionRequest = accept();
+
+                    log.info("Accepted new client connection");
+                    var endpointParameters = new EndpointParameters()
+                            .setErrorHandler(ERROR_HANDLER)
+                            .setConnectionRequest(connectionRequest);
+
+                    endpoint = resources.push(
+                            worker.createEndpoint(endpointParameters)
+                    );
+
+                    executeBenchmark();
+
+                    // Barrier
+                    BenchmarkBarrier.await(worker);
+                    BenchmarkBarrier.signal(worker, endpoint);
+                } catch (ControlException e) {
+                    log.error("Native operation failed", e);
+                    return;
+                } catch (CloseException e) {
+                    log.error("Closing resources failed", e);
+                    return;
+                } catch (InterruptedException e) {
+                    if (controlledShutdown.get()) {
+                        return;
+                    }
+
+                    log.error("Unexpected interrupt", e);
                     return;
                 }
-
-                log.error("Unexpected interrupt", e);
-                return;
-            } finally {
-                isRunning.set(false);
             }
+        } catch (CloseException e) {
+            log.error("Closing global resources failed", e);
+        } finally {
+            isRunning.set(false);
         }
     }
 
-    private void initialize() throws ControlException, CloseException, InterruptedException {
+    private void initialize() throws ControlException {
         var connectionResources = ConnectionResources.create();
-        context = resources.push(connectionResources.context());
-        worker = resources.push(connectionResources.worker());
-        var connectionRequest = accept();
+        context = globalResources.push(connectionResources.context());
+        worker = globalResources.push(connectionResources.worker());
 
-        log.trace("Accepted new client connection");
-        var endpointParameters = new EndpointParameters()
-                .setConnectionRequest(connectionRequest);
+        LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
 
-        endpoint = resources.push(
-                worker.createEndpoint(endpointParameters)
-        );
+        listener = globalResources.push(worker.createListener(listenerParams));
     }
 
     private ConnectionRequest accept() throws ControlException, CloseException, InterruptedException {
-        var connectionRequest = new AtomicReference<ConnectionRequest>();
-        var listenerParams = new ListenerParameters()
-                .setListenAddress(listenAddress)
-                .setConnectionHandler(new ConnectionHandler() {
-                    @Override
-                    protected void onConnection(ConnectionRequest request) {
-                        connectionRequest.set(request);
-                    }
-                });
-
-        log.trace("Listening for new connection requests on {}", listenAddress);
-        listener = worker.createListener(listenerParams);
-        resources.push(listener);
+        log.info("Listening for new connection on {}", listenAddress);
 
         Requests.await(worker, connectionRequest);
-        return connectionRequest.get();
+        var request = connectionRequest.get();
+        connectionRequest.set(null);
+
+        return request;
     }
 
     private void executeBenchmark() throws ControlException, CloseException, InterruptedException {

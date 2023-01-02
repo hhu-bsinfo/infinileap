@@ -21,9 +21,7 @@ public class ResourcePool implements AutoCloseable {
     public void close() throws CloseException {
         try {
             while (!resources.empty()) {
-                var resource = resources.pop();
-                LOGGER.info("Closing {}...", resource.getClass().getSimpleName());
-                resource.close();
+                resources.pop().close();
             }
         } catch (Exception e) {
             throw new CloseException(e);
