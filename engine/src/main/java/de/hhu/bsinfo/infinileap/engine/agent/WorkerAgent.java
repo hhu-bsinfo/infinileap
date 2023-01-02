@@ -168,7 +168,7 @@ public class WorkerAgent extends CommandableAgent {
 
         this.channels[identifier] = channel;
         this.endpoints[identifier] = endpoint;
-        this.channelMap.put(endpoint.address(), channel);
+        this.channelMap.put(endpoint.address().toRawLongValue(), channel);
         log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address()));
     }
 
