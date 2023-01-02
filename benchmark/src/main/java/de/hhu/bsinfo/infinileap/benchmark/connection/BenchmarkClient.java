@@ -123,7 +123,7 @@ public class BenchmarkClient implements AutoCloseable {
     private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {
         this.context = resources.push(context);
         this.worker = resources.push(worker);
-        this.endpoint = endpoint;
+        this.endpoint = resources.push(endpoint);
     }
 
     public static BenchmarkClient connect(InetSocketAddress serverAddress) throws ControlException {

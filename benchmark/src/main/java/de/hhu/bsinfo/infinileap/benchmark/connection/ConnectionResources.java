@@ -2,8 +2,6 @@ package de.hhu.bsinfo.infinileap.benchmark.connection;
 
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
-import de.hhu.bsinfo.infinileap.util.CloseException;
-import de.hhu.bsinfo.infinileap.util.ResourcePool;
 
 public class ConnectionResources {
 
@@ -38,25 +36,20 @@ public class ConnectionResources {
     }
 
     public static ConnectionResources create() throws ControlException {
-        try (var pool = new ResourcePool()) {
+        // Create context parameters
+        var contextParameters = new ContextParameters()
+                .setFeatures(FEATURE_SET)
+                .setRequestSize(0L);
 
-            // Create context parameters
-            var contextParameters = new ContextParameters()
-                    .setFeatures(FEATURE_SET)
-                    .setRequestSize(0L);
+        // Initialize UCP context
+        var context = Context.initialize(contextParameters);
 
-            // Initialize UCP context
-            var context = Context.initialize(contextParameters);
+        var workerParameters = new WorkerParameters()
+                .setThreadMode(ThreadMode.SINGLE);
 
-            var workerParameters = new WorkerParameters()
-                    .setThreadMode(ThreadMode.SINGLE);
+        // Create a worker
+        var worker = context.createWorker(workerParameters);
 
-            // Create a worker
-            var worker = context.createWorker(workerParameters);
-
-            return new ConnectionResources(context, worker);
-        } catch (CloseException e) {
-            throw new RuntimeException(e);
-        }
+        return new ConnectionResources(context, worker);
     }
 }

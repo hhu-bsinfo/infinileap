@@ -151,28 +151,28 @@ public class BenchmarkServer {
         var endpointParameters = new EndpointParameters()
                 .setConnectionRequest(connectionRequest);
 
-        endpoint = worker.createEndpoint(endpointParameters);
+        endpoint = resources.push(
+                worker.createEndpoint(endpointParameters)
+        );
     }
 
     private ConnectionRequest accept() throws ControlException, CloseException, InterruptedException {
-        try (var pool = new ResourcePool()) {
-            var connectionRequest = new AtomicReference<ConnectionRequest>();
-            var listenerParams = new ListenerParameters()
-                    .setListenAddress(listenAddress)
-                    .setConnectionHandler(new ConnectionHandler() {
-                        @Override
-                        protected void onConnection(ConnectionRequest request) {
-                            connectionRequest.set(request);
-                        }
-                    });
+        var connectionRequest = new AtomicReference<ConnectionRequest>();
+        var listenerParams = new ListenerParameters()
+                .setListenAddress(listenAddress)
+                .setConnectionHandler(new ConnectionHandler() {
+                    @Override
+                    protected void onConnection(ConnectionRequest request) {
+                        connectionRequest.set(request);
+                    }
+                });
 
-            log.trace("Listening for new connection requests on {}", listenAddress);
-            listener = worker.createListener(listenerParams);
-            resources.push(listener);
+        log.trace("Listening for new connection requests on {}", listenAddress);
+        listener = worker.createListener(listenerParams);
+        resources.push(listener);
 
-            Requests.await(worker, connectionRequest);
-            return connectionRequest.get();
-        }
+        Requests.await(worker, connectionRequest);
+        return connectionRequest.get();
     }
 
     private void executeBenchmark() throws ControlException, CloseException, InterruptedException {

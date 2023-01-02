@@ -3,12 +3,14 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
+import de.hhu.bsinfo.infinileap.util.Requests;
+import org.openucx.OpenUcx;
+
 import java.lang.foreign.*;
 
 import static org.openucx.Communication.*;
 import static org.openucx.OpenUcx.ucp_ep_rkey_unpack;
 import static org.openucx.OpenUcx.ucp_ep_destroy;
-
 
 public class Endpoint extends NativeObject implements AutoCloseable {
 
@@ -189,6 +191,30 @@ public class Endpoint extends NativeObject implements AutoCloseable {
 
     @Override
     public void close() {
-        ucp_ep_destroy(segment());
+        var request = ucp_ep_close_nbx(
+                Parameter.of(this),
+                Parameter.of(RequestParameters.EMPTY)
+        );
+
+        // Endpoint was closed immediately
+        if (Status.is(request, Status.OK)) {
+            return;
+        }
+
+        // Error closing endpoint
+        if (Status.isError(request)) {
+            throw new RuntimeException(
+                String.format(
+                        "Closing endpoint failed with error %s",
+                        Status.of((int) request)
+                )
+            );
+        }
+
+        try {
+            Requests.await(worker, request);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
