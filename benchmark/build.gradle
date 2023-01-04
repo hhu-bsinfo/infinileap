@@ -23,7 +23,9 @@ project.startScripts.with {
         // The HotSpot VM uses the SIGSEGV signal for its own purposes,
         // which may interfere with signal handlers installed by the ucx library.
         // Therefore, we turn off signal handlers with this (ugly) hack.
-        unixScript.text = unixScript.text.replaceFirst('exec ', 'UCX_ERROR_SIGNALS="" exec ')
+        // Also, we enable the SO_REUSEPORT socket flag so that server applications
+        // are able to restart fast after a configuration change.
+        unixScript.text = unixScript.text.replaceFirst('exec ', 'UCX_ERROR_SIGNALS="" UCX_TCP_CM_REUSEADDR=y exec ')
     }
 }
 
