@@ -122,17 +122,20 @@ public class BenchmarkClient implements AutoCloseable {
 
     private final ResourcePool resources = new ResourcePool();
 
+    private final BenchmarkCoordinator coordinator;
+
     private static final ErrorHandler ERROR_HANDLER = ((userData, endpoint, status) -> {
         log.error("Received error on endpoint {} with status {}", endpoint.toRawLongValue(), status);
     });
 
-    private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {
+    private BenchmarkClient(Context context, Worker worker, Endpoint endpoint, BenchmarkCoordinator coordinator) {
         this.context = resources.push(context);
         this.worker = resources.push(worker);
         this.endpoint = resources.push(endpoint);
+        this.coordinator = coordinator;
     }
 
-    public static BenchmarkClient connect(InetSocketAddress serverAddress) throws ControlException {
+    public static BenchmarkClient connect(InetSocketAddress serverAddress, BenchmarkCoordinator coordinator) throws ControlException {
         var connectionResources = ConnectionResources.create();
         var context = connectionResources.context();
         var worker = connectionResources.worker();
@@ -140,7 +143,7 @@ public class BenchmarkClient implements AutoCloseable {
                 .setErrorHandler(ERROR_HANDLER)
                 .setRemoteAddress(serverAddress);
 
-        return new BenchmarkClient(context, worker, worker.createEndpoint(endpointParameters));
+        return new BenchmarkClient(context, worker, worker.createEndpoint(endpointParameters), coordinator);
     }
 
     public void prepare(OpCode initialInstruction, BenchmarkDetails details) throws ControlException, InterruptedException {

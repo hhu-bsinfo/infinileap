@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.benchmark.command;
 
+import de.hhu.bsinfo.infinileap.benchmark.connection.BenchmarkCoordinator;
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.binding.NativeLogger;
 import de.hhu.bsinfo.infinileap.benchmark.connection.BenchmarkServer;
@@ -20,6 +21,8 @@ import java.util.concurrent.locks.LockSupport;
         description = "Runs the server part of the benchmark."
 )
 public class BenchmarkServerCommand implements Runnable {
+
+    private static final int CONTROL_PORT_OFFSET = 1000;
 
     @CommandLine.Option(
             names = {"-l", "--listen"},
@@ -51,11 +54,19 @@ public class BenchmarkServerCommand implements Runnable {
                 log.info("Initializing run with {} threads", threadCount);
 
                 // Collect all connections
+                var coordinators = new BenchmarkCoordinator[threadCount];
                 var servers = new BenchmarkServer[threadCount];
                 for (int i = 0; i < threadCount; i++) {
                     try {
-                        var serverAddress = new InetSocketAddress(listenAddress.getAddress(), listenAddress.getPort() + i);
-                        servers[i] = BenchmarkServer.create(serverAddress);
+                        coordinators[i] = BenchmarkCoordinator.bind(
+                                new InetSocketAddress(listenAddress.getAddress(), listenAddress.getPort() + i + CONTROL_PORT_OFFSET)
+                        );
+
+                        coordinators[i].start();
+
+                        servers[i] = BenchmarkServer.create(
+                                new InetSocketAddress(listenAddress.getAddress(), listenAddress.getPort() + i)
+                        );
                     } catch (ControlException e) {
                         log.error("Initializing servers failed", e);
                         return;

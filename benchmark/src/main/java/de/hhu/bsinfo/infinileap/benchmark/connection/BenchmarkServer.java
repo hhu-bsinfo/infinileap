@@ -186,9 +186,6 @@ public class BenchmarkServer {
         var connectionResources = ConnectionResources.create();
         context = globalResources.push(connectionResources.context());
         worker = globalResources.push(connectionResources.worker());
-
-        LockSupport.parkNanos(Duration.ofSeconds(1).toNanos());
-
         listener = globalResources.push(worker.createListener(listenerParams));
     }
 

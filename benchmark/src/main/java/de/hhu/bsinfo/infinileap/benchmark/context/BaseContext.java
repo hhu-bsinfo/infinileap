@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.infinileap.benchmark.context;
 
+import de.hhu.bsinfo.infinileap.benchmark.connection.BenchmarkCoordinator;
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.benchmark.connection.BenchmarkClient;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;
@@ -20,13 +21,31 @@ public abstract class BaseContext {
     @Param({ "2998" })
     public int serverPort;
 
+    @Param({ "3998" })
+    public int controlPort;
+
     @Setup(Level.Trial)
     public void setup(ThreadParams threadParams) throws ControlException, InterruptedException {
-        var address = new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex());
 
-        connection = BenchmarkClient.connect(address);
+        // Establish coordinator connection
+        var coordinator = BenchmarkCoordinator.connect(
+                new InetSocketAddress(serverAddress, controlPort + threadParams.getThreadIndex())
+        );
+
+        coordinator.start();
+
+        // Establish OpenUCX Connection
+        connection = BenchmarkClient.connect(
+                new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex())
+        );
+
+        // Fill in benchmark details
         var details = new BenchmarkDetails();
         fillDetails(details);
+
+        coordinator.send(details);
+
+        // Prepare connection using details
         connection.prepare(getInitialInstruction(), details);
     }
 
