@@ -2,16 +2,13 @@ package de.hhu.bsinfo.infinileap.engine;
 
 
 import de.hhu.bsinfo.infinileap.binding.*;
-import de.hhu.bsinfo.infinileap.engine.buffer.DynamicBufferPool;
-import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
+import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.event.command.ConnectCommand;
 import de.hhu.bsinfo.infinileap.engine.event.command.ListenCommand;
 import de.hhu.bsinfo.infinileap.engine.event.loop.AcceptorEventLoop;
 import de.hhu.bsinfo.infinileap.engine.event.loop.CommandableEventLoop;
 import de.hhu.bsinfo.infinileap.engine.event.loop.EventLoopGroup;
-import de.hhu.bsinfo.infinileap.engine.event.loop.WorkerEventLoop;
-import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
 import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningCommandableEventLoop;
 import de.hhu.bsinfo.infinileap.engine.event.loop.spin.SpinningWorkerEventLoop;
 import de.hhu.bsinfo.infinileap.engine.util.NamedThreadFactory;
@@ -54,8 +51,12 @@ public class InfinileapEngine implements AutoCloseable {
 
     private final int threadCount;
 
+    private final int maxParallelRequests;
+
+    private final int maxMessageSize;
+
     @Builder
-    private InfinileapEngine(int threadCount, Class<?> serviceClass, InetSocketAddress listenAddress) {
+    private InfinileapEngine(int threadCount, int maxParallelRequests, int maxMessageSize, Class<?> serviceClass, InetSocketAddress listenAddress) {
 
         // Redirect native logs through Slf4j
         NativeLogger.enable();
@@ -67,9 +68,11 @@ public class InfinileapEngine implements AutoCloseable {
         this.workerGroup = new EventLoopGroup<>();
         this.listenAddress = listenAddress;
         this.threadCount = threadCount;
+        this.maxParallelRequests = maxParallelRequests;
+        this.maxMessageSize = maxMessageSize;
 
         // Allocate buffer pool for outgoing messages
-        this.sharedPool = new StaticBufferPool(2, 4096);
+        this.sharedPool = new StaticBufferPool(maxParallelRequests * threadCount, maxMessageSize);
 
         try {
             // Create context parameters
@@ -107,7 +110,9 @@ public class InfinileapEngine implements AutoCloseable {
                 return new SpinningWorkerEventLoop(
                         context.createWorker(workerParameters),
                         sharedPool,
-                        serviceInstance
+                        serviceInstance,
+                        maxMessageSize,
+                        maxParallelRequests
                 );
             } catch (ControlException e) {
                 throw new RuntimeException(e);

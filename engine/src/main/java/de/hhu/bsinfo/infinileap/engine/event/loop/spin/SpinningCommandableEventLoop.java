@@ -11,6 +11,7 @@ import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.function.Consumer;
 
 public abstract class SpinningCommandableEventLoop extends PhasedEventLoop {
 
@@ -18,13 +19,15 @@ public abstract class SpinningCommandableEventLoop extends PhasedEventLoop {
 
     private final ManyToOneConcurrentArrayQueue<EventLoopCommand<?>> commands;
 
+    private final Consumer<EventLoopCommand<?>> callback = this::onCommand;
+
     protected SpinningCommandableEventLoop() {
         commands = new ManyToOneConcurrentArrayQueue<>(COMMAND_QUEUE_SIZE);
     }
 
     @Override
     protected LoopStatus doWork() throws Exception {
-        return commands.drain(this::onCommand) == 0 ? LoopStatus.IDLE : LoopStatus.ACTIVE;
+        return commands.drain(callback) == 0 ? LoopStatus.IDLE : LoopStatus.ACTIVE;
     }
 
     public void pushCommand(EventLoopCommand<?> command) {

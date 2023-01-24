@@ -1,6 +1,8 @@
 package de.hhu.bsinfo.infinileap.common.memory;
 
 import java.lang.foreign.*;
+
+import de.hhu.bsinfo.infinileap.common.util.MemorySegments;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
@@ -40,6 +42,10 @@ public class MemoryUtil {
         try (var arena = Arena.openConfined()) {
             dump(MemorySegment.ofAddress(base.address(), length, arena.scope()), title, stream);
         }
+    }
+
+    public static long nativeAddress(MemorySegment segment) {
+        return MemorySegments.NULL.segmentOffset(segment);
     }
 
     public static void dump(MemorySegment segment) {

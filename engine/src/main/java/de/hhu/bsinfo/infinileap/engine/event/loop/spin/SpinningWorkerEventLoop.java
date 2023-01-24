@@ -74,11 +74,17 @@ public class SpinningWorkerEventLoop extends SpinningCommandableEventLoop {
 
     private final DebouncingLogger debouncingLogger = new DebouncingLogger(1000);
 
-    public SpinningWorkerEventLoop(Worker worker, StaticBufferPool sharedPool, Object serviceInstance) {
+    private final int maxMessageSize;
+
+    private final int maxParallelRequests;
+
+    public SpinningWorkerEventLoop(Worker worker, StaticBufferPool sharedPool, Object serviceInstance, int maxMessageSize, int maxParallelRequests) {
         this.worker = worker;
         this.sharedPool = sharedPool;
         this.serviceInstance = serviceInstance;
-        this.requestBuffer = new RingBuffer(32 * MemoryAlignment.PAGE.value());
+        this.maxMessageSize = maxMessageSize;
+        this.maxParallelRequests = maxParallelRequests;
+        this.requestBuffer = new RingBuffer(maxParallelRequests * maxMessageSize * 2);
 
         try {
             this.workerNotifier = EventFileDescriptor.create(EventFileDescriptor.OpenMode.NONBLOCK);
@@ -93,7 +99,7 @@ public class SpinningWorkerEventLoop extends SpinningCommandableEventLoop {
 
         // Create context
         this.context = EventLoopContext.builder()
-                .privatePool(new DynamicBufferPool(1, 4096))
+                .privatePool(new DynamicBufferPool(maxParallelRequests, maxMessageSize))
                 .sharedPool(sharedPool)
                 .thread(Thread.currentThread())
                 .worker(worker)

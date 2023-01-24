@@ -7,6 +7,8 @@ import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import java.lang.foreign.*;
 
+import de.hhu.bsinfo.infinileap.common.util.MemorySegments;
+import lombok.extern.slf4j.Slf4j;
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
@@ -19,6 +21,7 @@ import java.lang.invoke.VarHandle;
 
 import static org.agrona.concurrent.broadcast.RecordDescriptor.PADDING_MSG_TYPE_ID;
 import static org.agrona.concurrent.ringbuffer.RingBuffer.INSUFFICIENT_CAPACITY;
+
 
 /**
  * A ring buffer used for storing requests.
@@ -65,16 +68,22 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     private final MemorySegment buffer;
 
     /**
+     * This ring buffer's native base address.
+     */
+    private final long baseAddress;
+
+    /**
      * Bitmask used to keep indices within the buffer's bounds.
      */
     private final int indexMask;
 
-    private final SegmentScope session = SegmentScope.auto();
+    private final MemorySession session = MemorySession.openImplicit();
 
     public RingBuffer(int size) {
 
         // Allocate a new page-aligned buffer
         buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
+        baseAddress = MemoryUtil.nativeAddress(buffer);
 
         // Store the buffer's actual capacity
         capacity = (int) buffer.byteSize() - RingBufferDescriptor.TRAILER_LENGTH;
@@ -189,7 +198,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     public void commitWrite(final MemorySegment segment) {
 
         final var buffer = this.buffer;
-        final long index = segment.address() - buffer.address();
+        final long index = MemoryUtil.nativeAddress(segment) - baseAddress;
 
         // Calculate the request index and length
         final long recordIndex = index - RecordDescriptor.HEADER_LENGTH;
@@ -302,7 +311,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     }
 
     public int offsetOf(MemorySegment segment) {
-        return (int) (segment.address() - buffer.address());
+        return (int) (MemoryUtil.nativeAddress(segment) - baseAddress);
     }
 
     @Override

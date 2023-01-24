@@ -9,12 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
-import java.time.Duration;
 import java.util.concurrent.Callable;
-import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 @CommandLine.Command(
@@ -43,7 +41,25 @@ public class Engine implements Callable<Void> {
             description = "The number of messages to send.")
     private int connectionCount = 1;
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, SegmentScope.auto());
+    @CommandLine.Option(
+            names = {"--concurrency"},
+            description = "The maximum number of parallel requests."
+    )
+    private int maxParallelMessages = 16;
+
+    @CommandLine.Option(
+            names = {"--size"},
+            description = "The maximum number of bytes a message can hold."
+    )
+    private int maxMessageSize = 16;
+
+    @CommandLine.Option(
+            names = {"--workers"},
+            description = "The number of worker threads to use."
+    )
+    private int workers = 4;
+
+    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
 
     private static final Identifier SIMPLE_MESSAGE = Identifier.of(0x01);
 
@@ -71,7 +87,9 @@ public class Engine implements Callable<Void> {
         var engine = InfinileapEngine.builder()
                 .serviceClass(RpcService.class)
                 .listenAddress(listenAddress)
-                .threadCount(4)
+                .maxMessageSize(maxMessageSize)
+                .maxParallelRequests(maxParallelMessages)
+                .threadCount(workers)
                 .build();
 
         engine.start();
