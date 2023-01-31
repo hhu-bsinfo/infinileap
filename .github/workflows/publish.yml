@@ -1,0 +1,43 @@
+name: Publish package to GitHub Packages
+on:
+  release:
+    types: [created]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '19'
+          distribution: 'temurin'
+
+      - name: Install jextract tool
+        run: |
+          wget -O jextract.tar.gz https://download.java.net/java/early_access/jextract/2/openjdk-19-jextract+2-3_linux-x64_bin.tar.gz
+          tar -xzvf jextract.tar.gz -C /tmp
+          echo "/tmp/jextract-19/bin" >> $GITHUB_PATH
+
+      - name: Install OpenUCX
+        run: |
+          sudo apt install -y ca-certificates wget gpg
+          sudo echo "deb http://coconucos.cs.uni-duesseldorf.de/forschung/apt/ stable main" | sudo tee -a /etc/apt/sources.list
+          sudo wget http://coconucos.cs.uni-duesseldorf.de/forschung/apt/apt-key.asc
+          sudo apt-key add apt-key.asc
+          sudo apt update -y
+          sudo apt install -y ucx
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+
+      - name: Publish package
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: 'core:publish'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,29 +9,19 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(19))
     }
+
+    withJavadocJar()
+    withSourcesJar()
 }
 
 group = 'de.hhu.bsinfo'
 version = getProperty('projectVersion')
 
-tasks.withType(Javadoc) {
-    failOnError false
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
+javadoc {
+    failOnError = false
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }
 
 dependencies {
@@ -55,6 +45,17 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation "org.slf4j:slf4j-nop:${slf4jVersion}"
+}
+
+jar {
+    from project.sourceSets.main.output
+    from project(':common').sourceSets.main.output
+}
+
+sourcesJar {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 test {
