@@ -7,15 +7,12 @@ import de.hhu.bsinfo.infinileap.common.multiplex.EventFileDescriptor;
 import de.hhu.bsinfo.infinileap.common.multiplex.Watchable;
 import java.lang.foreign.*;
 
-import de.hhu.bsinfo.infinileap.common.util.MemorySegments;
-import lombok.extern.slf4j.Slf4j;
 import org.agrona.BitUtil;
 import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
 import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
@@ -82,7 +79,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     public RingBuffer(int size) {
 
         // Allocate a new page-aligned buffer
-        buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
+        buffer = MemoryUtil.allocateNative(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
         baseAddress = MemoryUtil.nativeAddress(buffer);
 
         // Store the buffer's actual capacity

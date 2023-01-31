@@ -3,11 +3,9 @@ package de.hhu.bsinfo.infinileap.engine.buffer;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.agrona.hints.ThreadHints;
+import org.agrona.collections.IntArrayQueue;
 
 import java.lang.foreign.MemorySession;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.function.IntConsumer;
 
 @Slf4j
@@ -21,9 +19,14 @@ public class DynamicBufferPool implements BufferPool {
     private PooledBuffer[] indexedBuffers;
 
     /**
-     * Pooled buffers.
+     * A queue storing indices belonging to free buffer instances.
      */
-    private final Queue<PooledBuffer> buffers;
+    private IntArrayQueue indexQueue;
+
+    /**
+     * The size of a single pooled buffer.
+     */
+    private final long baseSize;
 
     /**
      * This pool's associated resource scope.
@@ -32,10 +35,11 @@ public class DynamicBufferPool implements BufferPool {
 
     public DynamicBufferPool(final int count, final long size) {
         indexedBuffers = new PooledBuffer[count];
-        buffers = new LinkedList<>();
+        indexQueue = new IntArrayQueue();
+        baseSize = size;
 
         // Create base buffer containing enough space for pooled buffers
-        var base = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, session);
+        var base = MemoryUtil.allocateNative(count * size, MemoryAlignment.PAGE, session);
 
         IntConsumer releaser = this::release;
         for (int i = 0; i < count; i++) {
@@ -45,17 +49,17 @@ public class DynamicBufferPool implements BufferPool {
             // Create a new pooled buffer using the previously sliced chunk of memory
             indexedBuffers[i] = new PooledBuffer(i | FLAG_PRIVATE, slice, releaser);
 
-            // Push the pooled buffer into our queue
-            buffers.add(indexedBuffers[i]);
+            // Add queue element
+            indexQueue.addInt(i);
         }
     }
 
     public PooledBuffer claim() {
-        if (buffers.isEmpty()) {
+        if (indexQueue.isEmpty()) {
             grow();
         }
 
-        return buffers.poll();
+        return indexedBuffers[indexQueue.pollInt()];
     }
 
     public PooledBuffer claim(int timeout) {
@@ -63,13 +67,7 @@ public class DynamicBufferPool implements BufferPool {
     }
 
     public void release(int identifier) {
-        // Get buffer by identifier
-        var buffer = indexedBuffers[identifier & ~FLAG_PRIVATE];
-
-        // Put buffer back into queue
-        while (!buffers.offer(buffer)) {
-            ThreadHints.onSpinWait();
-        }
+        indexQueue.addInt(identifier & ~FLAG_PRIVATE);
     }
 
     public PooledBuffer get(int identifier) {
@@ -81,8 +79,9 @@ public class DynamicBufferPool implements BufferPool {
     }
 
     private void grow() {
-        log.warn("Growing buffer");
+        var startTime = System.nanoTime();
         var currentCount = indexedBuffers.length;
+        log.warn("Growing buffer from {} to {}", (currentCount * baseSize)/1024, (currentCount * baseSize * 2)/1024);
 
         // Copy old content into new array
         var pooledBuffers = new PooledBuffer[currentCount * 2];
@@ -91,7 +90,7 @@ public class DynamicBufferPool implements BufferPool {
         var byteSize = pooledBuffers[0].segment().byteSize();
 
         // Fill allocated array with new pooled buffers
-        var base = MemoryUtil.allocate(currentCount * byteSize, MemoryAlignment.PAGE, session);
+        var base = MemoryUtil.allocateNative(currentCount * byteSize, MemoryAlignment.PAGE, session);
         IntConsumer releaser = this::release;
         for (int i = currentCount; i < pooledBuffers.length; i++) {
 
@@ -101,11 +100,12 @@ public class DynamicBufferPool implements BufferPool {
             pooledBuffers[i] = new PooledBuffer(i | FLAG_PRIVATE, slice, releaser);
 
             // Push the pooled buffer into our queue
-            buffers.add(pooledBuffers[i]);
+            indexQueue.addInt(i);
         }
 
         // Update reference to new array
         indexedBuffers = pooledBuffers;
+        log.debug("Growing buffer took {}ms", (System.nanoTime() - startTime) / 1000 / 1000);
     }
 
     @Override

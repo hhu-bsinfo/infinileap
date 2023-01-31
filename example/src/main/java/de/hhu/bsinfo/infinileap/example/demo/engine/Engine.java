@@ -6,13 +6,16 @@ import de.hhu.bsinfo.infinileap.engine.InfinileapEngine;
 import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import lombok.extern.slf4j.Slf4j;
+import org.HdrHistogram.Histogram;
 import picocli.CommandLine;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Callable;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.concurrent.*;
 
 @Slf4j
 @CommandLine.Command(
@@ -20,6 +23,8 @@ import java.util.concurrent.Callable;
         description = "starts the infinileap engine"
 )
 public class Engine implements Callable<Void> {
+
+    private static final Histogram HISTOGRAM = new Histogram(Duration.ofSeconds(1).toNanos(), 3);
 
     @CommandLine.Option(
             names = {"--listen"},
@@ -115,16 +120,40 @@ public class Engine implements Callable<Void> {
             channels[i] = engine.connect(remoteAddress);
         }
 
-        var size = (int) ValueLayout.JAVA_LONG.byteSize();
-
         log.info("Established {} connection(s) with {}", connectionCount, remoteAddress);
-        for (int i = 0; i < messageCount; i++) {
-            for (int j = 0; j < connectionCount; j++) {
-                var buffer = channels[j].claimBuffer();
-                buffer.segment().set(ValueLayout.JAVA_LONG, 0L, i);
-                channels[j].send(SIMPLE_MESSAGE, buffer, size, callback);
-            }
+
+        var futures = new ArrayList<Future<?>>();
+        var size = (int) ValueLayout.JAVA_LONG.byteSize();
+        var executor = Executors.newFixedThreadPool(connectionCount);
+        for (int i = 0; i < connectionCount; i++) {
+            final var channel = channels[i];
+            futures.add(
+                executor.submit(() -> {
+                    for (int j = 0; j < messageCount; j++) {
+                            var buffer = channel.claimBuffer();
+                            buffer.segment().set(ValueLayout.JAVA_LONG, 0L, j);
+
+                            long startTime = System.nanoTime();
+                            channel.send(SIMPLE_MESSAGE, buffer, size, callback);
+                            long endTime = System.nanoTime();
+                            HISTOGRAM.recordValue(endTime - startTime);
+                    }
+                })
+            );
         }
+
+        futures.forEach(future -> {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("Waiting on result failed", e);
+                throw new RuntimeException(e);
+            }
+        });
+
+
+
+        HISTOGRAM.outputPercentileDistribution(System.out, 1000.0);
     }
 
     private final Callback<Void> callback = new Callback<>() {

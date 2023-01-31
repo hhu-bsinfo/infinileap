@@ -41,7 +41,7 @@ public class BufferPool {
 
         // Create base buffer containing enough space for pooled buffers
         // and register it with the InfiniBand hardware
-        baseBuffer = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, session);
+        baseBuffer = MemoryUtil.allocateNative(count * size, MemoryAlignment.PAGE, session);
 
         IntConsumer releaser = this::release;
         for (int i = 0; i < count; i++) {

@@ -84,7 +84,7 @@ public class SpinningWorkerEventLoop extends SpinningCommandableEventLoop {
         this.serviceInstance = serviceInstance;
         this.maxMessageSize = maxMessageSize;
         this.maxParallelRequests = maxParallelRequests;
-        this.requestBuffer = new RingBuffer(maxParallelRequests * maxMessageSize * 2);
+        this.requestBuffer = new RingBuffer(maxParallelRequests * maxMessageSize * 16);
 
         try {
             this.workerNotifier = EventFileDescriptor.create(EventFileDescriptor.OpenMode.NONBLOCK);

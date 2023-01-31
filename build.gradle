@@ -34,6 +34,9 @@ ext {
     // Apache Ratis
     ratisVersion = '2.2.0'
     ratisThirdPartyVersion = '0.7.0'
+
+    // HdrHistogram
+    hdrHistogramVersion = '2.1.12'
 }
 
 buildscript {

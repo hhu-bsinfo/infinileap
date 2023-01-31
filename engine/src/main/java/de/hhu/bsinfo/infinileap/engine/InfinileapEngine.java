@@ -72,7 +72,7 @@ public class InfinileapEngine implements AutoCloseable {
         this.maxMessageSize = maxMessageSize;
 
         // Allocate buffer pool for outgoing messages
-        this.sharedPool = new StaticBufferPool(maxParallelRequests * threadCount, maxMessageSize);
+        this.sharedPool = new StaticBufferPool(maxParallelRequests * threadCount * 32, maxMessageSize);
 
         try {
             // Create context parameters

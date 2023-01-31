@@ -5,6 +5,7 @@ import de.hhu.bsinfo.infinileap.engine.util.DebouncingLogger;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
+import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
 public abstract class PhasedEventLoop extends AbstractEventLoop {

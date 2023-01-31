@@ -57,6 +57,10 @@ dependencies {
     implementation "org.openjdk.jmh:jmh-core:${jmhVersion}"
     annotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhVersion}"
 
+    // HdrHistogram
+    implementation "org.hdrhistogram:HdrHistogram:${hdrHistogramVersion}"
+
+
     // Protobuf
     implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
 
