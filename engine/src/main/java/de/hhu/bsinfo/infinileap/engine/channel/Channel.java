@@ -52,14 +52,8 @@ public class Channel {
             return;
         }
 
-        MemorySegment segment = ringBuffer.claim(SendActiveMessage.BYTES);
-
-        // Send message to event loop
-        SendActiveMessage.setChannelId(segment, this.identifier);
-        SendActiveMessage.setMessageId(segment, identifier.value());
-        SendActiveMessage.setBufferId(segment, buffer.identifier());
-        SendActiveMessage.setLength(segment, length);
-        ringBuffer.commitWrite(segment);
+        // Append operation
+        ChannelOperations.appendSendActive(ringBuffer, this.identifier, identifier.value(), buffer, length);
     }
 
     public PooledBuffer claimBuffer() {
