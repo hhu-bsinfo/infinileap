@@ -45,6 +45,9 @@ dependencies {
     // Core Locking
     implementation 'net.openhft:Java-Thread-Affinity:3.23.2'
 
+    implementation 'io.netty:netty-buffer:4.1.87.Final'
+
+
     // Lombok
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"

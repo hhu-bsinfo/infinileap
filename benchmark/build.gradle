@@ -50,6 +50,9 @@ dependencies {
     // Command Line Application Framework
     implementation "info.picocli:picocli:${picocliVersion}"
 
+    // Agrona
+    implementation "org.agrona:agrona:${agronaVersion}"
+
     // Log4j Logger
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
 

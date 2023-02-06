@@ -19,4 +19,11 @@ public class DebouncingLogger {
             lastPrintTime = System.currentTimeMillis();
         }
     }
+
+    public void error(String message, Object... arguments) {
+        if ((System.currentTimeMillis() - lastPrintTime) > debounceTime) {
+            log.error(message, arguments);
+            lastPrintTime = System.currentTimeMillis();
+        }
+    }
 }

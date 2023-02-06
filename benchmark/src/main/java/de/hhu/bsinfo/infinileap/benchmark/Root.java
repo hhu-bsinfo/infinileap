@@ -2,6 +2,7 @@ package de.hhu.bsinfo.infinileap.benchmark;
 
 import de.hhu.bsinfo.infinileap.benchmark.command.BenchmarkClientCommand;
 import de.hhu.bsinfo.infinileap.benchmark.command.BenchmarkServerCommand;
+import de.hhu.bsinfo.infinileap.benchmark.command.BenchmarkUtilCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -9,7 +10,7 @@ import picocli.CommandLine;
     description = "",
     subcommands = {
         // Benchmark Commands
-        BenchmarkClientCommand.class, BenchmarkServerCommand.class
+        BenchmarkClientCommand.class, BenchmarkServerCommand.class, BenchmarkUtilCommand.class
     }
 )
 public class Root implements Runnable {

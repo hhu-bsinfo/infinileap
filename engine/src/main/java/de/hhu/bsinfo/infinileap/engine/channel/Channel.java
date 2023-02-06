@@ -1,12 +1,15 @@
 package de.hhu.bsinfo.infinileap.engine.channel;
 
 import de.hhu.bsinfo.infinileap.binding.Identifier;
+import de.hhu.bsinfo.infinileap.binding.MemoryDescriptor;
 import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer;
 import de.hhu.bsinfo.infinileap.engine.event.loop.EventLoopContext;
 import de.hhu.bsinfo.infinileap.engine.event.message.SendActiveMessage;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import de.hhu.bsinfo.infinileap.engine.buffer.StaticBufferPool;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.hints.ThreadHints;
 
