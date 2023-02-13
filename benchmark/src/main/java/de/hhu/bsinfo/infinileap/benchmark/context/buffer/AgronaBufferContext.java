@@ -69,7 +69,7 @@ public class AgronaBufferContext {
                     return;
                 }
 
-            } while (index < 0);
+            } while (index == RingBuffer.INSUFFICIENT_CAPACITY);
 
             // Commit the claimed memory.
             ringBuffer.commit(index);

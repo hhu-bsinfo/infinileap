@@ -2,8 +2,8 @@ package de.hhu.bsinfo.infinileap.benchmark.context.buffer;
 
 import de.hhu.bsinfo.infinileap.binding.ControlException;
 import de.hhu.bsinfo.infinileap.common.buffer.ManyToOneRingBuffer;
-import de.hhu.bsinfo.infinileap.common.buffer.RingBuffer;
 import lombok.extern.slf4j.Slf4j;
+import org.agrona.concurrent.ringbuffer.RingBuffer;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -60,8 +60,7 @@ public class AgronaSegmentContext {
                 if (control.stopMeasurement) {
                     return;
                 }
-
-            } while (index < 0);
+            } while (index == RingBuffer.INSUFFICIENT_CAPACITY);
 
             // Commit the claimed memory.
             ringBuffer.commit(index);

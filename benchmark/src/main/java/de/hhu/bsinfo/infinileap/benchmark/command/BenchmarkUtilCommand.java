@@ -1,6 +1,8 @@
 package de.hhu.bsinfo.infinileap.benchmark.command;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openjdk.jmh.profile.GCProfiler;
+import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -48,6 +50,7 @@ public class BenchmarkUtilCommand implements Runnable {
         var options = new OptionsBuilder()
                 .resultFormat(ResultFormatType.CSV)
                 .result(outputFile)
+                .addProfiler(GCProfiler.class)
                 .detectJvmArgs();
 
         // Include the specified benchmarks

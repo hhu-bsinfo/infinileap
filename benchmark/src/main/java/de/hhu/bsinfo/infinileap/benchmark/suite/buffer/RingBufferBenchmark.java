@@ -47,7 +47,7 @@ public class RingBufferBenchmark {
 
     @Benchmark
     @Group("agrona")
-    @GroupThreads(1)
+    @GroupThreads(2)
     @Warmup(iterations = 3, time = 5, timeUnit = TimeUnit.SECONDS)
     @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
     @OperationsPerInvocation(65536)
@@ -67,7 +67,7 @@ public class RingBufferBenchmark {
 
     @Benchmark
     @Group("agronaSegment")
-    @GroupThreads(3)
+    @GroupThreads(2)
     @Warmup(iterations = 3, time = 5, timeUnit = TimeUnit.SECONDS)
     @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
     @OperationsPerInvocation(65536)

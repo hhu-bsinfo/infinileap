@@ -52,6 +52,11 @@ public class ManyToOneRingBuffer {
     private final int tailPositionIndex;
 
     /**
+     * The index within our backing buffer at which the correlation id counter is stored.
+     */
+    private final int correlationIdCounterIndex;
+
+    /**
      * The underlying buffer used for storing data.
      */
     private final MemorySegment buffer;
@@ -82,6 +87,59 @@ public class ManyToOneRingBuffer {
         headPositionIndex = capacity + RingBufferDescriptor.HEAD_POSITION_OFFSET;
         headCachePositionIndex = capacity + RingBufferDescriptor.HEAD_CACHE_POSITION_OFFSET;
         tailPositionIndex = capacity + RingBufferDescriptor.TAIL_POSITION_OFFSET;
+        correlationIdCounterIndex = capacity + RingBufferDescriptor.CORRELATION_COUNTER_OFFSET;
+    }
+
+    public int capacity() {
+        return capacity;
+    }
+
+    public long claim(final int type, final int bytes) {
+        long offset;
+        while ((offset = tryClaim(type, bytes)) == INSUFFICIENT_CAPACITY) {
+            Thread.onSpinWait();
+        }
+
+        return offset;
+    }
+
+    public long tryClaim(final int type, final int bytes) {
+
+        final var buffer = this.buffer;
+
+        // Calculate the required size in bytes
+        final var recordLength = bytes + RecordDescriptor.HEADER_LENGTH;
+
+        // Claim the required space
+        final var recordIndex = claim(buffer, recordLength);
+
+        // Check if space was claimed sucessfully
+        if (recordIndex == INSUFFICIENT_CAPACITY) {
+            return INSUFFICIENT_CAPACITY;
+        }
+
+        // Block claimed space
+        INT_HANDLE.setRelease(buffer, lengthOffset(recordIndex), -recordLength);
+        VarHandle.releaseFence();
+        INT_HANDLE.set(buffer, typeOffset(recordIndex), type);
+
+        // Return the index at which the producer may write its request
+        return encodedMsgOffset(recordIndex);
+    }
+
+    public void commit(final long index) {
+        final var buffer = this.buffer;
+
+        // Calculate the request index and length
+        final long recordIndex = index - RecordDescriptor.HEADER_LENGTH;
+        final int recordLength = (int) INT_HANDLE.get(buffer, lengthOffset(recordIndex));
+
+        // Commit the request
+        INT_HANDLE.setRelease(buffer, lengthOffset(recordIndex), -recordLength);
+    }
+
+    public int read (final MessageHandler handler) {
+        return read(handler, Integer.MAX_VALUE);
     }
 
     public int read(final MessageHandler handler, final int limit) {
@@ -133,43 +191,20 @@ public class ManyToOneRingBuffer {
         return messagesRead;
     }
 
-    public long tryClaim(int type, final int bytes) {
-
-        final var buffer = this.buffer;
-
-        // Calculate the required size in bytes
-        final var recordLength = bytes + RecordDescriptor.HEADER_LENGTH;
-
-        // Claim the required space
-        final var recordIndex = claim(buffer, recordLength);
-
-        // Check if space was claimed sucessfully
-        if (recordIndex == INSUFFICIENT_CAPACITY) {
-            return INSUFFICIENT_CAPACITY;
-        }
-
-        // Block claimed space
-        INT_HANDLE.setRelease(buffer, lengthOffset(recordIndex), -recordLength);
-        VarHandle.releaseFence();
-        INT_HANDLE.set(buffer, typeOffset(recordIndex), type);
-
-        // Return the index at which the producer may write its request
-        return encodedMsgOffset(recordIndex);
-    }
-
-    public void commit(final long index) {
-        final var buffer = this.buffer;
-
-        // Calculate the request index and length
-        final long recordIndex = index - RecordDescriptor.HEADER_LENGTH;
-        final int recordLength = (int) INT_HANDLE.get(buffer, lengthOffset(recordIndex));
-
-        // Commit the request
-        INT_HANDLE.setRelease(buffer, lengthOffset(recordIndex), -recordLength);
+    public long nextCorrelationId() {
+        return (long) LONG_HANDLE.getAndAdd(buffer, correlationIdCounterIndex, 1L);
     }
 
     public MemorySegment buffer() {
         return buffer;
+    }
+
+    public long producerPosition() {
+        return (long) LONG_HANDLE.getVolatile(buffer, tailPositionIndex);
+    }
+
+    public long consumerPosition(){
+        return (long) LONG_HANDLE.getVolatile(buffer, headPositionIndex);
     }
 
     private long claim(final MemorySegment buffer, final int length) {
@@ -189,12 +224,14 @@ public class ManyToOneRingBuffer {
         // Mask used to keep indices within bounds
         final var mask = indexMask;
 
-
+        // Read cached head position
         var head = (long) LONG_HANDLE.getVolatile(buffer, headCachePosition);
+
         long tail;
+        long newTail;
         int tailIndex;
         int padding;
-
+        int writeIndex;
         do {
 
             // Calculate available space using the cached head position
@@ -212,24 +249,30 @@ public class ManyToOneRingBuffer {
                 LONG_HANDLE.setRelease(buffer, headCachePosition, head);
             }
 
+            newTail = tail + required;
+
             // At this point we know that there is a chunk of
             // memory at least the size we requested
 
             // Try to acquire the required space
             padding = 0;
             tailIndex = (int) tail & mask;
+            writeIndex = tailIndex;
             final var remaining = total - tailIndex;
             if (required > remaining) { // If the space between the tail and the upper bound is not sufficient
 
                 // Wrap around the head index
                 var headIndex = (int) head & mask;
+                writeIndex = 0;
+
                 if (required > headIndex) {  // If there is not enough space at the beginning of our buffer
 
                     // Update our head index for one last try
                     head = (long) LONG_HANDLE.getVolatile(buffer, headPositionIndex);
                     headIndex = (int) head & mask;
                     if (required > headIndex) {
-                        return INSUFFICIENT_CAPACITY;
+                        writeIndex = INSUFFICIENT_CAPACITY;
+                        newTail = tail;
                     }
 
                     // Update the cached head position
@@ -237,21 +280,19 @@ public class ManyToOneRingBuffer {
                 }
 
                 padding = remaining;
+                newTail += padding;
             }
-        } while(!LONG_HANDLE.compareAndSet(buffer, tailPosition, tail, tail + padding + required));
+        } while(!LONG_HANDLE.compareAndSet(buffer, tailPosition, tail, newTail));
 
         if (padding != 0) {
             INT_HANDLE.setRelease(buffer, lengthOffset(tailIndex), -padding);
             VarHandle.releaseFence();
+
             INT_HANDLE.set(buffer, typeOffset(tailIndex), PADDING_MSG_TYPE_ID);
             INT_HANDLE.setRelease(buffer, lengthOffset(tailIndex), padding);
-
-            // If there was padding at the end of the buffer
-            // our claimed space starts at index 0
-            tailIndex = 0;
         }
 
-        return tailIndex;
+        return writeIndex;
     }
 
     public static long lengthOffset(final long recordOffset) {
