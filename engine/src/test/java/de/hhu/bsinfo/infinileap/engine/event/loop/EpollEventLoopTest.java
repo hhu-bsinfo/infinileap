@@ -26,7 +26,6 @@ public class EpollEventLoopTest {
         var eventLoop = new EpollEventLoop<Integer>() {
             @Override
             protected void process(SelectionKey<Integer> selectionKey) throws IOException {
-                System.out.println("HELLO");
                 assertEquals(selectionKey.attachment(), ATTACHEMENT);
                 latch.countDown();
             }
