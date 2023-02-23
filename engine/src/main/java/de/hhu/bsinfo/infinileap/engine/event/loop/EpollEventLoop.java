@@ -13,6 +13,7 @@ import org.agrona.hints.ThreadHints;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Slf4j
 public abstract class EpollEventLoop<T> extends AbstractEventLoop {
@@ -53,7 +54,7 @@ public abstract class EpollEventLoop<T> extends AbstractEventLoop {
     }
 
     private void watch(WatchRequest<T> request) {
-        if (request.watchable.name() != Watchable.NO_NAME) {
+        if (!Objects.equals(request.watchable.name(), Watchable.NO_NAME)) {
             log.debug("Registering {} for {}", request.watchable.name(), Arrays.toString(request.getEventTypes()));
         } else {
             log.debug("Registering for {}", Arrays.toString(request.getEventTypes()));

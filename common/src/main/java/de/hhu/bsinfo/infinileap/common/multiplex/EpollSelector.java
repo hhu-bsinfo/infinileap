@@ -57,7 +57,7 @@ public final class EpollSelector<T> {
 
         // Extract descriptor and add it to the key map
         var descriptor = watchable.descriptor();
-        if (keyMap.putIfAbsent(watchable.descriptor().intValue(), selectionKey) != null) {
+        if (keyMap.putIfAbsent(descriptor.intValue(), selectionKey) != null) {
             throw new IllegalArgumentException("FileDescriptor is already registered");
         }
 
