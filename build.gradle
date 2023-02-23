@@ -5,8 +5,8 @@ ext {
     picocliVersion = '4.6.1'
 
     // gRPC Framework
-    grpcVersion = '1.37.0'
-    protobufVersion = '3.15.8'
+    grpcVersion = '1.54.0'
+    protobufVersion = '3.21.12'
 
     // Agrona
     agronaVersion = '1.14.0'
@@ -24,7 +24,7 @@ ext {
 
     // Code Generation
     lombokVersion = '1.18.20'
-    tomcatAnnotationsVersion = '6.0.53'
+    tomcatAnnotationsVersion = '10.1.5'
     jetbrainsAnnotationsVersion = '22.0.0'
 
     // Testing

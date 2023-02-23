@@ -1,0 +1,10 @@
+syntax = "proto3";
+package infinileap.sidecar.model;
+
+option java_package = "de.hhu.bsinfo.infinileap.sidecar.model";
+option java_multiple_files = true;
+
+message MemoryInfo {
+  uint64 offset = 1;
+  uint64 length = 2;
+}

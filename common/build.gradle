@@ -50,7 +50,7 @@ jextract {
         functions = [
 
                 // Filedescriptor
-                'fcntl', 'close',
+                'fcntl', 'close', 'read',
 
                 // Printing
                 'vsnprintf',
@@ -83,7 +83,7 @@ jextract {
                 'epoll_event',
 
                 // Timers
-                'timespec', 'itimerspec',
+                'timespec', 'itimerspec', 'time_t',
 
                 // Networking
                 'sockaddr_storage', 'sockaddr_in', 'sockaddr_in6',
