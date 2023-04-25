@@ -4,11 +4,9 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.com/github/hhu-bsinfo/infinileap"><img src="https://www.travis-ci.com/hhu-bsinfo/infinileap.svg?branch=master"></a>
-  <a href="https://openjdk.java.net/projects/jdk/19/"><img src="https://img.shields.io/badge/java-19-blue.svg"></a>
-  <a href="https://github.com/openucx/ucx/tree/v1.11.2"><img src="https://img.shields.io/badge/ucx-1.11.2-red.svg"></a>
+  <a href="https://openjdk.java.net/projects/jdk/20/"><img src="https://img.shields.io/badge/java-20-blue.svg"></a>
+  <a href="https://github.com/openucx/ucx/tree/v1.13.0"><img src="https://img.shields.io/badge/ucx-1.13.0-red.svg"></a>
   <a href="https://github.com/hhu-bsinfo/infinileap/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-orange.svg"></a>
-  
 </p>
 
 <p align="center">
@@ -117,7 +115,7 @@ This demo atomically increments a value residing inside the remote server's memo
   - If your JDK is not installed in one of the default locations, Gradle can be instructed to look in a custom location. To enable this feature the `org.gradle.java.installations.paths` property has to be set within your global `gradle.properties` file usually located inside `${HOME}/.gradle`.
     
     ```
-    org.gradle.java.installations.paths=/custom/path/jdk19
+    org.gradle.java.installations.paths=/custom/path/jdk20
     ```
     
   - The HotSpot VM uses the SIGSEGV signal for its own purposes, which may interfere with signal handlers installed by the ucx library. Fortunately, ucx's signal handlers can be disabled by using an undocumented environment variable (see [MPI.jl issue #337](https://github.com/JuliaParallel/MPI.jl/issues/337#issuecomment-578377458)).
@@ -137,19 +135,8 @@ This demo atomically increments a value residing inside the remote server's memo
 
 ## :wrench: &nbsp; Requirements
 
-  * [OpenJDK 19 + Project Panama](https://github.com/openjdk/panama-foreign/tree/foreign-jextract)
-      
-    > We provide nightly builds of the `foreign-jextract` branch, which are compatible with [SDKMAN!](https://sdkman.io).
-    > 
-    > After installing SDKMAN! you can execute the following commands to install and use the latest nightly build.
-    > 
-    > 
-    > ```
-    > curl -s "https://coconucos.cs.hhu.de/forschung/jdk/install" | bash
-    > sdk use java panama
-    > ```
-    
-  * [ucx 1.11.2](https://github.com/openucx/ucx/releases/tag/v1.11.2)
+  * [OpenJDK 20](https://jdk.java.net/20/)
+  * [ucx 1.13.0](https://github.com/openucx/ucx/releases/tag/v1.13.0)
   
 ## :scroll: &nbsp; License
 

@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.benchmark.message;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 import java.lang.invoke.VarHandle;
@@ -49,19 +49,19 @@ public class BenchmarkInstruction extends NativeObject {
             LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("op_code"));
 
     public BenchmarkInstruction() {
-        this(MemorySession.openImplicit());
+        this(SegmentScope.auto());
     }
 
-    public BenchmarkInstruction(MemorySession session) {
-        super(MemorySegment.allocateNative(LAYOUT, session));
+    public BenchmarkInstruction(SegmentScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
     }
 
     public BenchmarkInstruction(OpCode opCode) {
-        this(opCode, MemorySession.openImplicit());
+        this(opCode, SegmentScope.auto());
     }
 
-    public BenchmarkInstruction(OpCode operation, MemorySession session) {
-        super(MemorySegment.allocateNative(LAYOUT, session));
+    public BenchmarkInstruction(OpCode operation, SegmentScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
         setOperation(operation);
     }
 

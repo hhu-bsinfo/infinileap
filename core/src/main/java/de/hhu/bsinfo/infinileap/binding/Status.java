@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import java.lang.foreign.MemoryAddress;
 
+import java.lang.foreign.MemorySegment;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -78,28 +78,28 @@ public enum Status {
         return value == status.value;
     }
 
-    static boolean is(MemoryAddress address, Status status) {
-        return isStatus(address) && status.is((int) address.toRawLongValue());
+    static boolean is(MemorySegment segment, Status status) {
+        return isStatus(segment) && status.is((int) segment.address());
     }
 
-    static boolean isStatus(MemoryAddress status) {
-        return isStatus(status.toRawLongValue());
+    static boolean isStatus(MemorySegment status) {
+        return isStatus(status.address());
     }
 
     public static boolean isStatus(long status) {
         return status >= RANGE_MIN && status <= RANGE_MAX;
     }
 
-    static boolean isError(MemoryAddress status) {
-        return isError(status.toRawLongValue());
+    static boolean isError(MemorySegment status) {
+        return isError(status.address());
     }
 
     public static boolean isError(long status) {
         return status >= RANGE_MIN && status < 0;
     }
 
-    static Status of(MemoryAddress status) {
-        return of((int) status.toRawLongValue());
+    static Status of(MemorySegment status) {
+        return of((int) status.address());
     }
 
     public static Status of(int status) {

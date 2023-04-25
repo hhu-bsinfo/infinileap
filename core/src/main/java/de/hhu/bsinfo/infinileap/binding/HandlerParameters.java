@@ -5,19 +5,20 @@ import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 import static org.openucx.OpenUcx.*;
 
 public class HandlerParameters extends NativeObject {
 
     public HandlerParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public HandlerParameters(MemorySession session) {
-        super(ucp_am_handler_param_t.allocate(session));
+    public HandlerParameters(SegmentAllocator allocator) {
+        super(ucp_am_handler_param_t.allocate(allocator));
     }
 
     public HandlerParameters setId(Identifier id) {
@@ -33,12 +34,12 @@ public class HandlerParameters extends NativeObject {
     }
 
     public HandlerParameters setCallback(ActiveMessageCallback callback) {
-        ucp_am_handler_param_t.cb$set(segment(), callback.upcallAddress());
+        ucp_am_handler_param_t.cb$set(segment(), callback.upcallSegment());
         addFieldMask(Field.CALLBACK);
         return this;
     }
 
-    public HandlerParameters setArgument(MemoryAddress argument) {
+    public HandlerParameters setArgument(MemorySegment argument) {
         ucp_am_handler_param_t.arg$set(segment(), argument);
         addFieldMask(Field.ARGUMENT);
         return this;

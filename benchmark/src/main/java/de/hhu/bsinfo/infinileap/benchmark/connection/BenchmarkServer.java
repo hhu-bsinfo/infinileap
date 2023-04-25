@@ -8,7 +8,6 @@ import de.hhu.bsinfo.infinileap.util.ResourcePool;
 import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkDetails;
 import de.hhu.bsinfo.infinileap.benchmark.util.*;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +70,7 @@ public class BenchmarkServer {
     /**
      * The remote address used for memory access operations.
      */
-    private MemoryAddress remoteAddress;
+    private MemorySegment remoteAddress;
 
     /**
      * Key used for accessing remote memory.
@@ -110,7 +109,7 @@ public class BenchmarkServer {
     private final ListenerParameters listenerParams;
 
     private static final ErrorHandler ERROR_HANDLER = ((userData, endpoint, status) -> {
-        log.error("Received error on endpoint {} with status {}", endpoint.toRawLongValue(), status);
+        log.error("Received error on endpoint {} with status {}", endpoint.address(), status);
     });
 
     private BenchmarkServer(InetSocketAddress listenAddress) {

@@ -19,16 +19,16 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
 
     private final WorkerParameters workerParameters;
 
-    /* package-private */ Worker(MemoryAddress address, Context context, WorkerParameters workerParameters) {
-        super(address, ValueLayout.ADDRESS);
+    /* package-private */ Worker(MemorySegment base, Context context, WorkerParameters workerParameters) {
+        super(base, ValueLayout.ADDRESS);
         this.context = context;
         this.workerParameters = workerParameters;
     }
 
     public WorkerAddress getAddress() throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
-            var length = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
+            var length = arena.allocate(ValueLayout.JAVA_LONG);
             var status = ucp_worker_get_address(
                     Parameter.of(this),
                     pointer,
@@ -44,7 +44,7 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public WorkerProgress progress() {
-        return ucp_worker_progress(address()) == NO_PROGRESS ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
+        return ucp_worker_progress(segment()) == NO_PROGRESS ? WorkerProgress.IDLE : WorkerProgress.ACTIVE;
     }
 
     public Status arm() {
@@ -60,8 +60,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public Endpoint createEndpoint(EndpointParameters parameters) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var status = ucp_ep_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -77,8 +77,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public Listener createListener(ListenerParameters parameters) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var status = ucp_listener_create(
                     Parameter.of(this),
                     Parameter.of(parameters),
@@ -94,19 +94,19 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public long receiveTagged(NativeObject object, Tag tag) {
-        return receiveTagged(object.address(), object.byteSize(), tag, TAG_MASK_FULL, RequestParameters.EMPTY);
+        return receiveTagged(object.segment(), object.byteSize(), tag, TAG_MASK_FULL, RequestParameters.EMPTY);
     }
 
     public long receiveTagged(NativeObject object, Tag tag, RequestParameters parameters) {
-        return receiveTagged(object.address(), object.byteSize(), tag, TAG_MASK_FULL, parameters);
+        return receiveTagged(object.segment(), object.byteSize(), tag, TAG_MASK_FULL, parameters);
     }
 
     public long receiveTagged(NativeObject object, Tag tag, Tag tagMask) {
-        return receiveTagged(object.address(), object.byteSize(), tag, tagMask, RequestParameters.EMPTY);
+        return receiveTagged(object.segment(), object.byteSize(), tag, tagMask, RequestParameters.EMPTY);
     }
 
     public long receiveTagged(NativeObject object, Tag tag, Tag tagMask, RequestParameters parameters) {
-        return receiveTagged(object.address(), object.byteSize(), tag, tagMask, parameters);
+        return receiveTagged(object.segment(), object.byteSize(), tag, tagMask, parameters);
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag) {
@@ -122,10 +122,10 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public long receiveTagged(MemorySegment buffer, Tag tag, Tag tagMask, RequestParameters parameters) {
-        return receiveTagged(buffer.address(), buffer.byteSize(), tag, tagMask, parameters);
+        return receiveTagged(buffer, buffer.byteSize(), tag, tagMask, parameters);
     }
 
-    private long receiveTagged(MemoryAddress address, long byteSize, Tag tag, Tag tagMask, RequestParameters parameters) {
+    private long receiveTagged(MemorySegment address, long byteSize, Tag tag, Tag tagMask, RequestParameters parameters) {
         return ucp_tag_recv_nbx(
                 Parameter.of(this),
                 address,
@@ -148,8 +148,8 @@ public class Worker extends NativeObject implements Watchable, AutoCloseable {
     }
 
     public FileDescriptor fileDescriptor() throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var descriptor = MemorySegment.allocateNative(ValueLayout.JAVA_INT, session);
+        try (var arena = Arena.openConfined()) {
+            var descriptor = arena.allocate(ValueLayout.JAVA_INT);
             var status = ucp_worker_get_efd(
                 Parameter.of(this),
                 descriptor

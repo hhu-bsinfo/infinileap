@@ -28,7 +28,7 @@ public class Messaging extends CommunicationDemo {
 
         // Allocate a buffer and write the message
         final var source = MemorySegment.ofArray(MESSAGE_BYTES);
-        final var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, session);
+        final var buffer = arena.allocate(MESSAGE_SIZE);
         buffer.copyFrom(source);
 
         // Send the buffer to the server
@@ -45,7 +45,7 @@ public class Messaging extends CommunicationDemo {
     protected void onServerReady(Context context, Worker worker, Endpoint endpoint) throws InterruptedException {
 
         // Allocate a buffer for receiving the remote's message
-        var buffer = MemorySegment.allocateNative(MESSAGE_SIZE, session);
+        var buffer = arena.allocate(MESSAGE_SIZE);
 
         // Receive the message
         log.info("Receiving message");

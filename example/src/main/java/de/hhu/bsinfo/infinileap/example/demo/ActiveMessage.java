@@ -3,8 +3,8 @@ package de.hhu.bsinfo.infinileap.example.demo;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.example.base.CommunicationDemo;
 import de.hhu.bsinfo.infinileap.util.Requests;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -36,9 +36,10 @@ public class ActiveMessage extends CommunicationDemo {
                 "Hello World".getBytes(StandardCharsets.US_ASCII)
         );
 
+
         // Create header and data segments
-        final var header = MemorySegment.allocateNative(4, session);
-        final var data = MemorySegment.allocateNative(message.byteSize(), session);
+        final var header = arena.allocate(4);
+        final var data = arena.allocate(message.byteSize());
 
         // Copy message into native segment
         MemorySegment.copy(message, 0L, data, 0L, message.byteSize());
@@ -77,7 +78,7 @@ public class ActiveMessage extends CommunicationDemo {
     private final ActiveMessageCallback callback = new ActiveMessageCallback() {
 
         @Override
-        protected Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress parameters) {
+        protected Status onActiveMessage(MemorySegment argument, MemorySegment header, MemorySegment data, MemorySegment parameters) {
             log.info("Received integer value {} in header", header.get(ValueLayout.JAVA_INT, 0L));
             log.info("Received long value {} in body", data.get(ValueLayout.JAVA_INT, 0L));
             if (header.get(ValueLayout.JAVA_INT, 0L) == 0xDEAD) {

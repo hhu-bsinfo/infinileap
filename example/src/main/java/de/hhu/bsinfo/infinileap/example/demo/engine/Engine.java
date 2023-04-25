@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
@@ -43,7 +43,7 @@ public class Engine implements Callable<Void> {
             description = "The number of messages to send.")
     private int connectionCount = 1;
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
+    private final MemorySegment data = MemorySegment.allocateNative(16L, SegmentScope.auto());
 
     private static final Identifier SIMPLE_MESSAGE = Identifier.of(0x01);
 

@@ -5,10 +5,11 @@ import de.hhu.bsinfo.infinileap.binding.ContextParameters.Feature;
 import de.hhu.bsinfo.infinileap.util.CloseException;
 import de.hhu.bsinfo.infinileap.util.Requests;
 import de.hhu.bsinfo.infinileap.util.ResourcePool;
-import java.lang.foreign.MemorySession;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.SegmentScope;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,7 +61,7 @@ public abstract class CommunicationDemo implements Runnable {
 
     private final AtomicBoolean barrier = new AtomicBoolean();
 
-    protected final MemorySession session = MemorySession.openShared();
+    protected final Arena arena = Arena.openShared();
 
     @Override
     public void run() {
@@ -80,7 +81,7 @@ public abstract class CommunicationDemo implements Runnable {
         }
 
         // Close memory session
-        session.close();
+        arena.close();
     }
 
     private void initialize() throws ControlException, InterruptedException {

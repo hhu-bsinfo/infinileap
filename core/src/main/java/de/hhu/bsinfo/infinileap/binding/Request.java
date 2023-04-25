@@ -1,8 +1,8 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import java.lang.foreign.MemoryAddress;
 
 import java.io.Closeable;
+import java.lang.foreign.MemorySegment;
 
 import static org.openucx.Communication.*;
 
@@ -40,8 +40,8 @@ public /* primitive */ class Request implements Closeable {
         return State.COMPLETE;
     }
 
-    MemoryAddress address() {
-        return MemoryAddress.ofLong(handle);
+    MemorySegment address() {
+        return MemorySegment.ofAddress(handle);
     }
 
     public boolean hasError() {

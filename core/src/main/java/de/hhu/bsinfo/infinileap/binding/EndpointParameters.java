@@ -7,7 +7,8 @@ import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 
 import java.net.InetSocketAddress;
@@ -20,15 +21,15 @@ public class EndpointParameters extends NativeObject {
     private MemorySegment errorUpcall;
 
     public EndpointParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public EndpointParameters(MemorySession session) {
-        super(ucp_ep_params_t.allocate(session));
+    public EndpointParameters(SegmentAllocator allocator) {
+        super(ucp_ep_params_t.allocate(allocator));
     }
 
     public EndpointParameters setRemoteAddress(WorkerAddress address) {
-        ucp_ep_params_t.address$set(segment(), address.address());
+        ucp_ep_params_t.address$set(segment(), address.segment());
         addFieldMask(Field.REMOTE_ADDRESS);
         return this;
     }
@@ -36,7 +37,7 @@ public class EndpointParameters extends NativeObject {
     public EndpointParameters setRemoteAddress(InetSocketAddress socketAddress) {
         this.remoteAddress = NativeInetSocketAddress.convert(socketAddress);
         var sockaddr = ucp_ep_params_t.sockaddr$slice(segment());
-        ucs_sock_addr_t.addr$set(sockaddr, remoteAddress.address());
+        ucs_sock_addr_t.addr$set(sockaddr, remoteAddress.segment());
         ucs_sock_addr_t.addrlen$set(sockaddr, remoteAddress.getLength());
 
         addFieldMask(Field.SOCK_ADDR);
@@ -45,14 +46,14 @@ public class EndpointParameters extends NativeObject {
     }
 
     public EndpointParameters setConnectionRequest(ConnectionRequest request) {
-        ucp_ep_params_t.conn_request$set(segment(), request.address());
+        ucp_ep_params_t.conn_request$set(segment(), request.base());
         addFieldMask(Field.CONN_REQUEST);
         return this;
     }
 
     public EndpointParameters setErrorHandler(ErrorHandler handler) {
-        errorUpcall = handler.upcallStub();
-        ucp_err_handler_t.cb$set(ucp_ep_params_t.err_handler$slice(segment()), errorUpcall.address());
+        errorUpcall = handler.upcallSegment();
+        ucp_err_handler_t.cb$set(ucp_ep_params_t.err_handler$slice(segment()), errorUpcall);
         ucp_ep_params_t.err_mode$set(segment(), ErrorHandlingMode.PEER.value());
         addFieldMask(Field.ERR_HANDLER, Field.ERR_HANDLING_MODE);
         return this;

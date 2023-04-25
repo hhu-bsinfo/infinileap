@@ -14,14 +14,14 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: '19'
+          java-version: '20'
           distribution: 'temurin'
 
       - name: Install jextract tool
         run: |
-          wget -O jextract.tar.gz https://download.java.net/java/early_access/jextract/2/openjdk-19-jextract+2-3_linux-x64_bin.tar.gz
+          wget -O jextract.tar.gz https://download.java.net/java/early_access/jextract/1/openjdk-20-jextract+1-2_linux-x64_bin.tar.gz
           tar -xzvf jextract.tar.gz -C /tmp
-          echo "/tmp/jextract-19/bin" >> $GITHUB_PATH
+          echo "/tmp/jextract-20/bin" >> $GITHUB_PATH
 
       - name: Install OpenUCX
         run: |

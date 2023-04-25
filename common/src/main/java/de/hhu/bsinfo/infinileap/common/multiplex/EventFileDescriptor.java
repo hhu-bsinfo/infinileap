@@ -4,8 +4,10 @@ import de.hhu.bsinfo.infinileap.common.io.FileDescriptor;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.NativeError;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
+
+import javax.swing.text.Segment;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 import java.io.IOException;
@@ -14,7 +16,7 @@ import static org.unix.Linux.*;
 
 public final class EventFileDescriptor extends FileDescriptor {
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     private final MemorySegment counter = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
 

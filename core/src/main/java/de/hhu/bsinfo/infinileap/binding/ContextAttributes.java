@@ -11,11 +11,11 @@ import static org.openucx.OpenUcx.*;
 public class ContextAttributes extends NativeObject {
 
     ContextAttributes() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    ContextAttributes(MemorySession session) {
-        super(ucp_context_attr_t.allocate(session));
+    ContextAttributes(SegmentAllocator allocator) {
+        super(ucp_context_attr_t.allocate(allocator));
     }
 
     public long requestSize() {

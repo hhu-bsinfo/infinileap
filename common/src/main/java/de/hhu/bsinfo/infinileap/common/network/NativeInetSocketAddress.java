@@ -3,10 +3,12 @@ package de.hhu.bsinfo.infinileap.common.network;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.flag.ShortFlag;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import org.unix.*;
 
+import javax.swing.text.Segment;
 import java.net.*;
 
 import static org.unix.Linux.*;
@@ -24,11 +26,11 @@ public final class NativeInetSocketAddress extends NativeObject {
     private final int length;
 
     private NativeInetSocketAddress(AddressFamily family) {
-        this(family, MemorySession.openImplicit());
+        this(family, SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    private NativeInetSocketAddress(AddressFamily family, MemorySession session) {
-        super(sockaddr_storage.allocate(session));
+    private NativeInetSocketAddress(AddressFamily family, SegmentAllocator allocator) {
+        super(sockaddr_storage.allocate(allocator));
 
         this.family = family;
         sockaddr_storage.ss_family$set(segment(), family.getValue());

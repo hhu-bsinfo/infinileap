@@ -6,9 +6,9 @@ import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 import org.openucx.ucp_listener_attr_t;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
 
@@ -18,15 +18,15 @@ public class Listener extends NativeObject implements AutoCloseable {
 
     private final ListenerParameters parameters;
 
-    /* package-private */ Listener(MemoryAddress address, ListenerParameters parameters) {
-        super(address, ValueLayout.ADDRESS);
+    /* package-private */ Listener(MemorySegment base, ListenerParameters parameters) {
+        super(base, ValueLayout.ADDRESS);
         this.parameters = parameters;
     }
 
     public void reject(ConnectionRequest connectionRequest) throws ControlException {
         var status = ucp_listener_reject(
                 Parameter.of(this),
-                connectionRequest.address()
+                connectionRequest.base()
         );
 
         if (Status.isNot(status, Status.OK)) {
@@ -46,16 +46,16 @@ public class Listener extends NativeObject implements AutoCloseable {
 
     @Override
     public void close() {
-        ucp_listener_destroy(address());
+        ucp_listener_destroy(segment());
     }
 
     private MemorySegment queryAttributes(final Field... fields) throws ControlException {
         // Allocate attributes struct and set requested fields
-        var listener_attr = ucp_listener_attr_t.allocate(MemorySession.openImplicit());
+        var listener_attr = ucp_listener_attr_t.allocate(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
         ucp_listener_attr_t.field_mask$set(listener_attr, BitMask.longOf(fields));
 
         // Query requested fields
-        var status = ucp_listener_query(address(), listener_attr);
+        var status = ucp_listener_query(segment(), listener_attr);
         if (Status.isNot(status, Status.OK)) {
             throw new ControlException(status);
         }

@@ -12,7 +12,6 @@ import de.hhu.bsinfo.infinileap.benchmark.message.BenchmarkInstruction.OpCode;
 import de.hhu.bsinfo.infinileap.benchmark.util.*;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.RandomBytes;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +51,7 @@ public class BenchmarkClient implements AutoCloseable {
     /**
      * The remote address used for memory access operations.
      */
-    private MemoryAddress remoteAddress;
+    private MemorySegment remoteAddress;
 
     /**
      * Key used for accessing remote memory.
@@ -123,7 +122,7 @@ public class BenchmarkClient implements AutoCloseable {
     private final ResourcePool resources = new ResourcePool();
 
     private static final ErrorHandler ERROR_HANDLER = ((userData, endpoint, status) -> {
-        log.error("Received error on endpoint {} with status {}", endpoint.toRawLongValue(), status);
+        log.error("Received error on endpoint {} with status {}", endpoint.address(), status);
     });
 
     private BenchmarkClient(Context context, Worker worker, Endpoint endpoint) {

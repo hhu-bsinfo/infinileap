@@ -4,9 +4,9 @@ import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -14,18 +14,18 @@ import static org.openucx.OpenUcx.*;
 public class MappingParameters extends NativeObject {
 
     public MappingParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public MappingParameters(MemorySession session) {
-        super(ucp_mem_map_params_t.allocate(session));
+    public MappingParameters(SegmentAllocator allocator) {
+        super(ucp_mem_map_params_t.allocate(allocator));
     }
 
     public MappingParameters setSegment(MemorySegment segment) {
-        return setAddress(segment.address()).setLength(segment.byteSize());
+        return setAddress(segment).setLength(segment.byteSize());
     }
 
-    public MappingParameters setAddress(MemoryAddress address) {
+    public MappingParameters setAddress(MemorySegment address) {
         ucp_mem_map_params_t.address$set(segment(), address);
         addFieldMask(Field.ADDRESS);
         return this;

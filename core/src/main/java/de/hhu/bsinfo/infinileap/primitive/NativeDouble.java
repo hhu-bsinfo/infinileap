@@ -2,7 +2,8 @@ package de.hhu.bsinfo.infinileap.primitive;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 public final class NativeDouble extends NativePrimitive {
@@ -10,15 +11,15 @@ public final class NativeDouble extends NativePrimitive {
     private static final int SIZE = Double.BYTES;
 
     public NativeDouble() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public NativeDouble(MemorySession session) {
-        this(0.0, session);
+    public NativeDouble(SegmentAllocator allocator) {
+        this(0.0, allocator);
     }
 
-    public NativeDouble(double initialValue, MemorySession session) {
-        super(MemorySegment.allocateNative(SIZE, session), DataType.CONTIGUOUS_64_BIT);
+    public NativeDouble(double initialValue, SegmentAllocator allocator) {
+        super(allocator.allocate(SIZE), DataType.CONTIGUOUS_64_BIT);
         set(initialValue);
     }
 

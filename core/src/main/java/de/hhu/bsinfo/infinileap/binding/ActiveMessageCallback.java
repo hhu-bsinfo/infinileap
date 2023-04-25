@@ -8,23 +8,21 @@ public abstract class ActiveMessageCallback {
 
     private final MemorySegment upcallSymbol;
 
-    private static final MemorySegment NULL = MemorySegment.ofAddress(MemoryAddress.NULL, 0L, MemorySession.global());
-
     protected ActiveMessageCallback() {
-        this.upcallSymbol = ucp_am_recv_callback_t.allocate(callback, MemorySession.openImplicit());
+        this.upcallSymbol = ucp_am_recv_callback_t.allocate(callback, SegmentScope.auto());
     }
 
     private final ucp_am_recv_callback_t callback = (argument, header, headerSize, data, dataSize, parameters) ->
             (byte) onActiveMessage(
                         argument,
-                        headerSize == 0 ? NULL : MemoryUtil.wrap(header, headerSize),
-                        dataSize == 0 ? NULL : MemoryUtil.wrap(data, dataSize),
+                        headerSize == 0 ? MemorySegment.NULL : MemoryUtil.wrap(header.address(), headerSize),
+                        dataSize == 0 ? MemorySegment.NULL : MemoryUtil.wrap(data.address(), dataSize),
                         parameters
             ).value();
 
-    public MemoryAddress upcallAddress() {
-        return upcallSymbol.address();
+    public MemorySegment upcallSegment() {
+        return upcallSymbol;
     }
 
-    protected abstract Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment data, MemoryAddress parameters);
+    protected abstract Status onActiveMessage(MemorySegment argument, MemorySegment header, MemorySegment data, MemorySegment parameters);
 }

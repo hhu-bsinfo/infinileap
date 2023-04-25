@@ -24,7 +24,10 @@ public abstract class BaseContext {
     public void setup(ThreadParams threadParams) throws ControlException, InterruptedException {
         var address = new InetSocketAddress(serverAddress, serverPort + threadParams.getThreadIndex());
 
+        Thread.sleep(1000);
+
         connection = BenchmarkClient.connect(address);
+
         var details = new BenchmarkDetails();
         fillDetails(details);
         connection.prepare(getInitialInstruction(), details);

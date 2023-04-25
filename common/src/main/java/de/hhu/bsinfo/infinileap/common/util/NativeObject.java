@@ -10,45 +10,35 @@ public class NativeObject {
      */
     private final MemorySegment segment;
 
-    /**
-     * This struct's base address within its segment.
-     */
-    private final MemoryAddress baseAddress;
-
     protected NativeObject(MemorySegment segment) {
-        if (segment.address().equals(MemoryAddress.NULL)) {
+        if (segment.address() == MemorySegment.NULL.address()) {
             throw new IllegalArgumentException("memory address is pointing at null");
         }
 
-        if (!segment.session().isAlive()) {
-            throw new IllegalArgumentException("the provided segment's session must be alive");
+        if (!segment.scope().isAlive()) {
+            throw new IllegalArgumentException("the provided segment's scope must be alive");
         }
 
         this.segment = segment;
-        baseAddress = segment.address();
     }
 
-    protected NativeObject(MemoryAddress address, MemoryLayout layout) {
-        this(address, layout.byteSize());
+    protected NativeObject(MemorySegment base, MemoryLayout layout) {
+        this(base, layout.byteSize());
     }
 
-    protected NativeObject(MemoryAddress address, long byteSize) {
+    protected NativeObject(MemorySegment base, long byteSize) {
         // Since accessing memory obtained from native functions is
         // considered dangerous, we need to create a restricted
         // MemorySegment first by using our base segment.
-        this(MemoryUtil.wrap(address, byteSize));
-    }
-
-    public MemoryAddress address() {
-        return baseAddress;
+        this(MemoryUtil.wrap(base.address(), byteSize));
     }
 
     public long byteSize() {
         return segment.byteSize();
     }
 
-    protected MemorySession session() {
-        return segment.session();
+    protected SegmentScope scope() {
+        return segment.scope();
     }
 
     public final MemorySegment segment() {

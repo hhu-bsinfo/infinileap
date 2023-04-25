@@ -3,7 +3,9 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import java.lang.foreign.MemorySession;
+
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 
 import java.util.Set;
@@ -16,11 +18,11 @@ public class ContextParameters extends NativeObject {
     private static final int MULTITHREADING_ON = 1;
 
     public ContextParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public ContextParameters(MemorySession session) {
-        super(ucp_params_t.allocate(session));
+    public ContextParameters(SegmentAllocator allocator) {
+        super(ucp_params_t.allocate(allocator));
     }
 
     public long getFeatures() {

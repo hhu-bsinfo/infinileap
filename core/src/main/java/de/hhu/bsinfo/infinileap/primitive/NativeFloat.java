@@ -8,15 +8,15 @@ public final class NativeFloat extends NativePrimitive {
     private static final int SIZE = Float.BYTES;
 
     public NativeFloat() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public NativeFloat(MemorySession session) {
-        this(0.0F, session);
+    public NativeFloat(SegmentAllocator allocator) {
+        this(0.0F, allocator);
     }
 
-    public NativeFloat(float initialValue, MemorySession session) {
-        super(MemorySegment.allocateNative(SIZE, session), DataType.CONTIGUOUS_32_BIT);
+    public NativeFloat(float initialValue, SegmentAllocator allocator) {
+        super(allocator.allocate(SIZE), DataType.CONTIGUOUS_32_BIT);
         set(initialValue);
 
     }

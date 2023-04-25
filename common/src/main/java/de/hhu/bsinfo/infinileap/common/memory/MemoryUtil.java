@@ -16,29 +16,29 @@ public class MemoryUtil {
     private static final String LINE_SEPARATOR = LINE_SEPARATOR_CHARACTER.repeat(HEXDUMP_HEADER.length());
 
 
-    public static MemorySegment wrap(MemoryAddress address, long capacity) {
-        return MemorySegment.ofAddress(address, capacity, MemorySession.global());
+    public static MemorySegment wrap(long address, long capacity) {
+        return MemorySegment.ofAddress(address, capacity, SegmentScope.global());
     }
 
-    public static MemorySegment allocate(MemoryLayout layout, MemorySession session) {
+    public static MemorySegment allocate(MemoryLayout layout, SegmentScope session) {
         return MemorySegment.allocateNative(layout, session);
     }
 
-    public static MemorySegment allocate(long size, MemoryAlignment alignment, MemorySession session) {
+    public static MemorySegment allocate(long size, MemoryAlignment alignment, SegmentScope session) {
         return MemorySegment.allocateNative(size, alignment.value(), session);
     }
 
-    public static void dump(MemoryAddress address, long length) {
-        dump(address, length, null);
+    public static void dump(MemorySegment base, long length) {
+        dump(base, length, null);
     }
 
-    public static void dump(MemoryAddress address, long length, String title) {
-        dump(address, length, title, System.out);
+    public static void dump(MemorySegment base, long length, String title) {
+        dump(base, length, title, System.out);
     }
 
-    public static void dump(MemoryAddress address, long length, String title, PrintStream stream) {
-        try (var session = MemorySession.openConfined()) {
-            dump(MemorySegment.ofAddress(address, length, session), title, stream);
+    public static void dump(MemorySegment base, long length, String title, PrintStream stream) {
+        try (var arena = Arena.openConfined()) {
+            dump(MemorySegment.ofAddress(base.address(), length, arena.scope()), title, stream);
         }
     }
 

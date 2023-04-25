@@ -27,7 +27,7 @@ public class Communication {
             "ucp_get_nbx", ucp_get_nbx$FUNC
     );
 
-    public static long ucp_get_nbx ( Addressable ep,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
+    public static long ucp_get_nbx ( MemorySegment ep,  MemorySegment buffer,  long count,  long remote_addr,  MemorySegment rkey,  MemorySegment param) {
         try {
             return (long) ucp_get_nbx$MH.invokeExact(ep, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
@@ -50,7 +50,7 @@ public class Communication {
             "ucp_put_nbx", ucp_put_nbx$FUNC
     );
 
-    public static long ucp_put_nbx (Addressable ep, Addressable buffer, long count, long remote_addr, Addressable rkey, Addressable param) {
+    public static long ucp_put_nbx (MemorySegment ep, MemorySegment buffer, long count, long remote_addr, MemorySegment rkey, MemorySegment param) {
         try {
             return (long) ucp_put_nbx$MH.invokeExact(ep, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
@@ -72,7 +72,7 @@ public class Communication {
             "ucp_tag_send_nbx", ucp_tag_send_nbx$FUNC
     );
 
-    public static long ucp_tag_send_nbx ( Addressable ep,  Addressable buffer,  long count,  long tag,  Addressable param) {
+    public static long ucp_tag_send_nbx ( MemorySegment ep,  MemorySegment buffer,  long count,  long tag,  MemorySegment param) {
         try {
             return (long) ucp_tag_send_nbx$MH.invokeExact(ep, buffer, count, tag, param);
         } catch (Throwable ex$) {
@@ -95,7 +95,7 @@ public class Communication {
             "ucp_tag_recv_nbx", ucp_tag_recv_nbx$FUNC
     );
 
-    public static long ucp_tag_recv_nbx ( Addressable worker,  Addressable buffer,  long count,  long tag,  long tag_mask,  Addressable param) {
+    public static long ucp_tag_recv_nbx ( MemorySegment worker,  MemorySegment buffer,  long count,  long tag,  long tag_mask,  MemorySegment param) {
         try {
             return (long) ucp_tag_recv_nbx$MH.invokeExact(worker, buffer, count, tag, tag_mask, param);
         } catch (Throwable ex$) {
@@ -116,7 +116,7 @@ public class Communication {
             "ucp_stream_send_nbx", ucp_stream_send_nbx$FUNC
     );
 
-    public static long ucp_stream_send_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable param) {
+    public static long ucp_stream_send_nbx ( MemorySegment ep,  MemorySegment buffer,  long count,  MemorySegment param) {
         try {
             return (long) ucp_stream_send_nbx$MH.invokeExact(ep, buffer, count, param);
         } catch (Throwable ex$) {
@@ -138,7 +138,7 @@ public class Communication {
             "ucp_stream_recv_nbx", ucp_stream_recv_nbx$FUNC
     );
 
-    public static long ucp_stream_recv_nbx ( Addressable ep,  Addressable buffer,  long count,  Addressable length,  Addressable param) {
+    public static long ucp_stream_recv_nbx ( MemorySegment ep,  MemorySegment buffer,  long count,  MemorySegment length,  MemorySegment param) {
         try {
             return (long) ucp_stream_recv_nbx$MH.invokeExact(ep, buffer, count, length, param);
         } catch (Throwable ex$) {
@@ -162,7 +162,7 @@ public class Communication {
             "ucp_atomic_op_nbx", ucp_atomic_op_nbx$FUNC
     );
 
-    public static long ucp_atomic_op_nbx ( Addressable ep,  int opcode,  Addressable buffer,  long count,  long remote_addr,  Addressable rkey,  Addressable param) {
+    public static long ucp_atomic_op_nbx ( MemorySegment ep,  int opcode,  MemorySegment buffer,  long count,  long remote_addr,  MemorySegment rkey,  MemorySegment param) {
         try {
             return (long) ucp_atomic_op_nbx$MH.invokeExact(ep, opcode, buffer, count, remote_addr, rkey, param);
         } catch (Throwable ex$) {
@@ -186,7 +186,7 @@ public class Communication {
             "ucp_am_send_nbx", ucp_am_send_nbx$FUNC
     );
 
-    public static long ucp_am_send_nbx ( Addressable ep,  int id,  Addressable header,  long header_length,  Addressable buffer,  long count,  Addressable param) {
+    public static long ucp_am_send_nbx ( MemorySegment ep,  int id,  MemorySegment header,  long header_length,  MemorySegment buffer,  long count,  MemorySegment param) {
         try {
             return (long) ucp_am_send_nbx$MH.invokeExact(ep, id, header, header_length, buffer, count, param);
         } catch (Throwable ex$) {
@@ -205,7 +205,7 @@ public class Communication {
             "ucp_worker_flush_nbx", ucp_worker_flush_nbx$FUNC
     );
 
-    public static long ucp_worker_flush_nbx ( Addressable worker,  Addressable param) {
+    public static long ucp_worker_flush_nbx ( MemorySegment worker,  MemorySegment param) {
         try {
             return (long) ucp_worker_flush_nbx$MH.invokeExact(worker, param);
         } catch (Throwable ex$) {
@@ -224,7 +224,7 @@ public class Communication {
             "ucp_ep_flush_nbx", ucp_ep_flush_nbx$FUNC
     );
 
-    public static long ucp_ep_flush_nbx ( Addressable ep,  Addressable param) {
+    public static long ucp_ep_flush_nbx ( MemorySegment ep,  MemorySegment param) {
         try {
             return (long) ucp_ep_flush_nbx$MH.invokeExact(ep, param);
         } catch (Throwable ex$) {
@@ -243,7 +243,7 @@ public class Communication {
             "ucp_ep_close_nbx", ucp_ep_close_nbx$FUNC
     );
 
-    public static long ucp_ep_close_nbx ( Addressable ep,  Addressable param) {
+    public static long ucp_ep_close_nbx ( MemorySegment ep,  MemorySegment param) {
         try {
             return (long) ucp_ep_close_nbx$MH.invokeExact(ep, param);
         } catch (Throwable ex$) {
@@ -262,7 +262,7 @@ public class Communication {
             "ucp_request_cancel", ucp_request_cancel$FUNC
     );
 
-    public static void ucp_request_cancel ( Addressable worker,  long request) {
+    public static void ucp_request_cancel ( MemorySegment worker,  long request) {
         try {
             ucp_request_cancel$MH.invokeExact(worker, request);
         } catch (Throwable ex$) {

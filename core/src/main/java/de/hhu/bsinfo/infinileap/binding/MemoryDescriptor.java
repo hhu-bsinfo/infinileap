@@ -25,30 +25,30 @@ public class MemoryDescriptor extends NativeObject {
             LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("key_data"));
 
     public MemoryDescriptor() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public MemoryDescriptor(MemorySession session) {
-        super(MemorySegment.allocateNative(LAYOUT, session));
+    public MemoryDescriptor(SegmentAllocator allocator) {
+        super(allocator.allocate(LAYOUT));
     }
 
     MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey) {
-        this(segment, remoteKey, MemorySession.openImplicit());
+        this(segment, remoteKey, SegmentScope.auto());
     }
 
-    MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey, MemorySession session) {
+    MemoryDescriptor(MemorySegment segment, MemorySegment remoteKey, SegmentScope session) {
         super(MemorySegment.allocateNative(LAYOUT, session));
 
-        setBufferAddress(segment.address());
+        setBufferAddress(segment);
         setBufferSize(segment.byteSize());
         setRemoteKey(remoteKey);
     }
 
-    private MemoryAddress getBufferAddress() {
-        return (MemoryAddress) BUFFER_ADDRESS.get(segment());
+    private MemorySegment getBufferAddress() {
+        return (MemorySegment) BUFFER_ADDRESS.get(segment());
     }
 
-    private void setBufferAddress(MemoryAddress address) {
+    private void setBufferAddress(MemorySegment address) {
         BUFFER_ADDRESS.set(segment(), address);
     }
 
@@ -73,7 +73,7 @@ public class MemoryDescriptor extends NativeObject {
         return (long) BUFFER_SIZE.get(segment());
     }
 
-    public MemoryAddress remoteAddress() {
+    public MemorySegment remoteAddress() {
         return getBufferAddress();
     }
 

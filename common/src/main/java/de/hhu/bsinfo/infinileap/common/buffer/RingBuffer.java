@@ -71,7 +71,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
      */
     private final int indexMask;
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     public RingBuffer(int size) {
 
@@ -181,7 +181,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     public void commitWrite(final MemorySegment segment) {
 
         final var buffer = this.buffer;
-        final long index = segment.address().toRawLongValue() - buffer.address().toRawLongValue();
+        final long index = segment.address() - buffer.address();
 
         // Calculate the request index and length
         final long recordIndex = index - RecordDescriptor.HEADER_LENGTH;
@@ -294,7 +294,7 @@ public class RingBuffer implements SegmentAllocator, Watchable {
     }
 
     public int offsetOf(MemorySegment segment) {
-        return (int) (segment.address().toRawLongValue() - buffer.address().toRawLongValue());
+        return (int) (segment.address() - buffer.address());
     }
 
     @Override

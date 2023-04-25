@@ -30,14 +30,14 @@ public interface LoggingHandler extends ucs_log_func_t {
     Action logMessage(LogLevel level, String message);
 
     @Override
-    default int apply(MemoryAddress file, int line, MemoryAddress function, int level, MemoryAddress config, MemoryAddress format, MemoryAddress arguments){
+    default int apply(MemorySegment file, int line, MemorySegment function, int level, MemorySegment config, MemorySegment format, MemorySegment arguments){
         return logMessage(LogLevel.from(level), formatMessage(format, arguments)).value();
     }
 
 
-    private static String formatMessage(MemoryAddress format, MemoryAddress arguments) {
-        try (var session = MemorySession.openConfined()) {
-            var buffer = MemorySegment.allocateNative(LOG_BUFFER_SIZE + 1, session);
+    private static String formatMessage(MemorySegment format, MemorySegment arguments) {
+        try (var arena = Arena.openConfined()) {
+            var buffer = arena.allocate(LOG_BUFFER_SIZE + 1);
             vsnprintf(buffer, buffer.byteSize(), format, arguments);
             return buffer.getUtf8String(0L);
         }

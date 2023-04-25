@@ -16,7 +16,6 @@ import de.hhu.bsinfo.infinileap.engine.channel.Channel;
 import de.hhu.bsinfo.infinileap.engine.message.CallManager;
 import de.hhu.bsinfo.infinileap.engine.pipeline.ChannelPipeline;
 import de.hhu.bsinfo.infinileap.engine.util.BufferPool;
-import java.lang.foreign.MemoryAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.collections.Long2ObjectCache;
 import org.agrona.collections.Long2ObjectHashMap;
@@ -168,13 +167,13 @@ public class WorkerAgent extends CommandableAgent {
 
         this.channels[identifier] = channel;
         this.endpoints[identifier] = endpoint;
-        this.channelMap.put(endpoint.address().toRawLongValue(), channel);
-        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address()));
+        this.channelMap.put(endpoint.segment().address(), channel);
+        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.segment().address()), channelMap.get(endpoint.segment().address()));
     }
 
     private final SendCallback sendCallback = (request, status, data) -> {
         ucp_request_free(request);
-        var userBuffer = getBuffer((int) data.toRawLongValue());
+        var userBuffer = getBuffer((int) data.address());
         var callback = userBuffer.getCallback();
         userBuffer.release();
         callback.onComplete();

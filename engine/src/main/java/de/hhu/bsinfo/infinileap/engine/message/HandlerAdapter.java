@@ -8,9 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openucx.ucp_am_recv_param_t;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -37,11 +36,11 @@ public class HandlerAdapter extends ActiveMessageCallback {
     private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     @Override
-    public Status onActiveMessage(MemoryAddress argument, MemorySegment header, MemorySegment body, MemoryAddress parameters) {
-        var params = ucp_am_recv_param_t.ofAddress(parameters, MemorySession.global());
+    public Status onActiveMessage(MemorySegment argument, MemorySegment header, MemorySegment body, MemorySegment parameters) {
+        var params = ucp_am_recv_param_t.ofAddress(parameters, SegmentScope.global());
         var endpoint = ucp_am_recv_param_t.reply_ep$get(params);
 
-        EXECUTOR.execute(() -> handler.onMessage(header, body, resolver.resolve(endpoint.toRawLongValue())));
+        EXECUTOR.execute(() -> handler.onMessage(header, body, resolver.resolve(endpoint.address())));
         return Status.OK;
     }
 }

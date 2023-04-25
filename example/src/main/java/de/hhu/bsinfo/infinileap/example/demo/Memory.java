@@ -40,7 +40,7 @@ public class Memory extends CommunicationDemo {
         Requests.release(request);
 
         // Wait until remote signals completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES, session);
+        final var completion = arena.allocate(Byte.BYTES);
 
 
         request = worker.receiveTagged(completion, Tag.of(0L), new RequestParameters()
@@ -67,7 +67,7 @@ public class Memory extends CommunicationDemo {
 
         // Read remote memory
         var remoteKey = endpoint.unpack(descriptor);
-        var targetBuffer = MemorySegment.allocateNative(descriptor.remoteSize(), session);
+        var targetBuffer = arena.allocate(descriptor.remoteSize());
         pushResource(remoteKey);
 
         request = endpoint.get(targetBuffer, descriptor.remoteAddress(), remoteKey, new RequestParameters()
@@ -79,7 +79,7 @@ public class Memory extends CommunicationDemo {
         log.info("Read \"{}\" from remote buffer", new String(targetBuffer.toArray(ValueLayout.JAVA_BYTE)));
 
         // Signal completion
-        final var completion = MemorySegment.allocateNative(Byte.BYTES, session);
+        final var completion = arena.allocate(Byte.BYTES);
         request = endpoint.sendTagged(completion, Tag.of(0L));
 
         Requests.await(worker, request);

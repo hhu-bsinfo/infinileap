@@ -7,19 +7,19 @@ import org.jetbrains.annotations.Nullable;
 
 public class Parameter {
 
-    static Addressable of(@NotNull String value, MemorySession session) {
-        return SegmentAllocator.newNativeArena(session).allocateUtf8String(value);
+    static MemorySegment of(@NotNull String value, SegmentAllocator allocator) {
+        return allocator.allocateUtf8String(value);
     }
 
-    static Addressable ofNullable(@Nullable String value, MemorySession session) {
-        return value != null ? of(value, session) : MemoryAddress.NULL;
+    static MemorySegment ofNullable(@Nullable String value, SegmentAllocator allocator) {
+        return value != null ? of(value, allocator) : MemorySegment.NULL;
     }
 
-    static Addressable of(@NotNull NativeObject object) {
-        return object.address();
+    static MemorySegment of(@NotNull NativeObject object) {
+        return object.segment();
     }
 
-    static Addressable ofNullable(@Nullable NativeObject object) {
-        return object != null ? of(object) : MemoryAddress.NULL;
+    static MemorySegment ofNullable(@Nullable NativeObject object) {
+        return object != null ? of(object) : MemorySegment.NULL;
     }
 }

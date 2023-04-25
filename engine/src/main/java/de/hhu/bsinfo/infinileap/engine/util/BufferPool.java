@@ -6,11 +6,11 @@ import de.hhu.bsinfo.infinileap.common.memory.MemoryAlignment;
 import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import de.hhu.bsinfo.infinileap.engine.message.Callback;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
 import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
 import org.agrona.concurrent.QueuedPipe;
 import org.agrona.hints.ThreadHints;
 
+import java.lang.foreign.SegmentScope;
 import java.util.function.IntConsumer;
 
 public class BufferPool {
@@ -33,7 +33,7 @@ public class BufferPool {
     /**
      * This pool's associated resource scope.
      */
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     public BufferPool(final int count, final long size) {
         indexedBuffers = new PooledBuffer[count];
@@ -94,8 +94,8 @@ public class BufferPool {
         var first = indexedBuffers[0];
         var last = indexedBuffers[indexedBuffers.length - 1];
         return String.format("BufferPool { region: [ 0x%08X , 0x%08X ] }",
-                first.segment.address().toRawLongValue(),
-                last.segment.address().toRawLongValue() + last.segment.byteSize());
+                first.segment.address(),
+                last.segment.address() + last.segment.byteSize());
     }
 
     public static final class PooledBuffer {

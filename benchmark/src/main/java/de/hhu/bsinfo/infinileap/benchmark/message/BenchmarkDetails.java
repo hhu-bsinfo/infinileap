@@ -3,7 +3,7 @@ package de.hhu.bsinfo.infinileap.benchmark.message;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 import java.lang.invoke.VarHandle;
@@ -49,11 +49,11 @@ public class BenchmarkDetails extends NativeObject {
             LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("bench_mode"));
 
     public BenchmarkDetails() {
-        this(MemorySession.openImplicit());
+        this(SegmentScope.auto());
     }
 
-    public BenchmarkDetails(MemorySession session) {
-        super(MemorySegment.allocateNative(LAYOUT, session));
+    public BenchmarkDetails(SegmentScope scope) {
+        super(MemorySegment.allocateNative(LAYOUT, scope));
     }
 
     public void setBufferSize(long size) {

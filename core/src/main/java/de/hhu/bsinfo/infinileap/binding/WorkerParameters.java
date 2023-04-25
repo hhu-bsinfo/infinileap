@@ -3,7 +3,9 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import java.lang.foreign.MemorySession;
+
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -13,11 +15,11 @@ import static org.openucx.OpenUcx.UCP_WORKER_PARAM_FIELD_EVENTS;
 public class WorkerParameters extends NativeObject {
 
     public WorkerParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public WorkerParameters(MemorySession session) {
-        super(ucp_worker_params_t.allocate(session));
+    public WorkerParameters(SegmentAllocator allocator) {
+        super(ucp_worker_params_t.allocate(allocator));
     }
 
     public WorkerParameters setThreadMode(ThreadMode threadMode) {

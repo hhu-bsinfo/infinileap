@@ -9,7 +9,7 @@ import static org.unix.Linux.stdout$get;
 
 public class Configuration extends NativeObject implements AutoCloseable{
 
-    /* package-private */ Configuration(MemoryAddress address) {
+    /* package-private */ Configuration(MemorySegment address) {
         super(address, ValueLayout.ADDRESS);
     }
 
@@ -21,12 +21,12 @@ public class Configuration extends NativeObject implements AutoCloseable{
      * Reads in the configuration form the environment.
      */
     public static Configuration read(@Nullable String prefix, @Nullable String filename) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var status = ucp_config_read(
-                    Parameter.ofNullable(prefix, session),
-                    Parameter.ofNullable(filename, session),
-                    pointer.address()
+                    Parameter.ofNullable(prefix, arena),
+                    Parameter.ofNullable(filename, arena),
+                    pointer
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -38,11 +38,11 @@ public class Configuration extends NativeObject implements AutoCloseable{
     }
 
     public void print() {
-        ucp_config_print(address(), stdout$get(), MemoryAddress.NULL, UCS_CONFIG_PRINT_CONFIG());
+        ucp_config_print(segment(), stdout$get(), MemorySegment.NULL, UCS_CONFIG_PRINT_CONFIG());
     }
 
     @Override
     public void close() {
-        ucp_config_release(address());
+        ucp_config_release(segment());
     }
 }

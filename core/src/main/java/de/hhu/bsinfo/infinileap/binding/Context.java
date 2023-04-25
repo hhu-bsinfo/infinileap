@@ -21,7 +21,7 @@ public class Context extends NativeObject implements AutoCloseable {
 
     private final ContextAttributes attributes;
 
-    /* package-private */ Context(MemoryAddress address, ContextParameters contextParameters, ContextAttributes attributes) {
+    /* package-private */ Context(MemorySegment address, ContextParameters contextParameters, ContextAttributes attributes) {
         super(address, ValueLayout.ADDRESS);
         this.contextParameters = contextParameters;
         this.attributes = attributes;
@@ -32,8 +32,8 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public static Context initialize(ContextParameters parameters, @Nullable Configuration configuration) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
 
             /*
              * We have to use ucp_init_version at this point since ucp_init
@@ -44,9 +44,9 @@ public class Context extends NativeObject implements AutoCloseable {
             var status = ucp_init_version(
                     UCP_MAJOR_VERSION,
                     UCP_MINOR_VERSION,
-                    parameters.address(),
+                    parameters.segment(),
                     Parameter.ofNullable(configuration),
-                    pointer.address()
+                    pointer
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -59,12 +59,12 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public Worker createWorker(WorkerParameters parameters) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var status = ucp_worker_create(
-                    this.address(),
-                    parameters.address(),
-                    pointer.address()
+                    segment(),
+                    parameters.segment(),
+                    pointer
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -80,7 +80,7 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public MemoryRegion allocateMemory(long size, MemoryAlignment alignment) throws ControlException {
-        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), MemorySession.openImplicit()));
+        return mapMemory(MemorySegment.allocateNative(size, alignment.value(), SegmentScope.auto()));
     }
 
     public MemoryRegion mapMemory(NativeObject object) throws ControlException {
@@ -88,14 +88,14 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     public MemoryRegion mapMemory(MemorySegment segment) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var parameters = new MappingParameters().setSegment(segment);
-            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
+            var size = arena.allocate(ValueLayout.JAVA_LONG);
             var status = ucp_mem_map(
                     Parameter.of(this),
                     Parameter.of(parameters),
-                    pointer.address()
+                    pointer
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -121,14 +121,14 @@ public class Context extends NativeObject implements AutoCloseable {
     }
 
     private MemoryDescriptor getDescriptor(MemorySegment segment, MemoryHandle handle) throws ControlException {
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
-            var size = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
+            var size = arena.allocate(ValueLayout.JAVA_LONG);
             var status = ucp_rkey_pack(
                     Parameter.of(this),
                     Parameter.of(handle),
-                    pointer.address(),
-                    size.address()
+                    pointer,
+                    size
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -137,9 +137,9 @@ public class Context extends NativeObject implements AutoCloseable {
 
 
             var remoteKey = MemorySegment.ofAddress(
-                    pointer.get(ValueLayout.ADDRESS, 0L),
+                    pointer.get(ValueLayout.ADDRESS, 0L).address(),
                     size.get(ValueLayout.JAVA_LONG, 0L),
-                    MemorySession.global()
+                    SegmentScope.global()
             );
 
             var descriptor = new MemoryDescriptor(segment, remoteKey);
@@ -160,7 +160,7 @@ public class Context extends NativeObject implements AutoCloseable {
         return ucp_get_version_string().getUtf8String(0L);
     }
 
-    private static ContextAttributes query(MemoryAddress contextAddress) throws ControlException {
+    private static ContextAttributes query(MemorySegment contextAddress) throws ControlException {
         var attributes = new ContextAttributes();
         attributes.setFields(QUERY_FIELDS);
 

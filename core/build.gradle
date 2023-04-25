@@ -2,12 +2,12 @@ plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id "io.github.krakowski.jextract" version '0.3.1'
+    id "io.github.krakowski.jextract" version '0.4.0'
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+        languageVersion.set(JavaLanguageVersion.of(20))
     }
 
     withJavadocJar()
@@ -202,7 +202,7 @@ jextract {
 
 
 
-        macros = [
+        constants = [
                 'UCP_AM_FLAG_WHOLE_MSG', 'UCP_AM_HANDLER_PARAM_FIELD_ARG', 'UCP_AM_HANDLER_PARAM_FIELD_CB',
                 'UCP_AM_HANDLER_PARAM_FIELD_FLAGS', 'UCP_AM_HANDLER_PARAM_FIELD_ID', 'UCP_AM_RECV_ATTR_FIELD_REPLY_EP',
                 'UCP_AM_RECV_ATTR_FLAG_DATA', 'UCP_AM_RECV_ATTR_FLAG_RNDV', 'UCP_AM_SEND_FLAG_EAGER',

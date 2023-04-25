@@ -3,29 +3,28 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
-
 import org.openucx.ucp_conn_request_attr_t;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.net.InetSocketAddress;
 
 import static org.openucx.OpenUcx.*;
 
 public class ConnectionRequest {
 
-    private final MemoryAddress address;
+    private final MemorySegment base;
 
     private final long data;
 
-    private ConnectionRequest(MemoryAddress address, long data) {
-        this.address = address;
+    private ConnectionRequest(MemorySegment base, long data) {
+        this.base = base;
         this.data = data;
     }
 
-    MemoryAddress address() {
-        return address;
+    MemorySegment base() {
+        return base;
     }
 
     public long getData() {
@@ -49,11 +48,11 @@ public class ConnectionRequest {
 
     private MemorySegment queryAttributes(Field... fields) throws ControlException {
         // Allocate attributes struct and set requested fields
-        var request_attr = ucp_conn_request_attr_t.allocate(MemorySession.openImplicit());
+        var request_attr = ucp_conn_request_attr_t.allocate(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
         ucp_conn_request_attr_t.field_mask$set(request_attr, BitMask.longOf(fields));
 
         // Query requested fields
-        var status = ucp_conn_request_query(address, request_attr);
+        var status = ucp_conn_request_query(base, request_attr);
         if (Status.isNot(status, Status.OK)) {
             throw new ControlException(status);
         }
@@ -61,7 +60,7 @@ public class ConnectionRequest {
         return request_attr;
     }
 
-    static ConnectionRequest of(MemoryAddress address, long data) {
+    static ConnectionRequest of(MemorySegment address, long data) {
         return new ConnectionRequest(address, data);
     }
 

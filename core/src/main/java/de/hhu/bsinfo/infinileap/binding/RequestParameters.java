@@ -3,9 +3,9 @@ package de.hhu.bsinfo.infinileap.binding;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.flag.IntegerFlag;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import org.openucx.*;
 
 import static org.openucx.OpenUcx.*;
@@ -19,42 +19,42 @@ public class RequestParameters extends NativeObject {
     private MemorySegment streamUpcall;
 
     public RequestParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public RequestParameters(MemorySession session) {
-        super(ucp_request_param_t.allocate(session));
+    public RequestParameters(SegmentAllocator allocator) {
+        super(ucp_request_param_t.allocate(allocator));
     }
 
     public RequestParameters setUserData(long data) {
-        ucp_request_param_t.user_data$set(segment(), MemoryAddress.ofLong(data));
+        ucp_request_param_t.user_data$set(segment(), MemorySegment.ofAddress(data));
         addAttributeMask(Attribute.USER_DATA);
         return this;
     }
 
     public RequestParameters setSendCallback(SendCallback callback) {
-        sendUpcall = callback.upcallStub();
-        ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), sendUpcall.address());
+        sendUpcall = callback.upcallSegment();
+        ucp_request_param_t.cb.send$set(ucp_request_param_t.cb$slice(segment()), sendUpcall);
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setReceiveCallback(ReceiveCallback callback) {
-        receiveUpcall = callback.upcallStub();
-        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), receiveUpcall.address());
+        receiveUpcall = callback.upcallSegment();
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), receiveUpcall);
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setStreamCallback(StreamCallback callback) {
-        streamUpcall = callback.upcallStub();
-        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), streamUpcall.address());
+        streamUpcall = callback.upcallSegment();
+        ucp_request_param_t.cb.recv$set(ucp_request_param_t.cb$slice(segment()), streamUpcall);
         addAttributeMask(Attribute.CALLBACK);
         return this;
     }
 
     public RequestParameters setReplyBuffer(MemorySegment replyBuffer) {
-        ucp_request_param_t.reply_buffer$set(segment(), replyBuffer.address());
+        ucp_request_param_t.reply_buffer$set(segment(), replyBuffer);
         addAttributeMask(Attribute.REPLY_BUFFER);
         return this;
     }

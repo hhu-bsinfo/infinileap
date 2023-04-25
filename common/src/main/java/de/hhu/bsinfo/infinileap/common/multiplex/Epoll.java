@@ -6,7 +6,7 @@ import de.hhu.bsinfo.infinileap.common.util.Layouts;
 import de.hhu.bsinfo.infinileap.common.util.NativeError;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import org.unix.epoll_event;
 
@@ -53,7 +53,7 @@ public final class Epoll {
      */
     private static final long LAYOUT_SIZE = epoll_event.sizeof();
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     /**
      * The epoll file descriptor used by this epoll instance.

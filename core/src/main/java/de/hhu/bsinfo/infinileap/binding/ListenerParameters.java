@@ -1,13 +1,16 @@
 package de.hhu.bsinfo.infinileap.binding;
 
-import de.hhu.bsinfo.infinileap.common.util.NativeObject;
-import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
+import de.hhu.bsinfo.infinileap.common.util.NativeObject;
 import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
-import org.openucx.*;
+import org.openucx.ucp_listener_conn_handler_t;
+import org.openucx.ucp_listener_params_t;
+import org.openucx.ucs_sock_addr_t;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.net.InetSocketAddress;
 
 import static org.openucx.OpenUcx.*;
@@ -17,11 +20,11 @@ public class ListenerParameters extends NativeObject {
     private NativeInetSocketAddress listenAddress;
 
     public ListenerParameters() {
-        this(MemorySession.openImplicit());
+        this(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
     }
 
-    public ListenerParameters(MemorySession session) {
-        super(ucp_listener_params_t.allocate(session));
+    public ListenerParameters(SegmentAllocator allocator) {
+        super(ucp_listener_params_t.allocate(allocator));
     }
 
     public ListenerParameters setListenAddress(InetSocketAddress address) {
@@ -29,7 +32,7 @@ public class ListenerParameters extends NativeObject {
         this.listenAddress = NativeInetSocketAddress.convert(address);
 
         var sockaddr = ucp_listener_params_t.sockaddr$slice(segment());
-        ucs_sock_addr_t.addr$set(sockaddr, listenAddress.address());
+        ucs_sock_addr_t.addr$set(sockaddr, listenAddress.segment());
         ucs_sock_addr_t.addrlen$set(sockaddr, listenAddress.getLength());
 
         addFieldMask(Field.SOCKET_ADDRESS);
@@ -42,8 +45,8 @@ public class ListenerParameters extends NativeObject {
 
     public ListenerParameters setConnectionHandler(ConnectionHandler handler, long data) {
         var slice = ucp_listener_params_t.conn_handler$slice(segment());
-        ucp_listener_conn_handler_t.cb$set(slice, handler.upcallAddress());
-        ucp_listener_conn_handler_t.arg$set(slice, MemoryAddress.ofLong(data));
+        ucp_listener_conn_handler_t.cb$set(slice, handler.upcallSegment());
+        ucp_listener_conn_handler_t.arg$set(slice, MemorySegment.ofAddress(data));
         addFieldMask(Field.CONNECTION_HANDLER);
         return this;
     }

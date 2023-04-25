@@ -25,8 +25,8 @@ public class Endpoint extends NativeObject implements AutoCloseable {
     private static final RequestParameters FORCE_CLOSE = new RequestParameters()
             .setFlags(RequestParameters.Flag.CLOSE_FORCE);
 
-    /* package-private */ Endpoint(MemoryAddress address, Worker worker, EndpointParameters endpointParameters) {
-        super(address, ValueLayout.ADDRESS);
+    /* package-private */ Endpoint(MemorySegment base, Worker worker, EndpointParameters endpointParameters) {
+        super(base, ValueLayout.ADDRESS);
         this.worker = worker;
         this.endpointParameters = endpointParameters;
     }
@@ -70,9 +70,9 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         return ucp_am_send_nbx(
                 Parameter.of(this),
                 identifier.value(),
-                header == null ? MemoryAddress.NULL : header.address(),
+                header == null ? MemorySegment.NULL : header,
                 header == null ? 0L : header.byteSize(),
-                data == null ? MemoryAddress.NULL : data.address(),
+                data == null ? MemorySegment.NULL : data,
                 data == null ? 0L : data.byteSize(),
                 Parameter.of(parameters)
         );
@@ -92,64 +92,64 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         );
     }
 
-    public long put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key) {
+    public long put(MemorySegment source, MemorySegment remoteAddress, RemoteKey key) {
         return put(source, remoteAddress, key, RequestParameters.EMPTY);
     }
 
-    public long put(MemorySegment source, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long put(MemorySegment source, MemorySegment remoteAddress, RemoteKey key, RequestParameters parameters) {
         return ucp_put_nbx(
                 Parameter.of(this),
                 source,
                 source.byteSize(),
-                remoteAddress.toRawLongValue(),
-                key.address(),
+                remoteAddress.address(),
+                key.segment(),
                 Parameter.of(parameters)
         );
     }
 
-    public long get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key) {
+    public long get(MemorySegment target, MemorySegment remoteAddress, RemoteKey key) {
         return get(target, remoteAddress, key, RequestParameters.EMPTY);
     }
 
-    public long get(MemorySegment target, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long get(MemorySegment target, MemorySegment remoteAddress, RemoteKey key, RequestParameters parameters) {
         return ucp_get_nbx(
                 Parameter.of(this),
                 target,
                 target.byteSize(),
-                remoteAddress.toRawLongValue(),
-                key.address(),
+                remoteAddress.address(),
+                key.segment(),
                 Parameter.of(parameters)
         );
     }
 
-    public long atomic(AtomicOperation operation, NativeLong value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long atomic(AtomicOperation operation, NativeLong value, MemorySegment remoteAddress, RemoteKey key, RequestParameters parameters) {
         return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
     }
 
-    public long atomic(AtomicOperation operation, NativeInteger value, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long atomic(AtomicOperation operation, NativeInteger value, MemorySegment remoteAddress, RemoteKey key, RequestParameters parameters) {
         return atomic(operation, value.segment(), 1, remoteAddress, key, parameters);
     }
 
-    public long atomic(AtomicOperation operation, MemorySegment buffer, int count, MemoryAddress remoteAddress, RemoteKey key, RequestParameters parameters) {
+    public long atomic(AtomicOperation operation, MemorySegment buffer, int count, MemorySegment remoteAddress, RemoteKey key, RequestParameters parameters) {
         return ucp_atomic_op_nbx(
                 Parameter.of(this),
                 operation.getValue(),
                 buffer,
                 count,
-                remoteAddress.toRawLongValue(),
-                key.address(),
+                remoteAddress.address(),
+                key.segment(),
                 Parameter.of(parameters)
         );
     }
 
     public RemoteKey unpack(MemoryDescriptor descriptor) throws ControlException {
         var keySegment = descriptor.keySegment();
-        try (var session = MemorySession.openConfined()) {
-            var pointer = MemorySegment.allocateNative(ValueLayout.ADDRESS, session);
+        try (var arena = Arena.openConfined()) {
+            var pointer = arena.allocate(ValueLayout.ADDRESS);
             var status = ucp_ep_rkey_unpack(
                 Parameter.of(this),
                 keySegment,
-                pointer.address()
+                pointer
             );
 
             if (Status.isNot(status, Status.OK)) {
@@ -180,10 +180,6 @@ public class Endpoint extends NativeObject implements AutoCloseable {
                 Parameter.of(this),
                 Parameter.of(parameters)
         );
-    }
-
-    public MemoryAddress address() {
-        return super.address();
     }
 
     public Worker worker() {

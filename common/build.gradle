@@ -7,12 +7,12 @@ plugins {
     id 'java-library'
 
     // Jextract plugin
-    id "io.github.krakowski.jextract" version '0.3.1'
+    id "io.github.krakowski.jextract" version '0.4.0'
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+        languageVersion.set(JavaLanguageVersion.of(20))
     }
 }
 
@@ -89,7 +89,7 @@ jextract {
                 'sockaddr_storage', 'sockaddr_in', 'sockaddr_in6',
         ]
 
-        macros = [
+        constants = [
 
                 // Filedescriptor
                 'F_GETFL', 'F_SETFL', 'O_RDONLY', 'O_WRONLY', 'O_RDWR', 'O_CREAT', 'O_EXCL', 'O_NOCTTY', 'O_TRUNC',

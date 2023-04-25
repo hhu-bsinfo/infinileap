@@ -3,7 +3,6 @@ package de.hhu.bsinfo.infinileap.util;
 import de.hhu.bsinfo.infinileap.binding.*;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 
 import java.util.Queue;
@@ -123,24 +122,24 @@ public class Requests {
     }
 
     public static long get(Endpoint endpoint, MemorySegment buffer,
-                              MemoryAddress remoteAddress, RemoteKey remoteKey) {
+                              MemorySegment remoteAddress, RemoteKey remoteKey) {
         return endpoint.get(buffer, remoteAddress, remoteKey);
     }
 
     public static void blockingGet(Worker worker, Endpoint endpoint, MemorySegment buffer,
-                                   MemoryAddress remoteAddress, RemoteKey remoteKey) {
+                                   MemorySegment remoteAddress, RemoteKey remoteKey) {
         Requests.poll(
                 worker, endpoint.get(buffer, remoteAddress, remoteKey)
         );
     }
 
     public static long put(Endpoint endpoint, MemorySegment buffer,
-                           MemoryAddress remoteAddress, RemoteKey remoteKey) {
+                           MemorySegment remoteAddress, RemoteKey remoteKey) {
         return endpoint.put(buffer, remoteAddress, remoteKey);
     }
 
     public static void blockingPut(Worker worker, Endpoint endpoint, MemorySegment buffer,
-                                   MemoryAddress remoteAddress, RemoteKey remoteKey) {
+                                   MemorySegment remoteAddress, RemoteKey remoteKey) {
         Requests.poll(
                 worker, endpoint.put(buffer, remoteAddress, remoteKey)
         );
@@ -149,24 +148,24 @@ public class Requests {
 
 
     public static long atomic(AtomicOperation op, Endpoint endpoint, NativeInteger nativeInteger,
-                                    MemoryAddress remoteAddress, RemoteKey remoteKey, RequestParameters params) {
+                              MemorySegment remoteAddress, RemoteKey remoteKey, RequestParameters params) {
         return endpoint.atomic(op, nativeInteger, remoteAddress, remoteKey, params);
     }
 
     public static void blockingAtomic(AtomicOperation op, Worker worker, Endpoint endpoint, NativeInteger nativeInteger,
-                                      MemoryAddress remoteAddress, RemoteKey remoteKey, RequestParameters params) {
+                                      MemorySegment remoteAddress, RemoteKey remoteKey, RequestParameters params) {
         Requests.poll(
                 worker, endpoint.atomic(op, nativeInteger, remoteAddress, remoteKey, params)
         );
     }
 
     public static long atomic(AtomicOperation op, Endpoint endpoint, NativeLong nativeLong,
-                                    MemoryAddress remoteAddress, RemoteKey remoteKey, RequestParameters params) {
+                              MemorySegment remoteAddress, RemoteKey remoteKey, RequestParameters params) {
         return endpoint.atomic(op, nativeLong, remoteAddress, remoteKey, params);
     }
 
     public static void blockingAtomic(AtomicOperation op, Worker worker, Endpoint endpoint, NativeLong nativeLong,
-                                      MemoryAddress remoteAddress, RemoteKey remoteKey, RequestParameters params) {
+                                      MemorySegment remoteAddress, RemoteKey remoteKey, RequestParameters params) {
         Requests.poll(
                 worker, endpoint.atomic(op, nativeLong, remoteAddress, remoteKey, params)
         );
