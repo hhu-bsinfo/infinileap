@@ -1,5 +1,5 @@
 ext {
-    projectVersion = '0.1.0' + (Boolean.valueOf(System.getProperty('release')) ? '' : '-SNAPSHOT')
+    projectVersion = '0.2.0' + (Boolean.valueOf(System.getProperty('release')) ? '' : '-SNAPSHOT')
 
     // Command Line Application Framework
     picocliVersion = '4.6.1'
