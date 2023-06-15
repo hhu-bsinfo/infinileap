@@ -9,8 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.HdrHistogram.Histogram;
 import picocli.CommandLine;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -64,7 +65,7 @@ public class Engine implements Callable<Void> {
     )
     private int workers = 4;
 
-    private final MemorySegment data = MemorySegment.allocateNative(16L, MemorySession.openImplicit());
+    private final MemorySegment data = MemorySegment.allocateNative(16L, SegmentScope.auto());
 
     private static final Identifier SIMPLE_MESSAGE = Identifier.of(0x01);
 
@@ -85,7 +86,7 @@ public class Engine implements Callable<Void> {
 //        loop.waitOnStart();
 //        loop.join();
 //
-//        log.info("Thread termianted");
+//        log.info("Thread terminated");
 
         data.set(ValueLayout.JAVA_INT, 0L, 42);
 

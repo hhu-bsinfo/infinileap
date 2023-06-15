@@ -2,7 +2,6 @@ package de.hhu.bsinfo.infinileap.common.memory;
 
 import java.lang.foreign.*;
 
-import de.hhu.bsinfo.infinileap.common.util.MemorySegments;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
@@ -45,7 +44,7 @@ public class MemoryUtil {
     }
 
     public static long nativeAddress(MemorySegment segment) {
-        return MemorySegments.NULL.segmentOffset(segment);
+        return MemorySegment.NULL.segmentOffset(segment);
     }
 
     public static void dump(MemorySegment segment) {

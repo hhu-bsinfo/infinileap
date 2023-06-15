@@ -1,4 +1,4 @@
-package de.hhu.bsinfo.infinileap.engine.util;
+package de.hhu.bsinfo.infinileap.engine.buffer;
 
 import de.hhu.bsinfo.infinileap.binding.DataType;
 import de.hhu.bsinfo.infinileap.binding.RequestParameters;
@@ -13,7 +13,7 @@ import org.agrona.hints.ThreadHints;
 import java.lang.foreign.SegmentScope;
 import java.util.function.IntConsumer;
 
-public class BufferPool {
+public class StaticBufferPool implements BufferPool {
 
     /**
      * The buffer used for creating pooled buffer instances.
@@ -35,13 +35,13 @@ public class BufferPool {
      */
     private final SegmentScope session = SegmentScope.auto();
 
-    public BufferPool(final int count, final long size) {
+    public StaticBufferPool(final int count, final long size) {
         indexedBuffers = new PooledBuffer[count];
         buffers = new ManyToManyConcurrentArrayQueue<>(count);
 
         // Create base buffer containing enough space for pooled buffers
         // and register it with the InfiniBand hardware
-        baseBuffer = MemoryUtil.allocateNative(count * size, MemoryAlignment.PAGE, session);
+        baseBuffer = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, session);
 
         IntConsumer releaser = this::release;
         for (int i = 0; i < count; i++) {
@@ -71,6 +71,11 @@ public class BufferPool {
         return tmp;
     }
 
+    @Override
+    public de.hhu.bsinfo.infinileap.engine.buffer.PooledBuffer claim(int timeout) {
+        return null;
+    }
+
     public void release(int identifier) {
         // Get buffer by identifier
         var buffer = indexedBuffers[identifier];
@@ -94,56 +99,7 @@ public class BufferPool {
         var first = indexedBuffers[0];
         var last = indexedBuffers[indexedBuffers.length - 1];
         return String.format("BufferPool { region: [ 0x%08X , 0x%08X ] }",
-                first.segment.address(),
-                last.segment.address() + last.segment.byteSize());
-    }
-
-    public static final class PooledBuffer {
-
-        /**
-         * This pooled buffer's backing memory segment slice.
-         */
-        private final MemorySegment segment;
-
-        /**
-         * This pooled buffer's identifier.
-         */
-        private final int identifier;
-
-        /**
-         * Function for returning this pooled buffer to its pool.
-         */
-        private final IntConsumer releaser;
-
-        /**
-         * The client's callback instance.
-         */
-        private Callback<Void> callback;
-
-        public PooledBuffer(int identifier, MemorySegment segment, IntConsumer releaser) {
-            this.identifier = identifier;
-            this.releaser = releaser;
-            this.segment = segment;
-        }
-
-        public MemorySegment segment() {
-            return segment;
-        }
-
-        public int identifier() {
-            return identifier;
-        }
-
-        public void release() {
-            releaser.accept(identifier);
-        }
-
-        public void setCallback(Callback<Void> callback) {
-            this.callback = callback;
-        }
-
-        public Callback<Void> getCallback() {
-            return callback;
-        }
+                first.segment().address(),
+                last.segment().address() + last.segment().byteSize());
     }
 }

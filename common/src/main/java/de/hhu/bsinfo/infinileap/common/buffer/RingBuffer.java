@@ -74,12 +74,12 @@ public class RingBuffer implements SegmentAllocator, Watchable {
      */
     private final int indexMask;
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     public RingBuffer(int size) {
 
         // Allocate a new page-aligned buffer
-        buffer = MemoryUtil.allocateNative(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
+        buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
         baseAddress = MemoryUtil.nativeAddress(buffer);
 
         // Store the buffer's actual capacity

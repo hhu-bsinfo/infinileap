@@ -5,7 +5,8 @@ import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.agrona.collections.IntArrayQueue;
 
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.Arena;
+import java.lang.foreign.SegmentScope;
 import java.util.function.IntConsumer;
 
 @Slf4j
@@ -31,7 +32,7 @@ public class DynamicBufferPool implements BufferPool {
     /**
      * This pool's associated resource scope.
      */
-    private MemorySession session = MemorySession.openImplicit();
+    private SegmentScope session = SegmentScope.auto();
 
     public DynamicBufferPool(final int count, final long size) {
         indexedBuffers = new PooledBuffer[count];
@@ -39,7 +40,7 @@ public class DynamicBufferPool implements BufferPool {
         baseSize = size;
 
         // Create base buffer containing enough space for pooled buffers
-        var base = MemoryUtil.allocateNative(count * size, MemoryAlignment.PAGE, session);
+        var base = MemoryUtil.allocate(count * size, MemoryAlignment.PAGE, session);
 
         IntConsumer releaser = this::release;
         for (int i = 0; i < count; i++) {
@@ -90,7 +91,7 @@ public class DynamicBufferPool implements BufferPool {
         var byteSize = pooledBuffers[0].segment().byteSize();
 
         // Fill allocated array with new pooled buffers
-        var base = MemoryUtil.allocateNative(currentCount * byteSize, MemoryAlignment.PAGE, session);
+        var base = MemoryUtil.allocate(currentCount * byteSize, MemoryAlignment.PAGE, session);
         IntConsumer releaser = this::release;
         for (int i = currentCount; i < pooledBuffers.length; i++) {
 
@@ -113,7 +114,7 @@ public class DynamicBufferPool implements BufferPool {
         var first = indexedBuffers[0];
         var last = indexedBuffers[indexedBuffers.length - 1];
         return String.format("BufferPool { region: [ 0x%08X , 0x%08X ] }",
-                first.segment().address().toRawLongValue(),
-                last.segment().address().toRawLongValue() + last.segment().byteSize());
+                first.segment().address(),
+                last.segment().address() + last.segment().byteSize());
     }
 }

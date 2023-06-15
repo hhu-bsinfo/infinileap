@@ -33,6 +33,10 @@ public class NativeObject {
         this(MemoryUtil.wrap(base.address(), byteSize));
     }
 
+    public long address() {
+        return segment.address();
+    }
+
     public long byteSize() {
         return segment.byteSize();
     }

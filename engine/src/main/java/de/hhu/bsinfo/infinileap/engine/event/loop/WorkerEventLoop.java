@@ -204,13 +204,13 @@ public class WorkerEventLoop extends CommandableEventLoop {
 
         this.channels[identifier] = channel;
         this.endpoints[identifier] = endpoint;
-        this.channelMap.put(endpoint.address().toRawLongValue(), channel);
-        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address().toRawLongValue()), channelMap.get(endpoint.address().toRawLongValue()));
+        this.channelMap.put(endpoint.address(), channel);
+        log.info("Registered endpoint 0x{}: {}", Long.toHexString(endpoint.address()), channelMap.get(endpoint.address()));
     }
 
     private final SendCallback sendCallback = (request, status, data) -> {
         ucp_request_free(request);
-        var userBuffer = getBuffer((int) data.toRawLongValue());
+        var userBuffer = getBuffer((int) data.address());
         var callback = userBuffer.getCallback();
         userBuffer.release();
         callback.onComplete();

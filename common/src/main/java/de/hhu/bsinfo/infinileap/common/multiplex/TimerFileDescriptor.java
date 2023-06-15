@@ -10,9 +10,9 @@ import org.unix.itimerspec;
 import org.unix.timespec;
 
 import java.io.IOException;
-import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.time.Duration;
 
@@ -20,7 +20,7 @@ import static org.unix.Linux.*;
 
 public final class TimerFileDescriptor extends FileDescriptor {
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     private final MemorySegment counter = MemorySegment.allocateNative(ValueLayout.JAVA_LONG, session);
 
@@ -44,8 +44,8 @@ public final class TimerFileDescriptor extends FileDescriptor {
     }
 
     public void set(Duration interval, Duration initialExpiration, TimerFlag... timerFlags) throws IOException {
-        try (var session = MemorySession.openConfined()) {
-            var timerSpecification = itimerspec.allocate(session);
+        try (var arena = Arena.openConfined()) {
+            var timerSpecification = itimerspec.allocate(arena);
 
             // Set interval
             var nativeInterval = itimerspec.it_interval$slice(timerSpecification);
@@ -61,7 +61,7 @@ public final class TimerFileDescriptor extends FileDescriptor {
                     intValue(),
                     BitMask.intOf(timerFlags),
                     timerSpecification,
-                    MemoryAddress.NULL) != NativeError.OK
+                    MemorySegment.NULL) != NativeError.OK
             ) {
                 throw new IOException(NativeError.getMessage());
             }

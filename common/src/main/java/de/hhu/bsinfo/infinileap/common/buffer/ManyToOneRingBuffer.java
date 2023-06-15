@@ -7,7 +7,7 @@ import org.agrona.concurrent.ringbuffer.RecordDescriptor;
 import org.agrona.concurrent.ringbuffer.RingBufferDescriptor;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -71,12 +71,12 @@ public class ManyToOneRingBuffer {
      */
     private final int indexMask;
 
-    private final MemorySession session = MemorySession.openImplicit();
+    private final SegmentScope session = SegmentScope.auto();
 
     public ManyToOneRingBuffer(int size) {
 
         // Allocate a new page-aligned buffer
-        buffer = MemoryUtil.allocateNative(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
+        buffer = MemoryUtil.allocate(size + RingBufferDescriptor.TRAILER_LENGTH, MemoryAlignment.PAGE, session);
         baseAddress = MemoryUtil.nativeAddress(buffer);
 
         // Store the buffer's actual capacity
