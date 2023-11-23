@@ -63,7 +63,7 @@ public class Listener extends NativeObject implements AutoCloseable {
         return listener_attr;
     }
 
-    public enum Field implements LongFlag {
+    private enum Field implements LongFlag {
         SOCKADDR(UCP_LISTENER_ATTR_FIELD_SOCKADDR());
 
         private final long value;

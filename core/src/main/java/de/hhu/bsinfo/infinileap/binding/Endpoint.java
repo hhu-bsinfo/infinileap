@@ -1,17 +1,25 @@
 package de.hhu.bsinfo.infinileap.binding;
 
+import de.hhu.bsinfo.infinileap.common.memory.MemoryUtil;
+import de.hhu.bsinfo.infinileap.common.network.NativeInetSocketAddress;
+import de.hhu.bsinfo.infinileap.common.util.BitMask;
 import de.hhu.bsinfo.infinileap.common.util.NativeObject;
+import de.hhu.bsinfo.infinileap.common.util.flag.LongFlag;
 import de.hhu.bsinfo.infinileap.primitive.NativeInteger;
 import de.hhu.bsinfo.infinileap.primitive.NativeLong;
 import de.hhu.bsinfo.infinileap.util.Requests;
 import lombok.extern.slf4j.Slf4j;
-import org.openucx.OpenUcx;
+import org.openucx.ucp_ep_attr_t;
+import org.openucx.ucp_listener_attr_t;
 
 import java.lang.foreign.*;
+import java.net.InetSocketAddress;
 
 import static org.openucx.Communication.*;
 import static org.openucx.OpenUcx.ucp_ep_rkey_unpack;
-import static org.openucx.OpenUcx.ucp_ep_destroy;
+import static org.openucx.OpenUcx.ucp_ep_query;
+import static org.openucx.OpenUcx.UCP_EP_ATTR_FIELD_LOCAL_SOCKADDR;
+import static org.openucx.OpenUcx.UCP_EP_ATTR_FIELD_REMOTE_SOCKADDR;
 
 @Slf4j
 public class Endpoint extends NativeObject implements AutoCloseable {
@@ -182,6 +190,26 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         );
     }
 
+    public InetSocketAddress getLocalAddress() throws ControlException {
+        // Extract client address and address family from attributes
+        var attributes = queryAttributes(Field.LOCAL_SOCKADDR);
+        var localAddress = ucp_ep_attr_t.local_sockaddr$slice(attributes);
+
+        // Convert native address struct to InetSocketAddress
+        var nativeAddress = NativeInetSocketAddress.wrap(localAddress);
+        return nativeAddress.toInetSocketAddress();
+    }
+
+    public InetSocketAddress getRemoteAddress() throws ControlException {
+        // Extract client address and address family from attributes
+        var attributes = queryAttributes(Field.REMOTE_SOCKADDR);
+        var localAddress = ucp_ep_attr_t.remote_sockaddr$slice(attributes);
+
+        // Convert native address struct to InetSocketAddress
+        var nativeAddress = NativeInetSocketAddress.wrap(localAddress);
+        return nativeAddress.toInetSocketAddress();
+    }
+
     public Worker worker() {
         return worker;
     }
@@ -220,5 +248,35 @@ public class Endpoint extends NativeObject implements AutoCloseable {
         }
 
         log.debug("Closed endpoint");
+    }
+
+    private MemorySegment queryAttributes(final Field... fields) throws ControlException {
+        // Allocate attributes struct and set requested fields
+        var endpoint_attr = ucp_ep_attr_t.allocate(SegmentAllocator.nativeAllocator(SegmentScope.auto()));
+        ucp_ep_attr_t.field_mask$set(endpoint_attr, BitMask.longOf(fields));
+
+        // Query requested fields
+        var status = ucp_ep_query(segment(), endpoint_attr);
+        if (Status.isNot(status, Status.OK)) {
+            throw new ControlException(status);
+        }
+
+        return endpoint_attr;
+    }
+
+    private enum Field implements LongFlag {
+        LOCAL_SOCKADDR(UCP_EP_ATTR_FIELD_LOCAL_SOCKADDR()),
+        REMOTE_SOCKADDR(UCP_EP_ATTR_FIELD_REMOTE_SOCKADDR());
+
+        private final long value;
+
+        Field(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public long getValue() {
+            return value;
+        }
     }
 }
